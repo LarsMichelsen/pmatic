@@ -1,0 +1,2 @@
+make install-ccu-pmatic
+ssh root@ccu "cd /media/sd-mmcblk0/pmatic ; usr/bin/python2.7 test.py"

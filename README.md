@@ -1,0 +1,94 @@
+# pmatic - A simple API to to the Homematic CCU2
+
+The focus of pmatic is to provide an easy to use API to build your own
+scripts and extensions which are using information provided by the
+Homematic CCU2 device.
+
+Before I built this API I tried to create a small script to *just* check
+all my window sensors, record the time they are opened and then alarm
+me to close the window if it was open for too long. No problem I thought.
+Lesson learned: It is possible. But only while having a huuuuge pain.
+The scripting language is crapy, the web GUI editor misses basic things
+like syntax highlighting, undo/redo, auto saving and so on which make
+programming comfortable. Last but not least the debugging was a pain
+or not possible at all.
+
+Should be possible to make this a lot easier.
+
+I am sure there is still much room for improvement and cleaner APIs,
+but for the moment I think even this small API wrapper is an improvement.
+
+## So how does it work?
+
+pmatic has been implemented in Python. What? Python is not available on
+the CCU2, do I need to run it remotely on a separate device now? Yes,
+you can. But it is also possible to use it on the CCU2 by installing
+a python interpreter with the necessary modules on the device. We'll
+get back to it later.
+
+So you have the option to run your pmatic scripts remotely and on the
+CCU2. The code stays the same. This means you can develop your scripts
+on your workstation, test and debug it using a remote connection to
+your CCU2.
+
+You can use all the API methods provided by the CCU2. The data is parsed
+and available as python lists or dicts. You can then process the data
+in your Python code and use the editor of your choice, use all possible
+debugging and profiling features you can imagine with Python.
+
+It's so much fun :-).
+
+Even if you write pmatic in Python, you can also execute custom ReGa
+(Homematic Script) through pmatic and also process the output of these
+scripts, if you like.
+
+## Requirements
+
+pmatic is currently not expecing any special modules. So it should work
+with all Python version newer than 2.4.
+
+## Installation
+
+### Installation on the CCU2
+
+The current, not ideal way, is to use the Makefile shipped with the pmatic
+source. You need to first enable SSH access to your CCU2. Then you need to
+run the following command to install Python and pmatic on your device:
+
+```
+CCU_HOST=ccu make install-ccu
+```
+
+If your ccu is not reachable using the host name *ccu*, you can simply replace
+it in the command above with the host address of your CCU2.
+
+The installation procedure assumes you have an SD card inserted and formated
+and installs Python and pmatic to `/media/sd-mmcblk0/pmatic` on your CCU2.
+The python interpreter is then available at
+`/media/sd-mmcblk0/pmatic/usr/bin/python2.7`. You can use it to execute your
+Python scripts now.
+
+### Installation on your workstation
+
+I developed and tested pmatic on a Debian 8 system with Python 2.7.9, but
+pmatic should work on other platforms meeting the requirements listed above.
+
+Please let me know or send me a pull request if there are compatibility
+issues on a platform you would expect pmatic to work.
+
+FIXME
+
+## Usage
+
+FIXME
+
+## Reporting Bugs, Feature Requests
+
+Please use the issue tracker on the [pmatic GitHub page](https://github.com/LaMi-/pmatic).
+
+## Licensing
+
+Copyright (C) 2016 Lars Michelsen <lm@larsmichelsen.com>
+
+All outcome of the project is licensed under the terms of the GNU GPL v2.
+Take a look at the LICENSE file for details.

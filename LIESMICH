@@ -1,0 +1,2 @@
+cd /www
+DOCUMENT_ROOT=/www REQUEST_METHOD=POST api/homematic.cgi
