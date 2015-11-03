@@ -22,6 +22,7 @@
 
 import sys, logging
 import pmatic.api
+from pmatic.entities import Device
 
 ##
 # Opening a pmatic session
@@ -31,10 +32,20 @@ import pmatic.api
 # can not be established within 5 seconds it raises an exception.
 API = pmatic.api.init(
     address="http://192.168.1.26",
-    credentials=("Admin", "dingeling:-)"),
+    credentials=("Admin", "EPIC-SECRET-PW"),
     connect_timeout=5,
-    log_level=logging.DEBUG
+    #log_level=logging.DEBUG
 )
+
+#for DEVICE in Device.get_devices(API, device_type="HM-Sec-SC"):
+#    print DEVICE.__dict__
+#    for CHANNEL in DEVICE.channels:
+#        print CHANNEL.__dict__
+
+#for device in Device.get_devices(API, device_type="HM-Sec-SC"):
+#    print device.name, device.is_open()
+
+sys.exit(1)
 
 # Open a pmatic API locally on the CCU. You need to install a python environment on your CCU before.
 # Please take a look at the documentation for details.

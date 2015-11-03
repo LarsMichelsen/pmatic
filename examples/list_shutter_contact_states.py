@@ -18,10 +18,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import sys
-import logging
-import itertools
 import pmatic.api
+from pmatic.entities import *
 
 ##
 # Opening a pmatic session
@@ -31,21 +29,13 @@ import pmatic.api
 # can not be established within 5 seconds it raises an exception.
 API = pmatic.api.init(
     address="http://192.168.1.26",
-    credentials=("Admin", "EPIC SECRET PW"),
+    credentials=("Admin", "EPIC-SECRET-PW"),
     connect_timeout=5,
-    #log_level=logging.DEBUG
 )
 
 # Open a pmatic API locally on the CCU. You need to install a python environment on your CCU before.
 # Please take a look at the documentation for details.
 #API = pmatic.api.init()
-
-# An example room dict:
-# {u'channelIds': [u'1874', u'1495'],
-#  u'description': u'',
-#  u'id': u'1224',
-#  u'name': u'Schlafzimmer'}
-devices = API.Device_listAllDetail()
 
 line_fmt = "%-30s %s"
 
@@ -53,13 +43,8 @@ line_fmt = "%-30s %s"
 print(line_fmt % ("Name", "State"))
 print(line_fmt % ("-" * 30, "-" * 6))
 
-# Loop all devices, only care about shutter contacts
-for device in devices:
-    if device["type"] == "HM-Sec-SC":
-        # Get the channel of the shutter contact and then fetch the state
-        channel = [ c for c in device["channels"] if c["channelType"] == "SHUTTER_CONTACT" ][0]
-        is_open = API.Channel_getValue(id=channel["id"]) == "true"
-
-        print(line_fmt % (device["name"], is_open and "OPEN" or "CLOSED"))
+# HMSecSC.get_all(API) is an alias for: Device.get_devices(API, device_type="HM-Sec-SC")
+for device in HMSecSC.get_all(API):
+    print(line_fmt % (device.name, device.formated_value()))
 
 API.close()
