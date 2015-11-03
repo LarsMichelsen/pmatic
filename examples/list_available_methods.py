@@ -35,3 +35,5 @@ API = pmatic.api.init(
 #API = pmatic.api.init()
 
 API.print_methods()
+
+API.close()

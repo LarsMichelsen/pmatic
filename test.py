@@ -20,7 +20,7 @@
 
 # http://www.eq-3.de/Downloads/Software/HM-CCU2-Firmware_Updates/Tutorials/hm_devices_Endkunden.pdf
 
-import sys
+import sys, logging
 import pmatic.api
 
 ##
@@ -32,7 +32,8 @@ import pmatic.api
 API = pmatic.api.init(
     address="http://192.168.1.26",
     credentials=("Admin", "dingeling:-)"),
-    connect_timeout=5
+    connect_timeout=5,
+    log_level=logging.DEBUG
 )
 
 # Open a pmatic API locally on the CCU. You need to install a python environment on your CCU before.

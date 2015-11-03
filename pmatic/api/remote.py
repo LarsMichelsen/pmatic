@@ -23,13 +23,13 @@ from .. import PMException
 from .abstract import API
 
 class RemoteAPI(API):
-    def __init__(self, address, credentials, connect_timeout=10, logger=None):
+    def __init__(self, address, credentials, connect_timeout=10, logger=None, log_level=None):
         self._session_id      = None
         self._address         = None
         self._credentials     = None
         self._connect_timeout = None
 
-        super(RemoteAPI, self).__init__(logger)
+        super(RemoteAPI, self).__init__(logger, log_level)
 
         self._set_address(address)
         self._set_credentials(credentials)

@@ -22,16 +22,20 @@ import json, sys
 from .. import PMException, init_logger
 
 class API(object):
-    def __init__(self, logger):
+    def __init__(self, logger, log_level):
         self._methods = {}
-        self._init_logger(logger)
+        self._init_logger(logger, log_level)
 
 
-    def _init_logger(self, logger):
+    def _init_logger(self, logger, log_level):
         if logger == None:
-            self._logger = init_logger()
+            self._logger = init_logger(log_level)
         else:
             self._logger = logger
+
+
+    def logger(self):
+        return self._logger
 
 
     def debug(self, *args, **kwargs):

@@ -33,17 +33,17 @@ logger_name = "pmatic"
 logger      = None
 
 
-def init_logger():
+def init_logger(log_level=None):
     global logger
     if not logger:
         logger = logging.getLogger(logger_name)
-        # FIXME: Make this configurable
-        logger.setLevel(logging.DEBUG)
+        if log_level != None:
+            logger.setLevel(log_level)
 
         # create console handler and set level to debug
         ch = logging.StreamHandler()
-        # FIXME: Make this configurable
-        ch.setLevel(logging.DEBUG)
+        if log_level != None:
+            ch.setLevel(log_level)
         # create formatter
         formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
         # add formatter to ch
