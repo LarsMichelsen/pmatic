@@ -59,3 +59,9 @@ def log(*args):
     if not logger:
         init_logger()
     return logger.log(*args)
+
+
+def debug(*args):
+    if not logger:
+        init_logger()
+    return logger.debug(*args)

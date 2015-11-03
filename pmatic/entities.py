@@ -1,6 +1,28 @@
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# pmatic - A simple API to to the Homematic CCU2
+# Copyright (C) 2015 Lars Michelsen <lm@larsmichelsen.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+# Relevant docs:
+# - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_Script_Teil_4_Datenpunkte_1_503.pdf
 
 import types
-from . import utils
+from . import utils, debug
 
 class Entity(object):
     transform_attributes = {}
@@ -35,16 +57,104 @@ class Entity(object):
 class Channel(Entity):
     @classmethod
     def from_channel_dicts(self, API, channel_dicts):
-        channels = []
+        channel_objects = []
         for channel_dict in channel_dicts:
-            channels.append(Channel(API, channel_dict))
-        return channels
+            channel_class = channel_classes_by_type_name.get(channel_dict["channelType"], Channel)
 
+            if channel_class == Channel:
+                debug("Using generic Channel class (Type: %s): %r" % (channel_dict["channelType"], channel_dict))
+
+            channel_objects.append(channel_class(API, channel_dict))
+        return channel_objects
+
+
+    def get_value(self, what=None):
+        if self.is_readable:
+            if what != None:
+                id = "BidCos-RF.%s.%s" % (self.address, what)
+            else:
+                id = self.id
+
+            return self.API.Channel_getValue(id=id)
+
+
+    def formated_value(self):
+        return "%s" % self.get_value()
+
+
+class ChannelShutterContact(Channel):
+    type_name = "SHUTTER_CONTACT"
 
     def get_value(self):
-        if self.is_readable:
-            return self.API.Channel_getValue(id=self.id)
+        raw_value = super(ChannelShutterContact, self).get_value()
+        return raw_value != "false"
 
+
+    def is_open(self):
+        return self.get_value()
+
+
+    def formated_value(self):
+        return self.is_open() and "open" or "closed"
+
+
+class ChannelSwitch(Channel):
+    type_name = "SWITCH"
+
+    def get_value(self):
+        raw_value = super(ChannelSwitch, self).get_value()
+        return raw_value != "false"
+
+
+    def is_on(self):
+        return self.get_value()
+
+
+    def formated_value(self):
+        return self.is_on() and "on" or "off"
+
+
+class ChannelWeather(Channel):
+    type_name = "WEATHER"
+
+    def get_value(self):
+        tmp = float(super(ChannelWeather, self).get_value("TEMPERATURE"))
+        hum = float(super(ChannelWeather, self).get_value("HUMIDITY"))
+        return tmp, hum
+
+
+    def formated_value(self):
+        hum, tmp = self.get_value()
+        return "%s, %s" % (utils.fmt_temperature(tmp),
+                           utils.fmt_humidity(hum))
+
+
+class ChannelClimaVentDrive(Channel):
+    type_name = "CLIMATECONTROL_VENT_DRIVE"
+
+    def get_value(self):
+        return int(super(ChannelClimaVentDrive, self).get_value())
+
+
+    def formated_value(self):
+        return utils.fmt_percentage_int(self.get_value())
+
+
+class ChannelClimaRegulator(Channel):
+    type_name = "CLIMATECONTROL_REGULATOR"
+
+    def get_value(self):
+        return float(super(ChannelClimaRegulator, self).get_value())
+
+
+    def formated_value(self):
+        val = self.get_value()
+        if val == 0.0:
+            return "Ventil closed"
+        elif val == 100.0:
+            return "Ventil open"
+        else:
+            return utils.fmt_temperature(val)
 
 
 class Device(Entity):
@@ -78,7 +188,10 @@ class Device(Entity):
 
 
     def formated_value(self):
-        return repr(self.get_values())
+        formated = []
+        for channel in self.channels:
+            formated.append(channel.formated_value())
+        return ", ".join(formated)
 
 
 class SpecificDevice(Device):
@@ -87,16 +200,24 @@ class SpecificDevice(Device):
         return Device.get_devices(API, device_type=self.type_name)
 
 
+# Funk-Tür-/ Fensterkontakt
 class HMSecSC(SpecificDevice):
     type_name = "HM-Sec-SC"
 
 
     def is_open(self):
-        return self.get_values()[0] != "false"
+        return self.channels[0].is_open()
 
 
     def formated_value(self):
-        return self.is_open() and "open" or "closed"
+        return self.channels[0].formated_value()
+
+
+# Funk-Schaltaktor mit Leistungsmessung
+class HMESPMSw1Pl(SpecificDevice):
+    type_name = "HM-ES-PMSw1-Pl"
+
+
 
 
 # Build a list of all specific product classes. If a device is initialized
@@ -107,3 +228,9 @@ for key, val in globals().items():
     if isinstance(val, (type, types.ClassType)):
         if issubclass(val, Device) and key not in [ "Device", "SpecificDevice" ]:
                 device_classes_by_type_name[val.type_name] = val
+
+channel_classes_by_type_name = {}
+for key, val in globals().items():
+    if isinstance(val, (type, types.ClassType)):
+        if issubclass(val, Channel) and key not in [ "Channel" ]:
+                channel_classes_by_type_name[val.type_name] = val

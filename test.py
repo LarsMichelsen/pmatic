@@ -22,7 +22,7 @@
 
 import sys, logging
 import pmatic.api
-from pmatic.entities import Device
+from pmatic.entities import *
 
 ##
 # Opening a pmatic session
@@ -34,7 +34,7 @@ API = pmatic.api.init(
     address="http://192.168.1.26",
     credentials=("Admin", "EPIC-SECRET-PW"),
     connect_timeout=5,
-    #log_level=logging.DEBUG
+#    log_level=logging.DEBUG
 )
 
 #for DEVICE in Device.get_devices(API, device_type="HM-Sec-SC"):
@@ -44,6 +44,16 @@ API = pmatic.api.init(
 
 #for device in Device.get_devices(API, device_type="HM-Sec-SC"):
 #    print device.name, device.is_open()
+
+#for heating in HMESPMSw1Pl.get_all(API):
+#    print heating.formated_value()
+
+for device in Device.get_devices(API):
+    for channel in device.channels:
+        if channel.__class__ == Channel:
+            print "", device.name, channel.channel_type, channel.name, channel.get_value()
+        else:
+            print device.name, channel.channel_type, channel.name, channel.formated_value()
 
 sys.exit(1)
 
