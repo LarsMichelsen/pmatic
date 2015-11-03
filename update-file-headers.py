@@ -46,7 +46,7 @@ new_header = '''#!/usr/bin/env python
 repo_path = os.path.dirname(os.path.realpath(__file__))
 
 for f in glob.glob('%s/*.py' % repo_path) \
-       + glob.glob('%s/pmatic/*.py' % repo_path) \
+       + glob.glob('%s/*/*.py' % repo_path) \
        + glob.glob('%s/pmatic/*/*.py' % repo_path):
     new = [ new_header ]
 
