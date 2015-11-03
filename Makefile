@@ -101,4 +101,5 @@ clean-chroot:
 	rm -rf --one-file-system $(CHROOT_PATH)
 
 clean-dist:
+	rm -rf build 2>/dev/null || true
 	rm -f dist/* 2>/dev/null || true
