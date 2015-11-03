@@ -16,7 +16,12 @@ or not possible at all.
 
 Should be possible to make this a lot easier.
 
-I am sure there is still much room for improvement and cleaner APIs,
+I found several other middlewares and libraries for accessing the CCU2
+APIs, but most of them required to be executed in somehow specific
+environments, were not platform independet or implemented in other crapy
+programming languages.
+
+I know sure there is still much room for improvement and cleaner APIs,
 but for the moment I think even this small API wrapper is an improvement.
 
 ## So how does it work?
