@@ -45,7 +45,7 @@ scripts, if you like.
 
 ## Requirements
 
-pmatic is currently not expecing any special modules. So it should work
+pmatic is currently not expecting any special modules. So it should work
 with all Python version newer than 2.4.
 
 ## Installation
@@ -71,13 +71,29 @@ Python scripts now.
 
 ### Installation on your workstation
 
+The installation should be straight forward. First download pmatic by either
+cloning from the Git or download a release archive, unpack it and change to
+the extracted directory `pmatic-*`. Then execute:
+
+```
+python setup.py install
+```
+
+After installation you can confirm pmatic has been installed by executing
+
+```
+python -c 'import pmatic'
+```
+
+When the command completes silently (without `ImportError` exception) the
+installation was successful.
+
+
 I developed and tested pmatic on a Debian 8 system with Python 2.7.9, but
 pmatic should work on other platforms meeting the requirements listed above.
 
 Please let me know or send me a pull request if there are compatibility
 issues on a platform you would expect pmatic to work.
-
-FIXME
 
 ## Usage
 

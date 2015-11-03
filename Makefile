@@ -14,6 +14,7 @@ help:
 	@echo "version            - Set a new version number"
 	@echo "dist		  - Create release package"
 	@echo
+	@echo "install		  - Install on local system"
 	@echo "install-ccu        - Install python and pmatic on the CCU via SSH"
 	@echo "install-ccu-python - Install python files from chroot on CCU via SSH"
 	@echo "install-ccu-pmatic - Install pmatic files on CCU via SSH"
@@ -35,6 +36,9 @@ chroot:
 	cp /usr/bin/qemu-arm-static $(CHROOT_PATH)/usr/bin
 	LANG=C chroot $(CHROOT_PATH) /debootstrap/debootstrap --second-stage
 	LANG=C chroot $(CHROOT_PATH) apt-get -y install python-minimal
+
+install:
+	python setup.py install
 
 install-ccu: install-ccu-python install-ccu-pmatic
 
