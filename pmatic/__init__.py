@@ -20,6 +20,8 @@
 
 import logging
 
+VERSION = "0.1"
+
 class PMException(Exception):
     pass
 

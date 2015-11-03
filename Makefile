@@ -2,7 +2,7 @@ VERSION      = 0.1
 CHROOT_PATH ?= $(shell pwd)/chroot
 CCU_HOST    ?= ccu
 
-.PHONY: chroot
+.PHONY: chroot dist
 
 help:
 	@echo
@@ -12,6 +12,7 @@ help:
 	@echo "chroot             - Create a debian chroot which is used to get python files for"
 	@echo "                     making python available to the CCU later"
 	@echo "version            - Set a new version number"
+	@echo "dist		  - Create release package"
 	@echo
 	@echo "install-ccu        - Install python and pmatic on the CCU via SSH"
 	@echo "install-ccu-python - Install python files from chroot on CCU via SSH"
@@ -21,7 +22,11 @@ help:
 	@echo
 
 setup:
-	apt-get install debootstrap qemu-user-static rsync
+	apt-get install debootstrap qemu-user-static rsync dialog
+
+dist:
+	python setup.py sdist --owner=root --group=root
+	@echo "Created dist/pmatic-$(VERSION).tar.gz"
 
 chroot:
 	[ ! -d $(CHROOT_PATH) ] && mkdir $(CHROOT_PATH) || true
@@ -86,7 +91,10 @@ setversion:
 	sed -i "s/^VERSION = .*/VERSION = \"$(NEW_VERSION)\"/g" pmatic/__init__.py
 	sed -i "s/version='.*',/version='$(NEW_VERSION)',/g" setup.py
 
-clean: clean-chroot
+clean: clean-chroot clean-dist
 
 clean-chroot:
 	rm -rf --one-file-system $(CHROOT_PATH)
+
+clean-dist:
+	rm -f dist/* 2>/dev/null || true
