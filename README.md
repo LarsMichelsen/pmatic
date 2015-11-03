@@ -103,8 +103,9 @@ issues on a platform you would expect pmatic to work.
 ## Usage
 
 Please take a look at the scripts below the `examples` directory for some
-sample scripts. Just to give you a quick view, here a simple example how
-to list all shutter contacts and their current states on the CCU2:
+sample scripts. I'll try to add more in the near future. Just to give you
+a quick view, here a simple example how to list all shutter contacts and 
+their current states on the CCU2:
 
 ```
 import pmatic.api
