@@ -1,8 +1,9 @@
 # pmatic - A simple API to to the Homematic CCU2
 
-The focus of pmatic is to provide an easy to use API to build your own
-scripts and extensions which are using information provided by the
-Homematic CCU2 device.
+pmatic is a python library to provide access to the Homematic CCU2. You
+can execute pmatic directly on the CCU2 or another system having Python
+installed. With pmatic you can write your own Python scripts to communicate
+with your CCU2 devices.
 
 Before I built this API I tried to create a small script to *just* check
 all my window sensors, record the time they are opened and then alarm
