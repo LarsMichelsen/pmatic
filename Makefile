@@ -1,3 +1,4 @@
+VERSION      = 0.1
 CHROOT_PATH ?= $(shell pwd)/chroot
 CCU_HOST    ?= ccu
 
@@ -10,6 +11,8 @@ help:
 	@echo "setup              - Install packages needed for development (at least on debian)"
 	@echo "chroot             - Create a debian chroot which is used to get python files for"
 	@echo "                     making python available to the CCU later"
+	@echo "version            - Set a new version number"
+	@echo
 	@echo "install-ccu        - Install python and pmatic on the CCU via SSH"
 	@echo "install-ccu-python - Install python files from chroot on CCU via SSH"
 	@echo "install-ccu-pmatic - Install pmatic files on CCU via SSH"
@@ -71,6 +74,17 @@ install-ccu-pmatic:
 	rsync -aRv --no-g \
 	    test.py pmatic \
 	    root@$(CCU_HOST):/media/sd-mmcblk0/pmatic
+
+version:
+	@newversion=$$(dialog --stdout --inputbox "New Version:" 0 0 "$(VERSION)") ; \
+        if [ -n "$$newversion" ] ; then \
+            $(MAKE) NEW_VERSION=$$newversion setversion ; \
+        fi
+
+setversion:
+	sed -ri 's/^(VERSION[[:space:]]*= *).*/\1'"$(NEW_VERSION)/" Makefile
+	sed -i "s/^VERSION = .*/VERSION = \"$(NEW_VERSION)\"/g" pmatic/__init__.py
+	sed -i "s/version='.*',/version='$(NEW_VERSION)',/g" setup.py
 
 clean: clean-chroot
 
