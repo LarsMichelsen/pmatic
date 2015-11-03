@@ -35,7 +35,7 @@ chroot:
 	    $(CHROOT_PATH) http://ftp.debian.org/debian
 	cp /usr/bin/qemu-arm-static $(CHROOT_PATH)/usr/bin
 	LANG=C chroot $(CHROOT_PATH) /debootstrap/debootstrap --second-stage
-	LANG=C chroot $(CHROOT_PATH) apt-get -y install python-minimal
+	LANG=C chroot $(CHROOT_PATH) apt-get -y --force-yes install python-minimal
 
 install:
 	python setup.py install
