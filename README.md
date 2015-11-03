@@ -102,7 +102,19 @@ issues on a platform you would expect pmatic to work.
 
 ## Usage
 
-FIXME
+Please take a look at the scripts below the `examples` directory for some
+sample scripts. Just to give you a quick view, here a simple example how
+to list all shutter contacts and their current states on the CCU2:
+
+```
+import pmatic.api
+from pmatic.entities import HMSecSC
+
+API = pmatic.api.init()
+
+for device in HMSecSC.get_all(API):
+    print device.name, device.formated_value()
+```
 
 ## Reporting Bugs, Feature Requests
 
