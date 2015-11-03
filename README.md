@@ -74,6 +74,9 @@ The python interpreter is then available at
 `/media/sd-mmcblk0/pmatic/usr/bin/python2.7`. You can use it to execute your
 Python scripts now.
 
+I saw there is some way to create CCU addon packages which might be the best
+way to deploy pmatic on the CCU, but I did not get into this yet.
+
 ### Installation on your workstation
 
 The installation should be straight forward. First download pmatic by either
