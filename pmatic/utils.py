@@ -29,7 +29,7 @@ def fmt_temperature(temp):
     return u"%0.2f °C" % temp
 
 def fmt_humidity(hum):
-    return u"%0.2f%%" % hum
+    return u"%d%%" % hum
 
 def fmt_percentage_int(perc):
     return u"%d%%" % perc

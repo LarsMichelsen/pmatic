@@ -68,93 +68,99 @@ class Channel(Entity):
         return channel_objects
 
 
-    def get_value(self, what=None):
-        if self.is_readable:
-            if what != None:
-                id = "BidCos-RF.%s.%s" % (self.address, what)
-            else:
-                id = self.id
+    def get_values(self, what=None):
+        return self.API.Interface_getParamset(interface="BidCos-RF", address=self.address, paramsetKey="VALUES")
 
-            return self.API.Channel_getValue(id=id)
+
+    def set_value(self, key, ty, value):
+        self.API.Interface_setValue(interface="BidCos-RF", address=self.address, valueKey=key, type=ty, value=value)
 
 
     def formated_value(self):
-        return "%s" % self.get_value()
+        return "%r" % self.get_values()
 
 
+
+# FIXME: Handle LOWBAT/ERROR
 class ChannelShutterContact(Channel):
     type_name = "SHUTTER_CONTACT"
 
-    def get_value(self):
-        raw_value = super(ChannelShutterContact, self).get_value()
-        return raw_value != "false"
-
-
     def is_open(self):
-        return self.get_value()
+        return self.get_values()["STATE"] == "1"
 
 
     def formated_value(self):
         return self.is_open() and "open" or "closed"
 
 
+
+# FIXME: Handle INHIBIT, WORKING
 class ChannelSwitch(Channel):
     type_name = "SWITCH"
 
-    def get_value(self):
-        raw_value = super(ChannelSwitch, self).get_value()
-        return raw_value != "false"
-
-
     def is_on(self):
-        return self.get_value()
+        return self.get_values()["STATE"] == "1"
 
 
     def formated_value(self):
         return self.is_on() and "on" or "off"
 
 
+    def toggle(self):
+        if self.is_on():
+            self.set_value("STATE", "BOOL", "0")
+        else:
+            self.set_value("STATE", "BOOL", "1")
+
+
+
 class ChannelWeather(Channel):
     type_name = "WEATHER"
 
-    def get_value(self):
-        tmp = float(super(ChannelWeather, self).get_value("TEMPERATURE"))
-        hum = float(super(ChannelWeather, self).get_value("HUMIDITY"))
-        return tmp, hum
+    def get_values(self):
+        values = super(ChannelWeather, self).get_values()
+        return float(values["TEMPERATURE"]), int(values["HUMIDITY"])
 
 
     def formated_value(self):
-        hum, tmp = self.get_value()
+        hum, tmp = self.get_values()
         return "%s, %s" % (utils.fmt_temperature(tmp),
                            utils.fmt_humidity(hum))
 
 
+
+# FIXME: Handle ERROR
 class ChannelClimaVentDrive(Channel):
     type_name = "CLIMATECONTROL_VENT_DRIVE"
 
-    def get_value(self):
-        return int(super(ChannelClimaVentDrive, self).get_value())
+    def get_values(self):
+        values = super(ChannelClimaVentDrive, self).get_values()
+        return int(values["VALVE_STATE"])
 
 
     def formated_value(self):
-        return utils.fmt_percentage_int(self.get_value())
+        return utils.fmt_percentage_int(self.get_values())
 
 
+
+# FIXME: Handle ADJUSTING_COMMAND, ADJUSTING_DATA
 class ChannelClimaRegulator(Channel):
     type_name = "CLIMATECONTROL_REGULATOR"
 
-    def get_value(self):
-        return float(super(ChannelClimaRegulator, self).get_value())
+    def get_values(self):
+        values = super(ChannelClimaRegulator, self).get_values()
+        return float(values["SETPOINT"])
 
 
     def formated_value(self):
-        val = self.get_value()
+        val = self.get_values()
         if val == 0.0:
             return "Ventil closed"
         elif val == 100.0:
             return "Ventil open"
         else:
             return utils.fmt_temperature(val)
+
 
 
 class Device(Entity):
