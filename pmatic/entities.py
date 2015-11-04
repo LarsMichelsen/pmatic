@@ -21,7 +21,7 @@
 # Relevant docs:
 # - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_Script_Teil_4_Datenpunkte_1_503.pdf
 
-import types
+import types, re
 from . import utils, debug
 
 class Entity(object):
@@ -73,7 +73,7 @@ class Channel(Entity):
 
 
     def set_value(self, key, ty, value):
-        self.API.Interface_setValue(interface="BidCos-RF", address=self.address, valueKey=key, type=ty, value=value)
+        return self.API.Interface_setValue(interface="BidCos-RF", address=self.address, valueKey=key, type=ty, value=value)
 
 
     def formated_value(self):
@@ -108,9 +108,17 @@ class ChannelSwitch(Channel):
 
     def toggle(self):
         if self.is_on():
-            self.set_value("STATE", "BOOL", "0")
+            return self.switch_off()
         else:
-            self.set_value("STATE", "BOOL", "1")
+            return self.switch_on()
+
+
+    def switch_off(self):
+        return self.set_value("STATE", "boolean", "false")
+
+
+    def switch_on(self):
+        return self.set_value("STATE", "boolean", "true")
 
 
 
@@ -172,7 +180,7 @@ class Device(Entity):
     }
 
     @classmethod
-    def get_devices(self, API, device_type=None):
+    def get_devices(self, API, device_type=None, device_name=None, device_name_regex=None):
         devices = API.Device_listAllDetail()
 
         if type(device_type) in [str, unicode]:
@@ -180,9 +188,19 @@ class Device(Entity):
 
         device_objects = []
         for device_dict in devices:
-            if device_type == None or device_dict["type"] in device_type:
-                device_class = device_classes_by_type_name.get(device_dict["type"], Device)
-                device_objects.append(device_class(API, device_dict))
+            if device_type != None and device_dict["type"] not in device_type:
+                continue
+
+            # Exact match device name
+            if device_name != None and device_name != device_dict["name"]:
+                continue
+
+            # regex match device name
+            if device_name_regex != None and not re.match(device_name_regex, device_dict["name"]):
+                continue
+
+            device_class = device_classes_by_type_name.get(device_dict["type"], Device)
+            device_objects.append(device_class(API, device_dict))
         return device_objects
 
 
@@ -210,7 +228,6 @@ class SpecificDevice(Device):
 class HMSecSC(SpecificDevice):
     type_name = "HM-Sec-SC"
 
-
     def is_open(self):
         return self.channels[0].is_open()
 
@@ -223,7 +240,9 @@ class HMSecSC(SpecificDevice):
 class HMESPMSw1Pl(SpecificDevice):
     type_name = "HM-ES-PMSw1-Pl"
 
-
+    # Make methods of ChannelSwitch() available
+    def __getattr__(self, attr):
+        return getattr(self.channels[0], attr)
 
 
 # Build a list of all specific product classes. If a device is initialized

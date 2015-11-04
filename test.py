@@ -50,17 +50,10 @@ API = pmatic.api.init(
 
 #for device in Device.get_devices(API):
 #    for channel in device.channels:
-#        print API.Interface_getParamset(interface="BidCos-RF", address=channel.address, paramsetKey="VALUES")
-
-for device in Device.get_devices(API):
-    for channel in device.channels:
-        if device.name == u"Büro-Lampe" and channel.name == u"Büro-Lampe":
-            channel.toggle()
-
-        if channel.__class__ == Channel:
-            print "", device.name, channel.channel_type, channel.name, channel.get_values()
-        else:
-            print device.name, channel.channel_type, channel.name, channel.formated_value()
+#        if channel.__class__ == Channel:
+#            print "", device.name, channel.channel_type, channel.name, channel.get_values()
+#        else:
+#            print device.name, channel.channel_type, channel.name, channel.formated_value()
 
 sys.exit(1)
 
