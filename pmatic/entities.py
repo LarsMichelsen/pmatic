@@ -122,6 +122,31 @@ class ChannelSwitch(Channel):
 
 
 
+# FIXME: Handle all values:
+# {u'POWER': u'3.520000', u'ENERGY_COUNTER': u'501.400000', u'BOOT': u'1',
+#  u'CURRENT': u'26.000000', u'FREQUENCY': u'50.010000', u'VOLTAGE': u'228.900000'}
+class ChannelPowermeter(Channel):
+    type_name = "POWERMETER"
+
+    def get_values(self):
+        values = super(ChannelPowermeter, self).get_values()
+        for key, value in values.items():
+            if key == "BOOT":
+                values[key] = value == "1"
+            else:
+                values[key] = float(value)
+        return values
+
+
+    def formated_value(self):
+        values = self.get_values()
+        return "Power: %(POWER)0.2f Wh, Voltage: %(VOLTAGE)0.2f V, " \
+               "Energy-Counter: %(ENERGY_COUNTER)0.2f Wh, " \
+               "Current: %(CURRENT)0.2f mA, " \
+               "Frequency: %(FREQUENCY)0.2f Hz" % values
+
+
+
 class ChannelWeather(Channel):
     type_name = "WEATHER"
 
@@ -168,6 +193,11 @@ class ChannelClimaRegulator(Channel):
             return "Ventil open"
         else:
             return utils.fmt_temperature(val)
+
+
+
+class WindowSwitchReceiver(Channel):
+    type_name = "WINDOW_SWITCH_RECEIVER"
 
 
 
