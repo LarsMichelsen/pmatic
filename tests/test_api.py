@@ -28,3 +28,5 @@ def test_local_remote_detection():
 
     os.uname = lambda: ('Linux', 'ccu', '3.4.11.ccu2', '#1 PREEMPT Fri Oct 16 10:43:35 CEST 2015', 'armv5tejl')
     assert pmatic.api.is_ccu()
+
+    os.uname = orig_uname
