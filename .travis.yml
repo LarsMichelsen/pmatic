@@ -3,6 +3,9 @@ sudo: false  # To use travis container infrastructure
 
 python:
   - 2.7
+  - 3.4
+  - 3.5
+  - nightly
 
 install:
   - pip install coveralls
