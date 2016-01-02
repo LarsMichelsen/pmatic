@@ -7,12 +7,8 @@ python:
 install:
   - pip install coveralls
 
-#install:
-#  - pip install coveralls
-
-#script:
-#  # Run the unit tests using py.test
-#  - python setup.py test
+script:
+  - make test
 
 #after_success:
 #  # Send coverage statistics to Coveralls

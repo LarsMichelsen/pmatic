@@ -40,6 +40,9 @@ chroot:
 install:
 	python setup.py install
 
+test:
+	@echo 123
+
 install-ccu: install-ccu-python install-ccu-pmatic
 
 install-ccu-python:
