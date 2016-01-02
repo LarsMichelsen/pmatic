@@ -28,7 +28,12 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import re
-from builtins import object
+
+try:
+    # Is recommended for Python 3.x but fails on 2.7, but is not mandatory
+    from builtins import object
+except ImportError
+    pass
 
 from . import utils, debug
 
