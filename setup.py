@@ -20,7 +20,6 @@
 
 
 from setuptools import setup
-import os
 
 setup(name='pmatic',
     version='0.1',
@@ -53,5 +52,5 @@ setup(name='pmatic',
     ],
     test_suite="tests",
     setup_requires=['pytest-runner'],
-    tests_require=['pytest'],
+    tests_require=['pytest', 'pytest-flakes'],
 )
