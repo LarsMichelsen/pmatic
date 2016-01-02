@@ -21,7 +21,8 @@
 import pytest
 
 from TestAPI import TestAPI
-from pmatic.entities import *
+from pmatic.entities import Entity, HMESPMSw1Pl, ChannelClimaRegulator
+from pmatic.entities import device_classes_by_type_name, channel_classes_by_type_name
 
 class TestEntity:
     @pytest.fixture(scope="class")

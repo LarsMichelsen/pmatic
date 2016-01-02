@@ -19,7 +19,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import pmatic.api
-from pmatic.entities import *
+from pmatic.entities import HMSecSC
 
 ##
 # Opening a pmatic session
