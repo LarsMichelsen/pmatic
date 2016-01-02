@@ -22,6 +22,8 @@
 # - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_Script_Teil_4_Datenpunkte_1_503.pdf
 
 import types, re
+from builtins import object
+
 from . import utils, debug
 
 class Entity(object):

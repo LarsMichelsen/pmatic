@@ -19,6 +19,8 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 import json, sys
+from builtins import object
+
 from .. import PMException, init_logger
 
 class AbstractAPI(object):
