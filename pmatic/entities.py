@@ -301,6 +301,26 @@ class Device(Entity):
             return self.get_maintenance()["UNREACH"] == "0"
 
 
+    def battery_low(self):
+        try:
+            return self.get_maintenance()["LOWBAT"] == "1"
+        except KeyError:
+            return None # not battery powered
+
+
+    def has_pending_config(self):
+        return self.get_maintenance()["CONFIG_PENDING"] == "1"
+
+
+    def has_pending_update(self):
+        return self.get_maintenance()["UPDATE_PENDING"] == "1"
+
+
+    def rssi(self):
+        info = self.get_maintenance()
+        return info["RSSI_DEVICE"], info["RSSI_PEER"]
+
+
     def get_values(self):
         values = []
         for channel in self.channels:
@@ -315,22 +335,21 @@ class Device(Entity):
         return ", ".join(formated)
 
 
+
 class SpecificDevice(Device):
     @classmethod
     def get_all(self, API):
         return Device.get_devices(API, device_type=self.type_name)
 
 
+
 # Funk-Tür-/ Fensterkontakt
 class HMSecSC(SpecificDevice):
     type_name = "HM-Sec-SC"
 
-    def is_open(self):
-        return self.channels[0].is_open()
-
-
-    def formated_value(self):
-        return self.channels[0].formated_value()
+    # Make methods of ChannelShutterContact() available
+    def __getattr__(self, attr):
+        return getattr(self.channels[0], attr)
 
 
 # Funk-Schaltaktor mit Leistungsmessung
