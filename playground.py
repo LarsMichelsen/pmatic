@@ -55,14 +55,18 @@ API = pmatic.api.init(
 #for heating in HMESPMSw1Pl.get_all(API):
 #    print(heating.formated_value())
 
+#for device in Device.get_devices(API, device_name="Büro-Lampe"):
+#    print(device.channels[0].__dict__)
+#    print(API.Interface_getParamsetDescription(interface="BidCos-RF", address=device.channels[0].address, paramsetType="VALUES"))
+#    print(API.Interface_getParamset(interface="BidCos-RF", address=device.channels[0].address, paramsetKey="VALUES"))
+
 for device in Device.get_devices(API):
-    print(device.__dict__)
     for channel in device.channels:
-        print(channel.__dict__)
         if channel.__class__ == Channel:
-            print(("", device.name, channel.channel_type, channel.name, channel.get_values()))
+            print(device.__dict__)
+            print("", device.name, channel.channel_type, channel.name, channel.get_values())
         else:
-            print((device.name, channel.channel_type, channel.name, channel.formated_value()))
+            print(device.name, channel.channel_type, channel.name, channel.formated_value())
 
 sys.exit(1)
 

@@ -131,6 +131,30 @@ class ChannelSwitch(Channel):
 
 
 
+# FIXME: Handle LED_STATUS, ALL_LEDS, LED_SLEEP_MODE, INSTALL_TEST
+class ChannelKey(Channel):
+    type_name = "KEY"
+
+
+    def press_short(self):
+        return self.set_value("PRESS_SHORT", "boolean", "true")
+
+
+    def press_long(self):
+        return self.set_value("PRESS_LONG", "boolean", "true")
+
+
+    # Not verified working
+    def press_long_release(self):
+        return self.set_value("PRESS_LONG_RELEASE", "boolean", "true")
+
+
+    # Not verified
+    def press_cont(self):
+        return self.set_value("PRESS_CONT", "boolean", "true")
+
+
+
 # FIXME: Handle all values:
 # {u'POWER': u'3.520000', u'ENERGY_COUNTER': u'501.400000', u'BOOT': u'1',
 #  u'CURRENT': u'26.000000', u'FREQUENCY': u'50.010000', u'VOLTAGE': u'228.900000'}
@@ -154,6 +178,25 @@ class ChannelPowermeter(Channel):
                "Current: %(CURRENT)0.2f mA, " \
                "Frequency: %(FREQUENCY)0.2f Hz" % values
 
+
+# FIXME: To be implemented.
+class ChannelConditionPower(Channel):
+    type_name = "CONDITION_POWER"
+
+
+# FIXME: To be implemented.
+class ChannelConditionCurrent(Channel):
+    type_name = "CONDITION_CURRENT"
+
+
+# FIXME: To be implemented.
+class ChannelConditionVoltage(Channel):
+    type_name = "CONDITION_VOLTAGE"
+
+
+# FIXME: To be implemented.
+class ChannelConditionFrequency(Channel):
+    type_name = "CONDITION_FREQUENCY"
 
 
 class ChannelWeather(Channel):
@@ -204,10 +247,9 @@ class ChannelClimaRegulator(Channel):
             return utils.fmt_temperature(val)
 
 
-
-class WindowSwitchReceiver(Channel):
+# Has not any values
+class ChannelWindowSwitchReceiver(Channel):
     type_name = "WINDOW_SWITCH_RECEIVER"
-
 
 
 class Device(Entity):
@@ -282,6 +324,13 @@ class HMESPMSw1Pl(SpecificDevice):
     # Make methods of ChannelSwitch() available
     def __getattr__(self, attr):
         return getattr(self.channels[0], attr)
+
+
+class HMPBI4FM(SpecificDevice):
+    type_name = "HM-PBI-4-FM"
+
+    def button(self, index):
+        return self.channels[index]
 
 
 # Build a list of all specific product classes. If a device is initialized
