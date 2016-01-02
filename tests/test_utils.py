@@ -27,6 +27,13 @@ from __future__ import unicode_literals
 import pytest
 from pmatic import utils
 
+
+def test_is_string():
+    assert utils.is_string("x")
+    assert utils.is_string(1) == False
+    assert utils.is_string(u"x")
+
+
 def test_decamel():
     assert utils.decamel("thisIsACamelCase") == "this_is_a_camel_case"
     assert utils.decamel("thisIsACamelCase") == "this_is_a_camel_case"

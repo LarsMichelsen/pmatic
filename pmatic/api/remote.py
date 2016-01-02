@@ -33,7 +33,7 @@ except ImportError:
 
 import json
 
-from .. import PMException
+from .. import PMException, utils
 from .abstract import AbstractAPI
 
 class RemoteAPI(AbstractAPI):
@@ -56,7 +56,7 @@ class RemoteAPI(AbstractAPI):
 
 
     def _set_address(self, address):
-        if type(address) != str:
+        if not utils.is_string(address):
             raise PMException("Please specify the address of the CCU.")
 
         # Add optional protocol prefix
@@ -71,9 +71,9 @@ class RemoteAPI(AbstractAPI):
             raise PMException("Please specify the user credentials to log in to the CCU like this: \"(username, password)\".")
         elif len(credentials) != 2:
             raise PMException("The credentials must be given as tuple of two elements.")
-        elif type(credentials[0]) != str:
+        elif not utils.is_string(credentials[0]):
             raise PMException("The username is of unhandled type.")
-        elif type(credentials[1]) != str:
+        elif not utils.is_string(credentials[1]):
             raise PMException("The username is of unhandled type.")
 
         self._credentials = credentials

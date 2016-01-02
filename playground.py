@@ -20,9 +20,16 @@
 
 # http://www.eq-3.de/Downloads/Software/HM-CCU2-Firmware_Updates/Tutorials/hm_devices_Endkunden.pdf
 
+# Add Python 3.x behaviour to 2.7
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import sys, logging
 import pmatic.api
 from pmatic.entities import *
+from pmatic import utils
 
 ##
 # Opening a pmatic session

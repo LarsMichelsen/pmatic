@@ -25,6 +25,15 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import re
+import sys
+
+# Python 2/3 compatible string type check
+def is_string(obj):
+    if sys.version_info[0] == 3:
+        return isinstance(obj, str)
+    else:
+        return isinstance(obj, basestring) # noqa
+
 
 def decamel(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)
@@ -34,8 +43,10 @@ def decamel(name):
 def fmt_temperature(temp):
     return "%0.2f °C" % temp
 
+
 def fmt_humidity(hum):
     return "%d%%" % hum
+
 
 def fmt_percentage_int(perc):
     return "%d%%" % perc
