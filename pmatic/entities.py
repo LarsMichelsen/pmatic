@@ -29,10 +29,6 @@ class Entity(object):
 
     def __init__(self, API, obj_dict):
         self.API = API
-        self._init_from_detail_dict(obj_dict)
-
-
-    def _init_from_detail_dict(self, obj_dict):
         self._init_attributes(obj_dict)
 
 
