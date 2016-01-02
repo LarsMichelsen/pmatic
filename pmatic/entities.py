@@ -285,6 +285,22 @@ class Device(Entity):
         return device_objects
 
 
+    # {u'UNREACH': u'1', u'AES_KEY': u'1', u'UPDATE_PENDING': u'1', u'RSSI_PEER': u'-65535',
+    #  u'LOWBAT': u'0', u'STICKY_UNREACH': u'1', u'DEVICE_IN_BOOTLOADER': u'0',
+    #  u'CONFIG_PENDING': u'0', u'RSSI_DEVICE': u'-65535', u'DUTYCYCLE': u'0'}
+    # FIXME: Cache this
+    def get_maintenance(self, what=None):
+        values = self.API.Interface_getParamset(interface="BidCos-RF", address=self.address + ":0", paramsetKey="VALUES")
+        return values
+
+
+    def online(self):
+        if self.type == "HM-RCV-50":
+            return True # CCU is always assumed to be online
+        else:
+            return self.get_maintenance()["UNREACH"] == "0"
+
+
     def get_values(self):
         values = []
         for channel in self.channels:

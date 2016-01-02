@@ -18,7 +18,9 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_XmlRpc_V1_502__2_.pdf
 # http://www.eq-3.de/Downloads/Software/HM-CCU2-Firmware_Updates/Tutorials/hm_devices_Endkunden.pdf
+# https://sites.google.com/site/homematicplayground/api/json-rpc
 
 # Add Python 3.x behaviour to 2.7
 from __future__ import absolute_import
@@ -30,6 +32,7 @@ import sys, logging
 import pmatic.api
 from pmatic.entities import *
 from pmatic import utils
+from pmatic.ccu import CCU
 
 ##
 # Opening a pmatic session
@@ -43,6 +46,8 @@ API = pmatic.api.init(
     connect_timeout=5,
 #    log_level=logging.DEBUG
 )
+
+CCU = CCU(API)
 
 #for DEVICE in Device.get_devices(API, device_type="HM-Sec-SC"):
 #    print(DEVICE.__dict__)
@@ -60,13 +65,45 @@ API = pmatic.api.init(
 #    print(API.Interface_getParamsetDescription(interface="BidCos-RF", address=device.channels[0].address, paramsetType="VALUES"))
 #    print(API.Interface_getParamset(interface="BidCos-RF", address=device.channels[0].address, paramsetKey="VALUES"))
 
+import pprint
+
+# [{u'info': u'BidCos-RF', u'name': u'BidCos-RF', u'port': 2001},
+#  {u'info': u'Virtual Devices', u'name': u'VirtualDevices', u'port': 9292}]
+#pprint.pprint(API.Interface_listInterfaces())
+
+# [{u'address': u'KEQ0714972',
+#   u'description': u'',
+#   u'dutyCycle': u'0',
+#   u'isConnected': True,
+#   u'isDefault': True}]
+#pprint.pprint(API.Interface_listBidcosInterfaces(interface="BidCos-RF"))
+
+#API.print_methods()
+
+#print(CCU.bidcos_interfaces())
+#rssi = CCU.signal_strengths()
+
+#pprint.pprint(API.Interface_listDevices(interface="BidCos-RF"))
+
+#pprint.pprint(API.Interface_rssiInfo(interface="BidCos-RF"))
+#
+#for device in Device.get_devices(API, device_name=u"Büro-Schalter-alt"):
+#    #if device.address not in rssi:
+#    #    print("Device offline? (No signal strength reported)")
+#    #else:
+#    pprint.pprint(device.__dict__)
+#    pprint.pprint(device.channels[0].__dict__)
+#    print(device.get_maintenance())
+
 for device in Device.get_devices(API):
-    for channel in device.channels:
-        if channel.__class__ == Channel:
-            print(device.__dict__)
-            print("", device.name, channel.channel_type, channel.name, channel.get_values())
-        else:
-            print(device.name, channel.channel_type, channel.name, channel.formated_value())
+    if not device.online():
+        print("OFFLINE:", device.name)
+    else:
+        for channel in device.channels:
+            if channel.__class__ == Channel:
+                print("", device.name, channel.channel_type, channel.name, channel.get_values())
+            else:
+                print(device.name, channel.channel_type, channel.name, channel.formated_value())
 
 sys.exit(1)
 
