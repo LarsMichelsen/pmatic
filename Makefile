@@ -13,6 +13,7 @@ help:
 	@echo "                     making python available to the CCU later"
 	@echo "version            - Set a new version number"
 	@echo "dist		  - Create release package"
+	@echo "test	          - Run tests"
 	@echo
 	@echo "install		  - Install on local system"
 	@echo "install-ccu        - Install python and pmatic on the CCU via SSH"
@@ -37,11 +38,11 @@ chroot:
 	LANG=C chroot $(CHROOT_PATH) /debootstrap/debootstrap --second-stage
 	LANG=C chroot $(CHROOT_PATH) apt-get -y --force-yes install python-minimal
 
+test:
+	python setup.py test
+
 install:
 	python setup.py install
-
-test:
-	PYTHONPATH=. py.test tests
 
 install-ccu: install-ccu-python install-ccu-pmatic
 
@@ -98,7 +99,11 @@ setversion:
 	sed -i "s/^VERSION = .*/VERSION = \"$(NEW_VERSION)\"/g" pmatic/__init__.py
 	sed -i "s/version='.*',/version='$(NEW_VERSION)',/g" setup.py
 
-clean: clean-chroot clean-dist
+clean: clean-chroot clean-dist clean-test
+
+clean-test:
+	rm -rf pmatic.egg-info || true
+	rm -f pytest_runner-2.6.2-py2.7.egg || true
 
 clean-chroot:
 	rm -rf --one-file-system $(CHROOT_PATH)

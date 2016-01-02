@@ -19,7 +19,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-from distutils.core import setup
+from setuptools import setup
 import os
 
 setup(name='pmatic',
@@ -51,4 +51,7 @@ setup(name='pmatic',
     data_files=[
         ('/usr/share/doc/pmatic', ['LICENSE', 'README.md']),
     ],
+    test_suite="tests",
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest'],
 )

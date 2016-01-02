@@ -9,7 +9,7 @@ install:
   - pip install coveralls
 
 script:
-  - make test
+  - coverage run --source=pmatic setup.py test
 
 after_success:
   coveralls # Send coverage statistics to Coveralls
