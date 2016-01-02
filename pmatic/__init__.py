@@ -31,6 +31,9 @@ VERSION = "0.1"
 class PMException(Exception):
     pass
 
+class PMActionFailed(PMException):
+    pass
+
 #
 # Logging
 #
@@ -71,3 +74,9 @@ def debug(*args):
     if not logger:
         init_logger()
     return logger.debug(*args)
+
+
+def warning(*args):
+    if not logger:
+        init_logger()
+    return logger.warning(*args)

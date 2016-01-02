@@ -28,7 +28,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import sys, logging
+import sys, logging, pprint
 import pmatic.api
 from pmatic.entities import *
 from pmatic import utils
@@ -47,76 +47,50 @@ API = pmatic.api.init(
 #    log_level=logging.DEBUG
 )
 
-CCU = CCU(API)
+sys.stdout.write("Switching off all lamps...\n")
 
-#for DEVICE in Device.get_devices(API, device_type="HM-Sec-SC"):
-#    print(DEVICE.__dict__)
-#    for CHANNEL in DEVICE.channels:
-#        print(CHANNEL.__dict__)
-
-#for device in Device.get_devices(API, device_type="HM-Sec-SC"):
-#    print(device.name, device.is_open())
-
-#for heating in HMESPMSw1Pl.get_all(API):
-#    print(heating.formated_value())
-
-#for device in Device.get_devices(API, device_name="Büro-Lampe"):
-#    print(device.channels[0].__dict__)
-#    print(API.Interface_getParamsetDescription(interface="BidCos-RF", address=device.channels[0].address, paramsetType="VALUES"))
-#    print(API.Interface_getParamset(interface="BidCos-RF", address=device.channels[0].address, paramsetKey="VALUES"))
-
-import pprint
-
-# [{u'info': u'BidCos-RF', u'name': u'BidCos-RF', u'port': 2001},
-#  {u'info': u'Virtual Devices', u'name': u'VirtualDevices', u'port': 9292}]
-#pprint.pprint(API.Interface_listInterfaces())
-
-# [{u'address': u'KEQ0714972',
-#   u'description': u'',
-#   u'dutyCycle': u'0',
-#   u'isConnected': True,
-#   u'isDefault': True}]
-#pprint.pprint(API.Interface_listBidcosInterfaces(interface="BidCos-RF"))
-
-#API.print_methods()
-
-#print(CCU.bidcos_interfaces())
-#rssi = CCU.signal_strengths()
-
-#pprint.pprint(API.Interface_listDevices(interface="BidCos-RF"))
-
-#pprint.pprint(API.Interface_rssiInfo(interface="BidCos-RF"))
-#
-#for device in Device.get_devices(API, device_name=u"Büro-Schalter-alt"):
-#    #if device.address not in rssi:
-#    #    print("Device offline? (No signal strength reported)")
-#    #else:
-#    pprint.pprint(device.__dict__)
-#    pprint.pprint(device.channels[0].__dict__)
-#    print(device.get_maintenance())
-
-for device in Device.get_devices(API):
-    if not device.online():
-        print("OFFLINE:", device.name)
+# Search all devices which contain the text "Lampe" in their name, then
+# switch all of them off and report the result.
+for device in Device.get_devices(API, device_name_regex=".*Lampe.*"):
+    sys.stdout.write("  %s..." % device.name)
+    if device.switch_off():
+        sys.stdout.write("done.\n")
     else:
-        for channel in device.channels:
-            if channel.__class__ == Channel:
-                print("", device.name, channel.channel_type, channel.name, channel.get_values())
-            else:
-                print(device.name, channel.channel_type, channel.name, channel.formated_value())
+        sys.stdout.write("failed!\n")
+
+    if device.switch_on():
+        sys.stdout.write("done.\n")
+    else:
+        sys.stdout.write("failed!\n")
+
+sys.stdout.write("Finished.\n")
+API.close()
 
 sys.exit(1)
 
-# Open a pmatic API locally on the CCU. You need to install a python environment on your CCU before.
-# Please take a look at the documentation for details.
-#API = pmatic.api.init()
+CCU = CCU(API)
+
+for device in Device.get_devices(API, device_name="Büro-Lampe"):
+    for channel in device.channels:
+        print(device.name, channel.get_values())
+        print(device.name, channel.channel_type, channel.name, channel.formated_values())
+
+#for device in Device.get_devices(API):
+#    if not device.online():
+#        print("OFFLINE:", device.name)
+#    else:
+#        for channel in device.channels:
+#            if channel.__class__ == Channel:
+#                print("", device.name, channel.channel_type, channel.name, channel.get_values())
+#            else:
+#                print(device.name, channel.channel_type, channel.name, channel.formated_value())
+
+sys.exit(1)
 
 ##
 # API Examples
 ##
 
-# Print all methods including their arguments and description which is available on your device
-#API.print_methods()
 
 # Executes a homematic script and prints "HI THERE" (the output) of the script
 #print API.ReGa_runScript(script="Write(\"HI THERE\")")

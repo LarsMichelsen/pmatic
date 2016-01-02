@@ -49,3 +49,5 @@ for device in Device.get_devices(API, device_name_regex=".*Lampe.*"):
         sys.stdout.write("failed!\n")
 
 sys.stdout.write("Finished.\n")
+
+API.close()

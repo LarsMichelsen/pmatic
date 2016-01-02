@@ -40,21 +40,31 @@ class CCU(object):
         self.API  = API
         self.RSSI = None
 
-    # Example output:
-    # [{u'info': u'BidCos-RF', u'name': u'BidCos-RF', u'port': 2001},
-    #  {u'info': u'Virtual Devices', u'name': u'VirtualDevices', u'port': 9292}]
     def interfaces(self):
+        """Returns a list of available CCU interfaces.
+
+        Example output:
+            [ {u'info': u'BidCos-RF', u'name': u'BidCos-RF', u'port': 2001},
+              {u'info': u'Virtual Devices', u'name': u'VirtualDevices', u'port': 9292} ]
+        """
         return self.API.Interface_listInterfaces()
 
 
-    # Example output:
-    # [{u'address': u'KEQ0714972',
-    #   u'description': u'',
-    #   u'dutyCycle': u'0',
-    #   u'isConnected': True,
-    #   u'isDefault': True}]
     def bidcos_interfaces(self):
+        """Returns a list of all BidCos interfaces of the CCU.
+
+        Example output:
+          [{u'address': u'KEQ0714972',
+            u'description': u'',
+            u'dutyCycle': u'0',
+            u'isConnected': True,
+            u'isDefault': True}]
+        """
         return self.API.Interface_listBidcosInterfaces(interface="BidCos-RF")
+
+
+    # Liefert eine Liste aller angelernten Geräte
+    #API.Interface_listDevices(interface="BidCos-RF"))
 
 
     def signal_strengths(self):

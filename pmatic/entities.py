@@ -35,7 +35,7 @@ try:
 except ImportError:
     pass
 
-from . import utils, debug
+from . import utils, debug, warning, params
 
 class Entity(object):
     transform_attributes = {}
@@ -64,6 +64,11 @@ class Entity(object):
 
 
 class Channel(Entity):
+    def __init__(self, *args, **kwargs):
+        self._values = {}
+        super(Channel, self).__init__(*args, **kwargs)
+
+
     @classmethod
     def from_channel_dicts(self, API, channel_dicts):
         channel_objects = []
@@ -77,16 +82,40 @@ class Channel(Entity):
         return channel_objects
 
 
-    def get_values(self, what=None):
-        return self.API.Interface_getParamset(interface="BidCos-RF", address=self.address, paramsetKey="VALUES")
+    def _fetch_values(self):
+        """Fetches all values of the channel.
+
+        Gathers the values of the channel including their specifications. From this data
+        parameter objects are constructed which are added to self._values of the Channel.
+        """
+        raw_values = self.API.Interface_getParamset(interface="BidCos-RF", address=self.address, paramsetKey="VALUES")
+
+        self._values.clear()
+        for param_spec in self.API.Interface_getParamsetDescription(interface="BidCos-RF", address=self.address, paramsetType="VALUES"):
+            param_id = param_spec["ID"]
+
+            class_name = "Parameter%s" % param_spec["TYPE"]
+            cls = getattr(params, class_name)
+            if not cls:
+                warning("%s: Skipping unknown parameter %s of type %s. Class %s not implemented." %
+                                              (self.channel_type, param_id, param_spec["TYPE"], class_name))
+            else:
+                self._values[param_id] = cls(self, param_spec, raw_values.get(param_id))
 
 
-    def set_value(self, key, ty, value):
-        return self.API.Interface_setValue(interface="BidCos-RF", address=self.address, valueKey=key, type=ty, value=value)
+    @property
+    def values(self):
+        # FIXME: Update every access? Add some caching?
+        self._fetch_values()
+        return self._values
 
 
-    def formated_value(self):
-        return "%r" % self.get_values()
+    def formated_values(self):
+        # FIXME: Order?
+        formated = []
+        for value in self._values:
+            formated.append(value.formated())
+        return ", ".join(formated)
 
 
 
@@ -95,10 +124,10 @@ class ChannelShutterContact(Channel):
     type_name = "SHUTTER_CONTACT"
 
     def is_open(self):
-        return self.get_values()["STATE"] == "1"
+        return self.values["STATE"] == "1"
 
 
-    def formated_value(self):
+    def formated_values(self):
         return self.is_open() and "open" or "closed"
 
 
@@ -108,10 +137,10 @@ class ChannelSwitch(Channel):
     type_name = "SWITCH"
 
     def is_on(self):
-        return self.get_values()["STATE"] == "1"
+        return self.values["STATE"]
 
 
-    def formated_value(self):
+    def formated_values(self):
         return self.is_on() and "on" or "off"
 
 
@@ -123,11 +152,11 @@ class ChannelSwitch(Channel):
 
 
     def switch_off(self):
-        return self.set_value("STATE", "boolean", "false")
+        return self.values["STATE"].set(False)
 
 
     def switch_on(self):
-        return self.set_value("STATE", "boolean", "true")
+        return self.values["STATE"].set(True)
 
 
 
@@ -137,21 +166,21 @@ class ChannelKey(Channel):
 
 
     def press_short(self):
-        return self.set_value("PRESS_SHORT", "boolean", "true")
+        return self.values["PRESS_SHORT"].set(True)
 
 
     def press_long(self):
-        return self.set_value("PRESS_LONG", "boolean", "true")
+        return self.values["PRESS_LONG"].set(True)
 
 
     # Not verified working
     def press_long_release(self):
-        return self.set_value("PRESS_LONG_RELEASE", "boolean", "true")
+        return self.values["PRESS_LONG_RELEASE"].set(True)
 
 
     # Not verified
     def press_cont(self):
-        return self.set_value("PRESS_CONT", "boolean", "true")
+        return self.values["PRESS_CONT"].set(True)
 
 
 
@@ -161,18 +190,8 @@ class ChannelKey(Channel):
 class ChannelPowermeter(Channel):
     type_name = "POWERMETER"
 
-    def get_values(self):
-        values = super(ChannelPowermeter, self).get_values()
-        for key, value in values.items():
-            if key == "BOOT":
-                values[key] = value == "1"
-            else:
-                values[key] = float(value)
-        return values
-
-
-    def formated_value(self):
-        values = self.get_values()
+    def formated_values(self):
+        values = self.values
         return "Power: %(POWER)0.2f Wh, Voltage: %(VOLTAGE)0.2f V, " \
                "Energy-Counter: %(ENERGY_COUNTER)0.2f Wh, " \
                "Current: %(CURRENT)0.2f mA, " \
@@ -202,15 +221,9 @@ class ChannelConditionFrequency(Channel):
 class ChannelWeather(Channel):
     type_name = "WEATHER"
 
-    def get_values(self):
-        values = super(ChannelWeather, self).get_values()
-        return float(values["TEMPERATURE"]), int(values["HUMIDITY"])
-
-
-    def formated_value(self):
-        hum, tmp = self.get_values()
-        return "%s, %s" % (utils.fmt_temperature(tmp),
-                           utils.fmt_humidity(hum))
+    def formated_values(self):
+        return "%s, %s" % (utils.fmt_temperature(self.values["TEMPERATURE"]),
+                           utils.fmt_humidity(self.values["HUMIDITY"]))
 
 
 
@@ -218,13 +231,8 @@ class ChannelWeather(Channel):
 class ChannelClimaVentDrive(Channel):
     type_name = "CLIMATECONTROL_VENT_DRIVE"
 
-    def get_values(self):
-        values = super(ChannelClimaVentDrive, self).get_values()
-        return int(values["VALVE_STATE"])
-
-
-    def formated_value(self):
-        return utils.fmt_percentage_int(self.get_values())
+    def formated_values(self):
+        return utils.fmt_percentage_int(self.values["VALVE_STATE"])
 
 
 
@@ -232,24 +240,58 @@ class ChannelClimaVentDrive(Channel):
 class ChannelClimaRegulator(Channel):
     type_name = "CLIMATECONTROL_REGULATOR"
 
-    def get_values(self):
-        values = super(ChannelClimaRegulator, self).get_values()
-        return float(values["SETPOINT"])
-
-
-    def formated_value(self):
-        val = self.get_values()
+    def formated_values(self):
+        val = self.values["SETPOINT"]
         if val == 0.0:
             return "Ventil closed"
         elif val == 100.0:
             return "Ventil open"
         else:
-            return utils.fmt_temperature(val)
+            return utils.fmt_temperature()
+
+
+# Devices:
+#  HM-CC-RT-DN
+# FIXME: Values:
+# {u'SET_TEMPERATURE': u'21.500000', u'PARTY_START_MONTH': u'1', u'BATTERY_STATE': u'2.400000', u'PARTY_START_DAY': u'1', u'PARTY_STOP_DAY': u'1', u'PARTY_START_YEAR': u'0', u'FAULT_REPORTING': u'0', u'PARTY_STOP_TIME': u'0', u'ACTUAL_TEMPERATURE': u'23.100000', u'BOOST_STATE': u'15', u'PARTY_STOP_YEAR': u'0', u'PARTY_STOP_MONTH': u'1', u'VALVE_STATE': u'10', u'PARTY_START_TIME': u'450', u'PARTY_TEMPERATURE': u'5.000000', u'CONTROL_MODE': u'1'}
+class ChannelClimaRTTransceiver(Channel):
+    type_name = "CLIMATECONTROL_RT_TRANSCEIVER"
+
+    def formated_values(self):
+        return "%s (Target: %s)" % (utils.fmt_temperature(self.values["ACTUAL_TEMPERATURE"]),
+                                    utils.fmt_temperature(self.values["SET_TEMPERATURE"]))
+
 
 
 # Has not any values
 class ChannelWindowSwitchReceiver(Channel):
     type_name = "WINDOW_SWITCH_RECEIVER"
+
+
+# Has not any values
+class ChannelWeatherReceiver(Channel):
+    type_name = "WEATHER_RECEIVER"
+
+
+# Devices:
+#  HM-CC-RT-DN
+# Has not any values
+class ClimateControlReceiver(Channel):
+    type_name = "CLIMATECONTROL_RECEIVER"
+
+
+# Devices:
+#  HM-CC-RT-DN
+# Has not any values
+class ClimateControlRTReceiver(Channel):
+    type_name = "CLIMATECONTROL_RT_RECEIVER"
+
+
+# Devices:
+#  HM-CC-RT-DN
+# Has not any values
+class RemoteControlReceiver(Channel):
+    type_name = "REMOTECONTROL_RECEIVER"
 
 
 class Device(Entity):
@@ -324,14 +366,14 @@ class Device(Entity):
     def get_values(self):
         values = []
         for channel in self.channels:
-            values.append(channel.get_value())
+            values.append(channel.get_values())
         return values
 
 
-    def formated_value(self):
+    def formated_values(self):
         formated = []
         for channel in self.channels:
-            formated.append(channel.formated_value())
+            formated.append(channel.formated_values())
         return ", ".join(formated)
 
 
