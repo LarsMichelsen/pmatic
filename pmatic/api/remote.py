@@ -18,7 +18,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import urllib2, json
+import urllib.request, urllib.error, json
 from .. import PMException
 from .abstract import AbstractAPI
 
@@ -155,8 +155,8 @@ class RemoteAPI(AbstractAPI):
         url = "%s/api/homematic.cgi" % self._address
         try:
             self.debug("  URL: %s DATA: %s" % (url, json_data))
-            handle = urllib2.urlopen(url, data=json_data, timeout=self._connect_timeout)
-        except urllib2.URLError as e:
+            handle = urllib.request.urlopen(url, data=json_data, timeout=self._connect_timeout)
+        except urllib.error.URLError as e:
             raise PMException("Failed to open \"%s\": %s" % (url, e.reason))
         except Exception as e:
             raise PMException("Failed to open \"%s\": %s" % (url, e))
