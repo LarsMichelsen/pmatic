@@ -41,6 +41,6 @@ API = pmatic.api.init(
 
 device = Device.get_devices(API, device_name=u"Büro-Lampe")[0]
 if device.switch_on():
-    print "success!"
+    print("success!")
 else:
-    print "failed!"
+    print("failed!")

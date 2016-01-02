@@ -38,24 +38,24 @@ API = pmatic.api.init(
 )
 
 #for DEVICE in Device.get_devices(API, device_type="HM-Sec-SC"):
-#    print DEVICE.__dict__
+#    print(DEVICE.__dict__)
 #    for CHANNEL in DEVICE.channels:
-#        print CHANNEL.__dict__
+#        print(CHANNEL.__dict__)
 
 #for device in Device.get_devices(API, device_type="HM-Sec-SC"):
-#    print device.name, device.is_open()
+#    print(device.name, device.is_open())
 
 #for heating in HMESPMSw1Pl.get_all(API):
-#    print heating.formated_value()
+#    print(heating.formated_value())
 
 for device in Device.get_devices(API):
-    print device.__dict__
+    print(device.__dict__)
     for channel in device.channels:
-        print channel.__dict__
+        print(channel.__dict__)
         if channel.__class__ == Channel:
-            print "", device.name, channel.channel_type, channel.name, channel.get_values()
+            print(("", device.name, channel.channel_type, channel.name, channel.get_values()))
         else:
-            print device.name, channel.channel_type, channel.name, channel.formated_value()
+            print((device.name, channel.channel_type, channel.name, channel.formated_value()))
 
 sys.exit(1)
 
@@ -196,7 +196,7 @@ for device in devices:
         is_open = API.Channel_getValue(id=channel["id"])
 
         if True: #is_open:
-            print device["name"], repr(channel["id"]), is_open
+            print((device["name"], repr(channel["id"]), is_open))
 
             # FIXME: Multiple rooms?
             room = [ r for r in rooms if channel["id"] in r["channelIds"] ][0]
@@ -207,9 +207,9 @@ for device in devices:
             room_temperature = avg_temperature_of_room(room["id"])
 
             if room_humidity:
-                print "Humidity:", room_humidity, "%"
+                print(("Humidity:", room_humidity, "%"))
             if room_temperature:
-                print "Temperature:", room_temperature, "C"
+                print(("Temperature:", room_temperature, "C"))
 
             if room_humidity and room_humidity > 70:
                 pass # lüften!
@@ -227,7 +227,7 @@ for device in devices:
             else:
                 pass # 10 minuten
 
-            print "Outside:", outside_rel_humidity(), "%", out_temp, "C"
+            print(("Outside:", outside_rel_humidity(), "%", out_temp, "C"))
 
 # List room ids
 #for room in API.Room_listAll():

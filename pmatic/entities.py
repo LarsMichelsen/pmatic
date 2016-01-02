@@ -217,7 +217,7 @@ class Device(Entity):
     def get_devices(self, API, device_type=None, device_name=None, device_name_regex=None):
         devices = API.Device_listAllDetail()
 
-        if type(device_type) in [str, unicode]:
+        if type(device_type) == str:
             device_type = [device_type]
 
         device_objects = []
@@ -283,13 +283,13 @@ class HMESPMSw1Pl(SpecificDevice):
 # Device() checks whether or not a specific class or the generic Device()
 # class should be used to initialize an object.
 device_classes_by_type_name = {}
-for key, val in globals().items():
+for key, val in list(globals().items()):
     if isinstance(val, type):
         if issubclass(val, Device) and key not in [ "Device", "SpecificDevice" ]:
                 device_classes_by_type_name[val.type_name] = val
 
 channel_classes_by_type_name = {}
-for key, val in globals().items():
+for key, val in list(globals().items()):
     if isinstance(val, type):
         if issubclass(val, Channel) and key not in [ "Channel" ]:
                 channel_classes_by_type_name[val.type_name] = val

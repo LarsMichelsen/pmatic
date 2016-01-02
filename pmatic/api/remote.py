@@ -56,7 +56,7 @@ class RemoteAPI(AbstractAPI):
 
 
     def _set_address(self, address):
-        if type(address) not in [ str, unicode ]:
+        if type(address) != str:
             raise PMException("Please specify the address of the CCU.")
 
         # Add optional protocol prefix
@@ -71,9 +71,9 @@ class RemoteAPI(AbstractAPI):
             raise PMException("Please specify the user credentials to log in to the CCU like this: \"(username, password)\".")
         elif len(credentials) != 2:
             raise PMException("The credentials must be given as tuple of two elements.")
-        elif type(credentials[0]) not in [ str, unicode ]:
+        elif type(credentials[0]) != str:
             raise PMException("The username is of unhandled type.")
-        elif type(credentials[1]) not in [ str, unicode ]:
+        elif type(credentials[1]) != str:
             raise PMException("The username is of unhandled type.")
 
         self._credentials = credentials
@@ -169,7 +169,8 @@ class RemoteAPI(AbstractAPI):
         url = "%s/api/homematic.cgi" % self._address
         try:
             self.debug("  URL: %s DATA: %s" % (url, json_data))
-            handle = urlopen(url, data=json_data, timeout=self._connect_timeout)
+            handle = urlopen(url, data=json_data.encode("utf-8"),
+                             timeout=self._connect_timeout)
         except URLError as e:
             raise PMException("Failed to open \"%s\": %s" % (url, e.reason))
         except Exception as e:

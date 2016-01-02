@@ -57,11 +57,11 @@ for f in glob.glob('%s/*.py' % repo_path) \
     new = [ new_header ]
 
     first_code_line_found = False
-    for l in file(f):
+    for l in open(f):
         if not l.startswith('#'):
             first_code_line_found = True
 
         if first_code_line_found:
             new.append(l)
 
-    file(f, 'w').write(''.join(new))
+    open(f, 'w').write(''.join(new))
