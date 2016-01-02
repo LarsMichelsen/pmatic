@@ -2,7 +2,7 @@
 # encoding: utf-8
 #
 # pmatic - A simple API to to the Homematic CCU2
-# Copyright (C) 2015 Lars Michelsen <lm@larsmichelsen.com>
+# Copyright (C) 2016 Lars Michelsen <lm@larsmichelsen.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -34,10 +34,17 @@ class LocalAPI(AbstractAPI):
 
 
     def _init_tclsh(self):
-        self._tclsh = subprocess.Popen(
-            "/bin/tclsh", stdin=subprocess.PIPE,
-            stdout=subprocess.PIPE, #stderr=subprocess.PIPE,
-            cwd = "/")
+        try:
+            self._tclsh = subprocess.Popen(["/bin/tclsh"],
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE, #stderr=subprocess.PIPE,
+                cwd="/",
+                shell=False)
+        except OSError, e:
+            if e.errno == 2:
+                raise PMException("Could not find /bin/tclsh. Maybe running local API on non CCU device?")
+            else:
+                raise
 
         self._tclsh.stdin.write(
             "load tclrega.so\n"
