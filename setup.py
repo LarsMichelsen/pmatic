@@ -18,8 +18,10 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-
-from setuptools import setup
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup
 
 setup(name='pmatic',
     version='0.1',
@@ -51,5 +53,5 @@ setup(name='pmatic',
         ('/usr/share/doc/pmatic', ['LICENSE', 'README.md']),
     ],
     setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'pytest-flakes'],
+    tests_require=['pytest', 'pytest-flakes', 'pytest-cache'],
 )

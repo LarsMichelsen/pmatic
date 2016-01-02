@@ -113,7 +113,7 @@ clean: clean-chroot clean-dist clean-test
 
 clean-test:
 	rm -rf pmatic.egg-info || true
-	rm -f pytest_runner-2.6.2-py2.7.egg || true
+	rm -rf *.egg || true
 	rm -rf .coverage htmlcov || true
 	rm -rf .cache || true
 
