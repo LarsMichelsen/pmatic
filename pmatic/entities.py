@@ -21,7 +21,13 @@
 # Relevant docs:
 # - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_Script_Teil_4_Datenpunkte_1_503.pdf
 
-import types, re
+# Add Python 3.x behaviour to 2.7
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
+import re
 from builtins import object
 
 from . import utils, debug

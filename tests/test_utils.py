@@ -18,6 +18,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# Add Python 3.x behaviour to 2.7
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import pytest
 from pmatic import utils
 
@@ -33,9 +39,9 @@ def test_decamel():
 
 
 def test_fmt_temperature():
-    assert utils.fmt_temperature(0.0) == u"0.00 °C"
-    assert utils.fmt_temperature(1) == u"1.00 °C"
-    assert utils.fmt_temperature(9.1234) == u"9.12 °C"
+    assert utils.fmt_temperature(0.0) == "0.00 °C"
+    assert utils.fmt_temperature(1) == "1.00 °C"
+    assert utils.fmt_temperature(9.1234) == "9.12 °C"
 
     with pytest.raises(Exception):
         assert utils.fmt_temperature(None)

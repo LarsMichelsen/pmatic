@@ -18,7 +18,21 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import urllib.request, urllib.error, json
+# Add Python 3.x behaviour to 2.7
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
+try:
+    from urllib.request import urlopen
+    from urllib.error import URLError
+except ImportError:
+    from urllib2 import urlopen
+    from urllib2 import URLError
+
+import json
+
 from .. import PMException
 from .abstract import AbstractAPI
 
@@ -155,15 +169,15 @@ class RemoteAPI(AbstractAPI):
         url = "%s/api/homematic.cgi" % self._address
         try:
             self.debug("  URL: %s DATA: %s" % (url, json_data))
-            handle = urllib.request.urlopen(url, data=json_data, timeout=self._connect_timeout)
-        except urllib.error.URLError as e:
+            handle = urlopen(url, data=json_data, timeout=self._connect_timeout)
+        except URLError as e:
             raise PMException("Failed to open \"%s\": %s" % (url, e.reason))
         except Exception as e:
             raise PMException("Failed to open \"%s\": %s" % (url, e))
 
         response_txt = ""
         for line in handle.readlines():
-            response_txt += line
+            response_txt += line.decode("utf-8")
 
         http_status = handle.getcode()
 

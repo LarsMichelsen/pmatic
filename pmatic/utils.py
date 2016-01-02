@@ -18,6 +18,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# Add Python 3.x behaviour to 2.7
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
 import re
 
 def decamel(name):
@@ -26,7 +32,7 @@ def decamel(name):
 
 
 def fmt_temperature(temp):
-    return u"%0.2f °C" % temp
+    return "%0.2f °C" % temp
 
 def fmt_humidity(hum):
     return "%d%%" % hum
