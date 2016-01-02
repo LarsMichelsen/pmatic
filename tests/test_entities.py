@@ -29,7 +29,7 @@ class TestEntity:
         return TestAPI()
 
     def test_minimal_entity(self, API):
-        obj = Entity(API, {})
+        Entity(API, {})
 
     def test_attributes(self, API):
         obj = Entity(API, {

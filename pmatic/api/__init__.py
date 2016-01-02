@@ -41,7 +41,7 @@ def init(mode=None, **kwargs):
             return RemoteAPI(**kwargs)
         except TypeError, e:
             raise PMException("You need to provide at least the address and credentials "
-                              "to access your CCU.")
+                              "to access your CCU (%s)." % e)
     else:
         raise PMException("Invalid mode given. Valid ones are \"local\" and \"remote\".")
 

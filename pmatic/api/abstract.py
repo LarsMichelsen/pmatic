@@ -67,7 +67,7 @@ class AbstractAPI(object):
 
         try:
             msg = json.loads(body)
-        except Exception, e:
+        except Exception:
             raise PMException("Failed to parse response:\n%s\n" % body)
 
         if msg["error"] != None:

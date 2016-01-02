@@ -21,6 +21,8 @@
 import pmatic.api
 from pmatic.entities import Device
 
+import sys
+
 # Open up a remote connection via HTTP to the CCU and login as admin. When the connection
 # can not be established within 5 seconds it raises an exception.
 API = pmatic.api.init(
