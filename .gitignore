@@ -5,3 +5,5 @@ build
 chroot
 pytest_runner-2.6.2-py2.7.egg
 pmatic.egg-info
+.coverage
+htmlcov

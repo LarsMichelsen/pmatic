@@ -13,7 +13,10 @@ help:
 	@echo "                     making python available to the CCU later"
 	@echo "version            - Set a new version number"
 	@echo "dist		  - Create release package"
-	@echo "test	          - Run tests"
+	@echo
+	@echo "test	          - Run tests incl. coverage analyzing"
+	@echo "coverage	          - Report test coverage (short, console)"
+	@echo "coverage-html      - Report test coverage (detailed, html)"
 	@echo
 	@echo "install		  - Install on local system"
 	@echo "install-ccu        - Install python and pmatic on the CCU via SSH"
@@ -39,7 +42,14 @@ chroot:
 	LANG=C chroot $(CHROOT_PATH) apt-get -y --force-yes install python-minimal
 
 test:
-	python setup.py test
+	coverage run --source=pmatic setup.py test
+
+coverage:
+	coverage report
+
+coverage-html:
+	coverage html
+	firefox htmlcov/index.html
 
 install:
 	python setup.py install
@@ -104,6 +114,7 @@ clean: clean-chroot clean-dist clean-test
 clean-test:
 	rm -rf pmatic.egg-info || true
 	rm -f pytest_runner-2.6.2-py2.7.egg || true
+	rm -rf .coverage htmlcov || true
 
 clean-chroot:
 	rm -rf --one-file-system $(CHROOT_PATH)
