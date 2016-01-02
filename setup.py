@@ -50,7 +50,6 @@ setup(name='pmatic',
     data_files=[
         ('/usr/share/doc/pmatic', ['LICENSE', 'README.md']),
     ],
-    test_suite="tests",
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'pytest-flakes'],
 )
