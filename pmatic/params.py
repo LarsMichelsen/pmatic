@@ -33,7 +33,7 @@ try:
 except ImportError:
     pass
 
-from . import utils, debug, PMException
+from . import PMException, PMActionFailed
 
 # FIXME: Make FLAGS and OPERATIONS bitmasks more user friendly
 class Parameter(object):
