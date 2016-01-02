@@ -29,7 +29,7 @@ import json, sys
 try:
     # Is recommended for Python 3.x but fails on 2.7, but is not mandatory
     from builtins import object
-except ImportError
+except ImportError:
     pass
 
 from .. import PMException, init_logger
