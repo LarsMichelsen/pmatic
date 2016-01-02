@@ -23,7 +23,7 @@ help:
 	@echo
 
 setup:
-	apt-get install debootstrap qemu-user-static rsync dialog
+	apt-get install debootstrap qemu-user-static rsync dialog python-pytest
 
 dist:
 	python setup.py sdist --owner=root --group=root
@@ -41,7 +41,7 @@ install:
 	python setup.py install
 
 test:
-	@echo 123
+	PYTHONPATH=. py.test tests
 
 install-ccu: install-ccu-python install-ccu-pmatic
 

@@ -21,7 +21,7 @@
 import json, sys
 from .. import PMException, init_logger
 
-class API(object):
+class AbstractAPI(object):
     def __init__(self, logger, log_level):
         self._methods = {}
         self._init_logger(logger, log_level)

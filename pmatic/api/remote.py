@@ -20,9 +20,11 @@
 
 import urllib2, json
 from .. import PMException
-from .abstract import API
+from .abstract import AbstractAPI
 
-class RemoteAPI(API):
+class RemoteAPI(AbstractAPI):
+    _session_id = None
+
     def __init__(self, address, credentials, connect_timeout=10, logger=None, log_level=None):
         self._session_id      = None
         self._address         = None

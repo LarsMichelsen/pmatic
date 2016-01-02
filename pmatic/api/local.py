@@ -21,13 +21,13 @@
 import subprocess
 
 from .. import PMException
-from .abstract import API
+from .abstract import AbstractAPI
 
-class LocalAPI(API):
+class LocalAPI(AbstractAPI):
     def __init__(self, logger=None, log_level=None):
         self._tclsh   = None
 
-        super(RemoteAPI, self).__init__(logger, log_level)
+        super(LocalAPI, self).__init__(logger, log_level)
 
         self._init_tclsh()
         self._init_methods()

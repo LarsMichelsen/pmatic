@@ -32,9 +32,16 @@ def init(mode=None, **kwargs):
         mode = is_ccu() and "local" or "remote"
 
     if mode == "local":
+        if not is_ccu():
+            raise PMException("local mode can only be used on the CCU.")
+
         return LocalAPI(**kwargs)
     elif mode == "remote":
-        return RemoteAPI(**kwargs)
+        try:
+            return RemoteAPI(**kwargs)
+        except TypeError, e:
+            raise PMException("You need to provide at least the address and credentials "
+                              "to access your CCU.")
     else:
         raise PMException("Invalid mode given. Valid ones are \"local\" and \"remote\".")
 
