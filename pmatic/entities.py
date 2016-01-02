@@ -276,12 +276,12 @@ class HMESPMSw1Pl(SpecificDevice):
 # class should be used to initialize an object.
 device_classes_by_type_name = {}
 for key, val in globals().items():
-    if isinstance(val, (type, types.ClassType)):
+    if isinstance(val, type):
         if issubclass(val, Device) and key not in [ "Device", "SpecificDevice" ]:
                 device_classes_by_type_name[val.type_name] = val
 
 channel_classes_by_type_name = {}
 for key, val in globals().items():
-    if isinstance(val, (type, types.ClassType)):
+    if isinstance(val, type):
         if issubclass(val, Channel) and key not in [ "Channel" ]:
                 channel_classes_by_type_name[val.type_name] = val

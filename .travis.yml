@@ -2,7 +2,6 @@ language: python
 sudo: false  # To use travis container infrastructure
 
 python:
-  - 2.6
   - 2.7
 
 install:

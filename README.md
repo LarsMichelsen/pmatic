@@ -53,8 +53,9 @@ scripts, if you like.
 
 ## Requirements
 
-pmatic is currently not expecting any special modules. So it should work
-with all Python version newer than 2.4.
+pmatic is currently not expecting any special Python modules. pmatic
+is supported with Python 2.7 and newer. Older versions of Python are not
+supported.
 
 ## Installation
 

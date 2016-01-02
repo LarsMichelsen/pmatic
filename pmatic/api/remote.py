@@ -156,9 +156,9 @@ class RemoteAPI(AbstractAPI):
         try:
             self.debug("  URL: %s DATA: %s" % (url, json_data))
             handle = urllib2.urlopen(url, data=json_data, timeout=self._connect_timeout)
-        except urllib2.URLError, e:
+        except urllib2.URLError as e:
             raise PMException("Failed to open \"%s\": %s" % (url, e.reason))
-        except Exception, e:
+        except Exception as e:
             raise PMException("Failed to open \"%s\": %s" % (url, e))
 
         response_txt = ""

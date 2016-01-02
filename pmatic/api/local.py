@@ -40,7 +40,7 @@ class LocalAPI(AbstractAPI):
                 stdout=subprocess.PIPE, #stderr=subprocess.PIPE,
                 cwd="/",
                 shell=False)
-        except OSError, e:
+        except OSError as e:
             if e.errno == 2:
                 raise PMException("Could not find /bin/tclsh. Maybe running local API on non CCU device?")
             else:
@@ -59,7 +59,7 @@ class LocalAPI(AbstractAPI):
 
     def _get_methods_config(self):
         methods_file = "/www/api/methods.conf"
-        return file(methods_file).readlines()
+        return open(methods_file).readlines()
 
 
     def _get_args(self, method, args):
