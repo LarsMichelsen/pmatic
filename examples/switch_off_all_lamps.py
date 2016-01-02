@@ -2,7 +2,7 @@
 # encoding: utf-8
 #
 # pmatic - A simple API to to the Homematic CCU2
-# Copyright (C) 2015 Lars Michelsen <lm@larsmichelsen.com>
+# Copyright (C) 2016 Lars Michelsen <lm@larsmichelsen.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by

@@ -2,7 +2,7 @@
 # encoding: utf-8
 #
 # pmatic - A simple API to to the Homematic CCU2
-# Copyright (C) 2015 Lars Michelsen <lm@larsmichelsen.com>
+# Copyright (C) 2016 Lars Michelsen <lm@larsmichelsen.com>
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,7 +29,7 @@ def fmt_temperature(temp):
     return u"%0.2f °C" % temp
 
 def fmt_humidity(hum):
-    return u"%d%%" % hum
+    return "%d%%" % hum
 
 def fmt_percentage_int(perc):
-    return u"%d%%" % perc
+    return "%d%%" % perc
