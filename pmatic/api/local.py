@@ -65,7 +65,7 @@ class LocalAPI(AbstractAPI):
 
     def _get_methods_config(self):
         methods_file = "/www/api/methods.conf"
-        return open(methods_file).readlines()
+        return open(methods_file).read().decode("latin-1").split("\r\n")
 
 
     def _get_args(self, method, args):
