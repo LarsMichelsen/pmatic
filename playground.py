@@ -47,6 +47,8 @@ API = pmatic.api.init(
 #    log_level=logging.DEBUG
 )
 
+print(API.Interface_listInterfaces())
+
 sys.stdout.write("Switching off all lamps...\n")
 
 # Search all devices which contain the text "Lampe" in their name, then

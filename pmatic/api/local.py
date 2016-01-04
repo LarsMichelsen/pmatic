@@ -30,6 +30,8 @@ from .. import PMException
 from .abstract import AbstractAPI
 
 class LocalAPI(AbstractAPI):
+    methods_file = "/www/api/methods.conf"
+
     def __init__(self, **kwargs):
         self._tclsh   = None
 
@@ -45,7 +47,7 @@ class LocalAPI(AbstractAPI):
             self._tclsh = subprocess.Popen(["/bin/tclsh"],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE, #stderr=subprocess.PIPE,
-                cwd="/",
+                cwd="/www/api",
                 shell=False)
         except OSError as e:
             if e.errno == 2:
@@ -61,12 +63,13 @@ class LocalAPI(AbstractAPI):
             "source /www/api/eq3/jsonrpc.tcl\n"
             "source /www/api/eq3/hmscript.tcl\n"
             "source /www/api/eq3/event.tcl\n"
+            "array set INTERFACE_LIST [ipc_getInterfaces]\n"
+            "array set METHOD_LIST  [file_load %s]\n" % self.methods_file
         )
 
 
     def _get_methods_config(self):
-        methods_file = "/www/api/methods.conf"
-        return open(methods_file).read().decode("latin-1").split("\r\n")
+        return open(self.methods_file).read().decode("latin-1").split("\r\n")
 
 
     def _get_args(self, method, args):
@@ -90,26 +93,41 @@ class LocalAPI(AbstractAPI):
         return args_parsed.rstrip(" ") + "]"
 
 
-    # Runs the provided method, which needs to be one of the methods which are available
-    # on the device (with the given arguments) on the CCU.
     def call(self, method_name, **kwargs):
+        """Runs the given API method directly on the CCU using a tclsh process
+
+        The API method needs to be one of the methods which are available
+        on the device (with the given arguments)."""
         method = self._get_method(method_name)
         parsed_args = self._get_args(method, kwargs)
         file_path = "/www/api/methods/%s" % method["SCRIPT_FILE"]
 
-        tcl = \
+        self.debug("CALL: %s ARGS: %r" % (method["SCRIPT_FILE"], parsed_args))
+
+        tcl = ""
+
+        # \0\n is written to stdout of the tclsh process to mark and detect the
+        # end of the output of the API call.
+        tcl += \
+            "array set method $METHOD_LIST(%s)\n" \
             "array set args %s\n" \
             "source %s\n" \
-            "puts \0\n" % (parsed_args, file_path)
+            "puts \0\n" % (method["NAME"], parsed_args, file_path)
+
+        self.debug("  TCL: %r" % (tcl))
+
         self._tclsh.stdin.write(tcl)
 
         response_txt = ""
         while True:
-            c = self._tclsh.stdout.read(1).decode("latin-1")
-            if c == "\0":
-                break
+            line = self._tclsh.stdout.readline().decode("latin-1")
+            if not line or (len(line) > 1 and line[-2] == "\0"):
+                response_txt += line[:-2] + "\n"
+                break # found our terminator (see above)
             else:
-                response_txt += c
+                response_txt += line
+
+        self.debug("  RESPONSE: %r" % response_txt)
         header, body = response_txt.split("\n\n", 1)
 
         return self._parse_api_response(method_name, body)
