@@ -30,10 +30,11 @@ from .. import PMException
 from .abstract import AbstractAPI
 
 class LocalAPI(AbstractAPI):
-    def __init__(self, logger=None, log_level=None):
+    def __init__(self, **kwargs):
         self._tclsh   = None
 
-        super(LocalAPI, self).__init__(logger, log_level)
+        super(LocalAPI, self).__init__(kwargs.get("logger"),
+                                       kwargs.get("log_level"))
 
         self._init_tclsh()
         self._init_methods()
