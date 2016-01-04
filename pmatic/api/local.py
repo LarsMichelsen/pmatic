@@ -104,14 +104,14 @@ class LocalAPI(AbstractAPI):
 
         response_txt = ""
         while True:
-            c = self._tclsh.stdout.read(1)
+            c = self._tclsh.stdout.read(1).decode("latin-1")
             if c == "\0":
                 break
             else:
                 response_txt += c
         header, body = response_txt.split("\n\n", 1)
 
-        return self._parse_api_response(body)
+        return self._parse_api_response(method_name, body)
 
 
     def close(self):

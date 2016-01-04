@@ -148,7 +148,7 @@ install-ccu-pmatic:
 	    --exclude=\*.pyc \
 	    --exclude=__pycache__ \
 	    pmatic \
-	    root@$(CCU_HOST):/usr/local/etc/config/addons/pmatic/python/usr/lib/python2.7/
+	    root@$(CCU_HOST):/usr/local/etc/config/addons/pmatic/python/lib/python2.7/
 
 version:
 	@newversion=$$(dialog --stdout --inputbox "New Version:" 0 0 "$(VERSION)") ; \
