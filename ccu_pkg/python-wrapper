@@ -1,0 +1,7 @@
+# Since no encoding is set in CCU environment the Python interpreter
+# sets sys.stdout.encoding to ANSI_X3.4-1968 which makes print() fail
+# with an UnicodeEncodeError when trying to print unicode strings.
+#
+# This is a small wrapper which enforces the encoding of stdout,
+# stderr and stdin to be UTF-8.
+PYTHONIOENCODING=utf-8 PYTHONHOME=/usr/local/etc/config/addons/pmatic/python python2.7 $@

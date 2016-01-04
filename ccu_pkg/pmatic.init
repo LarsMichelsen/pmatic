@@ -1,0 +1,23 @@
+#!/bin/sh
+
+VERSION=0.1
+ADDON_DIR=/etc/config/addons/pmatic
+
+case "$1" in
+""|start)
+  ;;
+info)
+  echo "Info: <center><b>pmatic CCU Addon</b><center>"
+  echo "Info: <center><a href='https://github.com/LaMi-/pmatic'>https://github.com/LaMi-/pmatic</a><center>"
+  echo "Version: $VERSION"
+  echo "Name: pmatic"
+  echo "Operations: uninstall"
+  #echo "Config-Url: $CONFIG_URL"
+  #echo "Update: $CONFIG_URL/update-check.cgi"
+  ;;
+uninstall)
+  # remove whole pmatic (same as in update_script)
+  rm /usr/local/bin/python2.7 /usr/local/bin/python
+  rm -rf $ADDON_DIR
+  ;;
+esac
