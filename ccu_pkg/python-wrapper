@@ -4,4 +4,6 @@
 #
 # This is a small wrapper which enforces the encoding of stdout,
 # stderr and stdin to be UTF-8.
-PYTHONIOENCODING=utf-8 PYTHONHOME=/usr/local/etc/config/addons/pmatic/python python2.7 $@
+export PYTHONIOENCODING=utf-8
+export PYTHONHOME=/usr/local/etc/config/addons/pmatic/python
+python2.7 "$@"
