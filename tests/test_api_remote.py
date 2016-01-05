@@ -162,6 +162,14 @@ class TestRemoteAPI:
             assert "SCRIPT_FILE" in method
 
 
+    def test_print_methods(self, API, capsys):
+        API.print_methods()
+        out, err = capsys.readouterr()
+        assert "API.ccu_get_serial()" in out
+        assert "API.user_set_language" in out
+        assert err == ""
+
+
     def test_device_list_all_detail(self, API):
         devices = API.device_list_all_detail()
         assert len(devices) > 10
