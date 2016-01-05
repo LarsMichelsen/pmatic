@@ -35,7 +35,8 @@ def test_is_string():
 
 
 def test_is_text():
-    assert utils.is_text(str("x")) == False
+    if sys.version_info[0] == 2:
+        assert utils.is_text(str("x")) == False
     assert utils.is_text(1) == False
     assert utils.is_text(u"x") == True
 

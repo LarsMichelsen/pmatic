@@ -32,7 +32,12 @@ import glob
 #import logging
 from hashlib import sha256
 import json
-import StringIO
+
+try
+    from StringIO import StringIO
+except ImportError:
+    # and for python 3
+    from io import StringIO
 
 try:
     from urllib.request import urlopen
