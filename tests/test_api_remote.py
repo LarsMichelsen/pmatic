@@ -28,6 +28,7 @@ from _pytest.monkeypatch import monkeypatch
 import pytest
 
 import os
+import re
 import glob
 #import logging
 from hashlib import sha256
@@ -92,21 +93,35 @@ def fake_urlopen(url, data=None, timeout=None):
     return obj
 
 
+def fake_session_id(byte_str):
+    return re.sub('"_session_id_": "[0-9A-Za-z]{10}"', '"_session_id_": "xxxxxxxxxx"', byte_str)
+
+
 def wrap_urlopen(url, data=None, timeout=None):
     """Wraps urlopen to record the response when communicating with a real CCU."""
 
     obj = urlopen(url, data=data, timeout=timeout)
 
-    rid = request_id(url, data)
-
     if not os.path.exists(resources_path):
         os.makedirs(resources_path)
 
-    open(response_file_path(rid), "wb").write(obj.read())
-    open(status_file_path(rid), "wb").write(str(obj.getcode()).encode("utf-8"))
-    open(data_file_path(rid), "wb").write(data)
+    response = obj.read()
+    http_status = obj.getcode()
 
-    return fake_urlopen(url, data, timeout)
+    # Fake the session id to a fixed one for offline testing. This is needed
+    # to make the recorded data change less frequently.
+    fake_data = fake_session_id(data)
+    fake_response = fake_session_id(response)
+
+    rid = request_id(url, fake_data)
+
+    open(response_file_path(rid), "wb").write(fake_response)
+    open(status_file_path(rid), "wb").write(str(http_status).encode("utf-8"))
+    open(data_file_path(rid), "wb").write(fake_data)
+
+    obj = StringIO(response)
+    obj.getcode = lambda: http_status
+    return obj
 
 
 def setup_module(module):
