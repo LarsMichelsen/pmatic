@@ -89,7 +89,7 @@ class Parameter(object):
             raise PMException("The value can not be changed.")
         self._validate(value)
 
-        result = self.channel.API.Interface_setValue(interface="BidCos-RF", address=self.channel.address,
+        result = self.channel.API.interface_set_value(interface="BidCos-RF", address=self.channel.address,
                                                      valueKey=self.id, type=self.datatype,
                                                      value=self._to_api_value(value))
         if not result:

@@ -25,12 +25,12 @@ import pmatic.api
 # can not be established within 5 seconds it raises an exception.
 API = pmatic.api.init(
     address="http://192.168.1.26",
-    credentials=("Admin", "EPIC SECRET PW"),
+    credentials=("Admin", "EPIC-SECRET-PW"),
     connect_timeout=5,
     #log_level=logging.DEBUG
 )
 
-devices = API.Device_listAllDetail()
+devices = API.device_list_all_detail()
 
 line_fmt = "%-30s %s"
 
@@ -43,7 +43,7 @@ for device in devices:
     if device["type"] == "HM-Sec-SC":
         # Get the channel of the shutter contact and then fetch the state
         channel = [ c for c in device["channels"] if c["channelType"] == "SHUTTER_CONTACT" ][0]
-        is_open = API.Channel_getValue(id=channel["id"]) == "true"
+        is_open = API.channel_get_value(id=channel["id"]) == "true"
 
         print(line_fmt % (device["name"], is_open and "OPEN" or "CLOSED"))
 

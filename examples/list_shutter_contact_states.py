@@ -45,6 +45,6 @@ print(line_fmt % ("-" * 30, "-" * 6))
 
 # HMSecSC.get_all(API) is an alias for: Device.get_devices(API, device_type="HM-Sec-SC")
 for device in HMSecSC.get_all(API):
-    print(line_fmt % (device.name, device.formated_value()))
+    print(line_fmt % (device.name, device.formated_values()))
 
 API.close()

@@ -88,10 +88,10 @@ class Channel(Entity):
         Gathers the values of the channel including their specifications. From this data
         parameter objects are constructed which are added to self._values of the Channel.
         """
-        raw_values = self.API.Interface_getParamset(interface="BidCos-RF", address=self.address, paramsetKey="VALUES")
+        raw_values = self.API.interface_get_paramset(interface="BidCos-RF", address=self.address, paramsetKey="VALUES")
 
         self._values.clear()
-        for param_spec in self.API.Interface_getParamsetDescription(interface="BidCos-RF", address=self.address, paramsetType="VALUES"):
+        for param_spec in self.API.interface_get_paramset_description(interface="BidCos-RF", address=self.address, paramsetType="VALUES"):
             param_id = param_spec["ID"]
 
             class_name = "Parameter%s" % param_spec["TYPE"]
@@ -304,7 +304,7 @@ class Device(Entity):
 
     @classmethod
     def get_devices(self, API, device_type=None, device_name=None, device_name_regex=None):
-        devices = API.Device_listAllDetail()
+        devices = API.device_list_all_detail()
 
         if utils.is_string(device_type):
             device_type = [device_type]
@@ -332,7 +332,7 @@ class Device(Entity):
     #  u'CONFIG_PENDING': u'0', u'RSSI_DEVICE': u'-65535', u'DUTYCYCLE': u'0'}
     # FIXME: Cache this
     def get_maintenance(self, what=None):
-        values = self.API.Interface_getParamset(interface="BidCos-RF", address=self.address + ":0", paramsetKey="VALUES")
+        values = self.API.interface_get_paramset(interface="BidCos-RF", address=self.address + ":0", paramsetKey="VALUES")
         return values
 
 

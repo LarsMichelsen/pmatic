@@ -111,7 +111,7 @@ class AbstractAPI(object):
 
 
     def _to_internal_name(self, method_name):
-        return method_name.replace(".", "_")
+        return utils.decamel(method_name.replace(".", "_").replace("BidCoS", "bidcos").replace("ReGa", "rega"))
 
 
     def _get_methods_config(self):

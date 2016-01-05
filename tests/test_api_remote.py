@@ -162,8 +162,8 @@ class TestRemoteAPI:
             assert "SCRIPT_FILE" in method
 
 
-    def test_Device_listAllDetail(self, API):
-        devices = API.Device_listAllDetail()
+    def test_device_list_all_detail(self, API):
+        devices = API.device_list_all_detail()
         assert len(devices) > 10
         for device in devices:
             assert "id" in device
@@ -172,14 +172,14 @@ class TestRemoteAPI:
             assert len(device["channels"]) > 0
 
 
-    def test_Room_listAll(self, API):
-        for room_id in API.Room_listAll():
+    def test_room_list_all(self, API):
+        for room_id in API.room_list_all():
             assert utils.is_text(room_id)
 
 
-    def test_Room_get(self, API):
-        first_room_id = API.Room_listAll()[0]
-        room = API.Room_get(id=first_room_id)
+    def test_room_get(self, API):
+        first_room_id = API.room_list_all()[0]
+        room = API.room_get(id=first_room_id)
         assert "name" in room
         assert "description" in room
         assert "channelIds" in room

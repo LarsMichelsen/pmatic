@@ -34,8 +34,8 @@ API = pmatic.api.init(
 # Please take a look at the documentation for details.
 #API = pmatic.api.init()
 
-for room_id in API.Room_listAll():
-    room_dict = API.Room_get(id=room_id)
+for room_id in API.room_list_all():
+    room_dict = API.room_get(id=room_id)
     # {u'description': u'Badezimmer', u'channelIds': [u'1977', u'1930', u'1433', u'1551', u'1554', u'1559'], u'id': u'1228', u'name': u'Bad'}
     print("%s (ID: %s, Description: %s)" % (room_dict["name"], room_id, room_dict["description"]))
 
