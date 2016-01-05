@@ -1,8 +1,9 @@
-VERSION       = 0.1
-CHROOT_PATH  ?= $(shell pwd)/chroot
-DIST_PATH    ?= $(shell pwd)/dist
-CCU_PKG_PATH ?= $(DIST_PATH)/ccu
-CCU_HOST     ?= ccu
+VERSION            = 0.1
+CHROOT_PATH       ?= $(shell pwd)/chroot
+CCU_PREDIST_PATH  ?= $(shell pwd)/ccu_pkg
+DIST_PATH         ?= $(shell pwd)/dist
+CCU_PKG_PATH      ?= $(DIST_PATH)/ccu
+CCU_HOST          ?= ccu
 
 .PHONY: chroot dist
 
@@ -17,7 +18,11 @@ help:
 	@echo
 	@echo "dist		  - Create all release packages"
 	@echo "dist-os            - Create release package for regular systems (Only pmatic)"
-	@echo "dist-ccu           - Create addon package for installation on CCU (Python + pmatic)"
+	@echo "dist-ccu-step1     - Copies needed python files to dist/ccu directory, the chroot"
+	@echo "                     needs to be created with \"make chroot\" before. The files below"
+	@echo "                     dist/ccu will be added to git to make CCU packaging without "
+	@echo "                     a chroot environment possible (like needed for travis containers)"
+	@echo "dist-ccu-step2     - Create addon package for installation on CCU (Python + pmatic)"
 	@echo
 	@echo "test	          - Run tests incl. coverage analyzing"
 	@echo "coverage	          - Report test coverage (short, console)"
@@ -41,21 +46,29 @@ setup:
 			python3-pip
 	sudo pip install pytest_flakes pytest_runner
 
-dist: dist-os
-	sudo $(MAKE) dist-ccu
+dist: dist-os dist-ccu
 
 dist-os:
 	python setup.py sdist
 	@echo "Created dist/pmatic-$(VERSION).tar.gz"
 
+chroot:
+	[ ! -d $(CHROOT_PATH) ] && mkdir $(CHROOT_PATH) || true
+	sudo debootstrap --no-check-gpg --foreign --arch=armel --include=python \
+	    wheezy $(CHROOT_PATH) http://ftp.debian.org/debian
+	sudo cp /usr/bin/qemu-arm-static $(CHROOT_PATH)/usr/bin
+	LANG=C sudo chroot $(CHROOT_PATH) /debootstrap/debootstrap --second-stage
+
 dist-ccu:
-	[ ! -d $(DIST_PATH) ] && mkdir $(DIST_PATH) || true
-	[ -d $(CCU_PKG_PATH) ] && rm -rf $(CCU_PKG_PATH) || true
+	sudo $(MAKE) dist-ccu-step1
+	$(MAKE) dist-ccu-step2
+
+dist-ccu-step1:
 	@if ! ls $(CHROOT_PATH)/* >/dev/null 2>&1; then \
 	    echo "ERROR: chroot missing. Please run \"make chroot\", then try again." ; \
 	    exit 1 ; \
 	fi
-	mkdir -p $(CCU_PKG_PATH)/python
+	mkdir -p $(CCU_PREDIST_PATH)/python
 	cd $(CHROOT_PATH)/usr ; \
 	rsync -aRv --no-g \
 	    bin/python2.7 \
@@ -112,7 +125,10 @@ dist-ccu:
 	    lib/python2.7/urllib.py \
 	    lib/python2.7/string.py \
 	    \
-	    $(CCU_PKG_PATH)/python
+	    $(CCU_PREDIST_PATH)/python
+
+dist-ccu-step2:
+	rsync -av $(CCU_PREDIST_PATH)/python $(CCU_PKG_PATH)/
 	rsync -aRv --no-g \
 	    --exclude=\*.pyc \
 	    --exclude=__pycache__ \
@@ -125,15 +141,7 @@ dist-ccu:
 	    python-wrapper \
 	    pmatic.init
 	gzip -f $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar
-	chown $$SUDO_UID:$$SUDO_GID $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar.gz
 	@echo "Created dist/pmatic-$(VERSION)_ccu.tar.gz"
-
-chroot:
-	[ ! -d $(CHROOT_PATH) ] && mkdir $(CHROOT_PATH) || true
-	sudo debootstrap --no-check-gpg --foreign --arch=armel --include=python-minimal \
-	    wheezy $(CHROOT_PATH) http://ftp.debian.org/debian
-	sudo cp /usr/bin/qemu-arm-static $(CHROOT_PATH)/usr/bin
-	LANG=C sudo chroot $(CHROOT_PATH) /debootstrap/debootstrap --second-stage
 
 test:
 	coverage run --source=pmatic setup.py test
@@ -194,7 +202,10 @@ clean-dist:
 	rm -rf build 2>/dev/null || true
 	rm -rf dist/* 2>/dev/null || true
 
-travis-build: chroot dist
+travis-build:
+	GIT_COMMIT=$(shell git rev-parse --short HEAD) ; \
+	NEW_VERSION=$$GIT_COMMIT $(MAKE) setversion
+	dist-os dist-ccu-step2
 	@echo -e "Starting to update gh-pages\n" ; \
 	PKG_PATH=$(shell pwd)/dist ; \
 	cd $$HOME ; \
@@ -202,7 +213,8 @@ travis-build: chroot dist
 	git config --global user.name "Travis" ; \
 	git clone --quiet --branch=gh-pages https://$$GH_TOKEN@github.com/LaMi-/pmatic.git gh-pages > /dev/null ; \
 	cd gh-pages ; \
-	cp -f $$PKG_PATH . ; \
+	cp -f $$PKG_PATH/pmatic-$$GIT_COMMIT_ccu.tar.gz pmatic-snapshot_ccu.tar.gz ; \
+	cp -f $$PKG_PATH/pmatic-$$GIT_COMMIT.tar.gz pmatic-snapshot.tar.gz ; \
 	git add -f . ; \
 	git commit -m "Travis build $$TRAVIS_BUILD_NUMBER pushed to gh-pages" ; \
 	git push -fq origin gh-pages > /dev/null ; \

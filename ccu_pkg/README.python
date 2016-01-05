@@ -1,0 +1,6 @@
+The bin/ and lib/ directory have been created with "make chroot dist-ccu-step1". The
+directories contain the Python binary and some selected modules which have been extracted
+from a Debian wheezy chroot.
+
+These files have been commited to the git to make automatic build possible without creating
+the chroot for each build.
