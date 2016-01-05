@@ -37,11 +37,12 @@ help:
 	@echo
 
 setup:
-	apt-get install debootstrap qemu-user-static rsync dialog python-pytest python-pip \
+	sudo apt-get install debootstrap qemu-user-static rsync dialog python-pytest python-pip \
 			python3-pip
-	pip install pytest_flakes pytest_runner
+	sudo pip install pytest_flakes pytest_runner
 
-dist: dist-os dist-ccu
+dist: dist-os
+	sudo $(MAKE) dist-ccu
 
 dist-os:
 	python setup.py sdist
@@ -118,19 +119,22 @@ dist-ccu:
 	    pmatic examples \
 	    $(CCU_PKG_PATH)
 	tar -cv -C $(CCU_PKG_PATH) -f $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar .
+	[ -d $(CCU_PKG_PATH) ] && rm -rf $(CCU_PKG_PATH) || true
 	tar -rv -C ccu_pkg -f $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar \
 	    update_script \
 	    python-wrapper \
 	    pmatic.init
 	gzip -f $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar
+	chown $$SUDO_UID:$$SUDO_GID $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar.gz
+	@echo "Created dist/pmatic-$(VERSION)_ccu.tar.gz"
 
 chroot:
 	[ ! -d $(CHROOT_PATH) ] && mkdir $(CHROOT_PATH) || true
-	debootstrap --no-check-gpg --foreign --arch=armel wheezy \
+	sudo debootstrap --no-check-gpg --foreign --arch=armel wheezy \
 	    $(CHROOT_PATH) http://ftp.debian.org/debian
-	cp /usr/bin/qemu-arm-static $(CHROOT_PATH)/usr/bin
-	LANG=C chroot $(CHROOT_PATH) /debootstrap/debootstrap --second-stage
-	LANG=C chroot $(CHROOT_PATH) apt-get -y --force-yes install python-minimal
+	sudo cp /usr/bin/qemu-arm-static $(CHROOT_PATH)/usr/bin
+	LANG=C sudo chroot $(CHROOT_PATH) /debootstrap/debootstrap --second-stage
+	LANG=C sudo chroot $(CHROOT_PATH) apt-get -y --force-yes install python-minimal
 
 test:
 	coverage run --source=pmatic setup.py test
@@ -149,8 +153,8 @@ coverage-html:
 	firefox htmlcov/index.html
 
 install:
-	python setup.py install
-	python3 setup.py install
+	sudo python setup.py install
+	sudo python3 setup.py install
 
 install-ccu: install-ccu-python install-ccu-pmatic
 
