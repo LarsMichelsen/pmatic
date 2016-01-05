@@ -65,25 +65,32 @@ welcome patches!
 
 ### Installation on the CCU2
 
-The current, not ideal way, is to use the Makefile shipped with the pmatic
-source. You need to first enable SSH access to your CCU2. Then you need to
-run the following command to install Python and pmatic on your device:
+pmatic can be packed as CCU addon package. On first release I will provide a
+pre-packed package for the CCU.
+
+Until the first release you can create CCU addon packages on your own by
+following these steps on a linux host:
+
+* download a snapshot of the git repository or clone the repository
+* run `make setup chroot dist-ccu`
+
+Now you should have a CCU addon archive at `dist/pmatic-0.1_ccu.tar.gz`.
+You can now upload this file to your CCU to install pmatic on it.
+
+Now you can connect to your CCU via SSH and run this command to confirm
+pmatic has been installed correctly:
 
 ```
-CCU_HOST=ccu make install-ccu
+python -c 'import pmatic'
 ```
 
-If your ccu is not reachable using the host name *ccu*, you can simply replace
-it in the command above with the host address of your CCU2.
+When the command completes silently (without `ImportError` exception) the
+installation was successful.
 
-The installation procedure assumes you have an SD card inserted and formated
-and installs Python and pmatic to `/media/sd-mmcblk0/pmatic` on your CCU2.
-The python interpreter is then available at
-`/media/sd-mmcblk0/pmatic/usr/bin/python2.7`. You can use it to execute your
-Python scripts now.
-
-I saw there is some way to create CCU addon packages which might be the best
-way to deploy pmatic on the CCU, but I did not get into this yet.
+The installation has been finished. You can now execute your own
+python and pmatic scripts on your CCU. For some examples you can change
+to `/etc/config/addons/pmatic/examples` and have a look at the source or
+just try them.
 
 ### Installation on your workstation
 
@@ -115,7 +122,7 @@ issues on a platform you would expect pmatic to work.
 
 Please take a look at the scripts below the `examples` directory for some
 sample scripts. I'll try to add more in the near future. Just to give you
-a quick view, here a simple example how to list all shutter contacts and 
+a quick view, here a simple example how to list all shutter contacts and
 their current states on the CCU2:
 
 ```
