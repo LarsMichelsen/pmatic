@@ -63,7 +63,14 @@ class Entity(object):
             setattr(self, key, val)
 
 
+
 class Channel(Entity):
+    transform_attributes = {
+        "id"               : (False, int),
+        "deviceId"         : (False, int),
+        "partnerId"        : (False, lambda x: None if x == "" else int(x)),
+    }
+
     def __init__(self, *args, **kwargs):
         self._values = {}
         super(Channel, self).__init__(*args, **kwargs)
@@ -110,11 +117,16 @@ class Channel(Entity):
         return self._values
 
 
-    def formated_values(self):
-        # FIXME: Order?
+    def summary_state(self):
+        """Represents a summary state of the channel.
+
+        Formats values and titles of channel values and returns them as string.
+
+        Default formating of channel values. Concatenates titles and values of
+        all channel values. The values are sorted by the titles."""
         formated = []
-        for value in self._values:
-            formated.append(value.formated())
+        for title, value in sorted([ (v.title, v) for v in self.values.values() if v.readable ]):
+            formated.append("%s: %s" % (title, value))
         return ", ".join(formated)
 
 
@@ -124,10 +136,10 @@ class ChannelShutterContact(Channel):
     type_name = "SHUTTER_CONTACT"
 
     def is_open(self):
-        return self.values["STATE"] == "1"
+        return self.values["STATE"].value
 
 
-    def formated_values(self):
+    def summary_state(self):
         return self.is_open() and "open" or "closed"
 
 
@@ -137,11 +149,11 @@ class ChannelSwitch(Channel):
     type_name = "SWITCH"
 
     def is_on(self):
-        return self.values["STATE"]
+        return self.values["STATE"].value
 
 
-    def formated_values(self):
-        return self.is_on() and "on" or "off"
+    def summary_state(self):
+        return "%s: %s" % (self.values["STATE"].title, self.is_on() and "on" or "off")
 
 
     def toggle(self):
@@ -183,19 +195,16 @@ class ChannelKey(Channel):
         return self.values["PRESS_CONT"].set(True)
 
 
+    def summary_state(self):
+        return None # has no state info as it's a toggle button
+
+
 
 # FIXME: Handle all values:
 # {u'POWER': u'3.520000', u'ENERGY_COUNTER': u'501.400000', u'BOOT': u'1',
 #  u'CURRENT': u'26.000000', u'FREQUENCY': u'50.010000', u'VOLTAGE': u'228.900000'}
 class ChannelPowermeter(Channel):
     type_name = "POWERMETER"
-
-    def formated_values(self):
-        values = self.values
-        return "Power: %(POWER)0.2f Wh, Voltage: %(VOLTAGE)0.2f V, " \
-               "Energy-Counter: %(ENERGY_COUNTER)0.2f Wh, " \
-               "Current: %(CURRENT)0.2f mA, " \
-               "Frequency: %(FREQUENCY)0.2f Hz" % values
 
 
 # FIXME: To be implemented.
@@ -213,17 +222,16 @@ class ChannelConditionVoltage(Channel):
     type_name = "CONDITION_VOLTAGE"
 
 
+
 # FIXME: To be implemented.
 class ChannelConditionFrequency(Channel):
     type_name = "CONDITION_FREQUENCY"
 
 
+
+# FIXME: To be implemented.
 class ChannelWeather(Channel):
     type_name = "WEATHER"
-
-    def formated_values(self):
-        return "%s, %s" % (utils.fmt_temperature(self.values["TEMPERATURE"]),
-                           utils.fmt_humidity(self.values["HUMIDITY"]))
 
 
 
@@ -231,23 +239,20 @@ class ChannelWeather(Channel):
 class ChannelClimaVentDrive(Channel):
     type_name = "CLIMATECONTROL_VENT_DRIVE"
 
-    def formated_values(self):
-        return utils.fmt_percentage_int(self.values["VALVE_STATE"])
-
 
 
 # FIXME: Handle ADJUSTING_COMMAND, ADJUSTING_DATA
 class ChannelClimaRegulator(Channel):
     type_name = "CLIMATECONTROL_REGULATOR"
 
-    def formated_values(self):
+    def summary_state(self):
         val = self.values["SETPOINT"]
         if val == 0.0:
             return "Ventil closed"
         elif val == 100.0:
             return "Ventil open"
         else:
-            return utils.fmt_temperature()
+            return "Ventil: %s" % self.values["SETPOINT"]
 
 
 # Devices:
@@ -257,9 +262,9 @@ class ChannelClimaRegulator(Channel):
 class ChannelClimaRTTransceiver(Channel):
     type_name = "CLIMATECONTROL_RT_TRANSCEIVER"
 
-    def formated_values(self):
-        return "%s (Target: %s)" % (utils.fmt_temperature(self.values["ACTUAL_TEMPERATURE"]),
-                                    utils.fmt_temperature(self.values["SET_TEMPERATURE"]))
+    def summary_state(self):
+        return "Temperature: %s (Target: %s)" % \
+                (self.values["ACTUAL_TEMPERATURE"], self.values["SET_TEMPERATURE"])
 
 
 
@@ -267,10 +272,16 @@ class ChannelClimaRTTransceiver(Channel):
 class ChannelWindowSwitchReceiver(Channel):
     type_name = "WINDOW_SWITCH_RECEIVER"
 
+    def summary_state(self):
+        return None
+
 
 # Has not any values
 class ChannelWeatherReceiver(Channel):
     type_name = "WEATHER_RECEIVER"
+
+    def summary_state(self):
+        return None
 
 
 # Devices:
@@ -279,6 +290,9 @@ class ChannelWeatherReceiver(Channel):
 class ClimateControlReceiver(Channel):
     type_name = "CLIMATECONTROL_RECEIVER"
 
+    def summary_state(self):
+        return None
+
 
 # Devices:
 #  HM-CC-RT-DN
@@ -286,12 +300,18 @@ class ClimateControlReceiver(Channel):
 class ClimateControlRTReceiver(Channel):
     type_name = "CLIMATECONTROL_RT_RECEIVER"
 
+    def summary_state(self):
+        return None
+
 
 # Devices:
 #  HM-CC-RT-DN
 # Has not any values
 class RemoteControlReceiver(Channel):
     type_name = "REMOTECONTROL_RECEIVER"
+
+    def summary_state(self):
+        return None
 
 
 class Device(Entity):
@@ -302,8 +322,13 @@ class Device(Entity):
         "channels"         : (True,  Channel.from_channel_dicts),
     }
 
+    def __init__(self, *args, **kwargs):
+        self._maintenance = {}
+        super(Device, self).__init__(*args, **kwargs)
+
+
     @classmethod
-    def get_devices(self, API, device_type=None, device_name=None, device_name_regex=None):
+    def get_devices(self, API, device_type=None, device_name=None, device_name_regex=None, has_channel_ids=None):
         devices = API.device_list_all_detail()
 
         if utils.is_string(device_type):
@@ -322,6 +347,10 @@ class Device(Entity):
             if device_name_regex != None and not re.match(device_name_regex, device_dict["name"]):
                 continue
 
+            # Add devices which have one of the channel ids listed in has_channel_ids
+            if has_channel_ids != None and not [ c for c in device_dict["channels"] if int(c["id"]) in has_channel_ids ]:
+                continue
+
             device_class = device_classes_by_type_name.get(device_dict["type"], Device)
             device_objects.append(device_class(API, device_dict))
         return device_objects
@@ -330,37 +359,48 @@ class Device(Entity):
     # {u'UNREACH': u'1', u'AES_KEY': u'1', u'UPDATE_PENDING': u'1', u'RSSI_PEER': u'-65535',
     #  u'LOWBAT': u'0', u'STICKY_UNREACH': u'1', u'DEVICE_IN_BOOTLOADER': u'0',
     #  u'CONFIG_PENDING': u'0', u'RSSI_DEVICE': u'-65535', u'DUTYCYCLE': u'0'}
-    # FIXME: Cache this
-    def get_maintenance(self, what=None):
-        values = self.API.interface_get_paramset(interface="BidCos-RF", address=self.address + ":0", paramsetKey="VALUES")
-        return values
+    @property
+    def maintenance(self, what=None):
+        # FIXME: When to invalidate / renew?
+        if not self._maintenance:
+            values = self.API.interface_get_paramset(interface="BidCos-RF", address=self.address + ":0", paramsetKey="VALUES")
+            for key, val in values.items():
+                if key in [ "RSSI_PEER", "RSSI_DEVICE" ]:
+                    self._maintenance[key] = int(val)
+                else:
+                    self._maintenance[key] = val == "1"
+
+
+        return self._maintenance
 
 
     def online(self):
         if self.type == "HM-RCV-50":
             return True # CCU is always assumed to be online
         else:
-            return self.get_maintenance()["UNREACH"] == "0"
+            return not self.maintenance["UNREACH"]
 
 
     def battery_low(self):
         try:
-            return self.get_maintenance()["LOWBAT"] == "1"
+            return self.maintenance["LOWBAT"]
         except KeyError:
             return None # not battery powered
 
 
     def has_pending_config(self):
-        return self.get_maintenance()["CONFIG_PENDING"] == "1"
+        if self.type == "HM-RCV-50":
+            return False
+        else:
+            return self.maintenance["CONFIG_PENDING"]
 
 
     def has_pending_update(self):
-        return self.get_maintenance()["UPDATE_PENDING"] == "1"
+        return self.maintenance.get("UPDATE_PENDING", False)
 
 
     def rssi(self):
-        info = self.get_maintenance()
-        return info["RSSI_DEVICE"], info["RSSI_PEER"]
+        return self.maintenance["RSSI_DEVICE"], self.maintenance["RSSI_PEER"]
 
 
     def get_values(self):
@@ -370,11 +410,42 @@ class Device(Entity):
         return values
 
 
-    def formated_values(self):
+    def summary_state(self, skip_channel_types=[]):
+        """Returns a textual summary state of the device.
+
+        Returns a string representing some kind of summary state of the device. This
+        string does not necessarly contain all state information of the devices.
+
+        When a device is unreachable, it does only return this information.
+
+        This default method concatenates values and titles of channel values and
+        returns them as string. The values are sorted by the titles."""
         formated = []
+
+        if not self.online():
+            return "The device is unreachable"
+
+        if self.battery_low():
+            formated.append("The battery is low")
+
+        if self.has_pending_config():
+            formated.append("Config pending")
+
+        if self.has_pending_update():
+            formated.append("Update pending")
+
+        # FIXME: Add bad rssi?
+
         for channel in self.channels:
-            formated.append(channel.formated_values())
-        return ", ".join(formated)
+            if type(channel).__name__ not in skip_channel_types:
+                txt = channel.summary_state()
+                if txt != None:
+                    formated.append(txt)
+
+        if formated:
+            return ", ".join(formated)
+        else:
+            return "Device reports no operational state"
 
 
 
@@ -383,6 +454,16 @@ class SpecificDevice(Device):
     def get_all(self, API):
         return Device.get_devices(API, device_type=self.type_name)
 
+
+
+# Funk-Heizkörperthermostat
+class HMCCRTDN(SpecificDevice):
+    type_name = "HM-CC-RT-DN"
+
+
+# Virtuelle Fernbedienung der CCU
+class HMRCV50(SpecificDevice):
+    type_name = "HM-RCV-50"
 
 
 # Funk-Tür-/ Fensterkontakt
@@ -394,6 +475,7 @@ class HMSecSC(SpecificDevice):
         return getattr(self.channels[0], attr)
 
 
+
 # Funk-Schaltaktor mit Leistungsmessung
 class HMESPMSw1Pl(SpecificDevice):
     type_name = "HM-ES-PMSw1-Pl"
@@ -403,11 +485,75 @@ class HMESPMSw1Pl(SpecificDevice):
         return getattr(self.channels[0], attr)
 
 
+    def summary_state(self):
+        return super(HMESPMSw1Pl, self).summary_state(
+            skip_channel_types=["ChannelConditionPower", "ChannelConditionCurrent",
+                                "ChannelConditionVoltage", "ChannelConditionFrequency"])
+
+
+
 class HMPBI4FM(SpecificDevice):
     type_name = "HM-PBI-4-FM"
 
     def button(self, index):
         return self.channels[index]
+
+
+
+class Room(Entity):
+    transform_attributes = {
+        "id"               : (False, int),
+        "channelIds"       : (False, lambda x: list(map(int, x))),
+    }
+
+    def __init__(self, *args, **kwargs):
+        self._values = {}
+        super(Room, self).__init__(*args, **kwargs)
+
+
+    @classmethod
+    def get_rooms(self, API):
+        rooms = []
+        for room_dict in API.room_get_all():
+            rooms.append(Room(API, room_dict))
+        return rooms
+
+
+    @property
+    def devices(self):
+        """Returns list of device objects which have at least one channel associated with this room."""
+        # FIXME: Cache this?
+        return Device.get_devices(self.API, has_channel_ids=self.channel_ids)
+
+
+    @property
+    def channels(self):
+        """Returns list of channel objects associated with this room."""
+        # FIXME: Cache this?
+        room_channels = []
+        for device in Device.get_devices(self.API, has_channel_ids=self.channel_ids):
+            for channel in device.channels:
+                if channel.id in self.channel_ids:
+                    room_channels.append(channel)
+        return room_channels
+
+
+    @property
+    def programs(self):
+        """Returns list of program objects which use at least one channel associated with this room."""
+        # FIXME: Implement!
+        # FIXME: Cache this?
+        return []
+
+
+    def add(self, channel_obj):
+        """Adds a channel to this room."""
+        # FIXME: Implement!
+
+
+    def remove(self, channel_obj):
+        """Removes a channel to this room."""
+        # FIXME: Implement!
 
 
 # Build a list of all specific product classes. If a device is initialized

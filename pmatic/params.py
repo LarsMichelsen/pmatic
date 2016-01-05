@@ -36,6 +36,7 @@ except ImportError:
 
 from . import PMException, PMActionFailed
 
+
 # FIXME: Make FLAGS and OPERATIONS bitmasks more user friendly
 class Parameter(object):
     transform_attributes = {
@@ -78,6 +79,15 @@ class Parameter(object):
     def _validate(self, value):
         return True
 
+    @property
+    def readable(self):
+        """Whether or not this value can be read."""
+        return True
+
+    @property
+    def title(self):
+        return self.name.title().replace("_", " ")
+
 
     @property
     def value(self):
@@ -111,13 +121,21 @@ class Parameter(object):
         self.value = self.default
 
 
-    def formated(self):
+    def formated(self, value_format="%s"):
         if self.unit:
             if self.unit == "%":
-                return "%s%%" % self.value
+                return (value_format+"%%") % self.value
             else:
-                return "%s %s" % (self.value, self.unit)
-        return "%s" % self.value
+                return (value_format+" %s") % (self.value, self.unit)
+        return value_format % self.value
+
+
+    def __str__(self):
+        return self.formated().encode("utf-8")
+
+
+    def __unicode__(self):
+        return self.formated()
 
 
 class ParameterINTEGER(Parameter):
@@ -148,6 +166,11 @@ class ParameterINTEGER(Parameter):
             raise PMException("Invalid value (Exceeds minimum of %d" % self.min)
 
         return True
+
+
+
+class ParameterSTRING(Parameter):
+    datatype = "string"
 
 
 
@@ -182,6 +205,9 @@ class ParameterFLOAT(Parameter):
         return True
 
 
+    def formated(self):
+        return super(ParameterFLOAT, self).formated("%0.2f")
+
 
 class ParameterBOOL(Parameter):
     datatype = "boolean"
@@ -207,6 +233,12 @@ class ParameterENUM(ParameterINTEGER):
 
 class ParameterACTION(ParameterBOOL):
     datatype = "action"
+
+
+    @property
+    def readable(self):
+        return False
+
 
     @property
     def value(self):

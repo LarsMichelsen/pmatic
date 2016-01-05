@@ -168,6 +168,7 @@ class TestRemoteAPI:
         return API
 
 
+class TestRemoteAPILowLevel(TestRemoteAPI):
     def test_logged_in(self, API):
         assert len(API._session_id) == 10
 
