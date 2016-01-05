@@ -42,15 +42,14 @@ def test_is_text():
 
 
 def test_is_byte_string():
-    assert utils.is_byte_string(bytes("X"))
+    assert utils.is_byte_string(bytes(b"X"))
     if sys.version_info[0] == 3:
         assert not utils.is_byte_string("X")
         assert utils.is_byte_string(b"X")
-        assert utils.is_byte_string(bytes("X"))
+        assert utils.is_byte_string(bytes(b"X"))
     else:
         assert utils.is_byte_string(str("X"))
         assert not utils.is_byte_string("X")
-        assert not utils.is_byte_string(unicode("X"))
 
 
 def test_is_py3():
