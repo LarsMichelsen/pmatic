@@ -130,11 +130,10 @@ dist-ccu:
 
 chroot:
 	[ ! -d $(CHROOT_PATH) ] && mkdir $(CHROOT_PATH) || true
-	sudo debootstrap --no-check-gpg --foreign --arch=armel wheezy \
-	    $(CHROOT_PATH) http://ftp.debian.org/debian
+	sudo debootstrap --no-check-gpg --foreign --arch=armel --include=python-minimal \
+	    wheezy $(CHROOT_PATH) http://ftp.debian.org/debian
 	sudo cp /usr/bin/qemu-arm-static $(CHROOT_PATH)/usr/bin
 	LANG=C sudo chroot $(CHROOT_PATH) /debootstrap/debootstrap --second-stage
-	LANG=C sudo chroot $(CHROOT_PATH) apt-get -y --force-yes install python-minimal
 
 test:
 	coverage run --source=pmatic setup.py test
