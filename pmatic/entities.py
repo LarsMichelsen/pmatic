@@ -290,7 +290,7 @@ class ChannelWeatherReceiver(Channel):
 # Devices:
 #  HM-CC-RT-DN
 # Has not any values
-class ClimateControlReceiver(Channel):
+class ChannelClimateControlReceiver(Channel):
     type_name = "CLIMATECONTROL_RECEIVER"
 
     def summary_state(self):
@@ -300,7 +300,7 @@ class ClimateControlReceiver(Channel):
 # Devices:
 #  HM-CC-RT-DN
 # Has not any values
-class ClimateControlRTReceiver(Channel):
+class ChannelClimateControlRTReceiver(Channel):
     type_name = "CLIMATECONTROL_RT_RECEIVER"
 
     def summary_state(self):
@@ -310,7 +310,7 @@ class ClimateControlRTReceiver(Channel):
 # Devices:
 #  HM-CC-RT-DN
 # Has not any values
-class RemoteControlReceiver(Channel):
+class ChannelRemoteControlReceiver(Channel):
     type_name = "REMOTECONTROL_RECEIVER"
 
     def summary_state(self):

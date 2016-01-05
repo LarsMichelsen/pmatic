@@ -47,45 +47,26 @@ API = pmatic.api.init(
 #    log_level=logging.DEBUG
 )
 
-print(API.Interface_listInterfaces())
+#CCU = CCU(API)
+#
+#for device in Device.get_devices(API, device_name="Büro-Lampe"):
+#    for channel in device.channels:
+#        print(device.name, channel.get_values())
+#        print(device.name, channel.channel_type, channel.name, channel.formated_values())
 
-sys.stdout.write("Switching off all lamps...\n")
-
-# Search all devices which contain the text "Lampe" in their name, then
-# switch all of them off and report the result.
-for device in Device.get_devices(API, device_name_regex=".*Lampe.*"):
-    sys.stdout.write("  %s..." % device.name)
-    if device.switch_off():
-        sys.stdout.write("done.\n")
+for device in Device.get_devices(API):
+    if not device.online():
+        print("OFFLINE:", device.name)
     else:
-        sys.stdout.write("failed!\n")
-
-    if device.switch_on():
-        sys.stdout.write("done.\n")
-    else:
-        sys.stdout.write("failed!\n")
-
-sys.stdout.write("Finished.\n")
-API.close()
-
-sys.exit(1)
-
-CCU = CCU(API)
-
-for device in Device.get_devices(API, device_name="Büro-Lampe"):
-    for channel in device.channels:
-        print(device.name, channel.get_values())
-        print(device.name, channel.channel_type, channel.name, channel.formated_values())
-
-#for device in Device.get_devices(API):
-#    if not device.online():
-#        print("OFFLINE:", device.name)
-#    else:
-#        for channel in device.channels:
-#            if channel.__class__ == Channel:
-#                print("", device.name, channel.channel_type, channel.name, channel.get_values())
-#            else:
-#                print(device.name, channel.channel_type, channel.name, channel.formated_value())
+        for channel in device.channels:
+            if channel.__class__ == Channel:
+                print("", device.name, channel.channel_type, channel.name, channel.summary_state())
+                print(channel.values)
+            else:
+                print(device.name, channel.channel_type, channel.name, channel.summary_state())
+                print(channel.values)
+                for name, v in channel.values.items():
+                    print(name, v.datatype)
 
 sys.exit(1)
 

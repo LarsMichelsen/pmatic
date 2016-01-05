@@ -28,7 +28,7 @@ import pytest
 
 from test_api_remote import TestRemoteAPI
 from pmatic.entities import Channel, Device
-from pmatic.params import Parameter
+from pmatic.params import Parameter, ParameterINTEGER, ParameterFLOAT, ParameterBOOL, ParameterACTION, ParameterSTRING, ParameterENUM
 from pmatic import utils, PMException
 
 class TestParameter(TestRemoteAPI):
@@ -168,17 +168,18 @@ class TestParameter(TestRemoteAPI):
 
 
 
-class TestParameterFloat(TestRemoteAPI):
+class TestParameterFLOAT(TestRemoteAPI):
     @pytest.fixture(scope="class")
     def p(self, API):
-        switch_state_channel = Device.get_devices(API, device_name="Büro-Lampe")[0].channels[0]
-        return switch_state_channel.values["ON_TIME"]
+        clima_regulator = Device.get_devices(API, device_name="Bad-Thermostat")[0].channels[1]
+        return clima_regulator.values["SETPOINT"]
 
 
     def test_attributes(self, p):
+        assert type(p) == ParameterFLOAT
         assert p.type == "FLOAT"
-        assert p.unit == "s"
-        assert p.name == "ON_TIME"
+        assert p.unit == u"°C"
+        assert p.name == "SETPOINT"
         assert type(p.value) == float
         assert type(p.min) == float
         assert type(p.max) == float
@@ -198,23 +199,23 @@ class TestParameterFloat(TestRemoteAPI):
 
 
     def test_validate(self, p):
-        assert p._validate(1.0) == True
-        assert p._validate(1) == True
+        assert p._validate(10.0) == True
+        assert p._validate(10) == True
         with pytest.raises(PMException):
-            p._validate(-1)
+            p._validate(None)
         with pytest.raises(PMException):
-            p._validate(-1.0)
+            p._validate(p.min-1)
         with pytest.raises(PMException):
-            p._validate(p.max+0.1)
+            p._validate(p.max+1)
 
 
     def test_formated(self, p):
         p._value = 1.0
-        assert p.formated() == "1.00 s"
+        assert p.formated() == u"1.00 °C"
         p._value = 1.991
-        assert p.formated() == "1.99 s"
+        assert p.formated() == u"1.99 °C"
         p._value = -1.991
-        assert p.formated() == "-1.99 s"
+        assert p.formated() == u"-1.99 °C"
 
 
 
@@ -226,6 +227,7 @@ class TestParameterBOOL(TestRemoteAPI):
 
 
     def test_attributes(self, p):
+        assert type(p) == ParameterBOOL
         assert p.type == "BOOL"
         assert p.unit == ""
         assert p.name == "STATE"
@@ -248,9 +250,131 @@ class TestParameterBOOL(TestRemoteAPI):
         with pytest.raises(PMException):
             p._validate(None)
 
-# FIXME: Create tests for specific parameter types
-#class TestParameterINTEGER(Parameter):
-#class TestParameterSTRING(Parameter):
-#class TestParameterBOOL(Parameter):
-#class TestParameterENUM(ParameterINTEGER):
-#class TestParameterACTION(ParameterBOOL):
+
+
+class TestParameterACTION(TestParameterBOOL):
+    @pytest.fixture(scope="class")
+    def p(self, API):
+        button0 = Device.get_devices(API, device_name="Büro-Schalter")[0].button(0)
+        return button0.values["PRESS_SHORT"]
+
+
+    def test_attributes(self, p):
+        print(p.__dict__)
+        assert type(p) == ParameterACTION
+        assert p.type == "ACTION"
+        assert p.unit == ""
+        assert p.name == "PRESS_SHORT"
+
+
+    def test_readable(self, p):
+        assert p.readable == False
+
+
+    def test_get_value(self, p):
+        with pytest.raises(PMException) as e:
+            p.value
+        assert "can not be read." in str(e.value)
+
+
+    def test_set(self, p):
+        p.value = True
+        assert p.set(True)
+        with pytest.raises(PMException):
+            p.set(None)
+        with pytest.raises(PMException):
+            p.value = "1"
+        with pytest.raises(PMException):
+            p.value = None
+
+
+
+class TestParameterINTEGER(TestRemoteAPI):
+    @pytest.fixture(scope="class")
+    def p(self, API):
+        clima_vent_drive = Device.get_devices(API, device_name="Bad-Heizung")[0].channels[0]
+        return clima_vent_drive.values["VALVE_STATE"]
+
+
+    def test_attributes(self, p):
+        assert type(p) == ParameterINTEGER
+        assert p.type == "INTEGER"
+        assert p.unit == "%"
+        assert p.name == "VALVE_STATE"
+        assert type(p.value) == int
+        assert type(p.min) == int
+        assert type(p.max) == int
+        assert type(p.default) == int
+
+
+    def test_from_api_value(self, p):
+        assert p._from_api_value("1") == 1
+        with pytest.raises(ValueError):
+            p._from_api_value("1.0")
+
+
+    def test_to_api_value(self, p):
+        assert p._to_api_value(1) == "1"
+        assert p._to_api_value(1.001) == "1"
+        assert p._to_api_value(999) == "999"
+        assert p._to_api_value(-999) == "-999"
+
+
+    def test_validate(self, p):
+        assert p._validate(p.min+1) == True
+        assert p._validate(p.min) == True
+        assert p._validate(p.max) == True
+
+        with pytest.raises(PMException):
+            p._validate(1.0)
+        with pytest.raises(PMException):
+            p._validate(None)
+        with pytest.raises(PMException):
+            p._validate(p.min-1)
+        with pytest.raises(PMException):
+            p._validate(p.max+0.1)
+
+
+    def test_formated(self, p):
+        p._value = 1
+        assert p.formated() == "1%"
+        p._value = 101
+        assert p.formated() == "101%"
+        p._value = -100
+        assert p.formated() == "-100%"
+
+
+
+class TestParameterENUM(TestRemoteAPI):
+    @pytest.fixture(scope="class")
+    def p(self, API):
+        clima_vent_drive = Device.get_devices(API, device_name="Bad-Heizung")[0].channels[0]
+        return clima_vent_drive.values["ERROR"]
+
+    def test_attributes(self, p):
+        print(p.__dict__)
+        assert type(p) == ParameterENUM
+        assert p.type == "ENUM"
+        assert p.unit == ""
+        assert p.name == "ERROR"
+        assert type(p.value) == int
+        assert type(p.min) == int
+        assert type(p.max) == int
+        assert type(p.default) == int
+
+
+
+class TestParameterSTRING(TestRemoteAPI):
+    @pytest.fixture(scope="class")
+    def p(self, API):
+        clima_rt_transceiver = Device.get_devices(API, device_name="Schlafzimmer-Links-Heizung")[0].channels[3]
+        return clima_rt_transceiver.values["PARTY_MODE_SUBMIT"]
+
+    def test_attributes(self, p):
+        assert type(p) == ParameterSTRING
+        assert p.type == "STRING"
+        assert p.unit == ""
+        assert p.name == "PARTY_MODE_SUBMIT"
+        assert utils.is_text(p.min)
+        assert utils.is_text(p.max)
+        assert utils.is_text(p.default)

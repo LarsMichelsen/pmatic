@@ -1,0 +1,1 @@
+{"params": {"interface": "BidCos-RF", "paramsetKey": "VALUES", "_session_id_": "xxxxxxxxxx", "address": "LEQ1237196:1"}, "method": "Interface.getParamset"}

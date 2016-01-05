@@ -34,8 +34,6 @@ try:
 except ImportError:
     pass
 
-import sys
-
 import pmatic.entities
 from pmatic import utils
 from . import PMException, PMActionFailed
@@ -128,6 +126,8 @@ class Parameter(object):
 
     @property
     def value(self):
+        if not self.readable:
+            raise PMException("The value can not be read.")
         return self._value
 
 
@@ -207,7 +207,7 @@ class ParameterINTEGER(Parameter):
 
 
     def _to_api_value(self, value):
-        return str(value)
+        return "%d" % value
 
 
     def _validate(self, value):
@@ -221,6 +221,10 @@ class ParameterINTEGER(Parameter):
             raise PMException("Invalid value (Exceeds minimum of %d)" % self.min)
 
         return True
+
+
+    def formated(self):
+        return super(ParameterINTEGER, self).formated("%d")
 
 
 
@@ -282,19 +286,12 @@ class ParameterBOOL(Parameter):
         return True
 
 
+# FIXME: Format value_list:
+# 'control': u'NONE', 'operations': 5, 'name': u'ERROR', 'min': 0, 'default': 0, 'max': 4, '_value': 0, 'tab_order': 1, 'value_list': u'NO_ERROR VALVE_DRIVE_BLOCKED VALVE_DRIVE_LOOSE ADJUSTING_RANGE_TO_SMALL LOWBAT', 'flags': 9, 'unit': u'', 'type': u'ENUM', 'id': u'ERROR', 'channel': <pmatic.entities.ChannelClimaVentDrive object at 0x7fb7574b6750>}
+# FIXME: formated() should contain text values
 class ParameterENUM(ParameterINTEGER):
     pass
 
 
 class ParameterACTION(ParameterBOOL):
-    datatype = "action"
-
-
-    @property
-    def readable(self):
-        return False
-
-
-    @property
-    def value(self):
-        raise PMException("This value can not be read.")
+    pass
