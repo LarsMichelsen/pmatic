@@ -53,6 +53,7 @@ class RemoteAPI(AbstractAPI):
 
         self.login()
         self._init_methods()
+        self._register_atexit_handler()
 
 
     def _set_address(self, address):

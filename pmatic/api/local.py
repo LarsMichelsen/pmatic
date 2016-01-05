@@ -40,6 +40,7 @@ class LocalAPI(AbstractAPI):
 
         self._init_tclsh()
         self._init_methods()
+        self._register_atexit_handler()
 
 
     def _init_tclsh(self):

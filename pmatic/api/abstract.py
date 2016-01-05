@@ -41,7 +41,12 @@ class AbstractAPI(object):
         self._methods = {}
         self._init_logger(logger, log_level)
 
-        # Be sure to call the close (logout) method on interpreter shutdown
+
+    def _register_atexit_handler(self):
+        """Can be called to register a cleanup handler on interpreter exit.
+
+        The APIs can register this to ensures the close() method is called
+        on interpreter shutdown."""
         atexit.register(self.close)
 
 
