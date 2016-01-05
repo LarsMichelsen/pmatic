@@ -34,6 +34,13 @@ def is_string(obj):
     else:
         return isinstance(obj, basestring) # noqa
 
+# Python 2/3 compatible check for unicode in 2 and str in 3.
+def is_text(obj):
+    if sys.version_info[0] == 3:
+        return isinstance(obj, str)
+    else:
+        return isinstance(obj, unicode) # noqa
+
 
 def decamel(name):
     s1 = re.sub('(.)([A-Z][a-z]+)', r'\1_\2', name)

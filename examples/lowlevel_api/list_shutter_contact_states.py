@@ -21,10 +21,6 @@
 #import logging
 import pmatic.api
 
-##
-# Opening a pmatic session
-##
-
 # Open up a remote connection via HTTP to the CCU and login as admin. When the connection
 # can not be established within 5 seconds it raises an exception.
 API = pmatic.api.init(
@@ -34,15 +30,6 @@ API = pmatic.api.init(
     #log_level=logging.DEBUG
 )
 
-# Open a pmatic API locally on the CCU. You need to install a python environment on your CCU before.
-# Please take a look at the documentation for details.
-#API = pmatic.api.init()
-
-# An example room dict:
-# {u'channelIds': [u'1874', u'1495'],
-#  u'description': u'',
-#  u'id': u'1224',
-#  u'name': u'Schlafzimmer'}
 devices = API.Device_listAllDetail()
 
 line_fmt = "%-30s %s"

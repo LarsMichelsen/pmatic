@@ -22,6 +22,9 @@ help:
 	@echo "test	          - Run tests incl. coverage analyzing"
 	@echo "coverage	          - Report test coverage (short, console)"
 	@echo "coverage-html      - Report test coverage (detailed, html)"
+	@echo "test-with-ccu      - Run remote API tests against a real CCU and record the responses"
+	@echo "                     which are stored below tests/resources/ and then used as expected"
+	@echo "	                    responses during regular tests."
 	@echo
 	@echo "install		  - Install on local system"
 	@echo "install-ccu        - Install python and pmatic on the CCU via SSH"
@@ -127,6 +130,10 @@ chroot:
 
 test:
 	coverage run --source=pmatic setup.py test
+
+
+test-with-ccu:
+	TEST_WITH_CCU=1 $(MAKE) test
 
 coverage:
 	coverage report

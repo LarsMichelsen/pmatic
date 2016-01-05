@@ -26,7 +26,7 @@ API = pmatic.api.init(
     # TODO: Replace this with the URL to your CCU2.
     address="http://192.168.1.26",
     # TODO: Insert your credentials here.
-    credentials=("Admin", "Wayne.2k1"),
+    credentials=("Admin", "EPIC-SECRET-PW"),
     connect_timeout=5
 )
 
