@@ -41,6 +41,36 @@ def test_is_text():
     assert utils.is_text(u"x") == True
 
 
+def test_is_byte_string():
+    assert utils.is_byte_string(bytes("X"))
+    if sys.version_info[0] == 3:
+        assert not utils.is_byte_string("X")
+        assert utils.is_byte_string(b"X")
+        assert utils.is_byte_string(bytes("X"))
+    else:
+        assert utils.is_byte_string(str("X"))
+        assert not utils.is_byte_string("X")
+        assert not utils.is_byte_string(unicode("X"))
+
+
+def test_is_py3():
+    if sys.version_info[0] == 3:
+        assert utils.is_py3() == True
+    else:
+        assert utils.is_py3() == False
+
+    saved = sys.version_info
+
+    sys.version_info = [ 2, 7 ]
+    assert utils.is_py3() == False
+    sys.version_info = [ 3, 4 ]
+    assert utils.is_py3() == True
+    sys.version_info = [ 4, 0 ]
+    assert utils.is_py3() == True
+
+    sys.version_info = saved
+
+
 def test_decamel():
     assert utils.decamel("thisIsACamelCase") == "this_is_a_camel_case"
     assert utils.decamel("thisIsACamelCase") == "this_is_a_camel_case"

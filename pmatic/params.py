@@ -34,18 +34,50 @@ try:
 except ImportError:
     pass
 
+import sys
+
+import pmatic.entities
+from pmatic import utils
 from . import PMException, PMActionFailed
 
 
 # FIXME: Make FLAGS and OPERATIONS bitmasks more user friendly
 class Parameter(object):
+    datatype = "string"
+
     transform_attributes = {
+        # mask: 1=Read, 2=Write, 4=Event
         'OPERATIONS' : int,
         'TAB_ORDER'  : int,
+        # mask: 
+        # 0x01 : Visible-Flag. Dieser Parameter sollte für de
+        # n Endanwender sichtbar sein. 
+        # 0x02 : Internal-Flag. Dieser Parameter wird nur int
+        # ern verwendet. 
+        # 0x04 : Transform-Flag. Änderungen dieses Parameters
+        #  ändern das Verhalten des 
+        #  entsprechenden Kanals völlig. Darf nur geändert wer
+        #  den, wenn keine Verknüpfungen 
+        #  am entsprechenden Kanal vorhanden sind. 
+        #  0x08 : Service-Flag. Dieser Parameter soll als Serv
+        #  icemeldung behandelt werden. Als 
+        #  Datentyp für Servicemeldungen sind nur Boolean und 
+        #  Integer zulässig. Bei 
+        #  0
+        #   bzw. 
+        #   false
+        #    liegt dabei keine Meldung vor, ansonsten liegt ein
+        #    e Meldung vor. 
+        #    0x10 : Sticky-Flag. Nur bei Servicemeldungen. Servi
+        #    cemeldung setzt sich nicht selbst 
+        #    zurück, sondern muss von der Oberfläche zurückgeset
+        #    zt werden. 
         'FLAGS'      : int,
     }
 
     def __init__(self, channel, spec, api_value):
+        assert isinstance(channel, pmatic.entities.Channel), "channel is not a Channel: %r" % channel
+        assert type(spec) == dict, "spec is not a dictionary: %r" % spec
         self.channel = channel
         self._init_attributes(spec)
 
@@ -82,7 +114,12 @@ class Parameter(object):
     @property
     def readable(self):
         """Whether or not this value can be read."""
-        return True
+        return self.operations & 1 == 1
+
+    @property
+    def writable(self):
+        """Whether or not this value can be set."""
+        return self.operations & 2 == 2
 
     @property
     def title(self):
@@ -96,13 +133,17 @@ class Parameter(object):
 
     @value.setter
     def value(self, value):
-        if not self.operations & 2:
+        if not self.writable:
             raise PMException("The value can not be changed.")
         self._validate(value)
 
-        result = self.channel.API.interface_set_value(interface="BidCos-RF", address=self.channel.address,
-                                                     valueKey=self.id, type=self.datatype,
-                                                     value=self._to_api_value(value))
+        result = self.channel.API.interface_set_value(
+            interface="BidCos-RF",
+            address=self.channel.address,
+            valueKey=self.id,
+            type=self.datatype,
+            value=self._to_api_value(value)
+        )
         if not result:
             raise PMActionFailed("Failed to set the value in CCU.")
 
@@ -131,10 +172,24 @@ class Parameter(object):
 
 
     def __str__(self):
+        """Returns the formated value. Data type differs depending on Python version.
+
+        In Python 2 it returns an UTF-8 encoded string.
+        In Python 3 it returns a unicode string of type str.
+        """
+        if utils.is_py3():
+            return self.formated()
+        else:
+            return self.formated().encode("utf-8")
+
+
+    def __bytes__(self):
+        """Returns the formated value UTF-8 encoded. Only relevant for Python 3."""
         return self.formated().encode("utf-8")
 
 
     def __unicode__(self):
+        """Returns the formated value as unicode string. Only relevant for Python 2."""
         return self.formated()
 
 
@@ -160,17 +215,17 @@ class ParameterINTEGER(Parameter):
             raise PMException("Invalid type. You need to provide an integer value.")
 
         if value > self.max:
-            raise PMException("Invalid value (Exceeds maximum of %d" % self.max)
+            raise PMException("Invalid value (Exceeds maximum of %d)" % self.max)
 
-        if value > self.min:
-            raise PMException("Invalid value (Exceeds minimum of %d" % self.min)
+        if value < self.min:
+            raise PMException("Invalid value (Exceeds minimum of %d)" % self.min)
 
         return True
 
 
 
 class ParameterSTRING(Parameter):
-    datatype = "string"
+    pass
 
 
 
@@ -193,14 +248,14 @@ class ParameterFLOAT(Parameter):
 
 
     def _validate(self, value):
-        if type(value) != float:
+        if type(value) not in (float, int):
             raise PMException("Invalid type. You need to provide a float value.")
 
         if value > self.max:
-            raise PMException("Invalid value (Exceeds maximum of %0.2f" % self.max)
+            raise PMException("Invalid value (Exceeds maximum of %0.2f)" % self.max)
 
-        if value > self.min:
-            raise PMException("Invalid value (Exceeds minimum of %0.2f" % self.min)
+        if value < self.min:
+            raise PMException("Invalid value (Exceeds minimum of %0.2f)" % self.min)
 
         return True
 

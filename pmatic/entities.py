@@ -35,12 +35,15 @@ try:
 except ImportError:
     pass
 
+from pmatic.api.abstract import AbstractAPI
 from . import utils, debug, warning, params
 
 class Entity(object):
     transform_attributes = {}
 
     def __init__(self, API, obj_dict):
+        assert isinstance(API, AbstractAPI), "API is not of API class: %r" % API
+        assert type(obj_dict) == dict, "obj_dict is not a dictionary: %r" % obj_dict
         self.API = API
         self._init_attributes(obj_dict)
 

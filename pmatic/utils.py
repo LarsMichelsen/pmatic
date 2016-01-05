@@ -29,17 +29,30 @@ import sys
 
 # Python 2/3 compatible string type check
 def is_string(obj):
-    if sys.version_info[0] == 3:
+    if is_py3():
         return isinstance(obj, str)
     else:
         return isinstance(obj, basestring) # noqa
 
 # Python 2/3 compatible check for unicode in 2 and str in 3.
 def is_text(obj):
-    if sys.version_info[0] == 3:
+    if is_py3():
         return isinstance(obj, str)
     else:
         return isinstance(obj, unicode) # noqa
+
+
+# Python 2/3 compatible check for non unicode (byte) string
+def is_byte_string(obj):
+    if is_py3():
+        return isinstance(obj, bytes)
+    else:
+        return isinstance(obj, str) # noqa
+
+
+def is_py3():
+    """Returns True when executed with Python 3 or newer."""
+    return sys.version_info[0] >= 3
 
 
 def decamel(name):

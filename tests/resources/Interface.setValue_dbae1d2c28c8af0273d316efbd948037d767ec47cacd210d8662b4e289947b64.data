@@ -1,0 +1,1 @@
+{"params": {"valueKey": "STATE", "value": "false", "address": "XXX", "interface": "BidCos-RF", "type": "string", "_session_id_": "xxxxxxxxxx"}, "method": "Interface.setValue"}
