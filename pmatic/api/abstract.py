@@ -24,7 +24,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import json, sys
+import json
+import sys
+import atexit
 
 try:
     # Is recommended for Python 3.x but fails on 2.7, but is not mandatory
@@ -32,12 +34,15 @@ try:
 except ImportError:
     pass
 
-from .. import PMException, init_logger
+from .. import PMException, init_logger, utils
 
 class AbstractAPI(object):
     def __init__(self, logger, log_level):
         self._methods = {}
         self._init_logger(logger, log_level)
+
+        # Be sure to call the close (logout) method on interpreter shutdown
+        atexit.register(self.close)
 
 
     def _init_logger(self, logger, log_level):
