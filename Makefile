@@ -144,7 +144,7 @@ dist-ccu-step2:
 	@echo "Created dist/pmatic-$(VERSION)_ccu.tar.gz"
 
 test:
-	coverage run --source=pmatic setup.py test
+	coverage run --include='pmatic/*' --source=pmatic setup.py test
 
 test-python3:
 	python3 setup.py test

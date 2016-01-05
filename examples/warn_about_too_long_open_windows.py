@@ -35,7 +35,7 @@ option would be to slightly adapt the script to make it work in an
 endless loop and checking open contacts in a configured interval.
 """
 
-import time, json
+import time
 import pmatic.api
 from pmatic.entities import HMSecSC
 
