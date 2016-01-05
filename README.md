@@ -72,8 +72,9 @@ git version available. So please note that this is not as stable as a
 released version would be. But feel free to try and test it. Let me know
 if you experience any issues with it.
 
-Download the file to your workstation and upload this file to your CCU using
-the regular addon upload form to install pmatic on it.
+[Download the file](http://lami-.github.io/pmatic/pmatic-snapshot_ccu.tar.gz)
+to your workstation and upload this file to your CCU using the regular addon
+upload form to install pmatic on it.
 
 Now you can connect to your CCU via SSH and run this command to confirm
 pmatic has been installed correctly:
