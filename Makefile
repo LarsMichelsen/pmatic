@@ -206,15 +206,15 @@ travis-build:
 	GIT_COMMIT=$(shell git rev-parse --short HEAD) ; \
 	NEW_VERSION=$$GIT_COMMIT $(MAKE) setversion ; \
 	$(MAKE) dist-os dist-ccu-step2 ; \
-	@echo -e "Starting to update gh-pages\n" ; \
+	echo -e "Starting to update gh-pages\n" ; \
 	PKG_PATH=$(shell pwd)/dist ; \
 	cd $$HOME ; \
 	git config --global user.email "travis@travis-ci.org" ; \
 	git config --global user.name "Travis" ; \
 	git clone --quiet --branch=gh-pages https://$$GH_TOKEN@github.com/LaMi-/pmatic.git gh-pages > /dev/null ; \
 	cd gh-pages ; \
-	cp -f $$PKG_PATH/pmatic-$$GIT_COMMIT_ccu.tar.gz pmatic-snapshot_ccu.tar.gz ; \
-	cp -f $$PKG_PATH/pmatic-$$GIT_COMMIT.tar.gz pmatic-snapshot.tar.gz ; \
+	cp -f $$PKG_PATH/pmatic-$${GIT_COMMIT}_ccu.tar.gz pmatic-snapshot_ccu.tar.gz ; \
+	cp -f $$PKG_PATH/pmatic-$${GIT_COMMIT}.tar.gz pmatic-snapshot.tar.gz ; \
 	git add -f . ; \
 	git commit -m "Travis build $$TRAVIS_BUILD_NUMBER pushed to gh-pages" ; \
 	git push -fq origin gh-pages > /dev/null ; \
