@@ -206,7 +206,6 @@ travis-build:
 	GIT_COMMIT=$(shell git rev-parse --short HEAD) ; \
 	NEW_VERSION=$$GIT_COMMIT $(MAKE) setversion ; \
 	$(MAKE) dist-os dist-ccu-step2 ; \
-	echo -e "Starting to update gh-pages\n" ; \
 	PKG_PATH=$(shell pwd)/dist ; \
 	cd $$HOME ; \
 	git config --global user.email "travis@travis-ci.org" ; \
@@ -218,4 +217,4 @@ travis-build:
 	git add -f . ; \
 	git commit -m "Travis build $$TRAVIS_BUILD_NUMBER pushed to gh-pages" ; \
 	git push -fq origin gh-pages > /dev/null ; \
-	echo -e "Finished adding current build\n"
+	echo "Finished adding current build"
