@@ -12,13 +12,6 @@ python:
 install:
     - pip install coveralls
 
-# Install packages for later snapshot builds
-addons:
-  apt:
-    packages:
-        - debootstrap
-        - qemu-user-static
-
 # Run tests with coverage checking
 script:
     - cd $TRAVIS_BUILD_DIR
