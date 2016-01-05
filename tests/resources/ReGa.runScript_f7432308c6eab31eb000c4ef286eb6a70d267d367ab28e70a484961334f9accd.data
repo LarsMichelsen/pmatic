@@ -1,1 +1,0 @@
-{"params": {"_session_id_": "F4il6u6IS1", "script": "string stderr;\nstring stdout;\nsystem.Exec(\"cat /www/api/methods.conf\", &stdout, &stderr);\nWrite(stdout);\n"}, "method": "ReGa.runScript"}

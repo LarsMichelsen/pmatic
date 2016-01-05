@@ -22,6 +22,8 @@ help:
 	@echo "test	          - Run tests incl. coverage analyzing"
 	@echo "coverage	          - Report test coverage (short, console)"
 	@echo "coverage-html      - Report test coverage (detailed, html)"
+	@echo "test-python3       - Run tests using Python3 (excl. coverage analyzing)"
+	@echo "coverage	          - Report test coverage (short, console)"
 	@echo "test-with-ccu      - Run remote API tests against a real CCU and record the responses"
 	@echo "                     which are stored below tests/resources/ and then used as expected"
 	@echo "	                    responses during regular tests."
@@ -35,7 +37,9 @@ help:
 	@echo
 
 setup:
-	apt-get install debootstrap qemu-user-static rsync dialog python-pytest
+	apt-get install debootstrap qemu-user-static rsync dialog python-pytest python-pip \
+			python3-pip
+	pip install pytest_flakes pytest_runner
 
 dist: dist-os dist-ccu
 
@@ -131,6 +135,8 @@ chroot:
 test:
 	coverage run --source=pmatic setup.py test
 
+test-python3:
+	python3 setup.py test
 
 test-with-ccu:
 	TEST_WITH_CCU=1 $(MAKE) test
@@ -144,6 +150,7 @@ coverage-html:
 
 install:
 	python setup.py install
+	python3 setup.py install
 
 install-ccu: install-ccu-python install-ccu-pmatic
 

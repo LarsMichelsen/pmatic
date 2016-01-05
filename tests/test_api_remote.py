@@ -48,13 +48,18 @@ from pmatic import utils
 import pmatic.api
 from pmatic.api.remote import RemoteAPI
 
-def request_id(url, data):
-    data_hash = sha256(data).hexdigest()
-    req = json.loads(data.decode("utf-8"))
-    return "%s_%s" % (req["method"], data_hash)
-
 
 resources_path = "tests/resources"
+
+
+def request_id(url, data):
+    req = json.loads(data.decode("utf-8"))
+
+    # For hashing we need a constant sorted representation of the data
+    fixed_data = json.dumps(req, sort_keys=True).encode("utf-8")
+    data_hash = sha256(fixed_data).hexdigest()
+
+    return "%s_%s" % (req["method"], data_hash)
 
 
 def response_file_path(request_id):
