@@ -1,5 +1,5 @@
 language: python
-sudo: false
+sudo: true
 
 # Support 2.7 as last 2.x release and 3.4+
 python:
