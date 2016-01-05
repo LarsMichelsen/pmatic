@@ -33,7 +33,7 @@ import glob
 from hashlib import sha256
 import json
 
-try
+try:
     from StringIO import StringIO
 except ImportError:
     # and for python 3
