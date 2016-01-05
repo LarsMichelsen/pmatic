@@ -1,4 +1,4 @@
-# pmatic - A simple API to to the Homematic CCU2
+# pmatic - A simple to use API to the Homematic CCU2
 
 [![Build Status](https://travis-ci.org/LaMi-/pmatic.svg?branch=master)](https://travis-ci.org/LaMi-/pmatic)
 [![Coverage Status](https://coveralls.io/repos/LaMi-/pmatic/badge.svg?branch=master&service=github)](https://coveralls.io/github/LaMi-/pmatic?branch=master)
