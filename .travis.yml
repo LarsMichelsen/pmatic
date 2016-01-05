@@ -1,20 +1,21 @@
 language: python
-sudo: false  # To use travis container infrastructure
-
+sudo: false
 python:
-  - 2.7
-  - 3.4
-  - 3.5
-  - nightly
-
+- 2.7
+- 3.4
+- 3.5
+- nightly
 install:
-  - pip install coveralls
-
+- pip install coveralls
 script:
-  - cd $TRAVIS_BUILD_DIR
-  - pwd
-  - ls -al
-  - coverage run --source=pmatic setup.py test
-
+- cd $TRAVIS_BUILD_DIR
+- pwd
+- ls -al
+- coverage run --source=pmatic setup.py test
 after_success:
-  coveralls # Send coverage statistics to Coveralls
+- coveralls
+- if [ $TRAVIS_PYTHON_VERSION = '2.7' ] && [ $TRAVIS_BRANCH = 'master' ] && [ $TRAVIS_PULL_REQUEST
+  = 'false' ]; then make travis-build; fi
+env:
+  global:
+    secure: UVubH1quHSxuh3bOYJqdcjQuZCEngdQECd5/B8ImzkY2QY0YwaN5wivbTEb9mKeYMSUYX6C2+K7plz5g3fYoOIwX0Y9DQtLb7xwERGiA5e0vADRZ3JjglEa5FHyY3gdOdl2eToyQG/afdI6CFGWWLVfj47mJi2V7aHPlA9mfdDElyX/h+xQv2Emkzcnk5W5YH720t7hoDLZ4w/EVd/gJTNK8TwVHOYiGkeDEBjcG/h4uriVmWWll82TvzJ0RRD/jm9B2jKJBtRIn+fitUgiuFo0PHRfuNBNiwS7WzkqZZPJ7DwgLoMGy6ZcqGl7Kb50eBAiP6XHyPSsqO2zFZon7vx4YIyXQuzxjjYRPhkb9eprxoOHWXlysNFMEbtmV+SBbKBK2V9fpHZtyI1643O/s7EtVvH4Ad9c+/I0gESM8GbSwgFPKCpIJdjMcz1SJb4s7HkLFo2H1NQTm3fchQxLy6EW7JTT6XE0+vFoiXoEiGCP/KDfVL/AaCdvp1IwJ4DKGW4eGREjhIj6vJVF0vw9HVZv32nKINajgeOW+M3AzxIZS5oFQzj6mc2eXTjVWYeDPckYY+pVdFOnUml9n7ZytKzl3WwzzHqmSdiYLCNBDafPcfEn6P6eiCBNFAMMTFQM5Laal7DKLo6eVUTWR9UXkmJhbEu3QGiHK/JfvuIQKc2k=
