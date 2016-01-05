@@ -20,6 +20,7 @@
 
 # Relevant docs:
 # - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_Script_Teil_4_Datenpunkte_1_503.pdf
+# - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_XmlRpc_V1_502__2_.pdf
 
 # Add Python 3.x behaviour to 2.7
 from __future__ import absolute_import
@@ -198,6 +199,10 @@ class ParameterBOOL(Parameter):
             raise PMException("Invalid type. You need to provide a bool value.")
 
         return True
+
+
+class ParameterENUM(ParameterINTEGER):
+    pass
 
 
 class ParameterACTION(ParameterBOOL):
