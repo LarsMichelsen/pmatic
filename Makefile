@@ -204,8 +204,8 @@ clean-dist:
 
 travis-build:
 	GIT_COMMIT=$(shell git rev-parse --short HEAD) ; \
-	NEW_VERSION=$$GIT_COMMIT $(MAKE) setversion
-	dist-os dist-ccu-step2
+	NEW_VERSION=$$GIT_COMMIT $(MAKE) setversion ; \
+	$(MAKE) dist-os dist-ccu-step2 ; \
 	@echo -e "Starting to update gh-pages\n" ; \
 	PKG_PATH=$(shell pwd)/dist ; \
 	cd $$HOME ; \
