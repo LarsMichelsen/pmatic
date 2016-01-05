@@ -332,7 +332,7 @@ class TestParameterINTEGER(TestRemoteAPI):
         with pytest.raises(PMException):
             p._validate(p.min-1)
         with pytest.raises(PMException):
-            p._validate(p.max+0.1)
+            p._validate(p.max+1)
 
 
     def test_formated(self, p):
