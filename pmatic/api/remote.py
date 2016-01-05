@@ -86,9 +86,9 @@ class RemoteAPI(AbstractAPI):
 
 
     def _get_methods_config(self):
-        # Can not use API.ReGa_runScript() here since the method infos are not yet
-        # available. User code should use API.ReGa_runScript().
-        response = self.call("ReGa.runScript",
+        # Can not use API.rega_run_script() here since the method infos are not yet
+        # available. User code should use API.rega_run_script().
+        response = self.call("rega_run_script",
             _session_id_=self._session_id,
             script="string stderr;\n"
                    "string stdout;\n"
@@ -102,7 +102,7 @@ class RemoteAPI(AbstractAPI):
         if self._session_id:
             raise PMException("Already logged in.")
 
-        response = self.call("Session.login", username=self._credentials[0],
+        response = self.call("session_login", username=self._credentials[0],
                                               password=self._credentials[1])
         if response == None:
             raise PMException("Login failed: Got no session id.")
@@ -111,7 +111,7 @@ class RemoteAPI(AbstractAPI):
 
     def logout(self):
         if self._session_id:
-            self.call("Session.logout", _session_id_=self._session_id)
+            self.call("session_logout", _session_id_=self._session_id)
             self._session_id = None
 
 
@@ -128,23 +128,23 @@ class RemoteAPI(AbstractAPI):
     # The following wrapper allows specific API calls which are needed
     # before the real list of methods is available, so allow
     # it to be not validated and fake the method response.
-    def _get_method(self, method_name):
+    def _get_method(self, method_name_int):
         try:
-            return super(RemoteAPI, self)._get_method(method_name)
+            return super(RemoteAPI, self)._get_method(method_name_int)
         except PMException:
-            if method_name == "Session.login" and not self._methods:
+            if method_name_int == "session_login" and not self._methods:
                 return {
                     "NAME": "Session.login",
                     "INFO": "Führt die Benutzeranmeldung durch",
                     "ARGUMENTS": [ "username", "password" ],
                 }
-            elif method_name == "ReGa.runScript" and not self._methods:
+            elif method_name_int == "rega_run_script" and not self._methods:
                 return {
                     "NAME": "ReGa.runScript",
                     "INFO": "Führt ein HomeMatic Script aus",
                     "ARGUMENTS": [ "_session_id_", "script" ],
                 }
-            elif method_name == "Session.logout" and not self._methods:
+            elif method_name_int == "session_logout" and not self._methods:
                 return {
                     "NAME": "Session.logout",
                     "INFO": "Beendet eine Sitzung",
@@ -156,8 +156,8 @@ class RemoteAPI(AbstractAPI):
 
     # Runs the provided method, which needs to be one of the methods which are available
     # on the device (with the given arguments) on the CCU.
-    def call(self, method_name, **kwargs):
-        method = self._get_method(method_name)
+    def call(self, method_name_int, **kwargs):
+        method = self._get_method(method_name_int)
         args   = self.get_arguments(method, kwargs)
 
         self.debug("CALL: %s ARGS: %r" % (method["NAME"], args))
@@ -188,4 +188,4 @@ class RemoteAPI(AbstractAPI):
                                     (http_status, url, response_txt))
 
         self.debug("  RESPONSE: %s" % response_txt)
-        return self._parse_api_response(method_name, response_txt)
+        return self._parse_api_response(method_name_int, response_txt)

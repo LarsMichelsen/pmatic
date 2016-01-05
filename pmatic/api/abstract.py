@@ -76,23 +76,25 @@ class AbstractAPI(object):
         self._logger.critical(*args, **kwargs)
 
 
-    def _parse_api_response(self, method, body):
+    def _parse_api_response(self, method_name_int, body):
         # FIXME: The ccu is performing wrong encoding at least for output of
         # executed rega scripts. But maybe this is a generic problem. Let's see
         # and only fix the known issues for the moment.
-        if method == "ReGa.runScript":
+        if method_name_int in [ "rega_run_script", "interface_get_paramset_description" ]:
             body = body.replace("\\{", "{").replace("\\[", "[")
 
         try:
             msg = json.loads(body)
-        except Exception:
-            raise PMException("Failed to parse response:\n%s\n" % body)
+        except Exception as e:
+            raise PMException("Failed to parse response to %s (%s):\n%s\n" %
+                                                    (method_name_int, e, body))
 
         if msg["error"] != None:
             # FIXME: msg["error"]["code"] == 501 can also be provided during
             # restart of the CCU while ReGa is not running. Check this using
             # e.g. http://ccu/ise/checkrega.cgi and provide a nicer error msg.
-            raise PMException("[%s] %s: %s (%s)" % (method, msg["error"]["name"],
+            raise PMException("[%s] %s: %s (%s)" % (method_name_int,
+                                                    msg["error"]["name"],
                                                     msg["error"]["message"],
                                                     msg["error"]["code"]))
 
@@ -115,8 +117,8 @@ class AbstractAPI(object):
             raise AttributeError()
 
 
-    def _to_internal_name(self, method_name):
-        return utils.decamel(method_name.replace(".", "_").replace("BidCoS", "bidcos").replace("ReGa", "rega"))
+    def _to_internal_name(self, method_name_api):
+        return utils.decamel(method_name_api.replace(".", "_").replace("BidCoS", "bidcos").replace("ReGa", "rega"))
 
 
     def _get_methods_config(self):
@@ -173,8 +175,8 @@ class AbstractAPI(object):
                 self._methods[method_name_int][key] = val
 
 
-    def _get_method(self, method_name):
+    def _get_method(self, method_name_api):
         try:
-            return self._methods[self._to_internal_name(method_name)]
+            return self._methods[self._to_internal_name(method_name_api)]
         except KeyError:
-            raise PMException("Method \"%s\" is not a valid method." % method_name)
+            raise PMException("Method \"%s\" is not a valid method." % method_name_api)
