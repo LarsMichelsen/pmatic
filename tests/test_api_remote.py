@@ -94,7 +94,9 @@ def fake_urlopen(url, data=None, timeout=None):
 
 
 def fake_session_id(byte_str):
-    return re.sub('"_session_id_": "[0-9A-Za-z]{10}"', '"_session_id_": "xxxxxxxxxx"', byte_str)
+    new_str = re.sub('"_session_id_": "[0-9A-Za-z]{10}"', '"_session_id_": "xxxxxxxxxx"', byte_str)
+    # Session.login returns the session id as result. Replace it here.
+    return re.sub('"result": "[0-9A-Za-z]{10}"', '"result": "xxxxxxxxxx"', new_str)
 
 
 def wrap_urlopen(url, data=None, timeout=None):
