@@ -65,17 +65,15 @@ welcome patches!
 
 ### Installation on the CCU2
 
-pmatic can be packed as CCU addon package. On first release I will provide a
-pre-packed package for the CCU.
+pmatic can be packed as CCU addon package. Currently you can download the
+snapshot addon from [here](http://lami-.github.io/pmatic/pmatic-snapshot_ccu.tar.gz).
+It is a snapshot package which is automatically built from the latest
+git version available. So please note that this is not as stable as a
+released version would be. But feel free to try and test it. Let me know
+if you experience any issues with it.
 
-Until the first release you can create CCU addon packages on your own by
-following these steps on a linux host:
-
-* download a snapshot of the git repository or clone the repository
-* run `make setup chroot dist-ccu`
-
-Now you should have a CCU addon archive at `dist/pmatic-0.1_ccu.tar.gz`.
-You can now upload this file to your CCU to install pmatic on it.
+Download the file to your workstation and upload this file to your CCU using
+the regular addon upload form to install pmatic on it.
 
 Now you can connect to your CCU via SSH and run this command to confirm
 pmatic has been installed correctly:
@@ -134,6 +132,17 @@ API = pmatic.api.init()
 for device in HMSecSC.get_all(API):
     print device.name, device.formated_value()
 ```
+
+## Advanced topic: Build the CCU addon package on your own
+
+If you want to create a CCU addon package on your own, follow these steps
+on a linux host:
+
+* download a snapshot of the git repository or clone the repository
+* run `make setup chroot dist-ccu`
+
+Now you should have a CCU addon archive at `dist/pmatic-*_ccu.tar.gz`.
+You can now upload this file to your CCU to install pmatic on it.
 
 ## Reporting Bugs, Feature Requests
 
