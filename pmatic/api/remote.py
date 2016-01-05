@@ -173,8 +173,8 @@ class RemoteAPI(AbstractAPI):
                              timeout=self._connect_timeout)
         except URLError as e:
             raise PMException("Failed to open \"%s\": %s" % (url, e.reason))
-        except Exception as e:
-            raise PMException("Failed to open \"%s\": %s" % (url, e))
+        #except Exception as e:
+        #    raise PMException("Failed to open \"%s\": %s" % (url, e))
 
         response_txt = ""
         for line in handle.readlines():

@@ -37,7 +37,7 @@ try:
     from StringIO import StringIO
 except ImportError:
     # and for python 3
-    from io import StringIO
+    from io import BytesIO as StringIO
 
 try:
     from urllib.request import urlopen
@@ -50,7 +50,7 @@ from pmatic.api.remote import RemoteAPI
 
 def request_id(url, data):
     data_hash = sha256(data).hexdigest()
-    req = json.loads(data)
+    req = json.loads(data.decode("utf-8"))
     return "%s_%s" % (req["method"], data_hash)
 
 
@@ -81,7 +81,7 @@ def fake_urlopen(url, data=None, timeout=None):
     response = open(response_file_path(rid), "rb").read()
     http_status = int(open(status_file_path(rid), "rb").read())
 
-    obj = StringIO.StringIO(response)
+    obj = StringIO(response)
     obj.getcode = lambda: http_status
 
     return obj
@@ -98,7 +98,7 @@ def wrap_urlopen(url, data=None, timeout=None):
         os.makedirs(resources_path)
 
     open(response_file_path(rid), "wb").write(obj.read())
-    open(status_file_path(rid), "wb").write(str(obj.getcode()))
+    open(status_file_path(rid), "wb").write(str(obj.getcode()).encode("utf-8"))
     open(data_file_path(rid), "wb").write(data)
 
     return fake_urlopen(url, data, timeout)

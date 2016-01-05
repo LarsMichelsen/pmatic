@@ -182,4 +182,4 @@ clean-chroot:
 
 clean-dist:
 	rm -rf build 2>/dev/null || true
-	rm -f dist/* 2>/dev/null || true
+	rm -rf dist/* 2>/dev/null || true
