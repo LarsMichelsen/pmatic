@@ -191,7 +191,7 @@ clean-dist:
 	rm -rf build 2>/dev/null || true
 	rm -rf dist/* 2>/dev/null || true
 
-travis-build: setup chroot dist
+travis-build: chroot dist
 	@echo -e "Starting to update gh-pages\n" ; \
 	PKG_PATH=$(shell pwd)/dist ; \
 	cd $$HOME ; \
