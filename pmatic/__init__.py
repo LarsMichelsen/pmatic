@@ -46,7 +46,19 @@ __copyright__ = 'Copyright 2016 Lars Michelsen'
 import logging
 
 class PMException(Exception):
+    """This is the base exception for all exceptions raised by pmatic"""
     pass
+
+class PMConnectionError(Exception):
+    """Is raised when the connection with the CCU could not be established.
+
+    This error is raised by pmatic.api in situations where the CCU could not
+    be contacted. Normally such an exception means that the just failed action
+    can be tried again later.
+
+    For example when the CCU is currently not reachable this kind of exception
+    is raised. Means it is worth it to try again later with same parameters.
+    """
 
 class PMActionFailed(PMException):
     pass

@@ -29,13 +29,15 @@ from __future__ import unicode_literals
 try:
     from urllib.request import urlopen
     from urllib.error import URLError
+    from http.client import BadStatusLine
 except ImportError:
     from urllib2 import urlopen
     from urllib2 import URLError
+    from httplib import BadStatusLine
 
 import json
 
-from .. import PMException, utils
+from .. import PMException, PMConnectionError, utils
 from .abstract import AbstractAPI
 
 class RemoteAPI(AbstractAPI):
@@ -177,14 +179,19 @@ class RemoteAPI(AbstractAPI):
             "params": args,
         })
         url = "%s/api/homematic.cgi" % self._address
+
         try:
             self.debug("  URL: %s DATA: %s" % (url, json_data))
             handle = urlopen(url, data=json_data.encode("utf-8"),
                              timeout=self._connect_timeout)
-        except URLError as e:
-            raise PMException("Failed to open \"%s\": %s" % (url, e.reason))
-        #except Exception as e:
-        #    raise PMException("Failed to open \"%s\": %s" % (url, e))
+        except Exception as e:
+            if type(e) == URLError:
+                msg = e.reason
+            elif type(e) == BadStatusLine:
+                msg = "Request terminated. Is the device rebooting?"
+            else:
+                msg = e
+            raise PMConnectionError("Unable to open \"%s\" [%s]: %s" % (url, type(e).__name__, msg))
 
         response_txt = ""
         for line in handle.readlines():

@@ -36,7 +36,7 @@ try:
 except ImportError:
     pass
 
-from .. import PMException, init_logger, utils
+from .. import PMException, PMConnectionError, init_logger, utils
 
 class AbstractAPI(object):
     """An abstract implementation of the pmatic low level API.
@@ -110,7 +110,7 @@ class AbstractAPI(object):
 
         if msg["error"] != None:
             if msg["error"]["code"] == 501 and not self.call('rega_is_present'):
-                raise PMException("The logic layer (ReGa) is not available (yet). When "
+                raise PMConnectionError("The logic layer (ReGa) is not available (yet). When "
                                   "the CCU has just been started, please wait some time "
                                   "and retry.")
             else:
