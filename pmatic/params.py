@@ -39,7 +39,6 @@ from pmatic import utils
 from . import PMException, PMActionFailed
 
 
-# FIXME: Make FLAGS and OPERATIONS bitmasks more user friendly
 class Parameter(object):
     datatype = "string"
 
@@ -280,8 +279,10 @@ class ParameterFLOAT(Parameter):
         return float(value)
 
 
-    # FIXME: Is it ok to fix the precision?
     def _to_api_value(self, value):
+        """Transforms the float value to an API value.
+
+        The precision is set to 2 digits. Hope this is ok."""
         return "%0.2f" % value
 
 
@@ -320,11 +321,22 @@ class ParameterBOOL(Parameter):
         return True
 
 
-# FIXME: Format value_list:
 # 'control': u'NONE', 'operations': 5, 'name': u'ERROR', 'min': 0, 'default': 0, 'max': 4, '_value': 0, 'tab_order': 1, 'value_list': u'NO_ERROR VALVE_DRIVE_BLOCKED VALVE_DRIVE_LOOSE ADJUSTING_RANGE_TO_SMALL LOWBAT', 'flags': 9, 'unit': u'', 'type': u'ENUM', 'id': u'ERROR', 'channel': <pmatic.entities.ChannelClimaVentDrive object at 0x7fb7574b6750>}
-# FIXME: formated() should contain text values
 class ParameterENUM(ParameterINTEGER):
-    pass
+    transform_attributes = dict(ParameterINTEGER.transform_attributes,
+        VALUE_LIST=lambda v: v.split(" "),
+    )
+
+    @property
+    def possible_values(self):
+        """ Returns a python list of possible values.
+
+        The indexes in this list represent the digit to be used as value."""
+        return self.value_list
+
+
+    def formated(self):
+        return self.value_list[self.value]
 
 
 class ParameterACTION(ParameterBOOL):

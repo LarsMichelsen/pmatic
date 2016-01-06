@@ -352,7 +352,6 @@ class TestParameterENUM(TestRemoteAPI):
         return clima_vent_drive.values["ERROR"]
 
     def test_attributes(self, p):
-        print(p.__dict__)
         assert type(p) == ParameterENUM
         assert p.type == "ENUM"
         assert p.unit == ""
@@ -361,6 +360,16 @@ class TestParameterENUM(TestRemoteAPI):
         assert type(p.min) == int
         assert type(p.max) == int
         assert type(p.default) == int
+        assert type(p.value_list) == list
+
+
+    def test_possible_values(self, p):
+        assert type(p.possible_values) == list
+
+
+    def test_formated(self, p):
+        assert utils.is_text(p.formated())
+        assert p.formated() in p.possible_values
 
 
 
