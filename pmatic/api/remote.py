@@ -206,3 +206,8 @@ class RemoteAPI(AbstractAPI):
 
         self.debug("  RESPONSE: %s" % response_txt)
         return self._parse_api_response(method_name_int, response_txt)
+
+
+    @property
+    def address(self):
+        return self._address

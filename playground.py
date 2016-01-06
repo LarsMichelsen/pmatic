@@ -30,6 +30,7 @@ from __future__ import unicode_literals
 
 import sys, pprint
 import pmatic.api
+import pmatic.events
 from pmatic.entities import *
 from pmatic import utils
 from pmatic.ccu import CCU
@@ -44,10 +45,32 @@ API = pmatic.api.init(
     address="http://192.168.1.26",
     credentials=("Admin", "EPIC-SECRET-PW"),
     connect_timeout=5,
-#    log_level=pmatic.DEBUG,
+    log_level=pmatic.DEBUG,
 )
 
+# Register with the XML-RPC API of the CCU, then wait until program termination
+# for event and print them to the console.
+#events = pmatic.events.init(API, listen_address=('192.168.1.36', 9123))
+events = pmatic.events.init(API)
+events.init()
+events.wait()
+events.close()
+
+sys.exit(1)
+
 #CCU = CCU(API)
+#print(CCU.interfaces())
+
+# Event-Methoden scheinen nicht so zu funktionieren, wie gedacht. Hier kommen jedenfalls keine Events an.
+#print(API.event_subscribe())
+#
+#while True:
+#    result = API.event_poll()
+#    if result:
+#        print(result)
+#
+#print(API.event_unsubscribe())
+
 #
 #for device in Device.get_devices(API, device_name="Büro-Lampe"):
 #    for channel in device.channels:
@@ -91,7 +114,6 @@ sys.exit(1)
 
 import pprint
 
-# FIXME: Was ist Interface.init?
 
 def Device_listDetailByType(ty):
     device = []
@@ -125,14 +147,6 @@ def Device_listDetailByType(ty):
         if device["type"] == ty:
             devices.append(device)
     return devices
-
-# {u'channelIds': [u'1874', u'1495'],
-#  u'description': u'',
-#  u'id': u'1224',
-#  u'name': u'Schlafzimmer'}
-rooms = API.Room_getAll()
-#for room in rooms:
-#    print room["name"], room["channelIds"]
 
 #for device in devices:
 #    print device["id"], device["name"]
@@ -234,32 +248,5 @@ for device in devices:
 
             print(("Outside:", outside_rel_humidity(), "%", out_temp, "C"))
 
-# List room ids
-#for room in API.Room_listAll():
-#    pprint.pprint(room)
-
-# FIXME: Implement API own methods:
-# Channel_getNameById(id=...)
-# Channel_listRoomIds(id=...)
-
-# FIXME:
-# API.Room("1234")
-# for room in API.getAllRooms():
-#     print room.id
-#     for channel in room.channels():
-#         print channel.id
-#         print channel.getValue()
-
-# FIXME:
-# for device in API.getAllDevices():
-#    print device.name
-
-#if not API.Event_subscribe():
-#    raise Exception("Failed to subscribe to events.")
-#while True:
-#    result = API.Event_poll()
-#    if result:
-#        print result
-#print API.Event_unsubscribe()
 
 API.close()
