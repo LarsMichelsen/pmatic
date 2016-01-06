@@ -60,18 +60,15 @@ class Parameter(object):
         #  0x08 : Service-Flag. Dieser Parameter soll als Serv
         #  icemeldung behandelt werden. Als 
         #  Datentyp für Servicemeldungen sind nur Boolean und 
-        #  Integer zulässig. Bei 
-        #  0
-        #   bzw. 
-        #   false
-        #    liegt dabei keine Meldung vor, ansonsten liegt ein
-        #    e Meldung vor. 
-        #    0x10 : Sticky-Flag. Nur bei Servicemeldungen. Servi
-        #    cemeldung setzt sich nicht selbst 
-        #    zurück, sondern muss von der Oberfläche zurückgeset
-        #    zt werden. 
+        #  Integer zulässig. Bei 0 bzw. false liegt dabei keine
+        #  Meldung vor, ansonsten liegt eine Meldung vor. 
+        #  0x10 : Sticky-Flag. Nur bei Servicemeldungen. Servi
+        #  cemeldung setzt sich nicht selbst 
+        #  zurück, sondern muss von der Oberfläche zurückgeset
+        #  zt werden. 
         'FLAGS'      : int,
     }
+
 
     def __init__(self, channel, spec, api_value):
         assert isinstance(channel, pmatic.entities.Channel), "channel is not a Channel: %r" % channel
@@ -120,6 +117,11 @@ class Parameter(object):
         return self.operations & 2 == 2
 
     @property
+    def supports_events(self):
+        """Whether or not this value supports events."""
+        return self.operations & 4 == 4
+
+    @property
     def title(self):
         return self.name.title().replace("_", " ")
 
@@ -129,6 +131,38 @@ class Parameter(object):
         if not self.readable:
             raise PMException("The value can not be read.")
         return self._value
+
+
+    @property
+    def is_visible_to_user(self):
+        """Whether or not this parameter should be visible to the end-user."""
+        return self.flags & 1 == 1
+
+
+    @property
+    def is_internal(self):
+        """Whether or not this parameter is an internal flag."""
+        return self.flags & 2 == 2
+
+
+    @property
+    def is_transformer(self):
+        """Whether or not modifying this parameter changes behaviour of this channel.
+
+        Can only be changed when no links are configured for this channel."""
+        return self.flags & 4 == 4
+
+
+    @property
+    def is_service(self):
+        """Whether or not a maintenance message is available."""
+        return self.flags & 8 == 8
+
+
+    @property
+    def is_service_sticky(self):
+        """Whether or not there is a sticky maintenance message."""
+        return self.flags & 16 == 16
 
 
     @value.setter
