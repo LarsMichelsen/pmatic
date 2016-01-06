@@ -47,7 +47,7 @@ class CCU(object):
             [ {u'info': u'BidCos-RF', u'name': u'BidCos-RF', u'port': 2001},
               {u'info': u'Virtual Devices', u'name': u'VirtualDevices', u'port': 9292} ]
         """
-        return self.API.Interface_listInterfaces()
+        return self.API.interface_list_interfaces()
 
 
     def bidcos_interfaces(self):
@@ -60,11 +60,11 @@ class CCU(object):
             u'isConnected': True,
             u'isDefault': True}]
         """
-        return self.API.Interface_listBidcosInterfaces(interface="BidCos-RF")
+        return self.API.interface_list_bidcos_interfaces(interface="BidCos-RF")
 
 
     # Liefert eine Liste aller angelernten Geräte
-    #API.Interface_listDevices(interface="BidCos-RF"))
+    #API.interface_list_devices(interface="BidCos-RF"))
 
 
     def signal_strengths(self):
@@ -87,7 +87,7 @@ class SignalStrength(dict):
 
     def update_data(self):
         self.clear()
-        for entry in self.API.Interface_rssiInfo(interface="BidCos-RF"):
+        for entry in self.API.interface_rssi_info(interface="BidCos-RF"):
             partner_dict = dict([(p["name"], p["rssiData"]) for p in entry["partner"] ])
             dict.__setitem__(self, entry["name"], partner_dict)
         self._last_update = time.time()
