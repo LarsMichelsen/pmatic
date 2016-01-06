@@ -109,13 +109,15 @@ class AbstractAPI(object):
                                                     (method_name_int, e, body))
 
         if msg["error"] != None:
-            # FIXME: msg["error"]["code"] == 501 can also be provided during
-            # restart of the CCU while ReGa is not running. Check this using
-            # e.g. http://ccu/ise/checkrega.cgi and provide a nicer error msg.
-            raise PMException("[%s] %s: %s (%s)" % (method_name_int,
-                                                    msg["error"]["name"],
-                                                    msg["error"]["message"],
-                                                    msg["error"]["code"]))
+            if msg["error"]["code"] == 501 and not self.call('rega_is_present'):
+                raise PMException("The logic layer (ReGa) is not available (yet). When "
+                                  "the CCU has just been started, please wait some time "
+                                  "and retry.")
+            else:
+                raise PMException("[%s] %s: %s (%s)" % (method_name_int,
+                                                        msg["error"]["name"],
+                                                        msg["error"]["message"],
+                                                        msg["error"]["code"]))
 
         return msg["result"]
 
@@ -159,6 +161,9 @@ class AbstractAPI(object):
 
     def _get_methods_config(self):
         """Gathers the method configuration file from the CCU.
+
+        Returns the method configuration as list of lines. Each
+        of these lines is a unicode string.
 
         Has to be implemented by the specific API class."""
         raise Exception("missing implementation")
@@ -216,7 +221,6 @@ class AbstractAPI(object):
             elif method_name_int:
                 key, val = line.lstrip().split(None, 1)
                 if key == "INFO":
-                    # FIXME: Decode to unicode string
                     val = val[1:-1] # strip off surrounding braces
 
                 elif key == "ARGUMENTS":

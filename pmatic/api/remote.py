@@ -142,6 +142,12 @@ class RemoteAPI(AbstractAPI):
                     "INFO": "Führt die Benutzeranmeldung durch",
                     "ARGUMENTS": [ "username", "password" ],
                 }
+            elif method_name_int == "rega_is_present" and not self._methods:
+                return {
+                    "NAME": "ReGa.isPresent",
+                    "INFO": "Prüft, ob die Logikschicht (ReGa) aktiv ist",
+                    "ARGUMENTS": [ ],
+                }
             elif method_name_int == "rega_run_script" and not self._methods:
                 return {
                     "NAME": "ReGa.runScript",
