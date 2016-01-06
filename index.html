@@ -1,0 +1,194 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>pmatic by LaMi-</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>pmatic</h1>
+        <p>A simple API to to the Homematic CCU2</p>
+
+        <p class="view"><a href="https://github.com/LaMi-/pmatic">View the Project on GitHub <small>LaMi-/pmatic</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/LaMi-/pmatic/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/LaMi-/pmatic/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/LaMi-/pmatic">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="pmatic---a-simple-api-to-to-the-homematic-ccu2" class="anchor" href="#pmatic---a-simple-api-to-to-the-homematic-ccu2" aria-hidden="true"><span class="octicon octicon-link"></span></a>pmatic - A simple API to to the Homematic CCU2</h1>
+
+<p><a href="https://travis-ci.org/LaMi-/pmatic"><img src="https://travis-ci.org/LaMi-/pmatic.svg?branch=master" alt="Build Status"></a>
+<a href="https://coveralls.io/github/LaMi-/pmatic?branch=master"><img src="https://coveralls.io/repos/LaMi-/pmatic/badge.svg?branch=master&amp;service=github" alt="Coverage Status"></a></p>
+
+<p>pmatic is a python library to provide access to the Homematic CCU2. You
+can execute pmatic directly on the CCU2 or another system having Python
+installed. With pmatic you can write your own Python scripts to communicate
+with your CCU2 devices.</p>
+
+<p>Before I built this API I tried to create a small script to <em>just</em> check
+all my window sensors, record the time they are opened and then alarm
+me to close the window if it was open for too long. No problem I thought.
+Lesson learned: It is possible. But only while having a huuuuge pain.
+The scripting language is crapy, the web GUI editor misses basic things
+like syntax highlighting, undo/redo, auto saving and so on which make
+programming comfortable. Last but not least the debugging was a pain
+or not possible at all.</p>
+
+<p>Should be possible to make this a lot easier.</p>
+
+<p>I found several other middlewares and libraries for accessing the CCU2
+APIs, but most of them required to be executed in somehow specific
+environments, were not platform independet or implemented in other crapy
+programming languages.</p>
+
+<p>I know sure there is still much room for improvement and cleaner APIs,
+but for the moment I think even this small API wrapper is an improvement.</p>
+
+<h2>
+<a id="so-how-does-it-work" class="anchor" href="#so-how-does-it-work" aria-hidden="true"><span class="octicon octicon-link"></span></a>So how does it work?</h2>
+
+<p>pmatic has been implemented in Python. What? Python is not available on
+the CCU2, do I need to run it remotely on a separate device now? Yes,
+you can. But it is also possible to use it on the CCU2 by installing
+a python interpreter with the necessary modules on the device. We'll
+get back to it later.</p>
+
+<p>So you have the option to run your pmatic scripts remotely and on the
+CCU2. The code stays the same. This means you can develop your scripts
+on your workstation, test and debug it using a remote connection to
+your CCU2.</p>
+
+<p>You can use all the API methods provided by the CCU2. The data is parsed
+and available as python lists or dicts. You can then process the data
+in your Python code and use the editor of your choice, use all possible
+debugging and profiling features you can imagine with Python.</p>
+
+<p>It's so much fun :-).</p>
+
+<p>Even if you write pmatic in Python, you can also execute custom ReGa
+(Homematic Script) through pmatic and also process the output of these
+scripts, if you like.</p>
+
+<h2>
+<a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h2>
+
+<p>pmatic is currently not expecting any special Python modules. pmatic
+is supported with Python 2.7, 3.4 and newer. Older versions of Python are not
+supported.</p>
+
+<p>Please note about Python 3: I started development with Python 2.7 and have
+not tested the code very well with Python 3. So there may still be bugs. I
+welcome patches!</p>
+
+<h2>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
+
+<h3>
+<a id="installation-on-the-ccu2" class="anchor" href="#installation-on-the-ccu2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation on the CCU2</h3>
+
+<p>pmatic can be packed as CCU addon package. On first release I will provide a
+pre-packed package for the CCU.</p>
+
+<p>Until the first release you can create CCU addon packages on your own by
+following these steps on a linux host:</p>
+
+<ul>
+<li>download a snapshot of the git repository or clone the repository</li>
+<li>run <code>make setup chroot dist-ccu</code>
+</li>
+</ul>
+
+<p>Now you should have a CCU addon archive at <code>dist/pmatic-0.1_ccu.tar.gz</code>.
+You can now upload this file to your CCU to install pmatic on it.</p>
+
+<p>Now you can connect to your CCU via SSH and run this command to confirm
+pmatic has been installed correctly:</p>
+
+<pre><code>python -c 'import pmatic'
+</code></pre>
+
+<p>When the command completes silently (without <code>ImportError</code> exception) the
+installation was successful.</p>
+
+<p>The installation has been finished. You can now execute your own
+python and pmatic scripts on your CCU. For some examples you can change
+to <code>/etc/config/addons/pmatic/examples</code> and have a look at the source or
+just try them.</p>
+
+<h3>
+<a id="installation-on-your-workstation" class="anchor" href="#installation-on-your-workstation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation on your workstation</h3>
+
+<p>The installation should be straight forward. First download pmatic by either
+cloning from the Git or download a release archive, unpack it and change to
+the extracted directory <code>pmatic-*</code>. Then execute:</p>
+
+<pre><code>python setup.py install
+</code></pre>
+
+<p>After installation you can confirm pmatic has been installed by executing</p>
+
+<pre><code>python -c 'import pmatic'
+</code></pre>
+
+<p>When the command completes silently (without <code>ImportError</code> exception) the
+installation was successful.</p>
+
+<p>I developed and tested pmatic on a Debian 8 system with Python 2.7.9, but
+pmatic should work on other platforms meeting the requirements listed above.</p>
+
+<p>Please let me know or send me a pull request if there are compatibility
+issues on a platform you would expect pmatic to work.</p>
+
+<h2>
+<a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
+
+<p>Please take a look at the scripts below the <code>examples</code> directory for some
+sample scripts. I'll try to add more in the near future. Just to give you
+a quick view, here a simple example how to list all shutter contacts and
+their current states on the CCU2:</p>
+
+<pre><code>import pmatic.api
+from pmatic.entities import HMSecSC
+
+API = pmatic.api.init()
+
+for device in HMSecSC.get_all(API):
+    print device.name, device.formated_value()
+</code></pre>
+
+<h2>
+<a id="reporting-bugs-feature-requests" class="anchor" href="#reporting-bugs-feature-requests" aria-hidden="true"><span class="octicon octicon-link"></span></a>Reporting Bugs, Feature Requests</h2>
+
+<p>Please use the issue tracker on the <a href="https://github.com/LaMi-/pmatic">pmatic GitHub page</a>.</p>
+
+<h2>
+<a id="licensing" class="anchor" href="#licensing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Licensing</h2>
+
+<p>Copyright (C) 2016 Lars Michelsen <a href="mailto:lm@larsmichelsen.com">lm@larsmichelsen.com</a></p>
+
+<p>All outcome of the project is licensed under the terms of the GNU GPL v2.
+Take a look at the LICENSE file for details.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/LaMi-">LaMi-</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
