@@ -43,7 +43,7 @@ help:
 
 setup:
 	sudo apt-get install debootstrap qemu-user-static rsync dialog python-pytest python-pip \
-			python3-pip
+			python3-pip python-sphinx
 	sudo pip install pytest_flakes pytest_runner
 
 dist: dist-os dist-ccu
@@ -183,7 +183,7 @@ version:
 
 setversion:
 	sed -ri 's/^(VERSION[[:space:]]*= *).*/\1'"$(NEW_VERSION)/" Makefile
-	sed -i "s/^VERSION = .*/VERSION = \"$(NEW_VERSION)\"/g" pmatic/__init__.py
+	sed -i "s/^__version__ = .*/VERSION = \"$(NEW_VERSION)\"/g" pmatic/__init__.py
 	sed -i "s/version='.*',/version='$(NEW_VERSION)',/g" setup.py
 	sed -i "s/VERSION=.*,/VERSION=$(NEW_VERSION)/g" ccu_pkg/pmatic.init
 

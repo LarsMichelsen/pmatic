@@ -18,15 +18,32 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+"""A simple API to to the Homematic CCU2
+
+pmatic is a python library to provide access to the Homematic CCU2. You
+can execute pmatic directly on the CCU2 or another system having Python
+installed. With pmatic you can write your own Python scripts to communicate
+with your CCU2 devices.
+
+Take a look at <https://github.com/LaMi-/pmatic> for details.
+
+:copyright: (c) 2016 by Lars Michelsen.
+:license: GNU General Public License v2, see LICENSE for more details.
+"""
+
 # Add Python 3.x behaviour to 2.7
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import logging
+__title__     = 'pmatic'
+__version__   = '2.4.3'
+__author__    = 'Lars Michelsen'
+__license__   = 'GPLv2'
+__copyright__ = 'Copyright 2016 Lars Michelsen'
 
-VERSION = "0.1"
+import logging
 
 class PMException(Exception):
     pass

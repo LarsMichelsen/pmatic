@@ -8,3 +8,4 @@ pmatic.egg-info
 .coverage
 htmlcov
 .cache
+dumps

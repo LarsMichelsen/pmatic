@@ -18,6 +18,20 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+"""Provides the API interface to the CCU
+
+This module provides you with the low level API of pmatic to the CCU2.
+Low level API means that it cares about connecting to the interfaces on
+the CCU, authenticates with it and accesses the API calls and makes them
+all available in the Python code. So that you can simply call methods on
+the API object to make API calls and get Python data structures back.
+
+The most important function of this module is the init() function. This
+is the function you should call in your program code to initialize the
+API object. It detects whether or not the code is run on the CCU or
+a remote connection from another system is made to the CCU.
+"""
+
 # Add Python 3.x behaviour to 2.7
 from __future__ import absolute_import
 from __future__ import division
@@ -30,10 +44,23 @@ from .. import PMException
 from .local import LocalAPI
 from .remote import RemoteAPI
 
-# Default API. It tries to detect whether or not this code is running on
-# the CCU. If run on the CCU, it directly uses parts of the JSON API. When run
-# from another system, it needs credentials and a URL to connect to.
 def init(mode=None, **kwargs):
+    """Wrapper to create the API object you need to acces the CCU API.
+
+    By default it detects whether or not this code is being executed on the CCU
+    or on another system. And initializes either a LocalAPI() object when run
+    directly on a CCU or, in all other cases, a RemoteAPI() object. This object
+    is then being returned.
+
+    You can provide the mode argument to disable auto detection and either set
+    it to "local" to enforce a LocalAPI() object to be created or "remote" to
+    enforce a RemoteAPI() object.
+
+    In case a RemoteAPI() object is being created, you need to provide at least
+    the additional keyword arguments address="http://[HOST]" which needs to
+    contain the base URL to your CCU together with credentials=("[USER]", "PASSWORD")
+    which must be valid credentials to authenticate with the CCU.
+    """
     if mode == None:
         mode = is_ccu() and "local" or "remote"
 
@@ -53,4 +80,5 @@ def init(mode=None, **kwargs):
 
 
 def is_ccu():
+    """Returns True when executed on a CCU device. Otherwise False is being returned."""
     return "ccu" in os.uname()

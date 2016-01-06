@@ -94,12 +94,12 @@ class LocalAPI(AbstractAPI):
         return args_parsed.rstrip(" ") + "]"
 
 
-    def call(self, method_name, **kwargs):
+    def call(self, method_name_int, **kwargs):
         """Runs the given API method directly on the CCU using a tclsh process
 
         The API method needs to be one of the methods which are available
         on the device (with the given arguments)."""
-        method = self._get_method(method_name)
+        method = self._get_method(method_name_int)
         parsed_args = self._get_args(method, kwargs)
         file_path = "/www/api/methods/%s" % method["SCRIPT_FILE"]
 
@@ -131,7 +131,7 @@ class LocalAPI(AbstractAPI):
         self.debug("  RESPONSE: %r" % response_txt)
         header, body = response_txt.split("\n\n", 1)
 
-        return self._parse_api_response(method_name, body)
+        return self._parse_api_response(method_name_int, body)
 
 
     def close(self):

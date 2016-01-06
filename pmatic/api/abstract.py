@@ -18,6 +18,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+"""An abstract implementation of the pmatic low level API."""
+
 # Add Python 3.x behaviour to 2.7
 from __future__ import absolute_import
 from __future__ import division
@@ -37,6 +39,11 @@ except ImportError:
 from .. import PMException, init_logger, utils
 
 class AbstractAPI(object):
+    """An abstract implementation of the pmatic low level API.
+
+    This is the base class for all specific API classes, which are currently
+    LocalAPI() and RemoteAPI().
+    """
     def __init__(self, logger, log_level):
         self._methods = {}
         self._init_logger(logger, log_level)
@@ -51,6 +58,7 @@ class AbstractAPI(object):
 
 
     def _init_logger(self, logger, log_level):
+        """Initializes the logger of this object."""
         if logger == None:
             self._logger = init_logger(log_level)
         else:
@@ -58,26 +66,32 @@ class AbstractAPI(object):
 
 
     def logger(self):
+        """Returns the logger object used by this object."""
         return self._logger
 
 
     def debug(self, *args, **kwargs):
+        """Log a message with severity 'DEBUG' on this objects logger."""
         self._logger.debug(*args, **kwargs)
 
 
     def info(self, *args, **kwargs):
+        """Log a message with severity 'INFO' on this objects logger."""
         self._logger.info(*args, **kwargs)
 
 
     def warning(self, *args, **kwargs):
+        """Log a message with severity 'WARNING' on this objects logger."""
         self._logger.warning(*args, **kwargs)
 
 
     def error(self, *args, **kwargs):
+        """Log a message with severity 'ERROR' on this objects logger."""
         self._logger.error(*args, **kwargs)
 
 
     def critical(self, *args, **kwargs):
+        """Log a message with severity 'CRITICAL' on this objects logger."""
         self._logger.critical(*args, **kwargs)
 
 
@@ -107,14 +121,20 @@ class AbstractAPI(object):
 
 
     def __del__(self):
+        """When object is removed, the close() method is called."""
         self.close()
 
 
-    # Realizes dynamic methods based on the methods supported by the API.
-    # The method names are nearly the same for the LocalAPI
-    # (except the dots). e.g.
-    # -> CCU.getSerial() is available as API.CCU_getSerial()
     def __getattr__(self, func_name):
+        """Realizes dynamic methods based on the methods supported by the API.
+
+        The method names are nearly the same as provided by the CCU
+        (see http://[CCU_ADDRESS]/api/homematic.cgi or API.print_methods()).
+        The method names are slighly renamed. For example CCU.getSerial() is
+        available as API.ccu_get_serial() in pmatic. The translation is made
+        by the _to_internal_name() method. For details take a look at that
+        function.
+        """
         method = self._methods.get(func_name)
         if method:
             return lambda **kwargs: self.call(func_name, **kwargs)
@@ -123,25 +143,47 @@ class AbstractAPI(object):
 
 
     def _to_internal_name(self, method_name_api):
+        """Translates a raw API method name to the pmatic notation.
+
+        These modifications are made:
+
+        * . are replaced with _
+        * BidCoS is replaced with bidcos
+        * ReGa is replaced with rega
+        * whole string is transformed from camel case to lowercase + underscore notation
+
+        e.g. Interface.activateLinkParamset is changed to API.interface_activate_link_paramset
+        """
         return utils.decamel(method_name_api.replace(".", "_").replace("BidCoS", "bidcos").replace("ReGa", "rega"))
 
 
     def _get_methods_config(self):
+        """Gathers the method configuration file from the CCU.
+
+        Has to be implemented by the specific API class."""
         raise Exception("missing implementation")
 
 
     def call(self, method_name, **kwargs):
+        """Realizes the API calls.
+
+        Has to be implemented by the specific API class."""
         raise Exception("missing implementation")
 
 
     def close(self):
+        """Teardown methods after use of pmatic.
+
+        Has to be implemented by the specific API class."""
         raise Exception("missing implementation")
 
 
-    # Prints a description of the available API methods. This information
-    # has been fetched from the CCU before. This might be useful for working
-    # with the API to gather infos about the available calls.
     def print_methods(self):
+        """Prints a description of the available API methods.
+
+        This information has been fetched from the CCU before. This might be useful
+        for working with the API to gather infos about the available calls.
+        """
         line_format = "%-60s %s\n"
         sys.stdout.write(line_format % ("Method", "Description"))
 
@@ -152,6 +194,12 @@ class AbstractAPI(object):
 
 
     def _init_methods(self):
+        """Parses the method configuration read from the CCU.
+
+        The method configuration read with _get_methods_config() is being
+        parsed here to initialize the self._methods dictionary which holds
+        all need information about the available API methods.
+        """
         self._methods.clear()
 
         method_name_int = None
@@ -180,8 +228,14 @@ class AbstractAPI(object):
                 self._methods[method_name_int][key] = val
 
 
-    def _get_method(self, method_name_api):
+    def _get_method(self, method_name_int):
+        """Returns the method specification (dict) of the given API methods.
+
+        The method name needs to be specified with it's internal name (like
+        the methods of the API object are named). When the request API method
+        does not exist a PMException is raised.
+        """
         try:
-            return self._methods[self._to_internal_name(method_name_api)]
+            return self._methods[method_name_int]
         except KeyError:
-            raise PMException("Method \"%s\" is not a valid method." % method_name_api)
+            raise PMException("Method \"%s\" is not a valid method." % method_name_int)

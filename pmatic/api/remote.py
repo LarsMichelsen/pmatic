@@ -18,6 +18,8 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+"""Realizes the remote connection to the CCU via HTTP"""
+
 # Add Python 3.x behaviour to 2.7
 from __future__ import absolute_import
 from __future__ import division
@@ -37,6 +39,7 @@ from .. import PMException, utils
 from .abstract import AbstractAPI
 
 class RemoteAPI(AbstractAPI):
+    """Provides API access via HTTP to the CCU."""
     _session_id = None
 
     def __init__(self, address, credentials, connect_timeout=10, logger=None, log_level=None):
