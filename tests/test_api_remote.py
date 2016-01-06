@@ -30,7 +30,6 @@ import pytest
 import os
 import re
 import glob
-#import logging
 from hashlib import sha256
 import json
 
@@ -160,7 +159,7 @@ class TestRemoteAPI:
             address="http://192.168.1.26",
             credentials=("Admin", "EPIC-SECRET-PW"),
             connect_timeout=5,
-            #log_level=logging.DEBUG,
+            #log_level=pmatic.DEBUG,
         )
 
         request.addfinalizer(lambda: API.close())

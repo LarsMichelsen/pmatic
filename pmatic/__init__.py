@@ -58,6 +58,12 @@ class PMActionFailed(PMException):
 logger_name = "pmatic"
 logger      = None
 
+# Users should be able to set log levels without importing "logging"
+CRITICAL = logging.CRITICAL
+ERROR    = logging.ERROR
+WARNING  = logging.WARNING
+INFO     = logging.INFO
+DEBUG    = logging.DEBUG
 
 def init_logger(log_level=None):
     global logger

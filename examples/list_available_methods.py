@@ -28,6 +28,7 @@ API = pmatic.api.init(
     # TODO: Insert your credentials here.
     credentials=("Admin", "EPIC-SECRET-PW"),
     connect_timeout=5
+    #log_level=pmatic.DEBUG,
 )
 
 # Open a pmatic API locally on the CCU. You need to install a python environment on your CCU before.

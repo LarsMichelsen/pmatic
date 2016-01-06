@@ -18,7 +18,6 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-#import logging
 import pmatic.api
 
 # Open up a remote connection via HTTP to the CCU and login as admin. When the connection
@@ -27,7 +26,7 @@ API = pmatic.api.init(
     address="http://192.168.1.26",
     credentials=("Admin", "EPIC-SECRET-PW"),
     connect_timeout=5,
-    #log_level=logging.DEBUG
+    #log_level=pmatic.DEBUG,
 )
 
 devices = API.device_list_all_detail()

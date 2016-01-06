@@ -28,7 +28,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import sys, logging, pprint
+import sys, pprint
 import pmatic.api
 from pmatic.entities import *
 from pmatic import utils
@@ -44,7 +44,7 @@ API = pmatic.api.init(
     address="http://192.168.1.26",
     credentials=("Admin", "EPIC-SECRET-PW"),
     connect_timeout=5,
-#    log_level=logging.DEBUG
+#    log_level=pmatic.DEBUG,
 )
 
 #CCU = CCU(API)
