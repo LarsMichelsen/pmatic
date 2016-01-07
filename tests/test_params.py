@@ -156,12 +156,12 @@ class TestParameter(TestRemoteAPI):
 
 
     def test_magic_str_unicode_bytes(self, p):
-        if utils.is_py3():
-            assert utils.is_text(p.__str__())
-            assert utils.is_byte_string(p.__bytes__())
-        else:
+        if utils.is_py2():
             assert utils.is_byte_string(p.__str__())
             assert utils.is_text(p.__unicode__())
+        else:
+            assert utils.is_text(p.__str__())
+            assert utils.is_byte_string(p.__bytes__())
 
         assert str(p) == "0"
         assert bytes(p) == b"0"

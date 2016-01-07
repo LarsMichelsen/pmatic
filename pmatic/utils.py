@@ -26,33 +26,46 @@ from __future__ import unicode_literals
 
 import re
 import sys
+import logging
+
+
+class LogMixin(object):
+    """Inherit from this class to provide logging support.
+
+    Makes a logger available via self.logger
+    """
+    @property
+    def logger(self):
+        return logging.getLogger('.'.join([__name__, self.__class__.__name__]))
+
 
 # Python 2/3 compatible string type check
 def is_string(obj):
-    if is_py3():
-        return isinstance(obj, str)
-    else:
+    if is_py2():
         return isinstance(obj, basestring) # noqa
+    else:
+        return isinstance(obj, str)
+
 
 # Python 2/3 compatible check for unicode in 2 and str in 3.
 def is_text(obj):
-    if is_py3():
-        return isinstance(obj, str)
-    else:
+    if is_py2():
         return isinstance(obj, unicode) # noqa
+    else:
+        return isinstance(obj, str)
 
 
 # Python 2/3 compatible check for non unicode (byte) string
 def is_byte_string(obj):
-    if is_py3():
-        return isinstance(obj, bytes)
-    else:
+    if is_py2():
         return isinstance(obj, str) # noqa
+    else:
+        return isinstance(obj, bytes)
 
 
-def is_py3():
-    """Returns True when executed with Python 3 or newer."""
-    return sys.version_info[0] >= 3
+def is_py2():
+    """Returns True when executed with Python 2."""
+    return sys.version_info[0] < 3
 
 
 def decamel(name):

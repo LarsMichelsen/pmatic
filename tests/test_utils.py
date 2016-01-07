@@ -52,20 +52,22 @@ def test_is_byte_string():
         assert not utils.is_byte_string("X")
 
 
-def test_is_py3():
-    if sys.version_info[0] == 3:
-        assert utils.is_py3() == True
+def test_is_py2():
+    if sys.version_info[0] == 2:
+        assert utils.is_py2() == True
     else:
-        assert utils.is_py3() == False
+        assert utils.is_py2() == False
 
     saved = sys.version_info
 
+    sys.version_info = [ 3, 1 ]
+    assert utils.is_py2() == False
     sys.version_info = [ 2, 7 ]
-    assert utils.is_py3() == False
-    sys.version_info = [ 3, 4 ]
-    assert utils.is_py3() == True
-    sys.version_info = [ 4, 0 ]
-    assert utils.is_py3() == True
+    assert utils.is_py2() == True
+    sys.version_info = [ 1, 0 ]
+    assert utils.is_py2() == True
+    sys.version_info = [ 4, 2 ]
+    assert utils.is_py2() == False
 
     sys.version_info = saved
 
