@@ -36,7 +36,7 @@ except ImportError:
 
 import pmatic.entities
 from pmatic import utils
-from . import PMException, PMActionFailed
+from pmatic.exceptions import PMException, PMActionFailed
 
 
 class Parameter(object):
@@ -208,12 +208,12 @@ class Parameter(object):
         """Returns the formated value. Data type differs depending on Python version.
 
         In Python 2 it returns an UTF-8 encoded string.
-        In Python 3 it returns a unicode string of type str.
+        In Python 3+ it returns a unicode string of type str.
         """
-        if utils.is_py3():
-            return self.formated()
-        else:
+        if utils.is_py2():
             return self.formated().encode("utf-8")
+        else:
+            return self.formated()
 
 
     def __bytes__(self):
