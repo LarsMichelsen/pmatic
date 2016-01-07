@@ -24,7 +24,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from pmatic.api.abstract import AbstractAPI
+from pmatic.api import AbstractAPI
 
 class TestAPI(AbstractAPI):
     def __init__(self, logger=None, log_level=None):

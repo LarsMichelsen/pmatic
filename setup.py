@@ -47,7 +47,6 @@ setup(name='pmatic',
     ],
     packages=[
       'pmatic',
-      'pmatic.api',
     ],
     data_files=[
         ('/usr/share/doc/pmatic', ['LICENSE', 'README.md']),

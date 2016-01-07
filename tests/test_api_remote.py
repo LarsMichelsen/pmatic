@@ -46,7 +46,7 @@ except ImportError:
 
 from pmatic import utils
 import pmatic.api
-from pmatic.api.remote import RemoteAPI
+from pmatic.api import RemoteAPI
 
 
 resources_path = "tests/resources"
@@ -149,10 +149,10 @@ class TestRemoteAPI:
         self.monkeypatch = monkeypatch()
         if not is_testing_with_real_ccu():
             # First hook into urlopen to fake the HTTP responses
-            self.monkeypatch.setattr(pmatic.api.remote, 'urlopen', fake_urlopen)
+            self.monkeypatch.setattr(pmatic.api, 'urlopen', fake_urlopen)
         else:
             # When executed with real ccu we wrap urlopen for enabling recording
-            self.monkeypatch.setattr(pmatic.api.remote, 'urlopen', wrap_urlopen)
+            self.monkeypatch.setattr(pmatic.api, 'urlopen', wrap_urlopen)
 
         # FIXME: Make credentials configurable
         API = RemoteAPI(
