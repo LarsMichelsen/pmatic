@@ -43,75 +43,56 @@ __author__    = 'Lars Michelsen'
 __license__   = 'GPLv2'
 __copyright__ = 'Copyright 2016 Lars Michelsen'
 
-import logging
+import logging as _logging
 
-class PMException(Exception):
-    """This is the base exception for all exceptions raised by pmatic"""
-    pass
-
-class PMConnectionError(Exception):
-    """Is raised when the connection with the CCU could not be established.
-
-    This error is raised by pmatic.api in situations where the CCU could not
-    be contacted. Normally such an exception means that the just failed action
-    can be tried again later.
-
-    For example when the CCU is currently not reachable this kind of exception
-    is raised. Means it is worth it to try again later with same parameters.
-    """
-
-class PMActionFailed(PMException):
-    pass
+from pmatic.ccu import CCU
+from pmatic.exceptions import *
 
 #
 # Logging
 #
 
-logger_name = "pmatic"
-logger      = None
+# Set default logging handler to avoid "No handler found" warnings.
+try:
+    # Python 2.7+
+    from _logging import NullHandler
+except ImportError:
+    class NullHandler(_logging.Handler):
+        def emit(self, record):
+            pass
+
+
+logger = _logging.getLogger(__name__)
+logger.addHandler(NullHandler())
 
 # Users should be able to set log levels without importing "logging"
-CRITICAL = logging.CRITICAL
-ERROR    = logging.ERROR
-WARNING  = logging.WARNING
-INFO     = logging.INFO
-DEBUG    = logging.DEBUG
-
-def init_logger(log_level=None):
-    global logger
-    if not logger:
-        logger = logging.getLogger(logger_name)
-        if log_level != None:
-            logger.setLevel(log_level)
-
-        # create console handler and set level to debug
-        ch = logging.StreamHandler()
-        if log_level != None:
-            ch.setLevel(log_level)
-        # create formatter
-        formatter = logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
-        # add formatter to ch
-        ch.setFormatter(formatter)
-
-        # add ch to logger
-        logger.addHandler(ch)
-
-    return logger
+CRITICAL = _logging.CRITICAL
+ERROR    = _logging.ERROR
+WARNING  = _logging.WARNING
+INFO     = _logging.INFO
+DEBUG    = _logging.DEBUG
 
 
-def log(*args):
-    if not logger:
-        init_logger()
-    return logger.log(*args)
+def logging(log_level=None):
+    """Enables logging of pmatic log messages to stderr.
 
+    When nothing log_level is not set, it will default to WARNING if you did not
+    configure the logging on your own in your application. Otherwise all log messages
+    of pmatic which are of the given level or more severe will be logged to stderr.
 
-def debug(*args):
-    if not logger:
-        init_logger()
-    return logger.debug(*args)
+    This is only a default to be used e.g. in simple scripts. If you need more
+    flexible logging, you are free to configure the logging module on your own.
+    """
+    if log_level != None:
+        logger.setLevel(log_level)
 
+    # create console handler and set level to debug
+    ch = _logging.StreamHandler()
+    if log_level != None:
+        ch.setLevel(log_level)
 
-def warning(*args):
-    if not logger:
-        init_logger()
-    return logger.warning(*args)
+    formatter = _logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
+    ch.setFormatter(formatter)
+
+    # add the stream handler to logger
+    logger.addHandler(ch)

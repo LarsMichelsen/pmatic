@@ -24,10 +24,15 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+try:
+    # Is recommended for Python 3.x but fails on 2.7, but is not mandatory
+    from builtins import object
+except ImportError:
+    pass
+
 import re
 import sys
 import logging
-
 
 class LogMixin(object):
     """Inherit from this class to provide logging support.
@@ -37,6 +42,13 @@ class LogMixin(object):
     @property
     def logger(self):
         return logging.getLogger('.'.join([__name__, self.__class__.__name__]))
+
+
+    # FIXME: Is there a cleaner way to make the logger available in class methods?
+    @classmethod
+    def cls_logger(cls):
+        return logging.getLogger('.'.join([__name__, cls.__name__]))
+
 
 
 # Python 2/3 compatible string type check

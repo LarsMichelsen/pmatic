@@ -62,7 +62,9 @@ try:
 except ImportError:
     pass
 
-from . import PMException, PMConnectionError, init_logger, utils
+from pmatic.exceptions import PMException, PMConnectionError
+import pmatic
+import pmatic.utils as utils
 
 
 def init(mode=None, **kwargs):
@@ -106,15 +108,15 @@ def is_ccu():
 
 
 
-class AbstractAPI(object):
+class AbstractAPI(utils.LogMixin):
     """An abstract implementation of the pmatic low level API.
 
     This is the base class for all specific API classes, which are currently
     LocalAPI() and RemoteAPI().
     """
-    def __init__(self, logger, log_level):
+    def __init__(self):
+        super(AbstractAPI, self).__init__()
         self._methods = {}
-        self._init_logger(logger, log_level)
 
 
     def _register_atexit_handler(self):
@@ -123,44 +125,6 @@ class AbstractAPI(object):
         The APIs can register this to ensures the close() method is called
         on interpreter shutdown."""
         atexit.register(self.close)
-
-
-    def _init_logger(self, logger, log_level):
-        """Initializes the logger of this object."""
-        if logger == None:
-            self._logger = init_logger(log_level)
-        else:
-            self._logger = logger
-
-
-    def logger(self):
-        """Returns the logger object used by this object."""
-        return self._logger
-
-
-    def debug(self, *args, **kwargs):
-        """Log a message with severity 'DEBUG' on this objects logger."""
-        self._logger.debug(*args, **kwargs)
-
-
-    def info(self, *args, **kwargs):
-        """Log a message with severity 'INFO' on this objects logger."""
-        self._logger.info(*args, **kwargs)
-
-
-    def warning(self, *args, **kwargs):
-        """Log a message with severity 'WARNING' on this objects logger."""
-        self._logger.warning(*args, **kwargs)
-
-
-    def error(self, *args, **kwargs):
-        """Log a message with severity 'ERROR' on this objects logger."""
-        self._logger.error(*args, **kwargs)
-
-
-    def critical(self, *args, **kwargs):
-        """Log a message with severity 'CRITICAL' on this objects logger."""
-        self._logger.critical(*args, **kwargs)
 
 
     def _parse_api_response(self, method_name_int, body):
@@ -318,13 +282,13 @@ class RemoteAPI(AbstractAPI):
     """Provides API access via HTTP to the CCU."""
     _session_id = None
 
-    def __init__(self, address, credentials, connect_timeout=10, logger=None, log_level=None):
+    def __init__(self, address, credentials, connect_timeout=10):
         self._session_id      = None
         self._address         = None
         self._credentials     = None
         self._connect_timeout = None
 
-        super(RemoteAPI, self).__init__(logger, log_level)
+        super(RemoteAPI, self).__init__()
 
         self._set_address(address)
         self._set_credentials(credentials)
@@ -446,7 +410,7 @@ class RemoteAPI(AbstractAPI):
         method = self._get_method(method_name_int)
         args   = self.get_arguments(method, kwargs)
 
-        self.debug("CALL: %s ARGS: %r" % (method["NAME"], args))
+        self.logger.debug("CALL: %s ARGS: %r" % (method["NAME"], args))
 
         json_data = json.dumps({
             "method": method["NAME"],
@@ -455,7 +419,7 @@ class RemoteAPI(AbstractAPI):
         url = "%s/api/homematic.cgi" % self._address
 
         try:
-            self.debug("  URL: %s DATA: %s" % (url, json_data))
+            self.logger.debug("  URL: %s DATA: %s" % (url, json_data))
             handle = urlopen(url, data=json_data.encode("utf-8"),
                              timeout=self._connect_timeout)
         except Exception as e:
@@ -473,12 +437,12 @@ class RemoteAPI(AbstractAPI):
 
         http_status = handle.getcode()
 
-        self.debug("  HTTP-STATUS: %d" % http_status)
+        self.logger.debug("  HTTP-STATUS: %d" % http_status)
         if http_status != 200:
             raise PMException("Error %d opening \"%s\" occured: %s" %
                                     (http_status, url, response_txt))
 
-        self.debug("  RESPONSE: %s" % response_txt)
+        self.logger.debug("  RESPONSE: %s" % response_txt)
         return self._parse_api_response(method_name_int, response_txt)
 
 
@@ -563,7 +527,7 @@ class LocalAPI(AbstractAPI):
         parsed_args = self._get_args(method, kwargs)
         file_path = "/www/api/methods/%s" % method["SCRIPT_FILE"]
 
-        self.debug("CALL: %s ARGS: %r" % (method["SCRIPT_FILE"], parsed_args))
+        self.logger.debug("CALL: %s ARGS: %r" % (method["SCRIPT_FILE"], parsed_args))
 
         tcl = ""
 
@@ -575,7 +539,7 @@ class LocalAPI(AbstractAPI):
             "source %s\n" \
             "puts \0\n" % (method["NAME"], parsed_args, file_path)
 
-        self.debug("  TCL: %r" % (tcl))
+        self.logger.debug("  TCL: %r" % (tcl))
 
         self._tclsh.stdin.write(tcl)
 
@@ -588,7 +552,7 @@ class LocalAPI(AbstractAPI):
             else:
                 response_txt += line
 
-        self.debug("  RESPONSE: %r" % response_txt)
+        self.logger.debug("  RESPONSE: %r" % response_txt)
         header, body = response_txt.split("\n\n", 1)
 
         return self._parse_api_response(method_name_int, body)
