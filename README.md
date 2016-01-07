@@ -8,6 +8,16 @@ can execute pmatic directly on the CCU2 or another system having Python
 installed. With pmatic you can write your own Python scripts to communicate
 with your CCU2 devices.
 
+## What to do with pmatic?
+
+* Create even small scripts to read info or trigger actions.
+* Execute scripts on any linux system or directly on the CCU.
+* Edit scripts in your favorite editor, test on your workstation,
+  deploy on another device, for example the CCU, later.
+* Code in a very beginner friendly language: Python.
+
+## Why pmatic?
+
 Before I built this API I tried to create a small script to *just* check
 all my window sensors, record the time they are opened and then alarm
 me to close the window if it was open for too long. No problem I thought.
@@ -53,13 +63,14 @@ scripts, if you like.
 
 ## Requirements
 
-pmatic is currently not expecting any special Python modules. pmatic
-is supported with Python 2.7, 3.4 and newer. Older versions of Python are not
+pmatic is currently not expecting any special Python modules. pmatic is
+supported with Python 2.7, 3.4 and newer. Older versions of Python are not
 supported.
 
-Please note about Python 3: I started development with Python 2.7 and have
-not tested the code very well with Python 3. So there may still be bugs. I
-welcome patches!
+Potentially pmatic could even be used on Windows systems which have a
+Python interpreter installed. But I did not test it and I am pretty sure
+there are some changes needed to make it work. But maybe someone wants
+to make this work. Should not be too much work.
 
 ## Installation
 
@@ -144,6 +155,10 @@ on a linux host:
 
 Now you should have a CCU addon archive at `dist/pmatic-*_ccu.tar.gz`.
 You can now upload this file to your CCU to install pmatic on it.
+
+## What is planned?
+
+Please take a look at the issue tracker and the TODO file.
 
 ## Reporting Bugs, Feature Requests
 
