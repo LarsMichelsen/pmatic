@@ -23,22 +23,42 @@ Ideas:
     # ein API-Objekt intern angelegt und genutzt.
     ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"),
                      connect_timeout=5, log_level=pmatic.DEBUG)
-    
+    # Auf der CCU reicht auch das hier aus:
+    ccu = pmatic.CCU()
+
     # Alle Devices von der CCU holen und Devices inkl. Channels anlegen. Diese werden
     # im CCU-Objekt gespeichert, so dass z.b. das Events-Objekt darauf zugreifen kann.
     # .init() kann man Argumente zur Filterung der Devices mitgeben, so dass statt allen
     # Devices nur bestimmte initialisiert werden. Daher kann .init() auch mehrfach
-    # aufgerufen werden. Die Methode erstellt die Objekte inkrementell.
+    # aufgerufen werden. Die Methode erstellt die Objekte inkrementell. So kann man kleine
+    # Scripte erstellen ohne, dass zu Viel Speicher genutzt wird, aber auch Anwendungen bauen,
+    # die alle Objekte benoetigen.
     #
     # Jedes Device wird immer vollstaendig inkl. aller Channels angelegt. Nur die Werte der
-    # Parameter werden adhoc geholt bzw. durch den Event-Listener aktualisiert.
-    ccu.devices.init()
-    
+    # Parameter werden adhoc geholt bzw. durch den EventListener() aktualisiert.
+    #ccu.devices.get()
+    #ccu.devices.get(device_type="...")
+    #ccu.devices.get(device_name="...")
+    #ccu.devices.get(device_id="...")
+    #
+    # Devices wird als separates Objekt der Klasse Devices() realisiert, das eine beliebige
+    # Menge von Device-Objekten gruppiert und verschiedene Wege zum Zugriff auf diese Objekte
+    # anbietet.
+
     # Event-Handling initialisieren. Die Events erzeugen dann neue Objekte bzw.
     # aktualisieren eventuell existierende.
     # Hier kann man Argumente fuer den EventListener uebergeben.
     ccu.events.init()
     ccu.events.wait()
     #ccu.events.close()
-    
+
     ccu.close()
+
+    # ----- alternative: bisherige Schnittstellen direkt nutzen
+
+    API = pmatic.api.init(...)
+    devices = Devices.get_devices(API, ...)
+
+    events = pmatic.events.init(API, ...)
+    events.wait()
+    events.close()
