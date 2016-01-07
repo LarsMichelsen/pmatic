@@ -35,7 +35,7 @@ try:
 except ImportError:
     pass
 
-from pmatic.api.abstract import AbstractAPI
+from pmatic.api import AbstractAPI
 from . import utils, debug, warning, params
 
 class Entity(object):
