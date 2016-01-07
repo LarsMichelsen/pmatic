@@ -30,7 +30,8 @@ from .. import PMException
 from .abstract import AbstractAPI
 
 class LocalAPI(AbstractAPI):
-    methods_file = "/www/api/methods.conf"
+    """Realizes the pmatic API when executed on locally on the CCU."""
+    _methods_file = "/www/api/methods.conf"
 
     def __init__(self, **kwargs):
         self._tclsh   = None
@@ -65,12 +66,12 @@ class LocalAPI(AbstractAPI):
             "source /www/api/eq3/hmscript.tcl\n"
             "source /www/api/eq3/event.tcl\n"
             "array set INTERFACE_LIST [ipc_getInterfaces]\n"
-            "array set METHOD_LIST  [file_load %s]\n" % self.methods_file
+            "array set METHOD_LIST  [file_load %s]\n" % self._methods_file
         )
 
 
     def _get_methods_config(self):
-        return open(self.methods_file).read().decode("latin-1").split("\r\n")
+        return open(self._methods_file).read().decode("latin-1").split("\r\n")
 
 
     def _get_args(self, method, args):
@@ -135,31 +136,6 @@ class LocalAPI(AbstractAPI):
 
 
     def close(self):
+        """Closes the "connection" with the CCU. In fact it terminates the tclsh process."""
         if self._tclsh:
             self._tclsh.kill()
-
-
-
-# Old local approach: Call the homematic.cgi locally. The drawbacks:
-# - needs authentication and authorization
-# - little more complex (maybe a bit less performat)
-#
-#def post(data):
-#    env = {
-#        "DOCUMENT_ROOT"  : "/www/",
-#        "REQUEST_METHOD" : "POST",
-#    }
-#
-#    json_data = json.dumps(data)
-#    env["CONTENT_LENGTH"] = str(len(json_data))
-#
-#    p = subprocess.Popen("/www/api/homematic.cgi", stdin=subprocess.PIPE,
-#                         stdout=subprocess.PIPE,
-#                         env=env, cwd="/www/api")
-#
-#    response_txt = ""
-#    p.stdin.write(json_data)
-#    for line in p.stdout:
-#        response_txt += line
-#
-#    return parse_api_response(response_txt)
