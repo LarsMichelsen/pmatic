@@ -20,13 +20,15 @@
 
 import pmatic.api
 
+# Uncomment to enable debug logging of pmatic messages to stderr
+# pmatic.logging(pmatic.DEBUG)
+
 # Open up a remote connection via HTTP to the CCU and login as admin. When the connection
 # can not be established within 5 seconds it raises an exception.
 API = pmatic.api.init(
     address="http://192.168.1.26",
     credentials=("Admin", "EPIC-SECRET-PW"),
     connect_timeout=5,
-    #log_level=pmatic.DEBUG,
 )
 
 devices = API.device_list_all_detail()

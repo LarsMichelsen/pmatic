@@ -31,11 +31,13 @@ from __future__ import unicode_literals
 import pmatic.api
 from pmatic.entities import Device
 
+# Uncomment to enable debug logging of pmatic messages to stderr
+# pmatic.logging(pmatic.DEBUG)
+
 API = pmatic.api.init(
     address="http://192.168.1.26",
     credentials=("Admin", "EPIC-SECRET-PW"),
     connect_timeout=5,
-    #log_level=pmatic.DEBUG,
 )
 
 print("Low battery: ")
