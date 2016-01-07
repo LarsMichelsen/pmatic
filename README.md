@@ -10,7 +10,7 @@ with your CCU2 devices.
 
 ## What to do with pmatic?
 
-* Create even small scripts to read info or trigger actions.
+* Create even small (one line) scripts to read info or trigger actions.
 * Execute scripts on any linux system or directly on the CCU.
 * Edit scripts in your favorite editor, test on your workstation,
   deploy on another device, for example the CCU, later.
@@ -144,6 +144,38 @@ API = pmatic.api.init()
 for device in HMSecSC.get_all(API):
     print device.name, device.formated_value()
 ```
+
+### Some use cases
+
+You might use pmatic for different kind of software. Some ideas:
+
+#### Manually triggered one shot scripts
+
+The most simple use cases I can imagine is to create small scripts which
+are executed, gather some information, print them or do anything else with
+it and then finish. Of curse these scripts could also trigger something.
+
+An example could be a script which triggers a power switch when you turn on
+your workstation which is then powering on some kind of ambient light.
+
+Take a look at the `example` directory for more ideas.
+
+#### Continously running daemons
+
+A program which is e.g. starting with the system/CCU, permanently running,
+observing things and performing actions depending on the gathered information.
+
+This daemon could either continously poll the needed information on it's own
+using the APIs pmatic provides or register for specific events happening and
+then perform custom actions.
+
+#### Planned: Scripts executed based on events
+
+The event handling is not finished yet, but this will also be a way to use
+pmatic. The complexity is equal to the manually triggered one shot scripts.
+The only difference is that the scripts are registering with pmatic and then
+pmatic is triggering them on it's own when the configured condition to start
+the script is met.
 
 ## Advanced topic: Build the CCU addon package on your own
 

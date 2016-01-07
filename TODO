@@ -4,6 +4,7 @@ Ideas:
     * document classes / methods inline
     * create HTML docs
     * move some of the docs from the README to the HTML docs
+  * Provide standard way to store data
   * Tie event API together with existing pmatic.api and synchronize objects and
     their states somehow
   * How to deal with events? Provide standard way to keep scripts running for
