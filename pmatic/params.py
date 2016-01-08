@@ -69,16 +69,17 @@ class Parameter(object):
     }
 
 
-    def __init__(self, channel, spec, api_value):
+    def __init__(self, channel, spec):
         assert isinstance(channel, pmatic.entities.Channel), "channel is not a Channel: %r" % channel
         assert type(spec) == dict, "spec is not a dictionary: %r" % spec
         self.channel = channel
         self._init_attributes(spec)
 
-        if api_value == None:
-            self._value = self.default
-        else:
-            self._value = self._from_api_value(api_value)
+        self._value = self.default
+        #if api_value == None:
+        #    self._value = self.default
+        #else:
+        #    self._value = self._from_api_value(api_value)
 
 
     def _init_attributes(self, spec):
@@ -189,6 +190,17 @@ class Parameter(object):
             return True
         except PMActionFailed:
             return False
+
+
+    def _set_from_api(self, value):
+        """pmatic internal method to set the parameter value.
+
+        Users: Don't use this method!
+
+        This method is used to set the parameter internally when the current
+        value has been fetched from the API or received as event. Setting only
+        the internal value in this object."""
+        self._value = self._from_api_value(value)
 
 
     def set_to_default(self):

@@ -37,6 +37,7 @@ except ImportError:
     pass
 
 import pmatic.api
+import pmatic.params
 import pmatic.utils as utils
 from pmatic.exceptions import PMException
 
@@ -107,9 +108,9 @@ class Channel(utils.LogMixin, Entity):
         # address of channel
         "address",
         # communication direction of channel:
-        # 0 = DIRECTION_NONE (Kanal unterstützt keine direkte Verknüpfung) 
-        # 1 = DIRECTION_SENDER 
-        # 2 = DIRECTION_RECEIVER 
+        # 0 = DIRECTION_NONE (Kanal unterstützt keine direkte Verknüpfung)
+        # 1 = DIRECTION_SENDER
+        # 2 = DIRECTION_RECEIVER
         "direction",
         # see device flags (0x01 visible, 0x02 internal, 0x08 can not be deleted)
         "flags",
@@ -145,31 +146,44 @@ class Channel(utils.LogMixin, Entity):
         return channel_objects
 
 
-    def _fetch_values(self):
-        """Fetches all values of the channel.
+    def _init_value_specs(self):
+        """Initializes the value objects by fetching the specification from the CCU.
 
-        Gathers the values of the channel including their specifications. From this data
-        parameter objects are constructed which are added to self._values of the Channel.
+        The specification (description) of the VALUES paramset are fetched from
+        the CCU and Parameter() objects will be created from them. Then they
+        will be added to self._values.
         """
-        raw_values = self.API.interface_get_paramset(interface="BidCos-RF", address=self.address, paramsetKey="VALUES")
-
         self._values.clear()
-        for param_spec in self.API.interface_get_paramset_description(interface="BidCos-RF", address=self.address, paramsetType="VALUES"):
+        for param_spec in self.API.interface_get_paramset_description(interface="BidCos-RF",
+                                                    address=self.address, paramsetType="VALUES"):
             param_id = param_spec["ID"]
 
             class_name = "Parameter%s" % param_spec["TYPE"]
-            cls = getattr(params, class_name)
+            cls = getattr(pmatic.params, class_name)
             if not cls:
                 warning("%s: Skipping unknown parameter %s of type %s. Class %s not implemented." %
                                               (self.channel_type, param_id, param_spec["TYPE"], class_name))
             else:
-                self._values[param_id] = cls(self, param_spec, raw_values.get(param_id))
+                self._values[param_id] = cls(self, param_spec)
+
+
+    def _fetch_values(self):
+        """Fetches all values of the channel.
+
+        Gathers the values of the channel and updates the value parameters in self._values.
+        """
+        # FIXME: What if values has not been initialized yet?
+        for param_id, value in self.API.interface_get_paramset(interface="BidCos-RF", address=self.address,
+                                                               paramsetKey="VALUES").items():
+            self._values[param_id]._set_from_api(value)
 
 
     @property
     def values(self):
         # FIXME: Update every access? Add some caching?
-        self._fetch_values()
+        if not self._values:
+            self._init_value_specs()
+        #self._fetch_values()
         return self._values
 
 
@@ -518,6 +532,17 @@ class Device(Entity):
         for channel in self.channels:
             values.append(channel.get_values())
         return values
+
+
+    def channel_by_address(self, address):
+        """Returns the channel object having the requested address.
+
+        When the device has no such channel, a ValueError() is raised.
+        """
+        for channel in self.channels:
+            if address == channel.address:
+                return channel
+        raise ValueError("The channel could not be found on this device.")
 
 
     def summary_state(self, skip_channel_types=[]):

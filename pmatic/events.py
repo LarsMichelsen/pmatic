@@ -38,6 +38,7 @@ except ImportError:
 import time
 import socket
 import threading
+import traceback
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from urlparse import urlparse
 
@@ -222,11 +223,31 @@ class EventListener(object):
 import pprint
 
 
-class EventHandler(object):
+class EventHandler(utils.LogMixin, object):
     """Handles incoming XML-RPC calls."""
     def __init__(self, ccu, listener):
         self._ccu = ccu
         self.listener = listener
+        super(EventHandler, self).__init__()
+
+
+    def _dispatch(self, method, params):
+        """Central entry point for all calls.
+
+        It does not let exceptions through to the caller. The exceptions
+        are all catched and logged.
+        """
+        try:
+            func = getattr(self, method)
+        except AttributeError:
+            raise PMException("Requested method %r is not implemented." % method)
+
+        try:
+            return func(*params)
+        except Exception, e:
+            self.logger.error("Exception in XML-RPC call %s%r - %s: %s" %
+                                            (method, tuple(params), type(e).__name__, e))
+            self.logger.debug(traceback.format_exc())
 
 
     # Mit dieser Methode teilt der Schnittstellenprozess der Logikschicht mit, dass sich ein
@@ -242,7 +263,11 @@ class EventHandler(object):
     # Der  Datentyp  von value ergibt  sich  aus  der  ParamsetDescription  des
     # Values-Parameter-Sets des entsprechenden logischen Gerätes.
     def event(self, interface_id, address, value_key, value):
-        print("EVENT", address, value_key, value)
+        self.logger.debug("[EVENT] X %s %s = %r" % (address, value_key, value))
+        obj = self._ccu.devices.get_device_or_channel_by_address(address)
+        obj.values[value_key]._set_from_api(value)
+
+        self.logger.debug("[EVENT] %s %s" % (obj.address, obj.summary_state()))
         return True
 
 

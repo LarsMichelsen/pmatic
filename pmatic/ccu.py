@@ -143,6 +143,14 @@ class Devices(object):
         return self._devices.keys()
 
 
+    def get_device_or_channel_by_address(self, address):
+        if ":" in address:
+            device_address = address.split(":", 1)[0]
+            return self._devices[device_address].channel_by_address(address)
+        else:
+            return self._devices[address]
+
+
     def __iter__(self):
         for value in self._devices.values():
             yield value

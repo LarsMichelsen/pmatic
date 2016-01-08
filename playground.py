@@ -49,17 +49,18 @@ ccu = pmatic.CCU(
 )
 
 ccu.devices.get()
-for device in ccu.devices:
-    print(device.address, len(device.channels))
-    for channel in device.channels:
-        print(channel.address, channel.paramsets)
+
+#for device in ccu.devices:
+#    print(device.address, len(device.channels))
+#    for channel in device.channels:
+#        print(channel.address, channel.summary_state())
 
 #print(list(ccu.devices))
 #print(ccu.devices.addresses())
 
-#ccu.events.init()
-#ccu.events.wait()
-#ccu.events.close()
+ccu.events.init()
+ccu.events.wait()
+ccu.events.close()
 
 sys.exit(1)
 
