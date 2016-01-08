@@ -34,8 +34,61 @@ from pmatic import utils, PMException
 class TestParameter(TestRemoteAPI):
     @pytest.fixture(scope="class")
     def p(self, API):
-        channel = Channel(API, {
+        device = Device(API, {
+            'address': 'KEQ0970393',
+            #'children': ['KEQ0970393:0',
+            #             'KEQ0970393:1',
+            #             'KEQ0970393:2',
+            #             'KEQ0970393:3',
+            #             'KEQ0970393:4',
+            #             'KEQ0970393:5',
+            #             'KEQ0970393:6',
+            'firmware': '1.4',
+            'flags': 1,
+            'interface': 'KEQ0714972',
+            #'paramsets': ['MASTER'],
+            'roaming': False,
+            'type': 'HM-ES-PMSw1-Pl',
+            'updatable': '1',
+            'version': 1,
+            'channels': [],
+        })
+        # address of channel
+        "address",
+        # communication direction of channel:
+        # 0 = DIRECTION_NONE (Kanal unterstützt keine direkte Verknüpfung)
+        # 1 = DIRECTION_SENDER
+        # 2 = DIRECTION_RECEIVER
+        "direction",
+        # see device flags (0x01 visible, 0x02 internal, 0x08 can not be deleted)
+        "flags",
+        # channel number
+        "index",
+        # possible roles as sender
+        "link_source_roles",
+        # possible roles as receiver
+        "link_target_roles",
+        # list of available parameter sets
+        "paramsets",
+        # type of this channel
+        "type",
+        # version of the channel description
+        "version",
+        channel = Channel(device, {
             'address': 'KEQ0970393:1',
+            'direction': 1,
+            'flags': 1,
+            'index': 1,
+            'link_source_roles': [
+                'KEYMATIC',
+                'SWITCH',
+                'WINDOW_SWITCH_RECEIVER',
+                'WINMATIC'
+            ],
+            'link_target_roles': [],
+            'paramsets': ['LINK', 'MASTER', 'VALUES'],
+            'type': 'SHUTTER_CONTACT',
+            'version': 15,
         })
         return Parameter(channel, {
             'control': 'SWITCH.STATE',
@@ -51,7 +104,7 @@ class TestParameter(TestRemoteAPI):
             'type': 'BOOL',
             'id': 'STATE',
             'channel': channel,
-        }, None)
+        })
 
 
     def test_attributes(self, p):

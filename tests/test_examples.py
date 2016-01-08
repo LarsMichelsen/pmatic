@@ -29,14 +29,15 @@ import glob
 import subprocess
 
 
-def test_run_examples():
-    for path in glob.glob("examples/*.py") +  glob.glob("examples/lowlevel_api/*.py"):
-        if os.path.isfile(path):
-            assert os.access(path, os.X_OK)
-
-            env = {
-                "PYTHONIOENCODING": "UTF-8",
-            }
-            env.update(os.environ)
-
-            assert subprocess.call(["/usr/bin/python", path], shell=False, env=env) == 0
+# Do not run in regular cases as they need the CCU to be available.
+#def test_run_examples():
+#    for path in glob.glob("examples/*.py") +  glob.glob("examples/lowlevel_api/*.py"):
+#        if os.path.isfile(path):
+#            assert os.access(path, os.X_OK)
+#
+#            env = {
+#                "PYTHONIOENCODING": "UTF-8",
+#            }
+#            env.update(os.environ)
+#
+#            assert subprocess.call(["/usr/bin/python", path], shell=False, env=env) == 0

@@ -27,8 +27,5 @@ from __future__ import unicode_literals
 from pmatic.api import AbstractAPI
 
 class TestAPI(AbstractAPI):
-    def __init__(self, logger=None, log_level=None):
-        super(TestAPI, self).__init__(logger, log_level)
-
     def __del__(self):
         pass
