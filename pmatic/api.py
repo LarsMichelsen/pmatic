@@ -562,3 +562,41 @@ class LocalAPI(AbstractAPI):
         """Closes the "connection" with the CCU. In fact it terminates the tclsh process."""
         if self._tclsh:
             self._tclsh.kill()
+
+
+
+# FIXME: self._update_data() is not called in all possible data read access methods
+class CachedAPICall(dict):
+    """Wraps an API call to cache it's result for the configured time."""
+
+    def __init__(self, api, max_cache_age=360):
+        dict.__init__(self)
+        self._api = api
+        self._max_cache_age = max_cache_age # seconds
+        self._last_update = None
+
+
+    def _update_data(self):
+        if self._last_update == None \
+           or self._last_update + self._max_cache_age < time.time():
+            self.clear()
+            self._update()
+            self._last_update = time.time()
+
+
+    def __getitem__(self, key):
+        self._update_data()
+        return dict.__getitem__(self, key)
+
+
+    def items(self):
+        self._update_data()
+        return dict.items(self)
+
+
+    def __setitem__(self, key, val):
+        raise PMException("Can not be changed.")
+
+
+    def update(self, *args, **kwargs):
+        raise PMException("Can not be changed.")

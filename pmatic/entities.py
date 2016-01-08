@@ -41,6 +41,7 @@ import pmatic.params
 import pmatic.utils as utils
 from pmatic.exceptions import PMException
 
+# FIXME: Rename self.API to self._api
 class Entity(object):
     transform_attributes = {}
     skip_attributes = []
@@ -152,6 +153,8 @@ class Channel(utils.LogMixin, Entity):
         The specification (description) of the VALUES paramset are fetched from
         the CCU and Parameter() objects will be created from them. Then they
         will be added to self._values.
+
+        This method is called on the first access to the values.
         """
         self._values.clear()
         for param_spec in self.API.interface_get_paramset_description(interface="BidCos-RF",
@@ -171,8 +174,11 @@ class Channel(utils.LogMixin, Entity):
         """Fetches all values of the channel.
 
         Gathers the values of the channel and updates the value parameters in self._values.
+        The parameter objects need to be initialized before (self._init_value_specs).
         """
-        # FIXME: What if values has not been initialized yet?
+        if not self._values:
+            raise PMException("The value parameters are not yet initialized.")
+
         for param_id, value in self.API.interface_get_paramset(interface="BidCos-RF", address=self.address,
                                                                paramsetKey="VALUES").items():
             self._values[param_id]._set_from_api(value)
@@ -180,9 +186,11 @@ class Channel(utils.LogMixin, Entity):
 
     @property
     def values(self):
-        # FIXME: Update every access? Add some caching?
+        """Provides access to all value objects of this channel."""
         if not self._values:
             self._init_value_specs()
+
+        # FIXME: Update every access? Add some caching?
         #self._fetch_values()
         return self._values
 

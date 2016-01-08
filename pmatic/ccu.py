@@ -56,6 +56,7 @@ class CCU(object):
 
     @property
     def devices(self):
+        """Provides access to the collection of all known devices."""
         if not self._devices:
             self._devices = Devices(self.api)
         return self._devices
@@ -63,6 +64,7 @@ class CCU(object):
 
     @property
     def events(self):
+        """Provides access to the pmatic XML-RPC EventListener instance."""
         if not self._events:
             self._events = pmatic.events.EventListener(self)
         return self._events
@@ -111,6 +113,10 @@ class Devices(object):
 
     # FIXME: Add filter options
     def get(self):
+        """Returns all device objects matching the provided filters.
+
+        When the devices have not been fetched yet, the device specs might be fetched
+        from the CCU and objects are created for all devices."""
         requested = []
         for address, spec in self._device_specs.items():
             #import pprint ; pprint.pprint(spec)
@@ -129,15 +135,19 @@ class Devices(object):
 
 
     def add(self, device):
+        """Add a device object tot the collection."""
         if not isinstance(device, Device):
             raise PMException("You can only add device objects.")
         self._devices[device.address] = device
 
 
+    # FIXME: Trigger device spec fetch?
     def exists(self, address):
+        """Check whether or not a device with the given address is in this collection."""
         return address in self._devices
 
 
+    # FIXME: Trigger device spec fetch?
     def addresses(self):
         """Returns a list of all addresses of all initialized devices."""
         return self._devices.keys()
@@ -154,7 +164,9 @@ class Devices(object):
             pass
 
 
+    # FIXME: Trigger device spec fetch?
     def get_device_or_channel_by_address(self, address):
+        """Returns the device or channel object of the given address."""
         if ":" in address:
             device_address = address.split(":", 1)[0]
             return self._devices[device_address].channel_by_address(address)
@@ -162,51 +174,14 @@ class Devices(object):
             return self._devices[address]
 
 
+    # FIXME: Trigger device spec fetch?
     def __iter__(self):
         for value in self._devices.values():
             yield value
 
 
 
-# FIXME: self._update_data() is not called in all possible data read access methods
-class CachedAPICall(dict):
-    """Wraps an API call to cache it's result for the configured time."""
-
-    def __init__(self, api, max_cache_age=360):
-        dict.__init__(self)
-        self.api = api
-        self._max_cache_age = max_cache_age # seconds
-        self._last_update = None
-
-
-    def _update_data(self):
-        if self._last_update == None \
-           or self._last_update + self._max_cache_age < time.time():
-            self.clear()
-            self._update()
-            self._last_update = time.time()
-
-
-    def __getitem__(self, key):
-        self._update_data()
-        return dict.__getitem__(self, key)
-
-
-    def items(self):
-        self._update_data()
-        return dict.items(self)
-
-
-    def __setitem__(self, key, val):
-        raise PMException("Can not be changed.")
-
-
-    def update(self, *args, **kwargs):
-        raise PMException("Can not be changed.")
-
-
-
-class DeviceSpecs(CachedAPICall):
+class DeviceSpecs(pmatic.api.CachedAPICall):
     """Uses the JSON-API to fetch the specifications of all devices and their channels.
 
     The CCU provides the same data as when the XML-RPC API is initialized and it
@@ -225,7 +200,7 @@ class DeviceSpecs(CachedAPICall):
             return d
 
         devices = {}
-        for spec in self.api.interface_list_devices(interface="BidCos-RF"):
+        for spec in self._api.interface_list_devices(interface="BidCos-RF"):
             spec = decamel_dict_keys(spec)
             if "parent" not in spec:
                 devices[spec["address"]] = spec
@@ -239,13 +214,13 @@ class DeviceSpecs(CachedAPICall):
 
 
 
-class SignalStrength(CachedAPICall):
+class SignalStrength(pmatic.api.CachedAPICall):
     """Fetches the signal strength information about all connected devices
 
     It caches these information for up to 360 seconds by default. The caching
     time can be set via constructor. Data can be accessed as in normal dicts.
     """
     def _update(self):
-        for entry in self.api.interface_rssi_info(interface="BidCos-RF"):
+        for entry in self._api.interface_rssi_info(interface="BidCos-RF"):
             partner_dict = dict([(p["name"], p["rssiData"]) for p in entry["partner"] ])
             dict.__setitem__(self, entry["name"], partner_dict)
