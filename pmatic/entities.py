@@ -42,15 +42,15 @@ import pmatic.params
 import pmatic.utils as utils
 from pmatic.exceptions import PMException
 
-# FIXME: Rename self.API to self._api
+# FIXME: Rename self._api to self._api
 class Entity(object):
     transform_attributes = {}
     skip_attributes = []
 
-    def __init__(self, API, obj_dict):
-        assert isinstance(API, pmatic.api.AbstractAPI), "API is not of API class: %r" % API
+    def __init__(self, api, obj_dict):
+        assert isinstance(api, pmatic.api.AbstractAPI), "API is not of API class: %r" % API
         assert type(obj_dict) == dict, "obj_dict is not a dictionary: %r" % obj_dict
-        self.API = API
+        self._api = api
         self._set_attributes(obj_dict)
         self._verify_mandatory_attributes()
         super(Entity, self).__init__()
@@ -72,7 +72,7 @@ class Entity(object):
             if trans:
                 add_api_obj, trans_func = trans
                 if add_api_obj:
-                    val = trans_func(self.API, val)
+                    val = trans_func(self._api, val)
                 else:
                     val = trans_func(val)
 
@@ -163,7 +163,7 @@ class Channel(utils.LogMixin, Entity):
         This method is called on the first access to the values.
         """
         self._values.clear()
-        for param_spec in self.API.interface_get_paramset_description(interface="BidCos-RF",
+        for param_spec in self._api.interface_get_paramset_description(interface="BidCos-RF",
                                                     address=self.address, paramsetType="VALUES"):
             param_id = param_spec["ID"]
 
@@ -205,7 +205,7 @@ class Channel(utils.LogMixin, Entity):
         if not self._values:
             raise PMException("The value parameters are not yet initialized.")
 
-        for param_id, value in self.API.interface_get_paramset(interface="BidCos-RF", address=self.address,
+        for param_id, value in self._api.interface_get_paramset(interface="BidCos-RF", address=self.address,
                                                                paramsetKey="VALUES").items():
             self._values[param_id]._set_from_api(value)
 
@@ -542,7 +542,7 @@ class Device(Entity):
     def maintenance(self, what=None):
         # FIXME: When to invalidate / renew?
         if not self._maintenance:
-            values = self.API.interface_get_paramset(interface="BidCos-RF", address=self.address + ":0", paramsetKey="VALUES")
+            values = self._api.interface_get_paramset(interface="BidCos-RF", address=self.address + ":0", paramsetKey="VALUES")
             for key, val in values.items():
                 if key in [ "RSSI_PEER", "RSSI_DEVICE" ]:
                     self._maintenance[key] = int(val)
@@ -730,7 +730,7 @@ class Room(Entity):
     def devices(self):
         """Returns list of device objects which have at least one channel associated with this room."""
         # FIXME: Cache this?
-        return Device.get_devices(self.API, has_channel_ids=self.channel_ids)
+        return Device.get_devices(self._api, has_channel_ids=self.channel_ids)
 
 
     @property
@@ -738,7 +738,7 @@ class Room(Entity):
         """Returns list of channel objects associated with this room."""
         # FIXME: Cache this?
         room_channels = []
-        for device in Device.get_devices(self.API, has_channel_ids=self.channel_ids):
+        for device in Device.get_devices(self._api, has_channel_ids=self.channel_ids):
             for channel in device.channels:
                 if channel.id in self.channel_ids:
                     room_channels.append(channel)
