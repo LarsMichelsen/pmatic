@@ -263,11 +263,10 @@ class EventHandler(utils.LogMixin, object):
     # Der  Datentyp  von value ergibt  sich  aus  der  ParamsetDescription  des
     # Values-Parameter-Sets des entsprechenden logischen Gerätes.
     def event(self, interface_id, address, value_key, value):
-        self.logger.debug("[EVENT] X %s %s = %r" % (address, value_key, value))
+        """Receives an event from the CCU and applies the update."""
+        self.logger.debug("[EVENT] %s %s = %r" % (address, value_key, value))
         obj = self._ccu.devices.get_device_or_channel_by_address(address)
         obj.values[value_key]._set_from_api(value)
-
-        self.logger.debug("[EVENT] %s %s" % (obj.address, obj.summary_state()))
         return True
 
 
@@ -278,6 +277,7 @@ class EventHandler(utils.LogMixin, object):
     # zumindest teilweise merken. Es ist dabei ausreichend, wenn je weils die Member ADDRESS
     # und VERSION einer DeviceDescription gesetzt sind.
     def listDevices(self, interface_id):
+        """The CCU asks for all already known devices. Send back the address and description version."""
         devices = []
         for device in self._ccu.devices:
             devices.append({"ADDRESS": device.address, "VERSION": device.version})
@@ -297,7 +297,31 @@ class EventHandler(utils.LogMixin, object):
     # Beschreibung  durchführen.  Dabei  sollte  die  Konfiguration  des  Gerätes  innerhalb  der
     # Logikschicht so weit wie möglich erhalten bleiben.
     def newDevices(self, interface_id, dev_descriptions):
-        pprint.pprint(("NEW_DEVICES", dev_descriptions))
+        """The CCU informs about new devices. Creates objects known for them."""
+        self.logger.debug("[NEW DEVICES] Got %d new devices/channels" % len(dev_descriptions))
+
+        # Incoming dict keys are upper case.
+        # The dict keys are directly handed over to the device/channel objects. So they
+        # need ot be equalized and with internal naming specs just like the also different
+        # keys from the XML-RPC messages.
+        def normalize_dict_keys(d):
+            for k in d:
+                d[k.lower()] = d.pop(k)
+            return d
+
+        devices = {}
+
+        for spec in dev_descriptions:
+            spec = normalize_dict_keys(spec)
+            if not spec.get("parent"):
+                devices[spec["address"]] = spec
+            else:
+                channels = devices[spec["parent"]].setdefault("channels", [])
+                channels.append(spec)
+
+        for device_dict in devices.values():
+            self._ccu.devices.add_from_dict(device_dict)
+
         return True
 
 
@@ -306,8 +330,12 @@ class EventHandler(utils.LogMixin, object):
     #  gibt die id des Schnittstellenprozesses an, zu dem das Gerät gehört.
     # Der  Parameter addresses ist  ein  Array,  das  die  Adressen  der
     # gelöschten  Geräte enthält.
+    # FIXME: Only handling device addresses. Can we get channels here?
     def deleteDevices(self, interface_id, addresses):
-        pprint.pprint(("DELETE_DEVICES", addresses))
+        """A device has been removed from the CCU. Reflect that change."""
+        self.logger.debug("[DELETE DEVICES] Delete %d devices/channels" % len(addresses))
+        for address in addresses:
+            self._ccu.devices.delete(address)
         return True
 
 
@@ -325,6 +353,8 @@ class EventHandler(utils.LogMixin, object):
     #
     # Derzeit  werden  nur  Änderungen  an  den  Verknüpfungspa rtnern  auf  diesem  Weg
     # mitgeteilt.
+    # FIXME: To be implemented.
     def updateDevices(self, interface_id, address, hint):
-        pprint.pprint(("UPDATE_DEVICES", address, hint))
+        """The CCU wants to update the parameters of a device."""
+        self.logger.debug("[UPDATE DEVICES] Update for device %s (%d)" % (address, hint))
         return True

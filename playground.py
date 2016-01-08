@@ -48,7 +48,7 @@ ccu = pmatic.CCU(
     connect_timeout=5,
 )
 
-ccu.devices.get()
+#ccu.devices.get()
 
 #for device in ccu.devices:
 #    print(device.address, len(device.channels))

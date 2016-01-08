@@ -143,6 +143,17 @@ class Devices(object):
         return self._devices.keys()
 
 
+    def delete(self, address):
+        """Deletes the device with the given address from the pmatic runtime.
+
+        The device is not deleted from the CCU.
+        When the device is not known, the method is tollerating that."""
+        try:
+            del self._devices[address]
+        except ValueError:
+            pass
+
+
     def get_device_or_channel_by_address(self, address):
         if ":" in address:
             device_address = address.split(":", 1)[0]
@@ -215,12 +226,13 @@ class DeviceSpecs(CachedAPICall):
 
         devices = {}
         for spec in self.api.interface_list_devices(interface="BidCos-RF"):
-            if not "parent" in spec:
-                devices[spec["address"]] = decamel_dict_keys(spec)
+            spec = decamel_dict_keys(spec)
+            if "parent" not in spec:
+                devices[spec["address"]] = spec
             else:
                 device = devices[spec["parent"]]
                 channels = device.setdefault("channels", [])
-                channels.append(decamel_dict_keys(spec))
+                channels.append(spec)
 
         for key, val in devices.items():
             dict.__setitem__(self, key, val)
