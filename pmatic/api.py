@@ -128,7 +128,7 @@ class AbstractAPI(utils.LogMixin):
         atexit.register(self.close)
 
 
-    def _parse_api_response(self, method_name_int, body):
+    def _parse_api_response(self, method_name_int, kwargs, body):
         # FIXME: The ccu is performing wrong encoding at least for output of
         # executed rega scripts. But maybe this is a generic problem. Let's see
         # and only fix the known issues for the moment.
@@ -444,7 +444,7 @@ class RemoteAPI(AbstractAPI):
                                     (http_status, url, response_txt))
 
         self.logger.debug("  RESPONSE: %s" % response_txt)
-        return self._parse_api_response(method_name_int, response_txt)
+        return self._parse_api_response(method_name_int, kwargs, response_txt)
 
 
     @property
@@ -556,7 +556,7 @@ class LocalAPI(AbstractAPI):
         self.logger.debug("  RESPONSE: %r" % response_txt)
         header, body = response_txt.split("\n\n", 1)
 
-        return self._parse_api_response(method_name_int, body)
+        return self._parse_api_response(method_name_int, kwargs, body)
 
 
     def close(self):

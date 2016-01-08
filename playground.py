@@ -34,6 +34,7 @@ import pmatic.events
 from pmatic.entities import *
 from pmatic import utils
 from pmatic.ccu import CCU
+from pmatic.exceptions import PMDeviceOffline
 
 ##
 # Opening a pmatic session
@@ -51,8 +52,11 @@ ccu = pmatic.CCU(
 ccu.devices.get()
 for device in ccu.devices:
     print(device.name, device.address, len(device.channels))
-    for channel in device.channels:
-        print(channel.name, channel.address, channel.summary_state())
+    try:
+        for channel in device.channels:
+            print(" ", channel.name, channel.address, channel.summary_state())
+    except PMDeviceOffline:
+        print("  The device is offline!")
 
 #print(list(ccu.devices))
 #print(ccu.devices.addresses())
@@ -105,7 +109,7 @@ sys.exit(1)
 #        print(device.name, channel.channel_type, channel.name, channel.formated_values())
 
 for device in Device.get_devices(API):
-    if not device.online():
+    if not device.is_online:
         print("OFFLINE:", device.name)
     else:
         for channel in device.channels:

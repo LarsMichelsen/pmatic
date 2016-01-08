@@ -28,7 +28,8 @@ class PMException(Exception):
     """This is the base exception for all exceptions raised by pmatic"""
     pass
 
-class PMConnectionError(Exception):
+
+class PMConnectionError(PMException):
     """Is raised when the connection with the CCU could not be established.
 
     This error is raised by pmatic.api in situations where the CCU could not
@@ -38,6 +39,11 @@ class PMConnectionError(Exception):
     For example when the CCU is currently not reachable this kind of exception
     is raised. Means it is worth it to try again later with same parameters.
     """
+
+
+class PMDeviceOffline(PMException):
+    """Is raised when trying to read e.g. values from the device but it is offline."""
+
 
 class PMActionFailed(PMException):
     pass

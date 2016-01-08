@@ -40,18 +40,17 @@ except ImportError:
 import pmatic.api
 import pmatic.params
 import pmatic.utils as utils
-from pmatic.exceptions import PMException
+from pmatic.exceptions import PMException, PMDeviceOffline
 
-# FIXME: Rename self._api to self._api
 class Entity(object):
     transform_attributes = {}
     skip_attributes = []
 
-    def __init__(self, api, obj_dict):
-        assert isinstance(api, pmatic.api.AbstractAPI), "API is not of API class: %r" % API
-        assert type(obj_dict) == dict, "obj_dict is not a dictionary: %r" % obj_dict
+    def __init__(self, api, spec):
+        assert isinstance(api, pmatic.api.AbstractAPI), "api is not of API class: %r" % api
+        assert type(spec) == dict, "spec is not a dictionary: %r" % spec
         self._api = api
-        self._set_attributes(obj_dict)
+        self._set_attributes(spec)
         self._verify_mandatory_attributes()
         super(Entity, self).__init__()
 
@@ -68,13 +67,25 @@ class Entity(object):
 
             # Optionally convert values using the given transform functions
             # for the specific object type
-            trans = self.transform_attributes.get(key)
-            if trans:
-                add_api_obj, trans_func = trans
-                if add_api_obj:
-                    val = trans_func(self._api, val)
+            trans_func = self.transform_attributes.get(key)
+            if trans_func:
+                func_type = type(trans_func).__name__
+                if func_type in [ "instancemethod", "function" ]:
+                    args = []
+                    offset = 1 if func_type == "instancemethod" else 0
+                    for arg_name in trans_func.func_code.co_varnames[offset:trans_func.func_code.co_argcount]:
+                        if arg_name == "api":
+                            args.append(self._api)
+                        elif arg_name == "device":
+                            args.append(self)
+                        elif arg_name == "obj":
+                            args.append(self)
+                        else:
+                            args.append(val)
                 else:
-                    val = trans_func(val)
+                    args = [val]
+
+                val = trans_func(*args)
 
             # Transform keys from camel case to our style
             key = utils.decamel(key)
@@ -92,13 +103,13 @@ class Entity(object):
 class Channel(utils.LogMixin, Entity):
     transform_attributes = {
         # ReGa attributes:
-        #"id"               : (False, int),
-        #"device_id"        : (False, int),
-        #"partner_id"       : (False, lambda x: None if x == "" else int(x)),
+        #"id"               : int,
+        #"device_id"        : int,
+        #"partner_id"       : lambda x: None if x == "" else int(x),
         # Low level attributes:
-        "aes_active"        : (False, bool),
-        "link_source_roles" : (False, lambda v: v if type(v) == list else v.split(" ")),
-        "link_target_roles" : (False, lambda v: v if type(v) == list else v.split(" ")),
+        "aes_active"        : bool,
+        "link_source_roles" : lambda v: v if type(v) == list else v.split(" "),
+        "link_target_roles" : lambda v: v if type(v) == list else v.split(" "),
     }
 
     # Don't add these keys to the objects attributes
@@ -135,13 +146,15 @@ class Channel(utils.LogMixin, Entity):
         "version",
     ]
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, device, spec):
+        assert isinstance(device, Device), "device object is not a Device derived class: %r" % device
+        self.device = device
         self._values = {}
-        super(Channel, self).__init__(*args, **kwargs)
+        super(Channel, self).__init__(device._api, spec)
 
 
     @classmethod
-    def from_channel_dicts(cls, api, channel_dicts):
+    def from_channel_dicts(cls, device, channel_dicts):
         channel_objects = []
         for channel_dict in channel_dicts:
             channel_class = channel_classes_by_type_name.get(channel_dict["type"], Channel)
@@ -149,7 +162,7 @@ class Channel(utils.LogMixin, Entity):
             if channel_class == Channel:
                 cls.cls_logger().debug("Using generic Channel class (Type: %s): %r" % (channel_dict["type"], channel_dict))
 
-            channel_objects.append(channel_class(api, channel_dict))
+            channel_objects.append(channel_class(device, channel_dict))
         return channel_objects
 
 
@@ -205,8 +218,17 @@ class Channel(utils.LogMixin, Entity):
         if not self._values:
             raise PMException("The value parameters are not yet initialized.")
 
-        for param_id, value in self._api.interface_get_paramset(interface="BidCos-RF", address=self.address,
-                                                               paramsetKey="VALUES").items():
+        try:
+            values = self._api.interface_get_paramset(interface="BidCos-RF",
+                                         address=self.address,paramsetKey="VALUES")
+        except PMException as e:
+            # FIXME: Clean this 601 in "%s" up!
+            if "601" in ("%s" % e) and not self.device.is_online:
+                raise PMDeviceOffline("Failed to fetch the values. The device is not online.")
+            else:
+                raise
+
+        for param_id, value in values.items():
             self._values[param_id]._set_from_api(value)
 
 
@@ -450,15 +472,15 @@ class ChannelRemoteControlReceiver(Channel):
 class Device(Entity):
     transform_attributes = {
         # ReGa attributes:
-        #"id"                : (False, int),
-        #"deviceId"          : (False, int),
-        #"operateGroupOnly"  : (False, lambda v: v != "false"),
+        #"id"                : int,
+        #"deviceId"          : int,
+        #"operateGroupOnly"  : lambda v: v != "false",
 
         # Low level attributes:
-        "flags"             : (False, int),
-        "roaming"           : (False, bool),
-        "updateable"        : (False, bool),
-        "channels"          : (True,  Channel.from_channel_dicts),
+        "flags"             : int,
+        "roaming"           : bool,
+        "updateable"        : bool,
+        "channels"          : Channel.from_channel_dicts,
     }
 
     # Don't add these keys to the objects attributes
@@ -494,9 +516,8 @@ class Device(Entity):
         "channels",
     ]
 
-    def __init__(self, *args, **kwargs):
-        self._maintenance = {}
-        super(Device, self).__init__(*args, **kwargs)
+    def __init__(self, api, spec):
+        super(Device, self).__init__(api, spec)
 
 
     @classmethod
@@ -537,20 +558,10 @@ class Device(Entity):
     # {u'UNREACH': u'1', u'AES_KEY': u'1', u'UPDATE_PENDING': u'1', u'RSSI_PEER': u'-65535',
     #  u'LOWBAT': u'0', u'STICKY_UNREACH': u'1', u'DEVICE_IN_BOOTLOADER': u'0',
     #  u'CONFIG_PENDING': u'0', u'RSSI_DEVICE': u'-65535', u'DUTYCYCLE': u'0'}
-    # FIXME: use channel[0] (which is the MAINTENANCE channel)
     @property
-    def maintenance(self, what=None):
-        # FIXME: When to invalidate / renew?
-        if not self._maintenance:
-            values = self._api.interface_get_paramset(interface="BidCos-RF", address=self.address + ":0", paramsetKey="VALUES")
-            for key, val in values.items():
-                if key in [ "RSSI_PEER", "RSSI_DEVICE" ]:
-                    self._maintenance[key] = int(val)
-                else:
-                    self._maintenance[key] = val == "1"
-
-
-        return self._maintenance
+    def maintenance(self):
+        """Returns the whole set of all available maintenance parameters as dictionary."""
+        return self.channels[0].values
 
 
     def set_logic_attributes(self, attrs):
@@ -570,33 +581,46 @@ class Device(Entity):
         self._set_attributes(attrs)
 
 
-    def online(self):
+    @property
+    def is_online(self):
+        """Returns True when the device is currently reachable. Otherwise False is returned."""
         if self.type == "HM-RCV-50":
             return True # CCU is always assumed to be online
         else:
-            return not self.maintenance["UNREACH"]
+            return not self.maintenance["UNREACH"].value
 
 
-    def battery_low(self):
+    @property
+    def is_battery_low(self):
+        """Returns True when the battery is reported to be low.
+
+        When the battery is in normal state, False is returned. It might be a
+        non battery powered device, then None is returned."""
         try:
-            return self.maintenance["LOWBAT"]
+            return self.maintenance["LOWBAT"].value
         except KeyError:
             return None # not battery powered
 
 
+    @property
     def has_pending_config(self):
         if self.type == "HM-RCV-50":
             return False
         else:
-            return self.maintenance["CONFIG_PENDING"]
+            return self.maintenance["CONFIG_PENDING"].value
 
 
+    @property
     def has_pending_update(self):
-        return self.maintenance.get("UPDATE_PENDING", False)
+        try:
+            return self.maintenance["UPDATE_PENDING"].value
+        except KeyError:
+            return False
 
 
+    @property
     def rssi(self):
-        return self.maintenance["RSSI_DEVICE"], self.maintenance["RSSI_PEER"]
+        return self.maintenance["RSSI_DEVICE"].value, self.maintenance["RSSI_PEER"].value
 
 
     def get_values(self):
@@ -709,8 +733,8 @@ class HMPBI4FM(SpecificDevice):
 
 class Room(Entity):
     transform_attributes = {
-        "id"               : (False, int),
-        "channelIds"       : (False, lambda x: list(map(int, x))),
+        "id"               : int,
+        "channelIds"       : lambda x: list(map(int, x)),
     }
 
     def __init__(self, *args, **kwargs):
