@@ -40,7 +40,7 @@ from pmatic.ccu import CCU
 ##
 
 # Set log level to debug for pmatic and start logging to console
-pmatic.logging(pmatic.DEBUG)
+#pmatic.logging(pmatic.DEBUG)
 
 ccu = pmatic.CCU(
     address="http://192.168.1.26",
@@ -48,12 +48,11 @@ ccu = pmatic.CCU(
     connect_timeout=5,
 )
 
-#ccu.devices.get()
-
-#for device in ccu.devices:
-#    print(device.address, len(device.channels))
-#    for channel in device.channels:
-#        print(channel.address, channel.summary_state())
+ccu.devices.get()
+for device in ccu.devices:
+    print(device.name, device.address, len(device.channels))
+    for channel in device.channels:
+        print(channel.name, channel.address, channel.summary_state())
 
 #print(list(ccu.devices))
 #print(ccu.devices.addresses())

@@ -51,12 +51,17 @@ class Entity(object):
         assert isinstance(API, pmatic.api.AbstractAPI), "API is not of API class: %r" % API
         assert type(obj_dict) == dict, "obj_dict is not a dictionary: %r" % obj_dict
         self.API = API
-        self._init_attributes(obj_dict)
+        self._set_attributes(obj_dict)
         self._verify_mandatory_attributes()
         super(Entity, self).__init__()
 
 
-    def _init_attributes(self, obj_dict):
+    def _set_attributes(self, obj_dict):
+        """Adding provided attributes to this entity.
+
+        Transforming and filtering dictionaries containing attributes for this entity
+        by using the configured transform methods for the individual attributes and also
+        excluding some attributes which keys are in self.skip_attributes."""
         for key, val in obj_dict.items():
             if key in self.skip_attributes:
                 continue
@@ -205,6 +210,24 @@ class Channel(utils.LogMixin, Entity):
             self._values[param_id]._set_from_api(value)
 
 
+    def set_logic_attributes(self, attrs):
+        """Used to update the logic attributes of this channel.
+
+        Applying the attributes in the dictionary to this object. Special handling
+        for some attributes which are already set by the low level attributes."""
+        #import pprint
+        #pprint.pprint(self.__dict__)
+        #pprint.pprint(attrs)
+        #sys.exit(1)
+        # Skip non needed attributes (already set by low level data)
+        # FIXME: 'direction': 1, from low level API might be duplicate of u'category': u'CATEGORY_SENDER',
+        # FIXME: 'aes_active': True, from low level API might be duplicate of u'mode': u'MODE_AES',
+        for a in [ "address", "device_id" ]:
+            del attrs[a]
+
+        self._set_attributes(attrs)
+
+
     @property
     def values(self):
         """Provides access to all value objects of this channel."""
@@ -233,6 +256,7 @@ class Channel(utils.LogMixin, Entity):
 # FIXME: Implement this
 class ChannelMaintenance(Channel):
     type_name = "MAINTENANCE"
+    name = "Maintenance"
 
 
 # FIXME: Handle LOWBAT/ERROR
@@ -481,6 +505,7 @@ class Device(Entity):
         return device_class(api, spec)
 
 
+    # FIXME: Make this work again with th new CCU implementation
     @classmethod
     def get_devices(self, API, device_type=None, device_name=None, device_name_regex=None, has_channel_ids=None):
         devices = API.device_list_all_detail()
@@ -526,6 +551,23 @@ class Device(Entity):
 
 
         return self._maintenance
+
+
+    def set_logic_attributes(self, attrs):
+        """Used to update the logic attributes of this device.
+
+        Applying the attributes in the dictionary to this object. Special handling
+        for some attributes which are already set by the low level attributes and
+        for the channel attributes which are also part of attrs."""
+        for channel_attrs in attrs["channels"]:
+            self.channels[channel_attrs["index"]].set_logic_attributes(channel_attrs)
+
+        # Skip non needed attributes (already set by low level data)
+        del attrs["channels"]
+        del attrs["address"]
+        del attrs["interface"]
+        del attrs["type"]
+        self._set_attributes(attrs)
 
 
     def online(self):

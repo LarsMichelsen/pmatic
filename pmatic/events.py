@@ -318,7 +318,7 @@ class EventHandler(utils.LogMixin, object):
                 channels.append(spec)
 
         for device_dict in devices.values():
-            self._ccu.devices.add_from_dict(device_dict)
+            self._ccu.devices.add_from_low_level_dict(device_dict)
 
         return True
 

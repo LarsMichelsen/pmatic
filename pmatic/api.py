@@ -41,6 +41,7 @@ from __future__ import unicode_literals
 import os
 import sys
 import json
+import time
 import atexit
 
 # Specific for the LocalAPI()
@@ -173,7 +174,7 @@ class AbstractAPI(utils.LogMixin):
         if method:
             return lambda **kwargs: self.call(func_name, **kwargs)
         else:
-            raise AttributeError()
+            raise AttributeError("Invalid API call: %s" % func_name)
 
 
     def _to_internal_name(self, method_name_api):

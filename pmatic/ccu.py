@@ -109,6 +109,7 @@ class Devices(object):
         self._api = api
         self._devices = {}
         self._device_specs = DeviceSpecs(api)
+        self._device_logic = DeviceLogic(api)
 
 
     # FIXME: Add filter options
@@ -119,19 +120,27 @@ class Devices(object):
         from the CCU and objects are created for all devices."""
         requested = []
         for address, spec in self._device_specs.items():
-            #import pprint ; pprint.pprint(spec)
-            device = self._devices.setdefault(address, Device.from_dict(self._api, spec))
+            device = self._devices.get(address)
+            if not device:
+                self.add_from_low_level_dict(spec)
+                device = self._devices[address]
+
             requested.append(device)
         return requested
 
 
-    def add_from_dict(self, spec):
+    def add_from_low_level_dict(self, spec):
         """Creates a device object and add it to the collection.
 
         This method can be used to create a device object by providing a valid
-        dictionary specifying an object.
+        low level attributes dictionary specifying an object.
+
+        It creates the device and also assigns the logic level attributes to
+        the object so that it is a fully initialized device object.
         """
-        self.add(Device.from_dict(self._api, spec))
+        device = Device.from_dict(self._api, spec)
+        device.set_logic_attributes(self._device_logic[device.address])
+        self.add(device)
 
 
     def add(self, device):
@@ -179,6 +188,34 @@ class Devices(object):
         for value in self._devices.values():
             yield value
 
+
+class DeviceLogic(pmatic.api.CachedAPICall):
+    """Uses the JSON-API to fetch logic information of all devices and their channels.
+
+    The information fetched with this call is provided by the "logic layer" of the
+    CCU. This layer serves information like naming of devices, assignments to rooms
+    and so on.
+    objects.
+    """
+    def _update(self):
+        # Incoming dict keys are camel cased. uah.
+        # The dict keys are directly handed over to the device/channel objects. So they
+        # need ot be equalized and with internal naming specs just like the also different
+        # keys from the XML-RPC messages.
+        def decamel_dict_keys(d):
+            for k in d:
+                value = d.pop(k)
+
+                if type(value) == list:
+                    for entry in value:
+                        if type(entry) == dict:
+                            decamel_dict_keys(entry)
+
+                d[utils.decamel(k)] = value
+            return d
+
+        for spec in self._api.device_list_all_detail():
+            dict.__setitem__(self, spec["address"], decamel_dict_keys(spec))
 
 
 class DeviceSpecs(pmatic.api.CachedAPICall):
