@@ -39,6 +39,30 @@ from pmatic.ccu import CCU
 # Opening a pmatic session
 ##
 
+# Set log level to debug for pmatic and start logging to console
+pmatic.logging(pmatic.DEBUG)
+
+ccu = pmatic.CCU(
+    address="http://192.168.1.26",
+    credentials=("Admin", "EPIC-SECRET-PW"),
+    connect_timeout=5,
+)
+
+ccu.devices.get()
+for device in ccu.devices:
+    print(device.address, len(device.channels))
+    for channel in device.channels:
+        print(channel.address, channel.paramsets)
+
+#print(list(ccu.devices))
+#print(ccu.devices.addresses())
+
+#ccu.events.init()
+#ccu.events.wait()
+#ccu.events.close()
+
+sys.exit(1)
+
 # Open up a remote connection via HTTP to the CCU and login as admin. When the connection
 # can not be established within 5 seconds it raises an exception.
 API = pmatic.api.init(
@@ -47,6 +71,9 @@ API = pmatic.api.init(
     connect_timeout=5,
     log_level=pmatic.DEBUG,
 )
+
+#pprint.pprint(API.interface_list_devices(interface="BidCos-RF"))
+#sys.exit(1)
 
 # Register with the XML-RPC API of the CCU, then wait until program termination
 # for event and print them to the console.

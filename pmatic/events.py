@@ -41,9 +41,9 @@ import threading
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from urlparse import urlparse
 
-from pmatic.api import LocalAPI
-from pmatic import utils
-from . import PMException, PMConnectionError
+import pmatic.api
+import pmatic.utils as utils
+from pmatic.exceptions import PMException, PMConnectionError
 
 
 class EventXMLRPCServer(SimpleXMLRPCServer, threading.Thread):
@@ -77,8 +77,8 @@ class EventListener(object):
         return this_id
 
 
-    def __init__(self, API, listen_address=None, interface_id=None):
-        self.API = API
+    def __init__(self, ccu, listen_address=None, interface_id=None):
+        self._ccu = ccu
         self._init_listen_address(listen_address)
         self._init_interface_id(interface_id)
 
@@ -129,7 +129,7 @@ class EventListener(object):
         self._server.register_introspection_functions()
         # Allow multicalls
         self._server.register_multicall_functions()
-        self._server.register_instance(EventHandler(self.API, self))
+        self._server.register_instance(EventHandler(self._ccu, self))
         self._server.start()
 
 
@@ -139,7 +139,7 @@ class EventListener(object):
         After executing this method the CCU will contact the RPC server of
         this EventListener and send events to the server.
         """
-        result = self.API.interface_init(interface="BidCos-RF",
+        result = self._ccu.api.interface_init(interface="BidCos-RF",
             url=self.rpc_server_url(), interfaceId=self._interface_id)
         if not result:
             raise PMConnectionError("Failed to register with the XML-RPC API of the CCU.")
@@ -167,14 +167,14 @@ class EventListener(object):
         This method determines the address to tell the CCU.
 
         When the script is executed on the CCU it returns "127.0.0.1". Otherwise it creats
-        a socket and opens a connection to the CCU address (which is used by self.API)
+        a socket and opens a connection to the CCU address (which is used by self._ccu.api)
         and port 80. Then it knows which local IP address has been used to communicate
         with the CCU. This address is then returned.
         """
-        if isinstance(self.API, LocalAPI):
+        if isinstance(self._ccu.api, pmatic.api.LocalAPI):
             return "127.0.0.1"
 
-        ccu_address = urlparse(self.API.address).hostname
+        ccu_address = urlparse(self._ccu.api.address).hostname
 
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
@@ -224,8 +224,8 @@ import pprint
 
 class EventHandler(object):
     """Handles incoming XML-RPC calls."""
-    def __init__(self, API, listener):
-        self.API = API
+    def __init__(self, ccu, listener):
+        self._ccu = ccu
         self.listener = listener
 
 
@@ -253,8 +253,12 @@ class EventHandler(object):
     # zumindest teilweise merken. Es ist dabei ausreichend, wenn je weils die Member ADDRESS
     # und VERSION einer DeviceDescription gesetzt sind.
     def listDevices(self, interface_id):
-        print("LIST_DEVICES")
-        return []
+        devices = []
+        for device in self._ccu.devices:
+            devices.append({"ADDRESS": device.address, "VERSION": device.version})
+            for channel in device.channels:
+                devices.append({"ADDRESS": channel.address, "VERSION": channel.version})
+        return devices
 
 
     # Mit  dieser  Methode  wird  der  Logikschicht  mitgeteilt,  dass  neue  Geräte  gefunden
@@ -299,9 +303,3 @@ class EventHandler(object):
     def updateDevices(self, interface_id, address, hint):
         pprint.pprint(("UPDATE_DEVICES", address, hint))
         return True
-
-
-
-def init(API, **kwargs):
-    """Just a small wrapper to realize an interface similar to pmatic.api.init()"""
-    return EventListener(API, **kwargs)

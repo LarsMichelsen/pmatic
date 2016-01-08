@@ -19,6 +19,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 # Relevant docs:
+# - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_XmlRpc_V1_502__2_.pdf
 # - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_Script_Teil_4_Datenpunkte_1_503.pdf
 
 # Add Python 3.x behaviour to 2.7
@@ -35,21 +36,28 @@ try:
 except ImportError:
     pass
 
-from pmatic.api import AbstractAPI
-from . import utils, debug, warning, params
+import pmatic.api
+import pmatic.utils as utils
+from pmatic.exceptions import PMException
 
 class Entity(object):
     transform_attributes = {}
+    skip_attributes = []
 
     def __init__(self, API, obj_dict):
-        assert isinstance(API, AbstractAPI), "API is not of API class: %r" % API
+        assert isinstance(API, pmatic.api.AbstractAPI), "API is not of API class: %r" % API
         assert type(obj_dict) == dict, "obj_dict is not a dictionary: %r" % obj_dict
         self.API = API
         self._init_attributes(obj_dict)
+        self._verify_mandatory_attributes()
+        super(Entity, self).__init__()
 
 
     def _init_attributes(self, obj_dict):
         for key, val in obj_dict.items():
+            if key in self.skip_attributes:
+                continue
+
             # Optionally convert values using the given transform functions
             # for the specific object type
             trans = self.transform_attributes.get(key)
@@ -66,13 +74,58 @@ class Entity(object):
             setattr(self, key, val)
 
 
+    def _verify_mandatory_attributes(self):
+        for key in self.mandatory_attributes:
+            if not hasattr(self, key):
+                raise PMException("The mandatory attribute \"%s\" is missing." % key)
 
-class Channel(Entity):
+
+
+class Channel(utils.LogMixin, Entity):
     transform_attributes = {
-        "id"               : (False, int),
-        "deviceId"         : (False, int),
-        "partnerId"        : (False, lambda x: None if x == "" else int(x)),
+        # ReGa attributes:
+        #"id"               : (False, int),
+        #"device_id"        : (False, int),
+        #"partner_id"       : (False, lambda x: None if x == "" else int(x)),
+        # Low level attributes:
+        "aes_active"        : (False, bool),
+        "link_source_roles" : (False, lambda v: v if type(v) == list else v.split(" ")),
+        "link_target_roles" : (False, lambda v: v if type(v) == list else v.split(" ")),
     }
+
+    # Don't add these keys to the objects attributes
+    skip_attributes = [
+        # Low level attributes:
+        "parent",
+        "parent_type",
+    ]
+
+    # These keys have to be set after attribute initialization
+    mandatory_attributes = [
+        # Low level attributes:
+
+        # address of channel
+        "address",
+        # communication direction of channel:
+        # 0 = DIRECTION_NONE (Kanal unterstützt keine direkte Verknüpfung) 
+        # 1 = DIRECTION_SENDER 
+        # 2 = DIRECTION_RECEIVER 
+        "direction",
+        # see device flags (0x01 visible, 0x02 internal, 0x08 can not be deleted)
+        "flags",
+        # channel number
+        "index",
+        # possible roles as sender
+        "link_source_roles",
+        # possible roles as receiver
+        "link_target_roles",
+        # list of available parameter sets
+        "paramsets",
+        # type of this channel
+        "type",
+        # version of the channel description
+        "version",
+    ]
 
     def __init__(self, *args, **kwargs):
         self._values = {}
@@ -80,15 +133,15 @@ class Channel(Entity):
 
 
     @classmethod
-    def from_channel_dicts(self, API, channel_dicts):
+    def from_channel_dicts(cls, api, channel_dicts):
         channel_objects = []
         for channel_dict in channel_dicts:
-            channel_class = channel_classes_by_type_name.get(channel_dict["channelType"], Channel)
+            channel_class = channel_classes_by_type_name.get(channel_dict["type"], Channel)
 
             if channel_class == Channel:
-                debug("Using generic Channel class (Type: %s): %r" % (channel_dict["channelType"], channel_dict))
+                cls.cls_logger().debug("Using generic Channel class (Type: %s): %r" % (channel_dict["type"], channel_dict))
 
-            channel_objects.append(channel_class(API, channel_dict))
+            channel_objects.append(channel_class(api, channel_dict))
         return channel_objects
 
 
@@ -132,6 +185,10 @@ class Channel(Entity):
             formated.append("%s: %s" % (title, value))
         return ", ".join(formated)
 
+
+# FIXME: Implement this
+class ChannelMaintenance(Channel):
+    type_name = "MAINTENANCE"
 
 
 # FIXME: Handle LOWBAT/ERROR
@@ -200,6 +257,11 @@ class ChannelKey(Channel):
 
     def summary_state(self):
         return None # has no state info as it's a toggle button
+
+
+
+class ChannelVirtualKey(ChannelKey):
+    type_name = "VIRTUAL_KEY"
 
 
 
@@ -319,15 +381,60 @@ class ChannelRemoteControlReceiver(Channel):
 
 class Device(Entity):
     transform_attributes = {
-        "id"               : (False, int),
-        "deviceId"         : (False, int),
-        "operateGroupOnly" : (False, lambda v: v != "false"),
-        "channels"         : (True,  Channel.from_channel_dicts),
+        # ReGa attributes:
+        #"id"                : (False, int),
+        #"deviceId"          : (False, int),
+        #"operateGroupOnly"  : (False, lambda v: v != "false"),
+
+        # Low level attributes:
+        "flags"             : (False, int),
+        "roaming"           : (False, bool),
+        "updateable"        : (False, bool),
+        "channels"          : (True,  Channel.from_channel_dicts),
     }
+
+    # Don't add these keys to the objects attributes
+    skip_attributes = [
+        # Low level attributes:
+        "children", # not needed
+        "parent", # not needed
+        "rf_address", # not available through XML-RPC and API, so exclude at all
+        "rx_mode", # not available through XML-RPC and API, so exclude at all
+    ]
+
+    # These keys have to be set after attribute initialization
+    mandatory_attributes = [
+        # Low level attributes:
+
+        # Address of the device
+        "address",
+        # Firmware version string
+        "firmware",
+        # 0x01: show to user, 0x02 hide from user, 0x08 can not be deleted
+        "flags",
+        # serial number of the device
+        "interface",
+        # true when the device assignment is automatically adjusted
+        "roaming",
+        # device type
+        "type",
+        # true when an update is available
+        "updatable",
+        # version of the device description
+        "version",
+        # list of channel objects
+        "channels",
+    ]
 
     def __init__(self, *args, **kwargs):
         self._maintenance = {}
         super(Device, self).__init__(*args, **kwargs)
+
+
+    @classmethod
+    def from_dict(self, api, spec):
+        device_class = device_classes_by_type_name.get(spec["type"], Device)
+        return device_class(api, spec)
 
 
     @classmethod
@@ -354,14 +461,14 @@ class Device(Entity):
             if has_channel_ids != None and not [ c for c in device_dict["channels"] if int(c["id"]) in has_channel_ids ]:
                 continue
 
-            device_class = device_classes_by_type_name.get(device_dict["type"], Device)
-            device_objects.append(device_class(API, device_dict))
+            device_objects.append(Device.from_dict(API, device_dict))
         return device_objects
 
 
     # {u'UNREACH': u'1', u'AES_KEY': u'1', u'UPDATE_PENDING': u'1', u'RSSI_PEER': u'-65535',
     #  u'LOWBAT': u'0', u'STICKY_UNREACH': u'1', u'DEVICE_IN_BOOTLOADER': u'0',
     #  u'CONFIG_PENDING': u'0', u'RSSI_DEVICE': u'-65535', u'DUTYCYCLE': u'0'}
+    # FIXME: use channel[0] (which is the MAINTENANCE channel)
     @property
     def maintenance(self, what=None):
         # FIXME: When to invalidate / renew?
