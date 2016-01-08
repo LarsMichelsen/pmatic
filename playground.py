@@ -58,9 +58,9 @@ ccu = pmatic.CCU(
 #print(list(ccu.devices))
 #print(ccu.devices.addresses())
 
-ccu.events.init()
-ccu.events.wait()
-ccu.events.close()
+#ccu.events.init()
+#ccu.events.wait()
+#ccu.events.close()
 
 sys.exit(1)
 

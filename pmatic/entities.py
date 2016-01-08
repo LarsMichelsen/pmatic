@@ -29,6 +29,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import re
+import time
 
 try:
     # Is recommended for Python 3.x but fails on 2.7, but is not mandatory
@@ -170,6 +171,26 @@ class Channel(utils.LogMixin, Entity):
                 self._values[param_id] = cls(self, param_spec)
 
 
+    def _value_update_needed(self):
+        """Tells whether or not the set of  values should be fetched from the CCU."""
+        oldest_value_time = None
+        for param in self._values.values():
+            try:
+                last_updated = param.last_updated
+                if last_updated == None:
+                    last_updated = 0 # enforce the update
+            except PMException:
+                continue # Ignore not readable values
+
+            if oldest_value_time == None:
+                oldest_value_time = last_updated
+            elif last_updated < oldest_value_time:
+                oldest_value_time = last_updated
+
+        # FIXME: Make threshold configurable
+        return oldest_value_time <= time.time() - 60
+
+
     def _fetch_values(self):
         """Fetches all values of the channel.
 
@@ -190,8 +211,9 @@ class Channel(utils.LogMixin, Entity):
         if not self._values:
             self._init_value_specs()
 
-        # FIXME: Update every access? Add some caching?
-        #self._fetch_values()
+        if self._value_update_needed():
+            self._fetch_values()
+
         return self._values
 
 

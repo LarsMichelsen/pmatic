@@ -34,6 +34,8 @@ try:
 except ImportError:
     pass
 
+import time
+
 import pmatic.entities
 from pmatic import utils
 from pmatic.exceptions import PMException, PMActionFailed
@@ -75,11 +77,8 @@ class Parameter(object):
         self.channel = channel
         self._init_attributes(spec)
 
+        self._value_updated = None
         self._value = self.default
-        #if api_value == None:
-        #    self._value = self.default
-        #else:
-        #    self._value = self._from_api_value(api_value)
 
 
     def _init_attributes(self, spec):
@@ -134,6 +133,14 @@ class Parameter(object):
 
 
     @property
+    def last_updated(self):
+        """Returns the unix time when the value has been updated the last time."""
+        if not self.readable:
+            raise PMException("The value can not be read.")
+        return self._value_updated
+
+
+    @property
     def is_visible_to_user(self):
         """Whether or not this parameter should be visible to the end-user."""
         return self.flags & 1 == 1
@@ -181,7 +188,7 @@ class Parameter(object):
         if not result:
             raise PMActionFailed("Failed to set the value in CCU.")
 
-        self._value = value
+        self._set_value(value)
 
 
     def set(self, value):
@@ -200,7 +207,13 @@ class Parameter(object):
         This method is used to set the parameter internally when the current
         value has been fetched from the API or received as event. Setting only
         the internal value in this object."""
-        self._value = self._from_api_value(value)
+        self._set_value(self._from_api_value(value))
+
+
+    def _set_value(self, value):
+        """Internal helper to set the value and save the update time."""
+        self._value_updated = time.time()
+        self._value = value
 
 
     def set_to_default(self):
