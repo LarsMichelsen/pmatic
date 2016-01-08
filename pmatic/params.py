@@ -105,28 +105,36 @@ class Parameter(object):
     def _validate(self, value):
         return True
 
+
     @property
     def readable(self):
         """Whether or not this value can be read."""
         return self.operations & 1 == 1
+
 
     @property
     def writable(self):
         """Whether or not this value can be set."""
         return self.operations & 2 == 2
 
+
     @property
     def supports_events(self):
         """Whether or not this value supports events."""
         return self.operations & 4 == 4
 
+
     @property
     def title(self):
+        """Returns the title of this parameter."""
         return self.name.title().replace("_", " ")
 
 
     @property
     def value(self):
+        """Returns the current value of this parameter.
+
+        It raises a PMException when the parameter can not be read."""
         if not self.readable:
             raise PMException("The value can not be read.")
         return self._value
@@ -134,7 +142,9 @@ class Parameter(object):
 
     @property
     def last_updated(self):
-        """Returns the unix time when the value has been updated the last time."""
+        """Returns the unix time when the value has been updated the last time.
+
+        It raises a PMException when the parameter can not be read."""
         if not self.readable:
             raise PMException("The value can not be read.")
         return self._value_updated

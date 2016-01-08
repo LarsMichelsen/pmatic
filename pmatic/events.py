@@ -38,7 +38,6 @@ except ImportError:
 import time
 import socket
 import threading
-import traceback
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 from urlparse import urlparse
 
@@ -244,10 +243,9 @@ class EventHandler(utils.LogMixin, object):
 
         try:
             return func(*params)
-        except Exception, e:
-            self.logger.error("Exception in XML-RPC call %s%r - %s: %s" %
-                                            (method, tuple(params), type(e).__name__, e))
-            self.logger.debug(traceback.format_exc())
+        except:
+            self.logger.error("Exception in XML-RPC call %s%r:" %
+                                (method, tuple(params)), exc_info=True)
 
 
     # Mit dieser Methode teilt der Schnittstellenprozess der Logikschicht mit, dass sich ein
