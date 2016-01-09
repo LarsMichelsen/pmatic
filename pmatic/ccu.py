@@ -30,12 +30,8 @@ try:
 except ImportError:
     pass
 
-import time
-
 import pmatic.api
 import pmatic.events
-import pmatic.utils as utils
-from pmatic.exceptions import PMException
 from pmatic.entities import Devices
 
 

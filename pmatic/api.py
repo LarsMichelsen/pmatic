@@ -57,14 +57,7 @@ except ImportError:
     from urllib2 import URLError
     from httplib import BadStatusLine
 
-try:
-    # Is recommended for Python 3.x but fails on 2.7, but is not mandatory
-    from builtins import object
-except ImportError:
-    pass
-
 from pmatic.exceptions import PMException, PMConnectionError
-import pmatic
 import pmatic.utils as utils
 
 
@@ -457,12 +450,8 @@ class LocalAPI(AbstractAPI):
     """Realizes the pmatic API when executed on locally on the CCU."""
     _methods_file = "/www/api/methods.conf"
 
-    def __init__(self, **kwargs):
-        self._tclsh   = None
-
-        super(LocalAPI, self).__init__(kwargs.get("logger"),
-                                       kwargs.get("log_level"))
-
+    def __init__(self):
+        self._tclsh = None
         self._init_tclsh()
         self._init_methods()
         self._register_atexit_handler()

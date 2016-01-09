@@ -219,8 +219,6 @@ class EventListener(object):
         return self._server.is_alive()
 
 
-import pprint
-
 
 class EventHandler(utils.LogMixin, object):
     """Handles incoming XML-RPC calls."""

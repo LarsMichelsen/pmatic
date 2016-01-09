@@ -45,8 +45,8 @@ __copyright__ = 'Copyright 2016 Lars Michelsen'
 
 import logging as _logging
 
-from pmatic.ccu import CCU
-from pmatic.exceptions import *
+from pmatic.ccu import CCU # noqa
+from pmatic.exceptions import * # noqa
 
 #
 # Logging

@@ -45,6 +45,7 @@ from pmatic.exceptions import PMException, PMDeviceOffline
 class Entity(object):
     transform_attributes = {}
     skip_attributes = []
+    mandatory_attributes = []
 
     def __init__(self, api, spec):
         assert isinstance(api, pmatic.api.AbstractAPI), "api is not of API class: %r" % api
@@ -183,7 +184,7 @@ class Channel(utils.LogMixin, Entity):
             class_name = "Parameter%s" % param_spec["TYPE"]
             cls = getattr(pmatic.params, class_name)
             if not cls:
-                warning("%s: Skipping unknown parameter %s of type %s. Class %s not implemented." %
+                self.logger.warning("%s: Skipping unknown parameter %s of type %s. Class %s not implemented." %
                                               (self.channel_type, param_id, param_spec["TYPE"], class_name))
             else:
                 self._values[param_id] = cls(self, param_spec)

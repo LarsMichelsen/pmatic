@@ -51,15 +51,15 @@ class TestEntity:
         assert not hasattr(obj, "blaBlubKey")
 
     def test_attribute_conversion(self, API):
-        def transform_with_api_obj(api_obj, val):
-            assert type(api_obj) == TestAPI
+        def transform_with_api_obj(api, val):
+            assert type(api) == TestAPI
             return val
 
         class TestEntity(Entity):
             transform_attributes = {
-                "ding_dong"       : (False, int),
-                "ding_dong_float" : (False, float),
-                "BLA"             : (True,  transform_with_api_obj),
+                "ding_dong"       : int,
+                "ding_dong_float" : float,
+                "BLA"             : transform_with_api_obj,
             }
 
         obj = TestEntity(API, {
