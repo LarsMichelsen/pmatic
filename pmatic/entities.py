@@ -71,10 +71,10 @@ class Entity(object):
             trans_func = self.transform_attributes.get(key)
             if trans_func:
                 func_type = type(trans_func).__name__
-                if func_type in [ "instancemethod", "function" ]:
+                if func_type in [ "instancemethod", "function", "method" ]:
                     args = []
-                    offset = 1 if func_type == "instancemethod" else 0
-                    for arg_name in trans_func.func_code.co_varnames[offset:trans_func.func_code.co_argcount]:
+                    offset = 1 if func_type in [ "instancemethod", "method" ] else 0
+                    for arg_name in trans_func.__code__.co_varnames[offset:trans_func.__code__.co_argcount]:
                         if arg_name == "api":
                             args.append(self._api)
                         elif arg_name == "device":
@@ -104,9 +104,8 @@ class Entity(object):
 class Channel(utils.LogMixin, Entity):
     transform_attributes = {
         # ReGa attributes:
-        #"id"               : int,
-        #"device_id"        : int,
-        #"partner_id"       : lambda x: None if x == "" else int(x),
+        "id"               : int,
+        "partner_id"       : lambda x: None if x == "" else int(x),
         # Low level attributes:
         "aes_active"        : bool,
         "link_source_roles" : lambda v: v if type(v) == list else v.split(" "),
@@ -206,6 +205,9 @@ class Channel(utils.LogMixin, Entity):
             elif last_updated < oldest_value_time:
                 oldest_value_time = last_updated
 
+        if oldest_value_time == None:
+            return False # No readable value at all
+
         # FIXME: Make threshold configurable
         return oldest_value_time <= time.time() - 60
 
@@ -280,6 +282,7 @@ class Channel(utils.LogMixin, Entity):
 class ChannelMaintenance(Channel):
     type_name = "MAINTENANCE"
     name = "Maintenance"
+    id = 0 # FIXME: Really no id for maintenance channels?
 
 
 # FIXME: Handle LOWBAT/ERROR
@@ -832,16 +835,17 @@ class Room(Entity):
         "channelIds"       : lambda x: list(map(int, x)),
     }
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, api, spec):
         self._values = {}
-        super(Room, self).__init__(*args, **kwargs)
+        self._devices = Devices(api)
+        super(Room, self).__init__(api, spec)
 
 
     @classmethod
-    def get_rooms(self, API):
+    def get_rooms(self, api):
         rooms = []
-        for room_dict in API.room_get_all():
-            rooms.append(Room(API, room_dict))
+        for room_dict in api.room_get_all():
+            rooms.append(Room(api, room_dict))
         return rooms
 
 
@@ -849,7 +853,7 @@ class Room(Entity):
     def devices(self):
         """Returns list of device objects which have at least one channel associated with this room."""
         # FIXME: Cache this?
-        return Device.get_devices(self._api, has_channel_ids=self.channel_ids)
+        return self._devices.get(has_channel_ids=self.channel_ids)
 
 
     @property
@@ -857,7 +861,7 @@ class Room(Entity):
         """Returns list of channel objects associated with this room."""
         # FIXME: Cache this?
         room_channels = []
-        for device in Device.get_devices(self._api, has_channel_ids=self.channel_ids):
+        for device in self._devices.get(has_channel_ids=self.channel_ids):
             for channel in device.channels:
                 if channel.id in self.channel_ids:
                     room_channels.append(channel)

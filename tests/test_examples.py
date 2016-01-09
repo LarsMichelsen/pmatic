@@ -24,12 +24,13 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import os
-import glob
-import subprocess
-
-
 # Do not run in regular cases as they need the CCU to be available.
+#
+#import os
+#import glob
+#import subprocess
+#
+#
 #def test_run_examples():
 #    for path in glob.glob("examples/*.py") +  glob.glob("examples/lowlevel_api/*.py"):
 #        if os.path.isfile(path):

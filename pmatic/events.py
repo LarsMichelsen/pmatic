@@ -38,8 +38,21 @@ except ImportError:
 import time
 import socket
 import threading
-from SimpleXMLRPCServer import SimpleXMLRPCServer
-from urlparse import urlparse
+
+try:
+    # Python 2
+    from urlparse import urlparse
+except ImportError:
+    # Python 3+
+    from urllib.parse import urlparse
+
+try:
+    # Python 2
+    from SimpleXMLRPCServer import SimpleXMLRPCServer
+except ImportError:
+    # Python 3+
+    from xmlrpc.server import SimpleXMLRPCServer
+
 
 import pmatic.api
 import pmatic.utils as utils
