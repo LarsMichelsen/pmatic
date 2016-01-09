@@ -469,6 +469,124 @@ class ChannelRemoteControlReceiver(Channel):
         return None
 
 
+
+class Devices(object):
+    """Manages a collection of CCU devices."""
+
+    def __init__(self, api):
+        super(Devices, self).__init__()
+        self._api = api
+        self._devices = {}
+        self._device_specs = pmatic.api.DeviceSpecs(api)
+        self._device_logic = pmatic.api.DeviceLogic(api)
+
+
+    # FIXME: Add more filter options
+    def get(self, device_type=None, device_name=None, device_name_regex=None, has_channel_ids=None):
+        """Returns all device objects matching the provided filters.
+
+        When the devices have not been fetched yet, the device specs might be fetched
+        from the CCU and objects are created for all devices."""
+
+        if utils.is_string(device_type):
+            device_type = [device_type]
+
+        for address, spec in self._device_specs.items():
+            # First create the device objects
+            device = self._devices.get(address)
+            if not device:
+                device = self._create_from_low_level_dict(spec)
+
+            # Now perform optional filtering
+
+            # Filter by device type
+            if device_type != None and device.type not in device_type:
+                continue
+
+            # Exact match device name
+            if device_name != None and device_name != device.name:
+                continue
+
+            # regex match device name
+            if device_name_regex != None and not re.match(device_name_regex, device.name):
+                continue
+
+            # Add devices which have one of the channel ids listed in has_channel_ids
+            if has_channel_ids != None and not [ c for c in device.channels if c.id in has_channel_ids ]:
+                continue
+
+            self._devices[address] = device
+
+        # FIXME: Only return the filtered objects instead of all known ones!
+        return self
+
+
+    def _create_from_low_level_dict(self, spec):
+        """Creates a device object from a low level device spec."""
+        device = Device.from_dict(self._api, spec)
+        device.set_logic_attributes(self._device_logic[device.address])
+        return device
+
+
+    def add_from_low_level_dict(self, spec):
+        """Creates a device object and add it to the collection.
+
+        This method can be used to create a device object by providing a valid
+        low level attributes dictionary specifying an object.
+
+        It creates the device and also assigns the logic level attributes to
+        the object so that it is a fully initialized device object.
+        """
+        self.add(self._create_from_low_level_dict(spec))
+
+
+    def add(self, device):
+        """Add a device object tot the collection."""
+        if not isinstance(device, Device):
+            raise PMException("You can only add device objects.")
+        self._devices[device.address] = device
+
+
+    # FIXME: Trigger device spec fetch?
+    def exists(self, address):
+        """Check whether or not a device with the given address is in this collection."""
+        return address in self._devices
+
+
+    # FIXME: Trigger device spec fetch?
+    def addresses(self):
+        """Returns a list of all addresses of all initialized devices."""
+        return self._devices.keys()
+
+
+    def delete(self, address):
+        """Deletes the device with the given address from the pmatic runtime.
+
+        The device is not deleted from the CCU.
+        When the device is not known, the method is tollerating that."""
+        try:
+            del self._devices[address]
+        except ValueError:
+            pass
+
+
+    # FIXME: Trigger device spec fetch?
+    def get_device_or_channel_by_address(self, address):
+        """Returns the device or channel object of the given address."""
+        if ":" in address:
+            device_address = address.split(":", 1)[0]
+            return self._devices[device_address].channel_by_address(address)
+        else:
+            return self._devices[address]
+
+
+    # FIXME: Trigger device spec fetch?
+    def __iter__(self):
+        for value in self._devices.values():
+            yield value
+
+
+# FIXME: self.channels[0]: Provide better access to the channels. e.g. by names or ids or similar
 class Device(Entity):
     transform_attributes = {
         # ReGa attributes:
@@ -526,33 +644,9 @@ class Device(Entity):
         return device_class(api, spec)
 
 
-    # FIXME: Make this work again with th new CCU implementation
     @classmethod
-    def get_devices(self, API, device_type=None, device_name=None, device_name_regex=None, has_channel_ids=None):
-        devices = API.device_list_all_detail()
-
-        if utils.is_string(device_type):
-            device_type = [device_type]
-
-        device_objects = []
-        for device_dict in devices:
-            if device_type != None and device_dict["type"] not in device_type:
-                continue
-
-            # Exact match device name
-            if device_name != None and device_name != device_dict["name"]:
-                continue
-
-            # regex match device name
-            if device_name_regex != None and not re.match(device_name_regex, device_dict["name"]):
-                continue
-
-            # Add devices which have one of the channel ids listed in has_channel_ids
-            if has_channel_ids != None and not [ c for c in device_dict["channels"] if int(c["id"]) in has_channel_ids ]:
-                continue
-
-            device_objects.append(Device.from_dict(API, device_dict))
-        return device_objects
+    def get_devices(self, api, **kwargs):
+        return Devices(api).get(**kwargs)
 
 
     # {u'UNREACH': u'1', u'AES_KEY': u'1', u'UPDATE_PENDING': u'1', u'RSSI_PEER': u'-65535',
@@ -703,7 +797,7 @@ class HMSecSC(SpecificDevice):
 
     # Make methods of ChannelShutterContact() available
     def __getattr__(self, attr):
-        return getattr(self.channels[0], attr)
+        return getattr(self.channels[1], attr)
 
 
 
@@ -713,7 +807,7 @@ class HMESPMSw1Pl(SpecificDevice):
 
     # Make methods of ChannelSwitch() available
     def __getattr__(self, attr):
-        return getattr(self.channels[0], attr)
+        return getattr(self.channels[1], attr)
 
 
     def summary_state(self):
@@ -727,7 +821,7 @@ class HMPBI4FM(SpecificDevice):
     type_name = "HM-PBI-4-FM"
 
     def button(self, index):
-        return self.channels[index]
+        return self.channels[index+1]
 
 
 

@@ -601,3 +601,79 @@ class CachedAPICall(dict):
 
     def update(self, *args, **kwargs):
         raise PMException("Can not be changed.")
+
+
+
+class DeviceLogic(CachedAPICall):
+    """Uses the JSON-API to fetch logic information of all devices and their channels.
+
+    The information fetched with this call is provided by the "logic layer" of the
+    CCU. This layer serves information like naming of devices, assignments to rooms
+    and so on.
+    objects.
+    """
+    def _update(self):
+        # Incoming dict keys are camel cased. uah.
+        # The dict keys are directly handed over to the device/channel objects. So they
+        # need ot be equalized and with internal naming specs just like the also different
+        # keys from the XML-RPC messages.
+        def decamel_dict_keys(d):
+            for k in d:
+                value = d.pop(k)
+
+                if type(value) == list:
+                    for entry in value:
+                        if type(entry) == dict:
+                            decamel_dict_keys(entry)
+
+                d[utils.decamel(k)] = value
+            return d
+
+        for spec in self._api.device_list_all_detail():
+            dict.__setitem__(self, spec["address"], decamel_dict_keys(spec))
+
+
+
+class DeviceSpecs(CachedAPICall):
+    """Uses the JSON-API to fetch the specifications of all devices and their channels.
+
+    The CCU provides the same data as when the XML-RPC API is initialized and it
+    responds with the first NEW_DEVICES call. But when init() has been executed
+    before, then we already have these information and the XML-RPC API is not sending
+    us the information again.
+    """
+    def _update(self):
+        # Incoming dict keys are camel cased. uah.
+        # The dict keys are directly handed over to the device/channel objects. So they
+        # need ot be equalized and with internal naming specs just like the also different
+        # keys from the XML-RPC messages.
+        def decamel_dict_keys(d):
+            for k in d:
+                d[utils.decamel(k)] = d.pop(k)
+            return d
+
+        devices = {}
+        for spec in self._api.interface_list_devices(interface="BidCos-RF"):
+            spec = decamel_dict_keys(spec)
+            if "parent" not in spec:
+                devices[spec["address"]] = spec
+            else:
+                device = devices[spec["parent"]]
+                channels = device.setdefault("channels", [])
+                channels.append(spec)
+
+        for key, val in devices.items():
+            dict.__setitem__(self, key, val)
+
+
+
+class SignalStrength(CachedAPICall):
+    """Fetches the signal strength information about all connected devices
+
+    It caches these information for up to 360 seconds by default. The caching
+    time can be set via constructor. Data can be accessed as in normal dicts.
+    """
+    def _update(self):
+        for entry in self._api.interface_rssi_info(interface="BidCos-RF"):
+            partner_dict = dict([(p["name"], p["rssiData"]) for p in entry["partner"] ])
+            dict.__setitem__(self, entry["name"], partner_dict)
