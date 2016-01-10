@@ -44,10 +44,8 @@ try:
 except ImportError:
     from urllib2 import urlopen
 
-from pmatic import utils
+import pmatic.utils as utils
 import pmatic.api
-from pmatic.api import RemoteAPI
-
 
 resources_path = "tests/resources"
 
@@ -155,7 +153,7 @@ class TestRemoteAPI:
             self.monkeypatch.setattr(pmatic.api, 'urlopen', wrap_urlopen)
 
         # FIXME: Make credentials configurable
-        API = RemoteAPI(
+        API = pmatic.api.RemoteAPI(
             address="http://192.168.1.26",
             credentials=("Admin", "EPIC-SECRET-PW"),
             connect_timeout=5,
