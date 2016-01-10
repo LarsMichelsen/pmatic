@@ -795,16 +795,16 @@ class Device(Entity):
         returns them as string. The values are sorted by the titles."""
         formated = []
 
-        if not self.online():
+        if not self.is_online:
             return "The device is unreachable"
 
-        if self.battery_low():
+        if self.is_battery_low:
             formated.append("The battery is low")
 
-        if self.has_pending_config():
+        if self.has_pending_config:
             formated.append("Config pending")
 
-        if self.has_pending_update():
+        if self.has_pending_update:
             formated.append("Update pending")
 
         # FIXME: Add bad rssi?
