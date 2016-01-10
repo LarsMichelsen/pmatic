@@ -451,6 +451,7 @@ class LocalAPI(AbstractAPI):
     _methods_file = "/www/api/methods.conf"
 
     def __init__(self):
+        super(LocalAPI, self).__init__()
         self._tclsh = None
         self._init_tclsh()
         self._init_methods()
