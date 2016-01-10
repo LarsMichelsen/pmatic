@@ -279,6 +279,19 @@ class Channel(utils.LogMixin, Entity):
         return ", ".join(formated)
 
 
+    def on_value_changed(self, func):
+        """Register a function to be called each time a value of this channel parameters has changed."""
+        for value in self.values.values():
+            value.register_callback("value_changed", func)
+
+
+    def on_value_updated(self, func):
+        """Register a function to be called each time a value of this channel parameters has been updated."""
+        for value in self.values.values():
+            value.register_callback("value_updated", func)
+
+
+
 # FIXME: Implement this
 class ChannelMaintenance(Channel):
     type_name = "MAINTENANCE"
@@ -607,6 +620,18 @@ class Devices(object):
         return len(self._devices)
 
 
+    def on_value_changed(self, func):
+        """Register a function to be called each time a value of a device in this collection changed."""
+        for device in self._devices.values():
+            device.on_value_changed(func)
+
+
+    def on_value_updated(self, func):
+        """Register a function to be called each time a value of a device in this collection updated."""
+        for device in self._devices.values():
+            device.on_value_updated(func)
+
+
 
 # FIXME: self.channels[0]: Provide better access to the channels. e.g. by names or ids or similar
 class Device(Entity):
@@ -794,6 +819,18 @@ class Device(Entity):
             return ", ".join(formated)
         else:
             return "Device reports no operational state"
+
+
+    def on_value_changed(self, func):
+        """Register a function to be called each time a value of this channel parameters has changed."""
+        for channel in self.channels:
+            channel.on_value_changed(func)
+
+
+    def on_value_updated(self, func):
+        """Register a function to be called each time a value of this channel parameters has updated."""
+        for channel in self.channels:
+            channel.on_value_updated(func)
 
 
 

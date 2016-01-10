@@ -78,7 +78,13 @@ class Parameter(object):
         self._init_attributes(spec)
 
         self._value_updated = None
+        self._value_changed = None
         self._value = self.default
+
+        self._callbacks = {
+            "value_updated": [],
+            "value_changed": [],
+        }
 
 
     def _init_attributes(self, spec):
@@ -144,10 +150,24 @@ class Parameter(object):
     def last_updated(self):
         """Returns the unix time when the value has been updated the last time.
 
+        This is measured since the creation of the object (startup of pmatic).
+
         It raises a PMException when the parameter can not be read."""
         if not self.readable:
             raise PMException("The value can not be read.")
         return self._value_updated
+
+
+    @property
+    def last_changed(self):
+        """Returns the unix time when the value has been changed the last time.
+
+        This is measured since the creation of the object (startup of pmatic).
+
+        It raises a PMException when the parameter can not be read."""
+        if not self.readable:
+            raise PMException("The value can not be read.")
+        return self._value_changed
 
 
     @property
@@ -221,9 +241,20 @@ class Parameter(object):
 
 
     def _set_value(self, value):
-        """Internal helper to set the value and save the update time."""
+        """Internal helper to set the value and trigger dependent things
+
+        This is the place to trigger all other things which should be executed
+        when a value is set.
+        """
+        old_value = self._value
+
         self._value_updated = time.time()
         self._value = value
+
+        self._callback("value_updated")
+        if value != old_value:
+            self._value_changed = time.time()
+            self._callback("value_changed")
 
 
     def set_to_default(self):
@@ -259,6 +290,37 @@ class Parameter(object):
     def __unicode__(self):
         """Returns the formated value as unicode string. Only relevant for Python 2."""
         return self.formated()
+
+
+    def _get_callbacks(self, cb_name):
+        try:
+            return self._callbacks[cb_name]
+        except KeyError:
+            raise PMException("Invalid callback %s specified (Available: %s)" %
+                                    (cb_name, ", ".join(self._callbacks.keys())))
+
+
+    def register_callback(self, cb_name, func):
+        """Register func to be executed as callback."""
+        self._get_callbacks(cb_name).append(func)
+
+
+    def remove_callback(self, cb_name, func):
+        """Remove the specified callback func."""
+        try:
+            self._get_callbacks(cb_name)[func]
+        except KeyError:
+            pass # allow deletion of non registered function
+
+
+    def _callback(self, cb_name):
+        """Execute all registered callbacks for this event."""
+        for callback in self._get_callbacks(cb_name):
+            try:
+                callback(self)
+            except Exception as e:
+                raise PMException("Exception in callback (%s - %s): %s" % (cb_name, callback, e))
+
 
 
 class ParameterINTEGER(Parameter):
@@ -342,7 +404,8 @@ class ParameterBOOL(Parameter):
     datatype = "boolean"
 
     def _from_api_value(self, value):
-        return value == "1"
+        """ "1" comes from JSON API and True from XML-RPC. Later one would not need this transform method."""
+        return value in [ "1", True ]
 
 
     def _to_api_value(self, value):
