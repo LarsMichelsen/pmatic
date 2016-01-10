@@ -191,6 +191,32 @@ class TestParameter(TestRemoteAPI):
         p.set("false")
 
 
+    def test_last_updated(self, p):
+        p.datatype = "boolean" # fake for setting
+        p.value = "true"
+
+        last_updated = p.last_updated
+
+        p.value = "true"
+        assert last_updated < p.last_updated
+
+        p.value = "false"
+        assert last_updated < p.last_updated
+
+
+    def test_last_changed(self, p):
+        p.datatype = "boolean" # fake for setting
+        p.value = "true"
+
+        last_changed = p.last_changed
+
+        p.value = "true"
+        assert last_changed == p.last_changed
+
+        p.value = "false"
+        assert last_changed < p.last_changed
+
+
     def test_set_to_default(self, p):
         p.datatype = "boolean" # fake for setting
         p.value = "true"
