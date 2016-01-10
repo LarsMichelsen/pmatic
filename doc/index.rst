@@ -3,17 +3,19 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to pmatic's documentation!
+pmatic - A simple to use API to the Homematic CCU
 ==================================
 
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+
+   introduction.rst
+   install.rst
+   basic_usage.rst
+   about_and_license.rst
 
    pmatic.rst
-
-.. automodule:: pmatic
 
 Indices and tables
 ==================

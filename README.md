@@ -136,13 +136,15 @@ a quick view, here a simple example how to list all shutter contacts and
 their current states on the CCU2:
 
 ```
+#!/usr/bin/python
+
 import pmatic.api
 from pmatic.entities import HMSecSC
 
 API = pmatic.api.init()
 
 for device in HMSecSC.get_all(API):
-    print device.name, device.formated_value()
+    print("%-20s %6s" % (device.name, device.is_open() and "open" or "closed"))
 ```
 
 ### Some use cases
@@ -198,7 +200,7 @@ Please use the issue tracker on the [pmatic GitHub page](https://github.com/LaMi
 
 ## Licensing
 
-Copyright (C) 2016 Lars Michelsen <lm@larsmichelsen.com>
+Copyright © 2016 Lars Michelsen <lm@larsmichelsen.com>. All rights reserved.
 
 All outcome of the project is licensed under the terms of the GNU GPL v2.
 Take a look at the LICENSE file for details.
