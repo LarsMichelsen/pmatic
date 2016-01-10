@@ -584,6 +584,16 @@ class CachedAPICall(dict):
         return dict.items(self)
 
 
+    def values(self):
+        self._update_data()
+        return dict.values(self)
+
+
+    def keys(self):
+        self._update_data()
+        return dict.keys(self)
+
+
     def __setitem__(self, key, val):
         raise PMException("Can not be changed.")
 

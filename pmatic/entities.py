@@ -247,6 +247,7 @@ class Channel(utils.LogMixin, Entity):
         # Skip non needed attributes (already set by low level data)
         # FIXME: 'direction': 1, from low level API might be duplicate of u'category': u'CATEGORY_SENDER',
         # FIXME: 'aes_active': True, from low level API might be duplicate of u'mode': u'MODE_AES',
+        attrs = attrs.copy()
         for a in [ "address", "device_id" ]:
             del attrs[a]
 
@@ -495,6 +496,9 @@ class Devices(object):
         if utils.is_string(device_type):
             device_type = [device_type]
 
+        # Create new device group which is returned as result for this query
+        group = Devices(self._api)
+
         for address, spec in self._device_specs.items():
             # First create the device objects
             device = self._devices.get(address)
@@ -520,9 +524,8 @@ class Devices(object):
                 continue
 
             self._devices[address] = device
-
-        # FIXME: Only return the filtered objects instead of all known ones!
-        return self
+            group.add(device)
+        return group
 
 
     def _create_from_low_level_dict(self, spec):
@@ -570,13 +573,21 @@ class Devices(object):
         When the device is not known, the method is tollerating that."""
         try:
             del self._devices[address]
-        except ValueError:
+        except KeyError:
             pass
+
+
+    def clear(self):
+        """Remove all objects from this devices collection."""
+        self._devices.clear()
 
 
     # FIXME: Trigger device spec fetch?
     def get_device_or_channel_by_address(self, address):
-        """Returns the device or channel object of the given address."""
+        """Returns the device or channel object of the given address.
+
+        Raises a KeyError exception when no device exists for this
+        address in the already fetched objects."""
         if ":" in address:
             device_address = address.split(":", 1)[0]
             return self._devices[device_address].channel_by_address(address)
@@ -588,6 +599,11 @@ class Devices(object):
     def __iter__(self):
         for value in self._devices.values():
             yield value
+
+
+    def __len__(self):
+        return len(self._devices)
+
 
 
 # FIXME: self.channels[0]: Provide better access to the channels. e.g. by names or ids or similar
@@ -672,6 +688,7 @@ class Device(Entity):
             self.channels[channel_attrs["index"]].set_logic_attributes(channel_attrs)
 
         # Skip non needed attributes (already set by low level data)
+        attrs = attrs.copy()
         del attrs["channels"]
         del attrs["address"]
         del attrs["interface"]
