@@ -48,10 +48,10 @@ except ImportError:
 
 try:
     # Python 2
-    from SimpleXMLRPCServer import SimpleXMLRPCServer
+    from SimpleXMLRPCServer import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 except ImportError:
     # Python 3+
-    from xmlrpc.server import SimpleXMLRPCServer
+    from xmlrpc.server import SimpleXMLRPCServer, SimpleXMLRPCRequestHandler
 
 
 import pmatic.api
@@ -75,6 +75,16 @@ class EventXMLRPCServer(SimpleXMLRPCServer, threading.Thread):
     def stop(self):
         """Tells the SimpleXMLRPCServer to stop serving."""
         self.shutdown()
+
+
+
+class EventXMLRPCRequestHandler(SimpleXMLRPCRequestHandler, utils.LogMixin):
+    """HTTP request handler for the XML-RPC API requests."""
+    def log_message(self, format, *args):
+        """Logger messages for the web server logs."""
+        self.logger.debug("%s - - [%s] %s\n" % (self.address_string(),
+                                            self.log_date_time_string(),
+                                            format%args))
 
 
 
@@ -134,7 +144,9 @@ class EventListener(object):
 
     def _start_rpc_server(self):
         """Starts listening for incoming XML-RPC messages from CCU."""
-        self._server = EventXMLRPCServer(self._listen_address)
+        self._server = EventXMLRPCServer(self._listen_address,
+                                         requestHandler=EventXMLRPCRequestHandler)
+
         # Register system.listMethods, system.methodHelp and system.methodSignature
         # FIXME: standard system.listMethods does not seem to be OK for the CCU. Seems as it
         # is sending an argument with the call (I think the interace_id). Seems we need to
@@ -257,6 +269,7 @@ class EventHandler(utils.LogMixin, object):
         except:
             self.logger.error("Exception in XML-RPC call %s%r:" %
                                 (method, tuple(params)), exc_info=True)
+            return False
 
 
     # Mit dieser Methode teilt der Schnittstellenprozess der Logikschicht mit, dass sich ein
