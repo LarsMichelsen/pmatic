@@ -480,6 +480,8 @@ class Devices(object):
 
     def __init__(self, api):
         super(Devices, self).__init__()
+        if not isinstance(api, pmatic.api.AbstractAPI):
+            raise PMException("Invalid api object provided: %r" % api)
         self._api = api
         self._devices = {}
         self._device_specs = pmatic.api.DeviceSpecs(api)
@@ -753,7 +755,7 @@ class Device(Entity):
         for channel in self.channels:
             if address == channel.address:
                 return channel
-        raise ValueError("The channel could not be found on this device.")
+        raise KeyError("The channel could not be found on this device.")
 
 
     def summary_state(self, skip_channel_types=[]):

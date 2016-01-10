@@ -31,6 +31,7 @@ import pmatic.utils as utils
 from test_api_remote import TestRemoteAPI
 from pmatic.entities import Entity, Channel, Device, Devices, HMESPMSw1Pl, ChannelClimaRegulator, \
                             device_classes_by_type_name, channel_classes_by_type_name
+from pmatic.exceptions import PMException
 
 class TestEntity(TestRemoteAPI):
     def test_minimal_entity(self, API):
@@ -81,8 +82,8 @@ class TestDevices(TestRemoteAPI):
 
     def test_init(self, API):
         Devices(API)
-        #with pytest.raises():
-        Devices(None)
+        with pytest.raises(PMException):
+            Devices(None)
 
 
     def test_get_all(self, API, devices):
@@ -104,7 +105,15 @@ class TestDevices(TestRemoteAPI):
         result3 = devices.get(device_type="HM-CC-RT-DN")
         assert len(result3) > 0
 
-        assert len(devices) == len(result1) + len(result3)
+        result4 = devices.get(device_name_regex="^%$")
+        assert len(result4) == 0
+
+        result5 = devices.get(device_name_regex="^Schlafzimmer.*$")
+        assert len(result5) > 0
+
+        all_returned = list(set(list(result1) + list(result3) + list(result5)))
+
+        assert len(devices) == len(all_returned)
 
 
     def test_create_from_low_level_dict(self, API, devices):
@@ -129,6 +138,12 @@ class TestDevices(TestRemoteAPI):
 
         devices.add(device)
         assert len(devices) == 1
+
+        with pytest.raises(PMException):
+            devices.add(None)
+
+        assert len(devices) == 1
+
 
 
     def test_exists(self, API, devices):
@@ -180,23 +195,23 @@ class TestDevices(TestRemoteAPI):
         assert len(devices) == 0
 
 
-    def get_device_or_channel_by_address(self, API, devices):
+    def test_get_device_or_channel_by_address(self, API, devices):
         device1 = list(pmatic.api.DeviceSpecs(API).values())[0]
         devices.add_from_low_level_dict(device1)
 
-        dev = devices.device_or_channel_by_address(device1["address"])
+        dev = devices.get_device_or_channel_by_address(device1["address"])
         assert isinstance(dev, Device)
         assert dev.address == device1["address"]
 
-        chan = devices.device_or_channel_by_address(device1["address"]+":1")
+        chan = devices.get_device_or_channel_by_address(device1["address"]+":1")
         assert isinstance(chan, Channel)
-        assert dev.address != device1["address"]
+        assert chan.address != device1["address"]
 
-        with pytest.raises("KeyError"):
-            devices.device_or_channel_by_address(device1["address"]+":99")
+        with pytest.raises(KeyError):
+            devices.get_device_or_channel_by_address(device1["address"]+":99")
 
-        with pytest.raises("KeyError"):
-            devices.device_or_channel_by_address("xxxxxxx")
+        with pytest.raises(KeyError):
+            devices.get_device_or_channel_by_address("xxxxxxx")
 
 
 
