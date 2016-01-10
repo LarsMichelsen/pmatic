@@ -125,6 +125,11 @@ dist-ccu-step1:
 	    lib/python2.7/urllib.py \
 	    lib/python2.7/string.py \
 	    \
+	    lib/python2.7/threading.py \
+	    lib/python2.7/SocketServer.py \
+	    lib/python2.7/BaseHTTPServer.py \
+	    lib/python2.7/SimpleXMLRPCServer.py \
+	    \
 	    $(CCU_PREDIST_PATH)/python
 
 dist-ccu-step2:
