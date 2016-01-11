@@ -3,10 +3,11 @@
 [![Build Status](https://travis-ci.org/LaMi-/pmatic.svg?branch=master)](https://travis-ci.org/LaMi-/pmatic)
 [![Coverage Status](https://coveralls.io/repos/LaMi-/pmatic/badge.svg?branch=master&service=github)](https://coveralls.io/github/LaMi-/pmatic?branch=master)
 
-pmatic is a python library to provide access to the Homematic CCU2. You
-can execute pmatic directly on the CCU2 or another system having Python
-installed. With pmatic you can write your own Python scripts to communicate
-with your CCU2 devices.
+The pmatic module provides access to the Homematic CCU which operates as
+the central unit in Homematic based home automation setips.. You can use
+pmatic directly on the CCU2 or another system having Python installed.
+With pmatic you can write your own Python scripts to communicate with
+your CCU device.
 
 ## What to do with pmatic?
 

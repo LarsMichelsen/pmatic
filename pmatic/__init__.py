@@ -18,17 +18,15 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-"""A simple API to to the Homematic CCU2
+"""A simple to use API to the Homematic CCU
 
-pmatic is a python library to provide access to the Homematic CCU2. You
-can execute pmatic directly on the CCU2 or another system having Python
-installed. With pmatic you can write your own Python scripts to communicate
-with your CCU2 devices.
+The pmatic module provides access to the Homematic CCU which operates as
+the central unit in Homematic based home automation setips.. You can use
+pmatic directly on the CCU2 or another system having Python installed.
+With pmatic you can write your own Python scripts to communicate with
+your CCU device.
 
 Take a look at <https://github.com/LaMi-/pmatic> for details.
-
-:copyright: (c) 2016 by Lars Michelsen.
-:license: GNU General Public License v2, see LICENSE for more details.
 """
 
 # Add Python 3.x behaviour to 2.7
@@ -47,6 +45,11 @@ import logging as _logging
 
 from pmatic.ccu import CCU # noqa
 from pmatic.exceptions import * # noqa
+
+__all__ = [ "CCU", "logging",
+            "PMException", "PMConnectionError", "PMDeviceOffline",
+            "PMActionFailed",
+            "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG" ]
 
 #
 # Logging

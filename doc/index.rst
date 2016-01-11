@@ -13,9 +13,8 @@ Contents:
    introduction.rst
    install.rst
    basic_usage.rst
+   pmatic_module.rst
    about_and_license.rst
-
-   pmatic.rst
 
 Indices and tables
 ==================

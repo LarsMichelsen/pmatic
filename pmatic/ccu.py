@@ -36,13 +36,30 @@ from pmatic.entities import Devices, Rooms
 
 
 class CCU(object):
-    """Defines the central object of more complex pmatic use cases.
+    """Provides the simple to use access to the CCU.
 
-    If you not only want to deal with states fetched from the CCU but also
-    use them together with events received via the XML-RPC API of the CCU,
-    the CCU object should be used as central manager.
+    This is the main object to be used with pmatic. It provides top level
+    access to all kind of entities like devices, channels, parameters, rooms
+    and so on. It is possible to either poll information from the CCU or
+    wait for incoming state update events provided by the CCU.
+
+    If your program is executed right on the CCU, you don't need to provide
+    any of the optional arguments.
+
+    The optional arguments *address* and *credentials* are needed if you execute
+    your program not on the CCU. You need to provide the host address of the
+    CCU, which can be an IP address or resolvable host name as *address* argument.
+    The *credentials* need to be given as two element tuple of username and password,
+    for example ``("admin", "secretpw")`` which are then used to access the CCU.
+
+    The default TCP connect timeout for the HTTP requests to the CCU is set to
+    10 seconds. If you like to change the timeout, you need to set the argument
+    *connect_timeout* to a number of seconds of your choice.
+
     """
     def __init__(self, **kwargs):
+        """__init__([address[, credentials[, connect_timeout=10]]])
+        """
         super(CCU, self).__init__()
         self.api = pmatic.api.init(**kwargs)
         self.rssi = None
