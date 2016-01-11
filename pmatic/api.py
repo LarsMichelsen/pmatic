@@ -490,9 +490,6 @@ class LocalAPI(AbstractAPI):
 
 
     def _get_args(self, method, args):
-        if not args:
-            return "[]"
-
         args_parsed = "[list "
         for arg_name in method["ARGUMENTS"]:
             try:
@@ -522,6 +519,13 @@ class LocalAPI(AbstractAPI):
         self.logger.debug("CALL: %s ARGS: %r" % (method["SCRIPT_FILE"], parsed_args))
 
         tcl = ""
+
+        # Some of the methods use variables with same name but different types.
+        # Since we use one continous running tclsh things get mixed up and cause
+        # problems. Depending on which scripts are called. Some known vars are
+        # cleaned up here. If this is too much trouble, switch to start/stop new
+        # tclsh processes per call.
+        tcl += "if { [info exists device] } {unset device}\n"
 
         # \0\n is written to stdout of the tclsh process to mark and detect the
         # end of the output of the API call.
