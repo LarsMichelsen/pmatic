@@ -38,11 +38,15 @@ def test_log_levels():
 
 
 def test_set_logging():
+    pmatic.logging()
     l = logging.getLogger("pmatic")
     assert l.getEffectiveLevel() == pmatic.WARNING
 
     pmatic.logging(pmatic.CRITICAL)
     assert l.getEffectiveLevel() == pmatic.CRITICAL
+
+    pmatic.logging()
+    assert l.getEffectiveLevel() == pmatic.WARNING
 
 
 def test_log(capfd):
