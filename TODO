@@ -6,10 +6,11 @@ Ideas:
   * move some of the docs from the README to the HTML docs
 * Provide standard way to store data on the local system
 * Create Object based access to the system variables of the CCU
-* How to deal with events? Provide standard way to keep scripts running for
-  a longer time and make them able to listen for events.
 * For the CCU:
   * Standardize script path
   * Add some kind of scheduling mechanism for scripts (use homematic ones?)
   * Add interface to manage scripts and jobs as alternative to just deploy
     the files e.g. via SSH.
+
+* Bugs:
+  * Recursion exception in examples/print_temperature_updates.py

@@ -36,6 +36,14 @@ pmatic.events module
     :undoc-members:
     :show-inheritance:
 
+pmatic.exceptions module
+------------------------
+
+.. automodule:: pmatic.exceptions
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 pmatic.params module
 --------------------
 
