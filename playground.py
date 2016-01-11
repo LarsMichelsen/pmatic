@@ -29,16 +29,10 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import sys, pprint
-import pmatic.api
-import pmatic.events
+import pmatic
 from pmatic.entities import *
 from pmatic import utils
-from pmatic.ccu import CCU
 from pmatic.exceptions import PMDeviceOffline
-
-##
-# Opening a pmatic session
-##
 
 # Set log level to debug for pmatic and start logging to console
 #pmatic.logging(pmatic.DEBUG)
@@ -48,6 +42,13 @@ ccu = pmatic.CCU(
     credentials=("Admin", "EPIC-SECRET-PW"),
     connect_timeout=5,
 )
+
+ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
+
+for device in ccu.devices.get(device_type="HM-Sec-SC"):
+    print("%-20s %6s" % (device.name, device.is_open() and "open" or "closed"))
+
+sys.exit(1)
 
 ccu.devices.get()
 for device in ccu.devices:
