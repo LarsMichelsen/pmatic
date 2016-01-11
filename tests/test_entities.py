@@ -54,24 +54,145 @@ class TestEntity(TestRemoteAPI):
             assert type(api) == pmatic.api.RemoteAPI
             return val
 
-        class TestEntity(Entity):
+        def transform_with_device_obj(device, val):
+            assert isinstance(device, Device)
+            return val
+
+        def transform_with_object_obj(obj, val):
+            assert isinstance(obj, Entity)
+            return val
+
+        class TestDevice(Device):
             transform_attributes = {
                 "ding_dong"       : int,
                 "ding_dong_float" : float,
                 "BLA"             : transform_with_api_obj,
+                "BLUB"            : transform_with_device_obj,
+                "HUH"             : transform_with_object_obj,
             }
+            mandatory_attributes = []
 
-        obj = TestEntity(API, {
+        obj = TestDevice(API, {
             'ding_dong': "1",
             'ding_dong_float': "1.0",
             'BLA': 'blub',
+            'BLUB': 'dingeling',
+            'HUH': 'hasbasl',
             'blah': 'blux',
         })
 
         assert obj.ding_dong == 1
         assert obj.ding_dong_float == 1.0
         assert obj.bla == "blub"
+        assert obj.blub == "dingeling"
+        assert obj.huh == "hasbasl"
         assert obj.blah == "blux"
+
+
+    def test_mandatory_attributes(self, API):
+        class TestEntity(Entity):
+            mandatory_attributes = [
+                "dasda",
+            ]
+
+        obj = TestEntity(API, {
+            'ding_dong': "1",
+            'dasda': 'paff',
+            'blah': 'blux',
+        })
+
+        assert obj.ding_dong == "1"
+        assert obj.dasda == "paff"
+        assert obj.blah == "blux"
+
+        with pytest.raises(PMException) as e:
+            TestEntity(API, {
+                'ding_dong': "1",
+                'blah': 'blux',
+            })
+        assert "mandatory attribute" in str(e)
+
+
+
+class TestChannel(TestRemoteAPI):
+    #@pytest.fixture(scope="class")
+    #def channel(self, API):
+    #    device = Device(API, {
+    #        'address': 'KEQ0970393',
+    #        #'children': ['KEQ0970393:0',
+    #        #             'KEQ0970393:1',
+    #        #             'KEQ0970393:2',
+    #        #             'KEQ0970393:3',
+    #        #             'KEQ0970393:4',
+    #        #             'KEQ0970393:5',
+    #        #             'KEQ0970393:6',
+    #        'firmware': '1.4',
+    #        'flags': 1,
+    #        'interface': 'KEQ0714972',
+    #        #'paramsets': ['MASTER'],
+    #        'roaming': False,
+    #        'type': 'HM-ES-PMSw1-Pl',
+    #        'updatable': '1',
+    #        'version': 1,
+    #        'channels': [],
+    #    })
+
+    #    return Channel(device, {
+    #        'address': 'KEQ0970393:1',
+    #        'direction': 1,
+    #        'flags': 1,
+    #        'index': 1,
+    #        'link_source_roles': [
+    #            'KEYMATIC',
+    #            'SWITCH',
+    #            'WINDOW_SWITCH_RECEIVER',
+    #            'WINMATIC'
+    #        ],
+    #        'link_target_roles': [],
+    #        'paramsets': ['LINK', 'MASTER', 'VALUES'],
+    #        'type': 'SHUTTER_CONTACT',
+    #        'version': 15,
+    #    })
+
+
+    def test_channel_unknown_type(self, capfd, API):
+        pmatic.logging(pmatic.DEBUG)
+
+        device = Device(API, {
+            'address': 'KEQ0970393',
+            'firmware': '1.4',
+            'flags': 1,
+            'interface': 'KEQ0714972',
+            'roaming': False,
+            'type': 'HM-ES-PMSw1-Pl',
+            'updatable': '1',
+            'version': 1,
+            'channels': [],
+        })
+
+        Channel.from_channel_dicts(device, [
+            {
+                'address': 'KEQ0970393:1',
+                'direction': 1,
+                'flags': 1,
+                'index': 1,
+                'link_source_roles': [
+                    'KEYMATIC',
+                    'SWITCH',
+                    'WINDOW_SWITCH_RECEIVER',
+                    'WINMATIC'
+                ],
+                'link_target_roles': [],
+                'paramsets': ['LINK', 'MASTER', 'VALUES'],
+                'type': 'XXX_SHUTTER_CONTACT',
+                'version': 15,
+            }
+        ])
+
+        out, err = capfd.readouterr()
+        assert "Using generic" in err
+        assert "XXX_SHUTTER_CONTACT" in err
+        assert out == ""
 
 
 

@@ -55,27 +55,7 @@ class TestParameter(TestRemoteAPI):
             'version': 1,
             'channels': [],
         })
-        # address of channel
-        "address",
-        # communication direction of channel:
-        # 0 = DIRECTION_NONE (Kanal unterstützt keine direkte Verknüpfung)
-        # 1 = DIRECTION_SENDER
-        # 2 = DIRECTION_RECEIVER
-        "direction",
-        # see device flags (0x01 visible, 0x02 internal, 0x08 can not be deleted)
-        "flags",
-        # channel number
-        "index",
-        # possible roles as sender
-        "link_source_roles",
-        # possible roles as receiver
-        "link_target_roles",
-        # list of available parameter sets
-        "paramsets",
-        # type of this channel
-        "type",
-        # version of the channel description
-        "version",
+
         channel = Channel(device, {
             'address': 'KEQ0970393:1',
             'direction': 1,
