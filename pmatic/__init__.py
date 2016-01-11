@@ -86,8 +86,10 @@ def logging(log_level=None):
     """
     global logger_default_handler
 
-    if log_level != None:
-        logger.setLevel(log_level)
+    if log_level == None:
+        log_level = WARNING
+
+    logger.setLevel(log_level)
 
     # Remove eventual already existing default logger
     if logger_default_handler:
@@ -96,8 +98,7 @@ def logging(log_level=None):
 
     # create console handler and set level to debug
     ch = _logging.StreamHandler()
-    if log_level != None:
-        ch.setLevel(log_level)
+    ch.setLevel(log_level)
 
     formatter = _logging.Formatter('%(asctime)s [%(levelname)s] %(message)s')
     ch.setFormatter(formatter)
