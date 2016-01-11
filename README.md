@@ -138,12 +138,10 @@ their current states on the CCU2:
 ```
 #!/usr/bin/python
 
-import pmatic.api
-from pmatic.entities import HMSecSC
+import pmatic
+ccu = pmatic.CCU()
 
-API = pmatic.api.init()
-
-for device in HMSecSC.get_all(API):
+for device in ccu.devices.get(device_type="HM-Sec-SC"):
     print("%-20s %6s" % (device.name, device.is_open() and "open" or "closed"))
 ```
 
