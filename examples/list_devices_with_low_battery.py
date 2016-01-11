@@ -28,21 +28,20 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import pmatic.api
-from pmatic.entities import Device
+import pmatic
 
 # Uncomment to enable debug logging of pmatic messages to stderr
 # pmatic.logging(pmatic.DEBUG)
 
-API = pmatic.api.init(
+ccu = pmatic.CCU(
     address="http://192.168.1.26",
     credentials=("Admin", "EPIC-SECRET-PW"),
     connect_timeout=5,
 )
 
 print("Low battery: ")
-for device in Device.get_devices(API):
-    if device.battery_low():
+for device in ccu.devices.get():
+    if device.is_battery_low:
         print("  %s" % device.name)
 else:
     print("  All battery powered devices are fine.")

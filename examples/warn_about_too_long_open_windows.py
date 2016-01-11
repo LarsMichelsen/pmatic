@@ -36,10 +36,9 @@ endless loop and checking open contacts in a configured interval.
 """
 
 import time
-import pmatic.api
-from pmatic.entities import HMSecSC
+import pmatic
 
-API = pmatic.api.init(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
+ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
 state_file   = "/tmp/window_states"
 warn_seconds = 60 * 15 # > 15 minutes
@@ -50,7 +49,7 @@ except IOError:
     states = {} # initialize states
 
 # Get all known HM-Sec-SC (shutter contact) devices
-for device in HMSecSC.get_all(API):
+for device in ccu.devices.get(device_type="HM-Sec-SC"):
     if device.is_open():
         states.setdefault(device.id, time.time()) # store the first detected open time
         duration = time.time() - states[device.id]
