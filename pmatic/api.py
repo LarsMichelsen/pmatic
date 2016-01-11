@@ -312,7 +312,7 @@ class RemoteAPI(AbstractAPI):
         elif not utils.is_string(credentials[0]):
             raise PMException("The username is of unhandled type.")
         elif not utils.is_string(credentials[1]):
-            raise PMException("The username is of unhandled type.")
+            raise PMException("The password is of unhandled type.")
 
         self._credentials = credentials
 

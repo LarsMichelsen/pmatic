@@ -46,6 +46,7 @@ except ImportError:
 
 import pmatic.utils as utils
 import pmatic.api
+from pmatic.exceptions import PMException
 
 resources_path = "tests/resources"
 
@@ -141,6 +142,58 @@ def is_testing_with_real_ccu():
     return os.environ.get("TEST_WITH_CCU") == "1"
 
 
+def test_init_address_invalid():
+    with pytest.raises(PMException) as e:
+        pmatic.api.RemoteAPI(address=None, credentials=("", ""))
+    assert "address of the CCU" in str(e)
+
+
+def test_init_address_missing_proto(monkeypatch):
+    # Disable API calls of constructor
+    monkeypatch.setattr(pmatic.api.RemoteAPI, 'login', lambda x: None)
+    monkeypatch.setattr(pmatic.api.RemoteAPI, '_init_methods', lambda x: None)
+
+    api = pmatic.api.RemoteAPI(address="127.0.0.1", credentials=("", ""))
+    assert api.address == "http://127.0.0.1"
+
+
+def test_init_credentials_invalid(monkeypatch):
+    # Disable API calls of constructor
+    monkeypatch.setattr(pmatic.api.RemoteAPI, 'login', lambda x: None)
+    monkeypatch.setattr(pmatic.api.RemoteAPI, '_init_methods', lambda x: None)
+
+    with pytest.raises(PMException) as e:
+        pmatic.api.RemoteAPI(address="http://127.0.0.1", credentials=None)
+    assert "Please specify" in str(e)
+
+    with pytest.raises(PMException) as e:
+        pmatic.api.RemoteAPI(address="http://127.0.0.1", credentials=("", "", ""))
+    assert "two elements" in str(e)
+
+    with pytest.raises(PMException) as e:
+        pmatic.api.RemoteAPI(address="http://127.0.0.1", credentials=("",))
+    assert "two elements" in str(e)
+
+    with pytest.raises(PMException) as e:
+        pmatic.api.RemoteAPI(address="http://127.0.0.1", credentials=(None, None))
+    assert "username" in str(e)
+
+    with pytest.raises(PMException) as e:
+        pmatic.api.RemoteAPI(address="http://127.0.0.1", credentials=("", None))
+    assert "password" in str(e)
+
+
+def test_init_timeout_invalid(monkeypatch):
+    # Disable API calls of constructor
+    monkeypatch.setattr(pmatic.api.RemoteAPI, 'login', lambda x: None)
+    monkeypatch.setattr(pmatic.api.RemoteAPI, '_init_methods', lambda x: None)
+
+    with pytest.raises(PMException) as e:
+        pmatic.api.RemoteAPI(address="http://127.0.0.1", credentials=("", ""),
+                             connect_timeout=None)
+    assert "Invalid timeout value" in str(e)
+
+
 class TestRemoteAPI:
     @pytest.fixture(scope="class")
     def API(self, request):
@@ -166,8 +219,19 @@ class TestRemoteAPI:
 
 
 class TestRemoteAPILowLevel(TestRemoteAPI):
+    def test_address(self, API):
+        assert API.address == API._address
+
+
     def test_logged_in(self, API):
         assert len(API._session_id) == 10
+
+
+    def test_double_login(self, API):
+        assert len(API._session_id) == 10
+        with pytest.raises(PMException) as e:
+            API.login()
+        assert "Already logged in" in str(e)
 
 
     def test_methods_initialized(self, API):
