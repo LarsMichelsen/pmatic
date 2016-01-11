@@ -72,6 +72,7 @@ WARNING  = _logging.WARNING
 INFO     = _logging.INFO
 DEBUG    = _logging.DEBUG
 
+logger_default_handler = None
 
 def logging(log_level=None):
     """Enables logging of pmatic log messages to stderr.
@@ -83,8 +84,15 @@ def logging(log_level=None):
     This is only a default to be used e.g. in simple scripts. If you need more
     flexible logging, you are free to configure the logging module on your own.
     """
+    global logger_default_handler
+
     if log_level != None:
         logger.setLevel(log_level)
+
+    # Remove eventual already existing default logger
+    if logger_default_handler:
+        logger.removeHandler(logger_default_handler)
+        logger_default_handler = None
 
     # create console handler and set level to debug
     ch = _logging.StreamHandler()
@@ -96,6 +104,7 @@ def logging(log_level=None):
 
     # add the stream handler to logger
     logger.addHandler(ch)
+    logger_default_handler = ch
 
 
 # Initialize logging with default log level (WARNING)
