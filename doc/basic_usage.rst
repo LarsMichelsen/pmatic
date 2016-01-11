@@ -124,6 +124,40 @@ instantly.
         ccu.events.wait()
         ccu.events.close()
 
+
+List Rooms with their devices
+-----------------------------
+
+You can even get the devices grouped by the rooms which they are associated with. Accessing
+the rooms is similar to the devices. See an example below which prints out all devices
+grouped by the rooms.
+
+.. code-block:: python
+
+    #!/usr/bin/python
+    import pmatic
+    ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
+
+    for room in ccu.rooms.get():
+        print(room.name)
+        for device in room.devices:
+            print(" ", device.name)
+
+This script produces an output like this:
+
+.. code-block:: shell
+
+    Wohnzimmer
+      Wohnzimmer-Licht
+      Wohnzimmer-Schalter
+      Wohnzimmer-Tür
+    Schlafzimmer
+      Schlafzimmer-Links-Heizung
+    Büro
+      Büro-Fenster
+      Büro-Lampe
+      Büro-Schalter
+
 Some use cases
 --------------
 

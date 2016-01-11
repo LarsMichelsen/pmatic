@@ -18,15 +18,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import pmatic.api
-from pmatic.entities import Room
+import pmatic
 
-API = pmatic.api.init(
-    address="http://192.168.1.26",
-    credentials=("Admin", "EPIC-SECRET-PW"),
-)
+ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
-for room in Room.get_rooms(API):
+for room in ccu.rooms.get():
     print(room.name)
     for device in room.devices:
         print("  %s: %s" % (device.name, device.summary_state()))

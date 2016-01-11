@@ -885,6 +885,87 @@ class HMPBI4FM(SpecificDevice):
 
 
 
+class Rooms(object):
+    """Manages a collection of rooms."""
+
+    def __init__(self, api):
+        super(Rooms, self).__init__()
+        if not isinstance(api, pmatic.api.AbstractAPI):
+            raise PMException("Invalid api object provided: %r" % api)
+        self._api = api
+        self._rooms = {}
+
+
+    # FIXME: Add filter options
+    def get(self):
+        """Returns all room objects matching the provided filters.
+
+        When the rooms have not been fetched yet, the room specs might be fetched
+        from the CCU."""
+
+        # Create new room group which is returned as result for this query
+        rooms = Rooms(self._api)
+
+        # FIXME: Cache this?
+        for room_dict in self._api.room_get_all():
+            # First create the room objects
+            room = self._rooms.get(int(room_dict["id"]))
+            if not room:
+                room = Room(self._api, room_dict)
+
+            # Now perform optional filtering
+
+            self._rooms[room.id] = room
+            rooms.add(room)
+        return rooms
+
+
+    def add(self, room):
+        """Add a room object to the collection."""
+        if not isinstance(room, Room):
+            raise PMException("You can only add room objects.")
+        self._rooms[room.id] = room
+
+
+    # FIXME: Trigger spec fetch?
+    def exists(self, room_id):
+        """Check whether or not a room with the given id is in this collection."""
+        return room_id in self._rooms
+
+
+    # FIXME: Trigger spec fetch?
+    def ids(self):
+        """Returns a list of all addresses of all initialized room."""
+        return self._rooms.keys()
+
+
+    def delete(self, room_id):
+        """Deletes the room with the given id from the pmatic runtime.
+
+        The room is not deleted from the CCU.
+        When the room is not known, the method is tollerating that."""
+        try:
+            del self._rooms[room_id]
+        except KeyError:
+            pass
+
+
+    def clear(self):
+        """Remove all objects from this room collection."""
+        self._rooms.clear()
+
+
+    # FIXME: Trigger spec fetch?
+    def __iter__(self):
+        for value in self._rooms.values():
+            yield value
+
+
+    def __len__(self):
+        return len(self._rooms)
+
+
+
 class Room(Entity):
     transform_attributes = {
         "id"               : int,

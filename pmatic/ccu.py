@@ -32,7 +32,7 @@ except ImportError:
 
 import pmatic.api
 import pmatic.events
-from pmatic.entities import Devices
+from pmatic.entities import Devices, Rooms
 
 
 class CCU(object):
@@ -48,6 +48,7 @@ class CCU(object):
         self.rssi = None
         self._devices = None
         self._events = None
+        self._rooms = None
 
 
     @property
@@ -64,6 +65,14 @@ class CCU(object):
         if not self._events:
             self._events = pmatic.events.EventListener(self)
         return self._events
+
+
+    @property
+    def rooms(self):
+        """Provides access to the collection of all known rooms."""
+        if not self._rooms:
+            self._rooms = Rooms(self.api)
+        return self._rooms
 
 
     def interfaces(self):

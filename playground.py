@@ -37,16 +37,12 @@ from pmatic.exceptions import PMDeviceOffline
 # Set log level to debug for pmatic and start logging to console
 #pmatic.logging(pmatic.DEBUG)
 
-ccu = pmatic.CCU(
-    address="http://192.168.1.26",
-    credentials=("Admin", "EPIC-SECRET-PW"),
-    connect_timeout=5,
-)
-
 ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
-for device in ccu.devices.get(device_type="HM-Sec-SC"):
-    print("%-20s %6s" % (device.name, device.is_open() and "open" or "closed"))
+for room in ccu.rooms.get():
+    print(room.name)
+    for device in room.devices:
+        print(" ", device.name)
 
 sys.exit(1)
 
