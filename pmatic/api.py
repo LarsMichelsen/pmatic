@@ -472,6 +472,7 @@ class LocalAPI(AbstractAPI):
                 raise
 
         self._tclsh.stdin.write(
+            "load tclrpc.so\n"
             "load tclrega.so\n"
             "source /www/api/eq3/common.tcl\n"
             "source /www/api/eq3/ipc.tcl\n"
