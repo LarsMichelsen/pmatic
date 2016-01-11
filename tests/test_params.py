@@ -163,6 +163,18 @@ class TestParameter(TestRemoteAPI):
         p.operations = 7
 
 
+    def test_supports_events(self, p):
+        assert p.supports_events == True
+
+        p.operations = 4
+        assert p.supports_events == True
+
+        p.operations = 2
+        assert p.supports_events == False
+
+        p.operations = 7
+
+
     def test_title(self, p):
         assert p.title == "State"
 
@@ -215,6 +227,79 @@ class TestParameter(TestRemoteAPI):
 
         p.value = "false"
         assert last_changed < p.last_changed
+
+
+    def test_is_visible_to_user(self, p):
+        orig_flags = p.flags
+
+        assert p.is_visible_to_user == True
+
+        p.flags = 0
+        assert p.is_visible_to_user == False
+
+        p.flags = 3
+        assert p.is_visible_to_user == True
+
+        p.flags = 16
+        assert p.is_visible_to_user == False
+
+        p.flags = orig_flags
+
+
+    def test_is_internal(self, p):
+        orig_flags = p.flags
+
+        assert p.is_internal == False
+
+        p.flags = 2
+        assert p.is_internal == True
+
+        p.flags = 16
+        assert p.is_internal == False
+
+        p.flags = orig_flags
+
+
+    def test_is_transformer(self, p):
+        orig_flags = p.flags
+
+        assert p.is_transformer == False
+
+        p.flags = 4
+        assert p.is_transformer == True
+
+        p.flags = 9
+        assert p.is_transformer == False
+
+        p.flags = orig_flags
+
+
+    def test_is_service(self, p):
+        orig_flags = p.flags
+
+        assert p.is_service == False
+
+        p.flags = 8
+        assert p.is_service == True
+
+        p.flags = 16
+        assert p.is_service == False
+
+        p.flags = orig_flags
+
+
+    def test_is_service_sticky(self, p):
+        orig_flags = p.flags
+
+        assert p.is_service_sticky == False
+
+        p.flags = 16
+        assert p.is_service_sticky == True
+
+        p.flags = 12
+        assert p.is_service_sticky == False
+
+        p.flags = orig_flags
 
 
     def test_set_to_default(self, p):
