@@ -42,7 +42,7 @@ ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECR
 for room in ccu.rooms.get():
     print(room.name)
     for device in room.devices:
-        print(" ", device.name)
+        print(" ", device.name, device.summary_state())
 
 sys.exit(1)
 

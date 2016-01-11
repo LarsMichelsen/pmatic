@@ -272,7 +272,8 @@ class Channel(utils.LogMixin, Entity):
         Formats values and titles of channel values and returns them as string.
 
         Default formating of channel values. Concatenates titles and values of
-        all channel values. The values are sorted by the titles."""
+        all channel values except the maintenance channel.
+        The values are sorted by the titles."""
         formated = []
         for title, value in sorted([ (v.title, v) for v in self.values.values() if v.readable ]):
             formated.append("%s: %s" % (title, value))
@@ -297,6 +298,16 @@ class ChannelMaintenance(Channel):
     type_name = "MAINTENANCE"
     name = "Maintenance"
     id = 0 # FIXME: Really no id for maintenance channels?
+
+    def summary_state(self):
+        """The maintenance channel does not provide a summary state.
+
+        If you want to get a formated maintenance state, you need to call maintenance_state()."""
+        pass
+
+    def maintenance_state(self):
+        super(self, ChannelMaintenance).summary_state()
+
 
 
 # FIXME: Handle LOWBAT/ERROR
