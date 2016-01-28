@@ -932,7 +932,7 @@ class Rooms(object):
 
 
     def add(self, room):
-        """Add a room object to the collection."""
+        """Add a :class:`Room` to the collection."""
         if not isinstance(room, Room):
             raise PMException("You can only add room objects.")
         self._rooms[room.id] = room
@@ -940,7 +940,7 @@ class Rooms(object):
 
     # FIXME: Trigger spec fetch?
     def exists(self, room_id):
-        """Check whether or not a room with the given id is in this collection."""
+        """Check whether or not a :class:`Room` with the given id is in this collection."""
         return room_id in self._rooms
 
 
@@ -951,10 +951,9 @@ class Rooms(object):
 
 
     def delete(self, room_id):
-        """Deletes the room with the given id from the pmatic runtime.
+        """Deletes the :class:`Room` with the given id from the pmatic runtime.
 
-        The room is not deleted from the CCU.
-        When the room is not known, the method is tollerating that."""
+        The room is not deleted from the CCU. When the room is not known, the method is tollerating that."""
         try:
             del self._rooms[room_id]
         except KeyError:
@@ -962,7 +961,7 @@ class Rooms(object):
 
 
     def clear(self):
-        """Remove all objects from this room collection."""
+        """Remove all :class:`Room` objects from this collection."""
         self._rooms.clear()
 
 
@@ -999,7 +998,9 @@ class Room(Entity):
 
     @property
     def devices(self):
-        """Returns list of device objects which have at least one channel associated with this room."""
+        """Provides access to a collection of :class:`.Device` objects which have at least one channel associated with this room.
+
+        The collections is a :class:`.Devices` instance."""
         # FIXME: Cache this?
         return self._devices.get(has_channel_ids=self.channel_ids)
 
@@ -1016,22 +1017,22 @@ class Room(Entity):
         return room_channels
 
 
-    @property
-    def programs(self):
-        """Returns list of program objects which use at least one channel associated with this room."""
-        # FIXME: Implement!
-        # FIXME: Cache this?
-        return []
-
-
-    def add(self, channel_obj):
-        """Adds a channel to this room."""
-        # FIXME: Implement!
-
-
-    def remove(self, channel_obj):
-        """Removes a channel to this room."""
-        # FIXME: Implement!
+#    @property
+#    def programs(self):
+#        """Returns list of program objects which use at least one channel associated with this room."""
+#        # FIXME: Implement!
+#        # FIXME: Cache this?
+#        return []
+#
+#
+#    def add(self, channel):
+#        """Adds a channel to this room."""
+#        # FIXME: Implement!
+#
+#
+#    def remove(self, channel):
+#        """Removes a channel to this room."""
+#        # FIXME: Implement!
 
 
 # Build a list of all specific product classes. If a device is initialized
