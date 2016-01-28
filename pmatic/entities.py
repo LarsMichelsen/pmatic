@@ -43,9 +43,9 @@ import pmatic.utils as utils
 from pmatic.exceptions import PMException, PMDeviceOffline
 
 class Entity(object):
-    transform_attributes = {}
+    _transform_attributes = {}
     skip_attributes = []
-    mandatory_attributes = []
+    _mandatory_attributes = []
 
     def __init__(self, api, spec):
         assert isinstance(api, pmatic.api.AbstractAPI), "api is not of API class: %r" % api
@@ -68,7 +68,7 @@ class Entity(object):
 
             # Optionally convert values using the given transform functions
             # for the specific object type
-            trans_func = self.transform_attributes.get(key)
+            trans_func = self._transform_attributes.get(key)
             if trans_func:
                 func_type = type(trans_func).__name__
                 if func_type in [ "instancemethod", "function", "method" ]:
@@ -95,14 +95,14 @@ class Entity(object):
 
 
     def _verify_mandatory_attributes(self):
-        for key in self.mandatory_attributes:
+        for key in self._mandatory_attributes:
             if not hasattr(self, key):
                 raise PMException("The mandatory attribute \"%s\" is missing." % key)
 
 
 
 class Channel(utils.LogMixin, Entity):
-    transform_attributes = {
+    _transform_attributes = {
         # ReGa attributes:
         "id"               : int,
         "partner_id"       : lambda x: None if x == "" else int(x),
@@ -120,7 +120,7 @@ class Channel(utils.LogMixin, Entity):
     ]
 
     # These keys have to be set after attribute initialization
-    mandatory_attributes = [
+    _mandatory_attributes = [
         # Low level attributes:
 
         # address of channel
@@ -574,7 +574,7 @@ class Devices(object):
 
 
     def add(self, device):
-        """Add a device object tot the collection."""
+        """Add a :class:`.Device` object to the collection."""
         if not isinstance(device, Device):
             raise PMException("You can only add device objects.")
         self._devices[device.address] = device
@@ -646,7 +646,7 @@ class Devices(object):
 
 # FIXME: self.channels[0]: Provide better access to the channels. e.g. by names or ids or similar
 class Device(Entity):
-    transform_attributes = {
+    _transform_attributes = {
         # ReGa attributes:
         #"id"                : int,
         #"deviceId"          : int,
@@ -669,7 +669,7 @@ class Device(Entity):
     ]
 
     # These keys have to be set after attribute initialization
-    mandatory_attributes = [
+    _mandatory_attributes = [
         # Low level attributes:
 
         # Address of the device
@@ -978,7 +978,7 @@ class Rooms(object):
 
 
 class Room(Entity):
-    transform_attributes = {
+    _transform_attributes = {
         "id"               : int,
         "channelIds"       : lambda x: list(map(int, x)),
     }

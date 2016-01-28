@@ -63,14 +63,14 @@ class TestEntity(TestRemoteAPI):
             return val
 
         class TestDevice(Device):
-            transform_attributes = {
+            _transform_attributes = {
                 "ding_dong"       : int,
                 "ding_dong_float" : float,
                 "BLA"             : transform_with_api_obj,
                 "BLUB"            : transform_with_device_obj,
                 "HUH"             : transform_with_object_obj,
             }
-            mandatory_attributes = []
+            _mandatory_attributes = []
 
         obj = TestDevice(API, {
             'ding_dong': "1",
@@ -91,7 +91,7 @@ class TestEntity(TestRemoteAPI):
 
     def test_mandatory_attributes(self, API):
         class TestEntity(Entity):
-            mandatory_attributes = [
+            _mandatory_attributes = [
                 "dasda",
             ]
 

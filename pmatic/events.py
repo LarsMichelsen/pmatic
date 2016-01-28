@@ -89,14 +89,42 @@ class EventXMLRPCRequestHandler(SimpleXMLRPCRequestHandler, utils.LogMixin):
 
 
 class EventListener(object):
-    """Realizes an event listener to receive events from the CCU XML-RPC API"""
-    ident = 0
+    """Manages events received from the CCU XML-RPC API.
+
+    This class can tell the CCU to send status update events to pmatic
+    using it's XML-RPC API. The EventListener registers with the CCU
+    to get status updates. The CCU then synchronizes the known objects
+    with pmatic and starts sending status updates. These status updates
+    are then received by this class and handed over to the :class:`pmatic.entities.Device`
+    objects managed by the central :class:`CCU` object to update their
+    current state information.
+
+    The first argument *ccu* must be the :class:`CCU` instance to be associated
+    with this object.
+
+    The optional argument *listen_address* can be set to exactly tell
+    the CCU to which host address and TCP port to send it's XML-RPC calls. This
+    defaults to the host address of your local system and TCP port ``9123``. You
+    are free to set another port of your choice by specifying it as tuple of two
+    elements like e.g. ``("", 1337)``. The first element needs to contain the host
+    address of the system pmatic is running on and is normally automatically gathered.
+    But you can also set a fixed address if you like.
+
+    The second optional argument *interface_id* is an identifier which needs to be
+    unique on your local system at any time. As far as I can tell this is only
+    relevant when you plan to register multiple :class:`EventListener` objects at
+    the same time, on the same system and the same network port. If you start multiple
+    listeners within the same proccess the identifier is automatically made unique and
+    don't need to be set.
+    """
+
+    _ident = 0
 
     @classmethod
     def _next_id(cls):
         """Each event listener gets a unique ID which is used to register with the CCU."""
-        this_id = cls.ident
-        cls.ident += 1
+        this_id = cls._ident
+        cls._ident += 1
         return this_id
 
 
@@ -131,10 +159,25 @@ class EventListener(object):
             self._interface_id = "pmatic-%d" % EventListener._next_id()
 
 
+    @property
+    def rpc_server_url(self):
+        """Contains the URL the RPC server of this EventListener is listening on.
+
+        This URL is the URL sent to the CCU by :meth:`.init`."""
+        address = self._listen_address
+        if address[0] == "":
+            # This EventListener is configured to listen on all interfaces. That
+            # makes things flexible. But the drawback is that we don't know which
+            # URL we should tell the CCU to send it's events to. Find out!
+            address = (self._find_listen_address_to_reach_ccu(), address[1])
+
+        return "http://%s:%d" % address
+
+
     def init(self):
         """Initializes this objects RPC server and registers with the CCU.
 
-        This method opens the XML-RPC server on the configured listen_addres and
+        This method opens the XML-RPC server on the configured *listen_address* and
         sends an API call to the CCU to register the just started XML-RPC server.
         The CCU is then sending XLM-RPC messages to this server.
         """
@@ -165,21 +208,9 @@ class EventListener(object):
         this EventListener and send events to the server.
         """
         result = self._ccu.api.interface_init(interface="BidCos-RF",
-            url=self.rpc_server_url(), interfaceId=self._interface_id)
+            url=self.rpc_server_url, interfaceId=self._interface_id)
         if not result:
             raise PMConnectionError("Failed to register with the XML-RPC API of the CCU.")
-
-
-    def rpc_server_url(self):
-        """Returns the URL the RPC server of this EventListener is listening on."""
-        address = self._listen_address
-        if address[0] == "":
-            # This EventListener is configured to listen on all interfaces. That
-            # makes things flexible. But the drawback is that we don't know which
-            # URL we should tell the CCU to send it's events to. Find out!
-            address = (self._find_listen_address_to_reach_ccu(), address[1])
-
-        return "http://%s:%d" % address
 
 
     def _find_listen_address_to_reach_ccu(self):
@@ -215,7 +246,7 @@ class EventListener(object):
 
 
     def close(self):
-        """Stops listening for XML-RPC message."""
+        """Stops listening for XML-RPC messages and terminates the local XML-RPC server."""
         self._server.stop()
 
 
@@ -228,8 +259,8 @@ class EventListener(object):
         When a timeout is configured this method returns when the listener
         terminates (for some reason) or the timeout happens.
 
-        This method returns True when the timeout happened and the listener
-        is still alive or False when the listener has been terminated.
+        This method returns ``True`` when the timeout happened and the listener
+        is still alive or ``False`` when the listener has been terminated.
         """
         try:
             while self._server.is_alive():

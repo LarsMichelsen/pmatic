@@ -44,7 +44,7 @@ from pmatic.exceptions import PMException, PMActionFailed
 class Parameter(object):
     datatype = "string"
 
-    transform_attributes = {
+    _transform_attributes = {
         # mask: 1=Read, 2=Write, 4=Event
         'OPERATIONS' : int,
         'TAB_ORDER'  : int,
@@ -91,7 +91,7 @@ class Parameter(object):
         for key, val in spec.items():
             # Optionally convert values using the given transform functions
             # for the specific object type
-            trans_func = self.transform_attributes.get(key)
+            trans_func = self._transform_attributes.get(key)
             if trans_func:
                 val = trans_func(val)
 
@@ -326,7 +326,7 @@ class Parameter(object):
 class ParameterINTEGER(Parameter):
     datatype = "integer"
 
-    transform_attributes = dict(Parameter.transform_attributes,
+    _transform_attributes = dict(Parameter._transform_attributes,
         DEFAULT=int,
         MAX=int,
         MIN=int
@@ -365,7 +365,7 @@ class ParameterSTRING(Parameter):
 
 class ParameterFLOAT(Parameter):
     datatype = "float"
-    transform_attributes = dict(Parameter.transform_attributes,
+    _transform_attributes = dict(Parameter._transform_attributes,
         DEFAULT=float,
         MAX=float,
         MIN=float
@@ -421,7 +421,7 @@ class ParameterBOOL(Parameter):
 
 # 'control': u'NONE', 'operations': 5, 'name': u'ERROR', 'min': 0, 'default': 0, 'max': 4, '_value': 0, 'tab_order': 1, 'value_list': u'NO_ERROR VALVE_DRIVE_BLOCKED VALVE_DRIVE_LOOSE ADJUSTING_RANGE_TO_SMALL LOWBAT', 'flags': 9, 'unit': u'', 'type': u'ENUM', 'id': u'ERROR', 'channel': <pmatic.entities.ChannelClimaVentDrive object at 0x7fb7574b6750>}
 class ParameterENUM(ParameterINTEGER):
-    transform_attributes = dict(ParameterINTEGER.transform_attributes,
+    _transform_attributes = dict(ParameterINTEGER._transform_attributes,
         VALUE_LIST=lambda v: v.split(" "),
     )
 

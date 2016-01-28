@@ -70,7 +70,9 @@ class CCU(object):
 
     @property
     def devices(self):
-        """Provides access to the collection of all known devices."""
+        """This property provides access to the collection of all known devices.
+
+        The collection is an :class:`pmatic.entities.Devices` instance."""
         if not self._devices:
             self._devices = Devices(self.api)
         return self._devices
@@ -78,7 +80,9 @@ class CCU(object):
 
     @property
     def events(self):
-        """Provides access to the pmatic XML-RPC EventListener instance."""
+        """Using this property you can use the XML-RPC event listener of pmatic.
+
+        Provides access to the XML-RPC :class:`pmatic.events.EventListener` instance."""
         if not self._events:
             self._events = pmatic.events.EventListener(self)
         return self._events
@@ -86,7 +90,9 @@ class CCU(object):
 
     @property
     def rooms(self):
-        """Provides access to the collection of all known rooms."""
+        """Provides access to the collection of all known rooms.
+
+        This collection is an :class:`pmatic.entities.Rooms` instance."""
         if not self._rooms:
             self._rooms = Rooms(self.api)
         return self._rooms
