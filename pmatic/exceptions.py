@@ -25,26 +25,34 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 class PMException(Exception):
-    """This is the base exception for all exceptions raised by pmatic"""
+    """This is the base exception for all exceptions raised by pmatic.
+
+    This exception is either a base class for all other pmatic specific
+    exceptions but also directly raised in a lot of places where no more
+    specific exception type exists.
+    """
     pass
 
 
 class PMConnectionError(PMException):
     """Is raised when the connection with the CCU could not be established.
 
-    This error is raised by pmatic.api in situations where the CCU could not
+    This exception is raised by pmatic.api in situations where the CCU could not
     be contacted. Normally such an exception means that the just failed action
     can be tried again later.
 
     For example when the CCU is currently not reachable this kind of exception
     is raised. Means it is worth it to try again later with same parameters.
     """
+    pass
 
 
 class PMDeviceOffline(PMException):
     """Is raised when trying to read e.g. values from the device but it is offline."""
+    pass
 
 
 class PMActionFailed(PMException):
+    """Is raised when setting a value (parameter) of a channel fails."""
     pass
 

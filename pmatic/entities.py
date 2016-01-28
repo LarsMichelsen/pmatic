@@ -44,7 +44,7 @@ from pmatic.exceptions import PMException, PMDeviceOffline
 
 class Entity(object):
     _transform_attributes = {}
-    skip_attributes = []
+    _skip_attributes = []
     _mandatory_attributes = []
 
     def __init__(self, api, spec):
@@ -61,9 +61,9 @@ class Entity(object):
 
         Transforming and filtering dictionaries containing attributes for this entity
         by using the configured transform methods for the individual attributes and also
-        excluding some attributes which keys are in self.skip_attributes."""
+        excluding some attributes which keys are in self._skip_attributes."""
         for key, val in obj_dict.items():
-            if key in self.skip_attributes:
+            if key in self._skip_attributes:
                 continue
 
             # Optionally convert values using the given transform functions
@@ -113,7 +113,7 @@ class Channel(utils.LogMixin, Entity):
     }
 
     # Don't add these keys to the objects attributes
-    skip_attributes = [
+    _skip_attributes = [
         # Low level attributes:
         "parent",
         "parent_type",
@@ -660,7 +660,7 @@ class Device(Entity):
     }
 
     # Don't add these keys to the objects attributes
-    skip_attributes = [
+    _skip_attributes = [
         # Low level attributes:
         "children", # not needed
         "parent", # not needed
@@ -698,10 +698,16 @@ class Device(Entity):
 
     @classmethod
     def from_dict(self, api, spec):
+        """Creates a new device object from the attributes given in the *spec* dictionary.
+
+        The *spec* dictionary needs to contain the mandatory attributes with values of the correct
+        format. Depending on the device type specified by the *spec* dictionary, either a specific
+        device class or the generic :class:`Device` class is used to create the object."""
         device_class = device_classes_by_type_name.get(spec["type"], Device)
         return device_class(api, spec)
 
 
+    # FIXME: Still support this API or drop it? It is not officially documented.
     @classmethod
     def get_devices(self, api, **kwargs):
         return Devices(api).get(**kwargs)
@@ -736,7 +742,7 @@ class Device(Entity):
 
     @property
     def is_online(self):
-        """Returns True when the device is currently reachable. Otherwise False is returned."""
+        """Is ``True`` when the device is currently reachable. Otherwise it is ``False``."""
         if self.type == "HM-RCV-50":
             return True # CCU is always assumed to be online
         else:
@@ -745,10 +751,10 @@ class Device(Entity):
 
     @property
     def is_battery_low(self):
-        """Returns True when the battery is reported to be low.
+        """Is ``True`` when the battery is reported to be low.
 
-        When the battery is in normal state, False is returned. It might be a
-        non battery powered device, then None is returned."""
+        When the battery is in normal state, it is ``False``. It might be a
+        non battery powered device, then it is ``None``."""
         try:
             return self.maintenance["LOWBAT"].value
         except KeyError:
@@ -757,6 +763,7 @@ class Device(Entity):
 
     @property
     def has_pending_config(self):
+        """Is ``True`` when the CCU has pending configuration changes for this device. Otherwise it is ``False``."""
         if self.type == "HM-RCV-50":
             return False
         else:
@@ -765,6 +772,7 @@ class Device(Entity):
 
     @property
     def has_pending_update(self):
+        """Is ``True`` when the CCU has a pending firmware update for this device. Otherwise it is ``False``."""
         try:
             return self.maintenance["UPDATE_PENDING"].value
         except KeyError:
@@ -773,14 +781,10 @@ class Device(Entity):
 
     @property
     def rssi(self):
+        """Is a two element tuple of the devices current RSSI (Received Signal Strength Indication).
+
+        The first element is the devices RSSI, the second one the CCUs RSSI."""
         return self.maintenance["RSSI_DEVICE"].value, self.maintenance["RSSI_PEER"].value
-
-
-    def get_values(self):
-        values = []
-        for channel in self.channels:
-            values.append(channel.get_values())
-        return values
 
 
     def channel_by_address(self, address):
@@ -833,13 +837,13 @@ class Device(Entity):
 
 
     def on_value_changed(self, func):
-        """Register a function to be called each time a value of this channel parameters has changed."""
+        """Register a function to be called each time a value of this device has changed."""
         for channel in self.channels:
             channel.on_value_changed(func)
 
 
     def on_value_updated(self, func):
-        """Register a function to be called each time a value of this channel parameters has updated."""
+        """Register a function to be called each time a value of this device has updated."""
         for channel in self.channels:
             channel.on_value_updated(func)
 

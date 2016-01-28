@@ -22,6 +22,7 @@ Device - Device connected with the CCU
 .. autoclass:: pmatic.entities.Device
     :members:
     :undoc-members:
+    :exclude-members: get_devices
 
 Channel - Manages values
 ========================
