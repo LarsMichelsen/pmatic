@@ -30,9 +30,13 @@ try:
 except ImportError:
     pass
 
+import re
+
 import pmatic.api
 import pmatic.events
-from pmatic.entities import Devices, Rooms
+import pmatic.utils as utils
+from pmatic.entities import Devices, Device, Rooms, Room
+from pmatic.exceptions import PMException
 
 
 class CCU(object):
@@ -73,8 +77,8 @@ class CCU(object):
         """This property provides access to the collection of all known devices.
 
         The collection is an :class:`pmatic.entities.Devices` instance."""
-        if not self._devices:
-            self._devices = Devices(self.api)
+        if self._devices == None:
+            self._devices = CCUDevices(self)
         return self._devices
 
 
@@ -93,8 +97,8 @@ class CCU(object):
         """Provides access to the collection of all known rooms.
 
         This collection is an :class:`pmatic.entities.Rooms` instance."""
-        if not self._rooms:
-            self._rooms = Rooms(self.api)
+        if self._rooms == None:
+            self._rooms = CCURooms(self)
         return self._rooms
 
 
@@ -126,3 +130,186 @@ class CCU(object):
         if self.RSSI == None:
             self.RSSI = pmatic.api.SignalStrength(self.api)
         return self.RSSI
+
+
+
+class CCUDevices(Devices):
+    """The central device management class.
+
+    CCUDevices class is just like the :class:`Devices` class, with the difference that it provides the
+    :meth:`query` method which can be used to create new :class:`Devices` collections. Another difference
+    is that it is initializing all devices when generic methods to access the devices are called."""
+    def __init__(self, ccu):
+        super(CCUDevices, self).__init__(ccu)
+        self._device_specs = pmatic.api.DeviceSpecs(ccu.api)
+        self._device_logic = pmatic.api.DeviceLogic(ccu.api)
+        self._initialized = False
+
+
+    @property
+    def _devices(self):
+        """Optional initializer of the devices data structure, called on first access."""
+        if not self._initialized:
+            self._init_all_devices()
+            self._initialized = True
+        return self._device_dict
+
+
+    def _add_without_init(self, device):
+        self._device_dict[device.address] = device
+
+
+    # FIXME: Documentation about possible filters: device_type=None, device_name=None, device_name_regex=None, has_channel_ids=None):
+    # FIXME: Add more filter options
+    def query(self, **filters):
+        devices = Devices(self._ccu)
+        for device in self._query_for_devices(**filters):
+            self._add_without_init(device)
+            devices.add(device)
+
+        return devices
+
+
+    def _query_for_devices(self, **filters):
+        if "device_type" in filters and utils.is_string(filters["device_type"]):
+            filters["device_type"] = [filters["device_type"]]
+
+        for address, spec in self._device_specs.items():
+            # First try to get an olready created room object from the central
+            # CCU room collection. Otherwise create the room object and add it
+            # to the central collection and this collection.
+            device = self._device_dict.get(address)
+            if not device:
+                device = self._create_from_low_level_dict(spec)
+
+            # Now perform optional filtering
+
+            # Filter by device type
+            if "device_type" in filters and device.type not in filters["device_type"]:
+                continue
+
+            # Exact match device name
+            if "device_name" in filters and filters["device_name"] != device.name:
+                continue
+
+            # regex match device name
+            if "device_name_regex" in filters and not re.match(filters["device_name_regex"], device.name):
+                continue
+
+            # Add devices which have one of the channel ids listed in has_channel_ids
+            if "has_channel_ids" in filters \
+               and not [ c for c in device.channels if c.id in filters["has_channel_ids"] ]:
+                continue
+
+            yield device
+
+
+    def _init_all_devices(self):
+        """Adds all devices known to the CCU to this collection.
+
+        It is called to initialize the devices on the first accessor method call. It initializes the
+        device collections once. You can enforce the collection too be re-initialized by calling
+        :meth:`clear` and then call an accessor again."""
+        for device in self._query_for_devices():
+            self._add_without_init(device)
+
+
+    def add_from_low_level_dict(self, spec):
+        """Creates a device object and add it to the collection.
+
+        This method can be used to create a device object by providing a valid
+        low level attributes dictionary specifying an object.
+
+        It creates the device and also assigns the logic level attributes to
+        the object so that it is a fully initialized device object.
+        """
+        self.add(self._create_from_low_level_dict(spec))
+
+
+    def _create_from_low_level_dict(self, spec):
+        """Creates a device object from a low level device spec."""
+        device = Device.from_dict(self._ccu, spec)
+        device.set_logic_attributes(self._device_logic[device.address])
+        return device
+
+
+    def clear(self):
+        """Remove all objects from this devices collection."""
+        self._devices.clear()
+        self._initialized = False
+
+
+
+class CCURooms(Rooms):
+    """Manages a collection of rooms."""
+
+    def __init__(self, ccu):
+        super(CCURooms, self).__init__(ccu)
+        if not isinstance(ccu, CCU):
+            raise PMException("Invalid ccu object provided: %r" % ccu)
+        self._ccu = ccu
+        self._initialized = False
+
+
+
+    @property
+    def _rooms(self):
+        """Optional initializer of the rooms data structure, called on first access."""
+        if not self._initialized:
+            self._room_dict = {}
+            self._init_all_rooms()
+            self._initialized = True
+        return self._room_dict
+
+
+    def _add_without_init(self, room):
+        self._room_dict[room.id] = room
+
+
+    # FIXME: Add filter options
+    def query(self, **filters):
+        rooms = Rooms(self._ccu)
+        for room in self._query_for_rooms(**filters):
+            self._add_without_init(room)
+            rooms.add(room)
+
+        return rooms
+
+
+    def _query_for_rooms(self, **filters):
+        """Initializes the list of rooms for this collection.
+
+        When the rooms have not been fetched yet, the room specs might be fetched
+        from the CCU.
+
+        You can enforce reinitialization by first calling :meth:`clear` and the access the data
+        of this instance again.
+        """
+
+        for room_dict in self._ccu.api.room_get_all():
+            # First try to get an olready created room object from the central
+            # CCU room collection. Otherwise create the room object and add it
+            # to the central collection and this collection.
+            room = self._room_dict.get(int(room_dict["id"]))
+            if not room:
+                room = Room(self._ccu, room_dict)
+
+            # Now perform optional filtering
+
+            yield room
+
+
+    def _init_all_rooms(self):
+        """Adds all rooms known to the CCU to this collection.
+
+        It is called to initialize the rooms on the first accessor method call. It initializes the
+        collections once. You can enforce the collection too be re-initialized by calling
+        :meth:`clear` and then call an accessor again."""
+        for room in self._query_for_rooms():
+            self._add_without_init(room)
+
+
+    def clear(self):
+        """Remove all :class:`Room` objects from this collection."""
+        self._rooms.clear()
+        self._initialized = False

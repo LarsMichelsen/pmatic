@@ -33,11 +33,11 @@ updates are printed nearly instantly.
 import pmatic
 
 ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
-devices = ccu.devices.get(device_type=["HM-CC-TC", "HM-WDS10-TH-O", "HM-CC-RT-DN"])
+devices = ccu.devices.query(device_type=["HM-CC-TC", "HM-WDS10-TH-O", "HM-CC-RT-DN"])
 
 # This function is executed on each state change
 def print_summary_state(param):
-    print("%s %s" % (param.channel.device.name, param.channel.summary_state()))
+    print("%s %s" % (param.channel.device.name, param.channel.summary_state))
 
 devices.on_value_updated(print_summary_state)
 

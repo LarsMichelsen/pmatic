@@ -49,8 +49,8 @@ except IOError:
     states = {} # initialize states
 
 # Get all known HM-Sec-SC (shutter contact) devices
-for device in ccu.devices.get(device_type="HM-Sec-SC"):
-    if device.is_open():
+for device in ccu.devices.query(device_type="HM-Sec-SC"):
+    if device.is_open:
         states.setdefault(device.id, time.time()) # store the first detected open time
         duration = time.time() - states[device.id]
         if duration > warn_seconds:

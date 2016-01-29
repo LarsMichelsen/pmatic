@@ -24,62 +24,51 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from pmatic import utils
+import pytest
+
+import pmatic.utils as utils
 from pmatic.entities import Room
+from pmatic.ccu import CCURooms
 
-from test_api_remote import TestRemoteAPI
+import lib
 
-class TestRoom(TestRemoteAPI):
-    def test_get_rooms(self, API):
-        rooms = Room.get_rooms(API)
-        assert type(rooms) == list
-
-        for room in rooms:
-            assert isinstance(room, Room)
-
-            assert isinstance(room.id, int)
-
-            assert utils.is_text(room.name)
-            room.name.encode("utf-8")
-
-            assert utils.is_text(room.description)
-            room.description.encode("utf-8")
-
-            assert type(room.channel_ids) == list
-            for channel_id in room.channel_ids:
-                assert isinstance(channel_id, int)
+class TestRoom(lib.TestCCU):
+    @pytest.fixture(scope="function")
+    def room(self, ccu):
+        assert type(ccu.rooms) == CCURooms
+        return list(ccu.rooms)[0]
 
 
-    def test_devices(self, API):
-        tested_at_least_one = False
+    def test_attributes(self, room):
+        assert isinstance(room, Room)
 
-        rooms = Room.get_rooms(API)
-        assert len(rooms) > 0
-        for room in rooms:
-            for device in room.devices:
-                has_room_channel = False
-                for channel in device.channels:
-                    if channel.id in room.channel_ids:
-                        has_room_channel = True
-                        break
+        assert isinstance(room.id, int)
 
-                assert has_room_channel
-                tested_at_least_one = True
+        assert utils.is_text(room.name)
+        room.name.encode("utf-8")
 
-        assert tested_at_least_one
+        assert utils.is_text(room.description)
+        room.description.encode("utf-8")
+
+        assert type(room.channel_ids) == list
+        for channel_id in room.channel_ids:
+            assert isinstance(channel_id, int)
 
 
-    def test_channels(self, API):
-        tested_at_least_one = False
+    def test_devices(self, room):
+        for device in room.devices:
+            has_room_channel = False
+            for channel in device.channels:
+                if channel.id in room.channel_ids:
+                    has_room_channel = True
+                    break
 
-        rooms = Room.get_rooms(API)
-        assert len(rooms) > 0
-        for room in rooms:
-            channels = room.channels
-            assert len(channels) == len(room.channel_ids)
+            assert has_room_channel
 
-            for channel in channels:
-                assert channel.id in room.channel_ids
-                tested_at_least_one = True
 
-        assert tested_at_least_one
+    def test_channels(self, room):
+        channels = room.channels
+        assert len(channels) == len(room.channel_ids)
+
+        for channel in channels:
+            assert channel.id in room.channel_ids

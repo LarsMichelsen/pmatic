@@ -22,7 +22,7 @@ import pmatic
 
 ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
-for room in ccu.rooms.get():
+for room in ccu.rooms:
     print(room.name)
     for device in room.devices:
-        print("  %s: %s" % (device.name, device.summary_state()))
+        print("  %s: %s" % (device.name, device.summary_state))

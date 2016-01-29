@@ -24,122 +24,26 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from _pytest.monkeypatch import monkeypatch
 import pytest
 
 import os
-import re
 import glob
-from hashlib import sha256
-import json
-
-try:
-    from StringIO import StringIO
-except ImportError:
-    # and for python 3
-    from io import BytesIO as StringIO
-
-try:
-    from urllib.request import urlopen
-except ImportError:
-    from urllib2 import urlopen
 
 import pmatic.utils as utils
 import pmatic.api
 from pmatic.exceptions import PMException
 
-resources_path = "tests/resources"
-
-
-def request_id(url, data):
-    req = json.loads(data.decode("utf-8"))
-
-    # For hashing we need a constant sorted representation of the data
-    fixed_data = json.dumps(req, sort_keys=True).encode("utf-8")
-    data_hash = sha256(fixed_data).hexdigest()
-
-    return "%s_%s" % (req["method"], data_hash)
-
-
-def response_file_path(request_id):
-    return "%s/%s.response" % (resources_path, request_id)
-
-
-def status_file_path(request_id):
-    return "%s/%s.status" % (resources_path, request_id)
-
-
-def data_file_path(request_id):
-    return "%s/%s.data" % (resources_path, request_id)
-
-
-def fake_urlopen(url, data=None, timeout=None):
-    """A stub urlopen() implementation that loads json responses from the filesystem.
-
-    It first strips off the host part of the url and then uses the path info
-    together with the post data to find a matching response. If no response has
-    been recorded before, it raises an Exception() about the missing file.
-    """
-    fake_data = fake_session_id(data, data)
-
-    rid = request_id(url, fake_data)
-    response = open(response_file_path(rid), "rb").read()
-    http_status = int(open(status_file_path(rid), "rb").read())
-
-    obj = StringIO(response)
-    obj.getcode = lambda: http_status
-
-    return obj
-
-
-def fake_session_id(data_byte_str, byte_str):
-    new_str = re.sub(b'"_session_id_": "[0-9A-Za-z]{10}"', b'"_session_id_": "xxxxxxxxxx"', byte_str)
-    if b"Sessian.login" in data_byte_str:
-        # Session.login returns the session id as result. Replace it here.
-        return re.sub(b'"result": "[0-9A-Za-z]{10}"', b'"result": "xxxxxxxxxx"', new_str)
-    else:
-        return new_str
-
-
-def wrap_urlopen(url, data=None, timeout=None):
-    """Wraps urlopen to record the response when communicating with a real CCU."""
-
-    obj = urlopen(url, data=data, timeout=timeout)
-
-    if not os.path.exists(resources_path):
-        os.makedirs(resources_path)
-
-    response = obj.read()
-    http_status = obj.getcode()
-
-    # Fake the session id to a fixed one for offline testing. This is needed
-    # to make the recorded data change less frequently.
-    fake_data = fake_session_id(data, data)
-    fake_response = fake_session_id(data, response)
-
-    rid = request_id(url, fake_data)
-
-    open(response_file_path(rid), "wb").write(fake_response)
-    open(status_file_path(rid), "wb").write(str(http_status).encode("utf-8"))
-    open(data_file_path(rid), "wb").write(fake_data)
-
-    obj = StringIO(response)
-    obj.getcode = lambda: http_status
-    return obj
+import lib
 
 
 def setup_module(module):
     """ When executed against a real CCU (recording mode), all existing
     resource files are deleted."""
-    if is_testing_with_real_ccu():
+    if lib.is_testing_with_real_ccu():
         for f in glob.glob("tests/resources/*.data") \
                + glob.glob("tests/resources/*.status") \
                + glob.glob("tests/resources/*.response"):
             os.unlink(f)
-
-
-def is_testing_with_real_ccu():
-    return os.environ.get("TEST_WITH_CCU") == "1"
 
 
 def test_init_address_invalid():
@@ -194,31 +98,7 @@ def test_init_timeout_invalid(monkeypatch):
     assert "Invalid timeout value" in str(e)
 
 
-class TestRemoteAPI:
-    @pytest.fixture(scope="class")
-    def API(self, request):
-        self.monkeypatch = monkeypatch()
-        if not is_testing_with_real_ccu():
-            # First hook into urlopen to fake the HTTP responses
-            self.monkeypatch.setattr(pmatic.api, 'urlopen', fake_urlopen)
-        else:
-            # When executed with real ccu we wrap urlopen for enabling recording
-            self.monkeypatch.setattr(pmatic.api, 'urlopen', wrap_urlopen)
-
-        # FIXME: Make credentials configurable
-        API = pmatic.api.RemoteAPI(
-            address="http://192.168.1.26",
-            credentials=("Admin", "EPIC-SECRET-PW"),
-            connect_timeout=5,
-            #log_level=pmatic.DEBUG,
-        )
-
-        request.addfinalizer(lambda: API.close())
-
-        return API
-
-
-class TestRemoteAPILowLevel(TestRemoteAPI):
+class TestRemoteAPILowLevel(lib.TestRemoteAPI):
     def test_address(self, API):
         assert API.address == API._address
 

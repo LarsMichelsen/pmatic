@@ -44,13 +44,13 @@ ccu = pmatic.CCU(
 )
 
 # Get all HM-Sec-SC (shutter contact) devices
-devices = ccu.devices.get(device_type="HM-Sec-SC")
+devices = ccu.devices.query(device_type="HM-Sec-SC")
 
 # This function is executed on each state change
 def print_summary_state(param):
     # Format the time of last change for printing
     last_changed = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(param.last_changed))
-    print("%s %s %s" % (last_changed, param.channel.device.name, param.channel.summary_state()))
+    print("%s %s %s" % (last_changed, param.channel.device.name, param.channel.summary_state))
 
 # Register event handler for all grouped devices. It is possible to register to device
 # specific events like on_closed and on_opend or generic events like on_value_changed:

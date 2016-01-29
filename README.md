@@ -96,8 +96,8 @@ Just a short example:
 import pmatic
 ccu = pmatic.CCU()
 
-for device in ccu.devices.get(device_type="HM-Sec-SC"):
-    print("%-20s %6s" % (device.name, device.is_open() and "open" or "closed"))
+for device in ccu.devices.query(device_type="HM-Sec-SC"):
+    print("%-20s %6s" % (device.name, device.is_open and "open" or "closed"))
 ```
 
 ## What is planned?

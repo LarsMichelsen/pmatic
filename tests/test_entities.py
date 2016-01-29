@@ -28,17 +28,18 @@ import pytest
 
 import pmatic.api
 import pmatic.utils as utils
-from test_api_remote import TestRemoteAPI
+import lib
 from pmatic.entities import Entity, Channel, Device, Devices, HMESPMSw1Pl, ChannelClimaRegulator, \
                             device_classes_by_type_name, channel_classes_by_type_name
+from pmatic.ccu import CCUDevices
 from pmatic.exceptions import PMException
 
-class TestEntity(TestRemoteAPI):
-    def test_minimal_entity(self, API):
-        Entity(API, {})
+class TestEntity(lib.TestCCU):
+    def test_minimal_entity(self, ccu):
+        Entity(ccu, {})
 
-    def test_attributes(self, API):
-        obj = Entity(API, {
+    def test_attributes(self, ccu):
+        obj = Entity(ccu, {
             'ding_dong': 1,
             'BLA': 'blub', # keys are converted to lower case
             'blaBlubKey': 'XXX', # camel case conversion
@@ -49,7 +50,11 @@ class TestEntity(TestRemoteAPI):
         assert obj.bla_blub_key == 'XXX'
         assert not hasattr(obj, "blaBlubKey")
 
-    def test_attribute_conversion(self, API):
+    def test_attribute_conversion(self, ccu):
+        def transform_with_ccu_obj(ccu, val):
+            assert type(ccu) == pmatic.CCU
+            return val
+
         def transform_with_api_obj(api, val):
             assert type(api) == pmatic.api.RemoteAPI
             return val
@@ -66,13 +71,14 @@ class TestEntity(TestRemoteAPI):
             _transform_attributes = {
                 "ding_dong"       : int,
                 "ding_dong_float" : float,
+                "XXX"             : transform_with_ccu_obj,
                 "BLA"             : transform_with_api_obj,
                 "BLUB"            : transform_with_device_obj,
                 "HUH"             : transform_with_object_obj,
             }
             _mandatory_attributes = []
 
-        obj = TestDevice(API, {
+        obj = TestDevice(ccu, {
             'ding_dong': "1",
             'ding_dong_float': "1.0",
             'BLA': 'blub',
@@ -89,13 +95,13 @@ class TestEntity(TestRemoteAPI):
         assert obj.blah == "blux"
 
 
-    def test_mandatory_attributes(self, API):
+    def test_mandatory_attributes(self, ccu):
         class TestEntity(Entity):
             _mandatory_attributes = [
                 "dasda",
             ]
 
-        obj = TestEntity(API, {
+        obj = TestEntity(ccu, {
             'ding_dong': "1",
             'dasda': 'paff',
             'blah': 'blux',
@@ -106,7 +112,7 @@ class TestEntity(TestRemoteAPI):
         assert obj.blah == "blux"
 
         with pytest.raises(PMException) as e:
-            TestEntity(API, {
+            TestEntity(ccu, {
                 'ding_dong': "1",
                 'blah': 'blux',
             })
@@ -114,7 +120,7 @@ class TestEntity(TestRemoteAPI):
 
 
 
-class TestChannel(TestRemoteAPI):
+class TestChannel(lib.TestCCU):
     #@pytest.fixture(scope="class")
     #def channel(self, API):
     #    device = Device(API, {
@@ -155,10 +161,10 @@ class TestChannel(TestRemoteAPI):
     #    })
 
 
-    def test_channel_unknown_type(self, capfd, API):
+    def test_channel_unknown_type(self, capfd, ccu):
         pmatic.logging(pmatic.DEBUG)
 
-        device = Device(API, {
+        device = Device(ccu, {
             'address': 'KEQ0970393',
             'firmware': '1.4',
             'flags': 1,
@@ -196,45 +202,138 @@ class TestChannel(TestRemoteAPI):
 
 
 
-class TestDevices(TestRemoteAPI):
-    @pytest.fixture()
-    def devices(self, API):
-        return Devices(API)
+class TestDevices(lib.TestCCU):
+    @pytest.fixture(scope="function")
+    def devices(self, ccu):
+        return Devices(ccu)
 
-    def test_init(self, API):
-        Devices(API)
+    def test_init(self, ccu):
+        Devices(ccu)
         with pytest.raises(PMException):
             Devices(None)
 
 
-    def test_get_all(self, API, devices):
-        assert list(devices) == []
+    def test_get_all(self, ccu):
+        assert list(ccu.devices) != []
+        ccu.devices.clear()
+        assert len(ccu.devices) > 0
 
-        devices.get()
-        assert len(devices) > 0
 
+    def test_get_multiple(self, ccu):
+        assert len(ccu.devices._device_dict) == 0
 
-    def test_get_multiple(self, API, devices):
-        result1 = devices.get(device_type="HM-ES-PMSw1-Pl")
+        result1 = ccu.devices.query(device_type="HM-ES-PMSw1-Pl")
         assert len(result1) > 0
 
-        assert devices != result1
+        assert len(ccu.devices._device_dict) == len(result1)
 
-        result2 = devices.get(device_type="xxx")
+        result2 = ccu.devices.query(device_type="xxx")
         assert len(result2) == 0
 
-        result3 = devices.get(device_type="HM-CC-RT-DN")
+        result3 = ccu.devices.query(device_type="HM-CC-RT-DN")
         assert len(result3) > 0
 
-        result4 = devices.get(device_name_regex="^%$")
+        result4 = ccu.devices.query(device_name_regex="^%$")
         assert len(result4) == 0
 
-        result5 = devices.get(device_name_regex="^Schlafzimmer.*$")
+        result5 = ccu.devices.query(device_name_regex="^Schlafzimmer.*$")
         assert len(result5) > 0
 
         all_returned = list(set(list(result1) + list(result3) + list(result5)))
 
-        assert len(devices) == len(all_returned)
+        assert len(ccu.devices._device_dict) == len(all_returned)
+
+
+    def test_add(self, API, ccu, devices):
+        device1 = list(ccu.devices)[0]
+
+        if isinstance(self, TestCCUDevices):
+            ccu.devices.delete(device1.address)
+            expected_len = len(ccu.devices)+1
+        else:
+            expected_len = 1
+
+        devices.add(device1)
+        assert len(devices) == expected_len
+
+        with pytest.raises(PMException):
+            devices.add(None)
+
+        assert len(devices) == expected_len
+
+
+
+    def test_exists(self, ccu, devices):
+        device = list(ccu.devices)[0]
+        assert not devices.exists(device.address)
+        devices.add(device)
+        assert devices.exists(device.address)
+        assert not devices.exists(device.address+"x")
+
+
+    def test_addresses(self, ccu, devices):
+        device1 = list(ccu.devices)[0]
+        devices.add(device1)
+
+        if utils.is_py2():
+            assert type(devices.addresses()) == list
+        else:
+            assert type(list(devices.addresses())) == list
+
+        assert len(devices.addresses()) == 1
+        if utils.is_py2():
+            assert devices.addresses() == [device1.address]
+        else:
+            assert list(devices.addresses()) == [device1.address]
+
+
+    def test_delete(self, ccu, devices):
+        device1 = list(ccu.devices)[0]
+        devices.add(device1)
+
+        assert len(devices) == 1
+        devices.delete(device1.address)
+        assert len(devices) == 0
+
+        devices.delete("xxx123")
+
+
+    def test_clear(self, ccu, devices):
+        assert len(devices) == 0
+        devices.clear()
+        assert len(devices) == 0
+
+        device1 = list(ccu.devices)[0]
+        devices.add(device1)
+
+        assert len(devices) == 1
+        devices.clear()
+        assert len(devices) == 0
+
+
+    def test_get_device_or_channel_by_address(self, ccu, devices):
+        device1 = list(ccu.devices)[0]
+        devices.add(device1)
+
+        dev = devices.get_device_or_channel_by_address(device1.address)
+        assert isinstance(dev, Device)
+        assert dev.address == device1.address
+
+        chan = devices.get_device_or_channel_by_address(device1.address+":1")
+        assert isinstance(chan, Channel)
+        assert chan.address != device1.address
+
+        with pytest.raises(KeyError):
+            devices.get_device_or_channel_by_address(device1.address+":99")
+
+        with pytest.raises(KeyError):
+            devices.get_device_or_channel_by_address("xxxxxxx")
+
+
+class TestCCUDevices(TestDevices):
+    @pytest.fixture(scope="function")
+    def devices(self, ccu):
+        return CCUDevices(ccu)
 
 
     def test_create_from_low_level_dict(self, API, devices):
@@ -248,93 +347,88 @@ class TestDevices(TestRemoteAPI):
 
 
     def test_add_from_low_level_dict(self, API, devices):
-        device1 = list(pmatic.api.DeviceSpecs(API).values())[0]
-        devices.add_from_low_level_dict(device1)
-        assert len(devices) == 1
+        device1_dict = list(pmatic.api.DeviceSpecs(API).values())[0]
+        expected_len = len(devices)
+
+        devices.delete(device1_dict["address"])
+        assert len(devices) == expected_len-1
+
+        devices.add_from_low_level_dict(device1_dict)
+        assert len(devices) == expected_len
 
 
-    def test_add(self, API, devices):
-        device1_spec = list(pmatic.api.DeviceSpecs(API).values())[0]
-        device = Device.from_dict(API, device1_spec)
+    def test_add(self, API, ccu, devices):
+        device1 = list(ccu.devices)[0]
 
-        devices.add(device)
-        assert len(devices) == 1
+        assert len(devices) > 0
+
+        ccu.devices.delete(device1.address)
+        expected_len = len(ccu.devices)+1
+
+        devices.add(device1)
+        assert len(devices) == expected_len
 
         with pytest.raises(PMException):
             devices.add(None)
 
-        assert len(devices) == 1
+        assert len(devices) == expected_len
 
 
-
-    def test_exists(self, API, devices):
-        device1_spec = list(pmatic.api.DeviceSpecs(API).values())[0]
-        device = Device.from_dict(API, device1_spec)
-
-        assert not devices.exists(device.address)
-        devices.add(device)
+    def test_exists(self, ccu, devices):
+        device = list(ccu.devices)[0]
         assert devices.exists(device.address)
+        devices.delete(device.address)
+        assert not devices.exists(device.address)
         assert not devices.exists(device.address+"x")
 
 
-    def test_addresses(self, API, devices):
-        device1 = list(pmatic.api.DeviceSpecs(API).values())[0]
-        devices.add_from_low_level_dict(device1)
-
+    def test_addresses(self, ccu, devices):
         if utils.is_py2():
             assert type(devices.addresses()) == list
         else:
             assert type(list(devices.addresses())) == list
 
-        assert len(devices.addresses()) == 1
-        if utils.is_py2():
-            assert devices.addresses() == [device1["address"]]
-        else:
-            assert list(devices.addresses()) == [device1["address"]]
+        assert len(devices.addresses()) > 0
+
+        for address in devices.addresses():
+            assert len(address) == 10 or address == "BidCoS-RF"
 
 
-    def test_delete(self, API, devices):
-        device1 = list(pmatic.api.DeviceSpecs(API).values())[0]
-        devices.add_from_low_level_dict(device1)
+    def test_delete(self, ccu, devices):
+        device1 = list(ccu.devices)[0]
+        expected_len = len(devices)-1
 
-        assert len(devices) == 1
-        devices.delete(device1["address"])
-        assert len(devices) == 0
+        devices.delete(device1.address)
+        assert len(devices) == expected_len
 
         devices.delete("xxx123")
+        assert len(devices) == expected_len
 
 
-    def test_clear(self, API, devices):
-        assert len(devices) == 0
+    def test_clear(self, ccu, devices):
+        assert len(devices._device_dict) == 0
+        assert len(devices) > 0
         devices.clear()
-        assert len(devices) == 0
-        device1 = list(pmatic.api.DeviceSpecs(API).values())[0]
-        devices.add_from_low_level_dict(device1)
-
-        assert len(devices) == 1
-        devices.clear()
-        assert len(devices) == 0
+        assert len(devices._device_dict) == 0
 
 
-    def test_get_device_or_channel_by_address(self, API, devices):
-        device1 = list(pmatic.api.DeviceSpecs(API).values())[0]
-        devices.add_from_low_level_dict(device1)
+    def test_get_device_or_channel_by_address(self, ccu, devices):
+        device1 = list(ccu.devices)[0]
+        devices.add(device1)
 
-        dev = devices.get_device_or_channel_by_address(device1["address"])
+        dev = devices.get_device_or_channel_by_address(device1.address)
         assert isinstance(dev, Device)
-        assert dev.address == device1["address"]
+        assert dev.address == device1.address
 
-        chan = devices.get_device_or_channel_by_address(device1["address"]+":1")
+        chan = devices.get_device_or_channel_by_address(device1.address+":1")
         assert isinstance(chan, Channel)
-        assert chan.address != device1["address"]
+        assert chan.address != device1.address
 
         with pytest.raises(KeyError):
-            devices.get_device_or_channel_by_address(device1["address"]+":99")
+            devices.get_device_or_channel_by_address(device1.address+":99")
 
         with pytest.raises(KeyError):
             devices.get_device_or_channel_by_address("xxxxxxx")
-
-
 
 def test_device_class_list():
     assert len(device_classes_by_type_name) > 0

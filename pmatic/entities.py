@@ -28,7 +28,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import re
 import time
 
 try:
@@ -47,10 +46,10 @@ class Entity(object):
     _skip_attributes = []
     _mandatory_attributes = []
 
-    def __init__(self, api, spec):
-        assert isinstance(api, pmatic.api.AbstractAPI), "api is not of API class: %r" % api
+    def __init__(self, ccu, spec):
+        assert isinstance(ccu, pmatic.ccu.CCU), "ccu is not of CCU class: %r" % ccu
         assert type(spec) == dict, "spec is not a dictionary: %r" % spec
-        self._api = api
+        self._ccu = ccu
         self._set_attributes(spec)
         self._verify_mandatory_attributes()
         super(Entity, self).__init__()
@@ -76,7 +75,9 @@ class Entity(object):
                     offset = 1 if func_type in [ "instancemethod", "method" ] else 0
                     for arg_name in trans_func.__code__.co_varnames[offset:trans_func.__code__.co_argcount]:
                         if arg_name == "api":
-                            args.append(self._api)
+                            args.append(self._ccu.api)
+                        elif arg_name == "ccu":
+                            args.append(self._ccu)
                         elif arg_name == "device":
                             args.append(self)
                         elif arg_name == "obj":
@@ -150,7 +151,7 @@ class Channel(utils.LogMixin, Entity):
         assert isinstance(device, Device), "device object is not a Device derived class: %r" % device
         self.device = device
         self._values = {}
-        super(Channel, self).__init__(device._api, spec)
+        super(Channel, self).__init__(device._ccu, spec)
 
 
     @classmethod
@@ -184,7 +185,7 @@ class Channel(utils.LogMixin, Entity):
         This method is called on the first access to the values.
         """
         self._values.clear()
-        for param_spec in self._api.interface_get_paramset_description(interface="BidCos-RF",
+        for param_spec in self._ccu.api.interface_get_paramset_description(interface="BidCos-RF",
                                                     address=self.address, paramsetType="VALUES"):
             param_id = param_spec["ID"]
 
@@ -230,7 +231,7 @@ class Channel(utils.LogMixin, Entity):
             raise PMException("The value parameters are not yet initialized.")
 
         try:
-            values = self._api.interface_get_paramset(interface="BidCos-RF",
+            values = self._ccu.api.interface_get_paramset(interface="BidCos-RF",
                                          address=self.address,paramsetKey="VALUES")
         except PMException as e:
             # FIXME: Clean this 601 in "%s" up!
@@ -530,75 +531,27 @@ class ChannelRemoteControlReceiver(Channel):
 class Devices(object):
     """Manages a collection of CCU devices."""
 
-    def __init__(self, api):
+    def __init__(self, ccu):
         super(Devices, self).__init__()
-        if not isinstance(api, pmatic.api.AbstractAPI):
-            raise PMException("Invalid api object provided: %r" % api)
-        self._api = api
-        self._devices = {}
-        self._device_specs = pmatic.api.DeviceSpecs(api)
-        self._device_logic = pmatic.api.DeviceLogic(api)
+
+        if not isinstance(ccu, pmatic.ccu.CCU):
+            raise PMException("Invalid ccu object provided: %r" % ccu)
+        self._ccu = ccu
+        self._device_dict = {}
 
 
-    # FIXME: Add more filter options
-    def get(self, device_type=None, device_name=None, device_name_regex=None, has_channel_ids=None):
-        """Returns all device objects matching the provided filters.
-
-        When the devices have not been fetched yet, the device specs might be fetched
-        from the CCU and objects are created for all devices."""
-
-        if utils.is_string(device_type):
-            device_type = [device_type]
-
-        # Create new device group which is returned as result for this query
-        group = Devices(self._api)
-
-        for address, spec in self._device_specs.items():
-            # First create the device objects
-            device = self._devices.get(address)
-            if not device:
-                device = self._create_from_low_level_dict(spec)
-
-            # Now perform optional filtering
-
-            # Filter by device type
-            if device_type != None and device.type not in device_type:
-                continue
-
-            # Exact match device name
-            if device_name != None and device_name != device.name:
-                continue
-
-            # regex match device name
-            if device_name_regex != None and not re.match(device_name_regex, device.name):
-                continue
-
-            # Add devices which have one of the channel ids listed in has_channel_ids
-            if has_channel_ids != None and not [ c for c in device.channels if c.id in has_channel_ids ]:
-                continue
-
-            self._devices[address] = device
-            group.add(device)
-        return group
+    @property
+    def _devices(self):
+        """Optional initializer of the devices data structure, called on first access."""
+        return self._device_dict
 
 
-    def _create_from_low_level_dict(self, spec):
-        """Creates a device object from a low level device spec."""
-        device = Device.from_dict(self._api, spec)
-        device.set_logic_attributes(self._device_logic[device.address])
-        return device
+    def get(self, address, deflt=None):
+        """Returns the device matching the given device address.
 
-
-    def add_from_low_level_dict(self, spec):
-        """Creates a device object and add it to the collection.
-
-        This method can be used to create a device object by providing a valid
-        low level attributes dictionary specifying an object.
-
-        It creates the device and also assigns the logic level attributes to
-        the object so that it is a fully initialized device object.
-        """
-        self.add(self._create_from_low_level_dict(spec))
+        If there is none matching the given address either None or the value
+        specified by the optional attribute *deflt* is returned."""
+        return self._devices.get(address, deflt)
 
 
     def add(self, device):
@@ -608,13 +561,11 @@ class Devices(object):
         self._devices[device.address] = device
 
 
-    # FIXME: Trigger device spec fetch?
     def exists(self, address):
         """Check whether or not a device with the given address is in this collection."""
         return address in self._devices
 
 
-    # FIXME: Trigger device spec fetch?
     def addresses(self):
         """Returns a list of all addresses of all initialized devices."""
         return self._devices.keys()
@@ -636,7 +587,6 @@ class Devices(object):
         self._devices.clear()
 
 
-    # FIXME: Trigger device spec fetch?
     def get_device_or_channel_by_address(self, address):
         """Returns the device or channel object of the given address.
 
@@ -661,7 +611,6 @@ class Devices(object):
             device.on_value_updated(func)
 
 
-    # FIXME: Trigger device spec fetch?
     def __iter__(self):
         """Provides an iterator over the devices of this collection."""
         for value in self._devices.values():
@@ -722,25 +671,25 @@ class Device(Entity):
         "channels",
     ]
 
-    def __init__(self, api, spec):
-        super(Device, self).__init__(api, spec)
+    def __init__(self, ccu, spec):
+        super(Device, self).__init__(ccu, spec)
 
 
     @classmethod
-    def from_dict(self, api, spec):
+    def from_dict(self, ccu, spec):
         """Creates a new device object from the attributes given in the *spec* dictionary.
 
         The *spec* dictionary needs to contain the mandatory attributes with values of the correct
         format. Depending on the device type specified by the *spec* dictionary, either a specific
         device class or the generic :class:`Device` class is used to create the object."""
         device_class = device_classes_by_type_name.get(spec["type"], Device)
-        return device_class(api, spec)
+        return device_class(ccu, spec)
 
 
-    # FIXME: Still support this API or drop it? It is not officially documented.
-    @classmethod
-    def get_devices(self, api, **kwargs):
-        return Devices(api).get(**kwargs)
+    ## FIXME: Still support this API or drop it? It is not officially documented.
+    #@classmethod
+    #def get_devices(self, api, **kwargs):
+    #    return Devices(api).get(**kwargs)
 
 
     # {u'UNREACH': u'1', u'AES_KEY': u'1', u'UPDATE_PENDING': u'1', u'RSSI_PEER': u'-65535',
@@ -895,9 +844,11 @@ class Device(Entity):
 
 
 class SpecificDevice(Device):
-    @classmethod
-    def get_all(self, API):
-        return Device.get_devices(API, device_type=self.type_name)
+    # FIXME: Still support hits method?
+    #@classmethod
+    #def get_all(self, API):
+    #    return Device.get_devices(API, device_type=self.type_name)
+    pass
 
 
 
@@ -951,36 +902,26 @@ class HMPBI4FM(SpecificDevice):
 class Rooms(object):
     """Manages a collection of rooms."""
 
-    def __init__(self, api):
+    def __init__(self, ccu):
         super(Rooms, self).__init__()
-        if not isinstance(api, pmatic.api.AbstractAPI):
-            raise PMException("Invalid api object provided: %r" % api)
-        self._api = api
-        self._rooms = {}
+        if not isinstance(ccu, pmatic.ccu.CCU):
+            raise PMException("Invalid ccu object provided: %r" % ccu)
+        self._ccu = ccu
+        self._room_dict = {}
 
 
-    # FIXME: Add filter options
-    def get(self):
-        """Returns all room objects matching the provided filters.
+    @property
+    def _rooms(self):
+        """Optional initializer of the rooms data structure, called on first access."""
+        return self._room_dict
 
-        When the rooms have not been fetched yet, the room specs might be fetched
-        from the CCU."""
 
-        # Create new room group which is returned as result for this query
-        rooms = Rooms(self._api)
+    def get(self, room_id, deflt=None):
+        """Returns the :class:`Room` matching the given room id.
 
-        # FIXME: Cache this?
-        for room_dict in self._api.room_get_all():
-            # First create the room objects
-            room = self._rooms.get(int(room_dict["id"]))
-            if not room:
-                room = Room(self._api, room_dict)
-
-            # Now perform optional filtering
-
-            self._rooms[room.id] = room
-            rooms.add(room)
-        return rooms
+        If there is none matching the given ID either None or the value
+        specified by the optional attribute *deflt* is returned."""
+        return self._rooms.get(room_id, deflt)
 
 
     def add(self, room):
@@ -990,13 +931,11 @@ class Rooms(object):
         self._rooms[room.id] = room
 
 
-    # FIXME: Trigger spec fetch?
     def exists(self, room_id):
         """Check whether or not a :class:`Room` with the given id is in this collection."""
         return room_id in self._rooms
 
 
-    # FIXME: Trigger spec fetch?
     def ids(self):
         """Returns a list of all addresses of all initialized room."""
         return self._rooms.keys()
@@ -1017,7 +956,6 @@ class Rooms(object):
         self._rooms.clear()
 
 
-    # FIXME: Trigger spec fetch?
     def __iter__(self):
         """Provides an iterator over the rooms of this collection."""
         for value in self._rooms.values():
@@ -1036,19 +974,19 @@ class Room(Entity):
         "channelIds"       : lambda x: list(map(int, x)),
     }
 
-    def __init__(self, api, spec):
+    def __init__(self, ccu, spec):
         self._values = {}
-        self._devices = Devices(api)
-        super(Room, self).__init__(api, spec)
+        self._devices = None
+        super(Room, self).__init__(ccu, spec)
 
 
-    @classmethod
-    def get_rooms(self, api):
-        """Returns a list of all currently configured :class:`.Room` instances."""
-        rooms = []
-        for room_dict in api.room_get_all():
-            rooms.append(Room(api, room_dict))
-        return rooms
+    #@classmethod
+    #def get_rooms(self, api):
+    #    """Returns a list of all currently configured :class:`.Room` instances."""
+    #    rooms = []
+    #    for room_dict in api.room_get_all():
+    #        rooms.append(Room(api, room_dict))
+    #    return rooms
 
 
     @property
@@ -1056,8 +994,9 @@ class Room(Entity):
         """Provides access to a collection of :class:`.Device` objects which have at least one channel associated with this room.
 
         The collections is a :class:`.Devices` instance."""
-        # FIXME: Cache this?
-        return self._devices.get(has_channel_ids=self.channel_ids)
+        if not self._devices:
+            self._devices = self._ccu.devices.query(has_channel_ids=self.channel_ids)
+        return self._devices
 
 
     @property
@@ -1065,7 +1004,7 @@ class Room(Entity):
         """Holds a list of channel objects associated with this room."""
         # FIXME: Cache this?
         room_channels = []
-        for device in self._devices.get(has_channel_ids=self.channel_ids):
+        for device in self.devices:
             for channel in device.channels:
                 if channel.id in self.channel_ids:
                     room_channels.append(channel)

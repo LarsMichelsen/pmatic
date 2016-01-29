@@ -34,5 +34,5 @@ line_fmt = "%-30s %s"
 print(line_fmt % ("Name", "State"))
 print(line_fmt % ("-" * 30, "-" * 6))
 
-for device in ccu.devices.get(device_type="HM-Sec-SC"):
-    print(line_fmt % (device.name, device.summary_state()))
+for device in ccu.devices.query(device_type="HM-Sec-SC"):
+    print(line_fmt % (device.name, device.summary_state))

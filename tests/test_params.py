@@ -26,17 +26,17 @@ from __future__ import unicode_literals
 
 import pytest
 
-from test_api_remote import TestRemoteAPI
 from pmatic.entities import Channel, Device, ChannelKey
 from pmatic.params import Parameter, ParameterINTEGER, ParameterFLOAT, \
                           ParameterBOOL, ParameterACTION, ParameterSTRING, \
                           ParameterENUM
 from pmatic import utils, PMException
+import lib
 
-class TestParameter(TestRemoteAPI):
-    @pytest.fixture(scope="class")
-    def p(self, API):
-        device = Device(API, {
+class TestParameter(lib.TestCCU):
+    @pytest.fixture(scope="function")
+    def p(self, ccu):
+        device = Device(ccu, {
             'address': 'KEQ0970393',
             #'children': ['KEQ0970393:0',
             #             'KEQ0970393:1',
@@ -314,10 +314,10 @@ class TestParameter(TestRemoteAPI):
 
 
 
-class TestParameterFLOAT(TestRemoteAPI):
-    @pytest.fixture(scope="class")
-    def p(self, API):
-        clima_regulator = list(Device.get_devices(API, device_name="Bad-Thermostat"))[0].channels[2]
+class TestParameterFLOAT(lib.TestCCU):
+    @pytest.fixture(scope="function")
+    def p(self, ccu):
+        clima_regulator = list(ccu.devices.query(device_name="Bad-Thermostat"))[0].channels[2]
         return clima_regulator.values["SETPOINT"]
 
 
@@ -365,10 +365,10 @@ class TestParameterFLOAT(TestRemoteAPI):
 
 
 
-class TestParameterBOOL(TestRemoteAPI):
-    @pytest.fixture(scope="class")
-    def p(self, API):
-        switch_state_channel = list(Device.get_devices(API, device_name="Büro-Lampe"))[0].channels[1]
+class TestParameterBOOL(lib.TestCCU):
+    @pytest.fixture(scope="function")
+    def p(self, ccu):
+        switch_state_channel = list(ccu.devices.query(device_name="Büro-Lampe"))[0].channels[1]
         return switch_state_channel.values["STATE"]
 
 
@@ -399,9 +399,9 @@ class TestParameterBOOL(TestRemoteAPI):
 
 
 class TestParameterACTION(TestParameterBOOL):
-    @pytest.fixture(scope="class")
-    def p(self, API):
-        button0 = list(Device.get_devices(API, device_name="Büro-Schalter"))[0].button(0)
+    @pytest.fixture(scope="function")
+    def p(self, ccu):
+        button0 = list(ccu.devices.query(device_name="Büro-Schalter"))[0].button(0)
         assert type(button0) == ChannelKey
         return button0.values["PRESS_SHORT"]
 
@@ -435,10 +435,10 @@ class TestParameterACTION(TestParameterBOOL):
 
 
 
-class TestParameterINTEGER(TestRemoteAPI):
-    @pytest.fixture(scope="class")
-    def p(self, API):
-        clima_vent_drive = list(Device.get_devices(API, device_name="Bad-Heizung"))[0].channels[1]
+class TestParameterINTEGER(lib.TestCCU):
+    @pytest.fixture(scope="function")
+    def p(self, ccu):
+        clima_vent_drive = list(ccu.devices.query(device_name="Bad-Heizung"))[0].channels[1]
         return clima_vent_drive.values["VALVE_STATE"]
 
 
@@ -491,10 +491,10 @@ class TestParameterINTEGER(TestRemoteAPI):
 
 
 
-class TestParameterENUM(TestRemoteAPI):
-    @pytest.fixture(scope="class")
-    def p(self, API):
-        clima_vent_drive = list(Device.get_devices(API, device_name="Bad-Heizung"))[0].channels[1]
+class TestParameterENUM(lib.TestCCU):
+    @pytest.fixture(scope="function")
+    def p(self, ccu):
+        clima_vent_drive = list(ccu.devices.query(device_name="Bad-Heizung"))[0].channels[1]
         return clima_vent_drive.values["ERROR"]
 
     def test_attributes(self, p):
@@ -519,10 +519,10 @@ class TestParameterENUM(TestRemoteAPI):
 
 
 
-class TestParameterSTRING(TestRemoteAPI):
-    @pytest.fixture(scope="class")
-    def p(self, API):
-        clima_rt_transceiver = list(Device.get_devices(API, device_name="Schlafzimmer-Links-Heizung"))[0].channels[4]
+class TestParameterSTRING(lib.TestCCU):
+    @pytest.fixture(scope="function")
+    def p(self, ccu):
+        clima_rt_transceiver = list(ccu.devices.query(device_name="Schlafzimmer-Links-Heizung"))[0].channels[4]
         return clima_rt_transceiver.values["PARTY_MODE_SUBMIT"]
 
     def test_attributes(self, p):

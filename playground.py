@@ -39,21 +39,23 @@ from pmatic.exceptions import PMDeviceOffline
 
 ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
-for room in ccu.rooms.get():
-    print(room.name)
-    for device in room.devices:
-        print(" ", device.name, device.summary_state, device.rssi)
+#for room in ccu.rooms:
+#    print(room.name)
+#    for device in room.devices:
+#        print(" ", device.name, device.summary_state, device.rssi)
+#
+#sys.exit(1)
 
-sys.exit(1)
+for device in ccu.devices.query(device_name="Zentrale"):
+    print(device.__dict__, device.address)
 
-ccu.devices.get()
-for device in ccu.devices:
-    print(device.name, device.address, len(device.channels))
-    try:
-        for channel in device.channels:
-            print(" ", channel.name, channel.address, channel.summary_state)
-    except PMDeviceOffline:
-        print("  The device is offline!")
+#for device in ccu.devices:
+#    print(device.name, device.address, len(device.channels))
+#    try:
+#        for channel in device.channels:
+#            print(" ", channel.name, channel.address, channel.summary_state)
+#    except PMDeviceOffline:
+#        print("  The device is offline!")
 
 #print(list(ccu.devices))
 #print(ccu.devices.addresses())

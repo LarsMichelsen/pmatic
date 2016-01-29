@@ -34,7 +34,7 @@ sys.stdout.write("Switching off all lamps...\n")
 
 # Search all devices which contain the text "Lampe" in their name, then
 # switch all of them off and report the result.
-for device in ccu.devices.get(device_name_regex=".*Lampe.*"):
+for device in ccu.devices.query(device_name_regex=".*Lampe.*"):
     sys.stdout.write("  %s..." % device.name)
     if device.switch_off():
         sys.stdout.write("done.\n")

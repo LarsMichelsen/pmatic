@@ -40,7 +40,7 @@ ccu = pmatic.CCU(
 )
 
 print("Low battery: ")
-for device in ccu.devices.get():
+for device in ccu.devices:
     if device.is_battery_low:
         print("  %s" % device.name)
 else:

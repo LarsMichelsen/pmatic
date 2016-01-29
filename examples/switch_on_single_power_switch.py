@@ -34,7 +34,7 @@ ccu = pmatic.CCU(
 # only one device using this name, we get a list back from the API. But we can
 # skip all other theoretical results when we are sure there is only one
 
-device = list(ccu.devices.get(device_name=u"Büro-Lampe"))[0]
+device = list(ccu.devices.query(device_name=u"Büro-Lampe"))[0]
 if device.switch_on():
     print("success!")
 else:
