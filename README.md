@@ -75,7 +75,7 @@ to make this work. Should not be too much work.
 
 ## Installation
 
-Take a look at the (installation documentation)[http://lami-.github.io/pmatic/doc/install.html].
+Take a look at the [installation documentation](http://lami-.github.io/pmatic/doc/install.html).
 
 ## Documentation
 
@@ -86,7 +86,7 @@ can be found on the official web site of pmatic.
 
 You can find several usage examples in the `examples`. I'll try to add more
 in the near future. Some more examples can be found in the
-(documentation)[http://lami-.github.io/pmatic/doc/basic_usage.html].
+[documentation](http://lami-.github.io/pmatic/doc/basic_usage.html).
 
 Just a short example:
 
