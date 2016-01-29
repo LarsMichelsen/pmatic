@@ -230,7 +230,7 @@ travis-doc:
 	cd doc ; \
 	$(MAKE) html ; \
 	cd $$HOME/gh-pages ; \
-	cp -rf $$PKG_PATH/doc/_build/html doc/ ; \
+	cp -rf $$PKG_PATH/_build/html doc/ ; \
 	git add -f doc/ ; \
 	git commit -m "Travis doc $$TRAVIS_BUILD_NUMBER pushed to gh-pages" ; \
 	git push -fq origin gh-pages > /dev/null ; \
