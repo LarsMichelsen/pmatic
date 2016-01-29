@@ -75,66 +75,20 @@ to make this work. Should not be too much work.
 
 ## Installation
 
-### Installation on the CCU2
+Take a look at the (installation documentation)[http://lami-.github.io/pmatic/doc/install.html].
 
-pmatic can be packed as CCU addon package. Currently you can download the
-snapshot addon from [here](http://lami-.github.io/pmatic/pmatic-snapshot_ccu.tar.gz).
-It is a snapshot package which is automatically built from the latest
-git version available. So please note that this is not as stable as a
-released version would be. But feel free to try and test it. Let me know
-if you experience any issues with it.
+## Documentation
 
-[Download the file](http://lami-.github.io/pmatic/pmatic-snapshot_ccu.tar.gz)
-to your workstation and upload this file to your CCU using the regular addon
-upload form to install pmatic on it.
-
-Now you can connect to your CCU via SSH and run this command to confirm
-pmatic has been installed correctly:
-
-```
-python -c 'import pmatic'
-```
-
-When the command completes silently (without `ImportError` exception) the
-installation was successful.
-
-The installation has been finished. You can now execute your own
-python and pmatic scripts on your CCU. For some examples you can change
-to `/etc/config/addons/pmatic/examples` and have a look at the source or
-just try them.
-
-### Installation on your workstation
-
-The installation should be straight forward. First download pmatic by either
-cloning from the Git or download a release archive, unpack it and change to
-the extracted directory `pmatic-*`. Then execute:
-
-```
-python setup.py install
-```
-
-After installation you can confirm pmatic has been installed by executing
-
-```
-python -c 'import pmatic'
-```
-
-When the command completes silently (without `ImportError` exception) the
-installation was successful.
-
-
-I developed and tested pmatic on a Debian 8 system with Python 2.7.9, but
-pmatic should work on other platforms meeting the requirements listed above.
-
-Please let me know or send me a pull request if there are compatibility
-issues on a platform you would expect pmatic to work.
+The current [documentation](http://lami-.github.io/pmatic/doc/index.html)
+can be found on the official web site of pmatic.
 
 ## Usage
 
-Please take a look at the scripts below the `examples` directory for some
-sample scripts. I'll try to add more in the near future. Just to give you
-a quick view, here a simple example how to list all shutter contacts and
-their current states on the CCU2:
+You can find several usage examples in the `examples`. I'll try to add more
+in the near future. Some more examples can be found in the
+(documentation)[http://lami-.github.io/pmatic/doc/basic_usage.html].
+
+Just a short example:
 
 ```
 #!/usr/bin/python
