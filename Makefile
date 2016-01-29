@@ -227,6 +227,7 @@ travis-build:
 # Assumes travis-build was executed before
 travis-doc:
 	PKG_PATH=$(shell pwd)/doc ; \
+	cd doc ; \
 	$(MAKE) html ; \
 	cd $$HOME/gh-pages ; \
 	cp -rf $$PKG_PATH/doc/_build/html doc/ ; \
