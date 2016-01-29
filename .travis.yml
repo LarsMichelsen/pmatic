@@ -8,9 +8,11 @@ python:
     - 3.5
     - nightly
 
-# install for test coverage analyzes
 install:
+    # install for test coverage analyzes
     - pip install coveralls
+    # install for doc build / publish
+    - pip install sphinx
 
 # Run tests with coverage checking
 script:
