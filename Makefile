@@ -223,3 +223,14 @@ travis-build:
 	git commit -m "Travis build $$TRAVIS_BUILD_NUMBER pushed to gh-pages" ; \
 	git push -fq origin gh-pages > /dev/null ; \
 	echo "Finished adding current build"
+
+# Assumes travis-build was executed before
+travis-doc:
+	PKG_PATH=$(shell pwd)/doc ; \
+	$(MAKE) html ; \
+	cd $$HOME/gh-pages ; \
+	cp -rf $$PKG_PATH/doc/_build/html doc/ ; \
+	git add -f doc/ ; \
+	git commit -m "Travis doc $$TRAVIS_BUILD_NUMBER pushed to gh-pages" ; \
+	git push -fq origin gh-pages > /dev/null ; \
+	echo "Finished adding current docs"

@@ -21,7 +21,7 @@ after_success:
     # Upload coverage
     - coveralls
     # eventually run snapshot build
-    - if [ $TRAVIS_PYTHON_VERSION = '2.7' ] && [ $TRAVIS_BRANCH = 'master' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then make travis-build; fi
+    - if [ $TRAVIS_PYTHON_VERSION = '2.7' ] && [ $TRAVIS_BRANCH = 'master' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then make travis-build travis-doc; fi
 
 # Secret for uploading snapshot builds
 env:
