@@ -256,7 +256,10 @@ class Channel(utils.LogMixin, Entity):
 
     @property
     def values(self):
-        """Provides access to all value objects of this channel."""
+        """Provides access to all value objects of this channel.
+
+        The values are provided as dictionary where the name of the parameter is used as key
+        and some kind of specific :class:`.params.Parameter` instance is the value."""
         if not self._values:
             self._init_value_specs()
 
@@ -807,7 +810,10 @@ class Device(Entity):
         When a device is unreachable, it does only return this information.
 
         This default method concatenates values and titles of channel values and
-        returns them as string. The values are sorted by the titles."""
+        returns them as string. The values are sorted by the titles.
+
+        It is possible to exclude the states of specific channels by listing the
+        names of the channel classes in the optional *skip_channel_types* argument."""
         formated = []
 
         if not self.is_online:
