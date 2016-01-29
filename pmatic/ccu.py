@@ -66,7 +66,7 @@ class CCU(object):
         """
         super(CCU, self).__init__()
         self.api = pmatic.api.init(**kwargs)
-        self.rssi = None
+        self._rssi = None
         self._devices = None
         self._events = None
         self._rooms = None
@@ -126,10 +126,11 @@ class CCU(object):
 
 
     # FIXME: Consolidate API with self.devices.(...)
+    @property
     def signal_strengths(self):
-        if self.RSSI == None:
-            self.RSSI = pmatic.api.SignalStrength(self.api)
-        return self.RSSI
+        if self._rssi == None:
+            self._rssi = pmatic.api.SignalStrength(self.api)
+        return self._rssi
 
 
 

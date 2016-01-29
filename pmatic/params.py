@@ -261,13 +261,17 @@ class Parameter(object):
         self.value = self.default
 
 
-    def formated(self, value_format="%s"):
+    def _formated(self, value_format="%s"):
         if self.unit:
             if self.unit == "%":
                 return (value_format+"%%") % self.value
             else:
                 return (value_format+" %s") % (self.value, self.unit)
         return value_format % self.value
+
+
+    def formated(self):
+        return self._formated()
 
 
     def __str__(self):
@@ -354,7 +358,7 @@ class ParameterINTEGER(Parameter):
 
 
     def formated(self):
-        return super(ParameterINTEGER, self).formated("%d")
+        return super(ParameterINTEGER, self)._formated("%d")
 
 
 
@@ -397,7 +401,7 @@ class ParameterFLOAT(Parameter):
 
 
     def formated(self):
-        return super(ParameterFLOAT, self).formated("%0.2f")
+        return super(ParameterFLOAT, self)._formated("%0.2f")
 
 
 class ParameterBOOL(Parameter):
