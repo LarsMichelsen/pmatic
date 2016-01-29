@@ -235,6 +235,36 @@ class Channel(utils.LogMixin, Entity):
             self._values[param_id]._set_from_api(value)
 
 
+    @property
+    def values(self):
+        """Provides access to all value objects of this channel.
+
+        The values are provided as dictionary where the name of the parameter is used as key
+        and some kind of specific :class:`.params.Parameter` instance is the value."""
+        if not self._values:
+            self._init_value_specs()
+
+        if self._value_update_needed():
+            self._fetch_values()
+
+        return self._values
+
+
+    @property
+    def summary_state(self):
+        """Represents a summary state of the channel.
+
+        Formats values and titles of channel values and returns them as string.
+
+        Default formating of channel values. Concatenates titles and values of
+        all channel values except the maintenance channel.
+        The values are sorted by the titles."""
+        formated = []
+        for title, value in sorted([ (v.title, v) for v in self.values.values() if v.readable ]):
+            formated.append("%s: %s" % (title, value))
+        return ", ".join(formated)
+
+
     def set_logic_attributes(self, attrs):
         """Used to update the logic attributes of this channel.
 
@@ -252,35 +282,6 @@ class Channel(utils.LogMixin, Entity):
             del attrs[a]
 
         self._set_attributes(attrs)
-
-
-    @property
-    def values(self):
-        """Provides access to all value objects of this channel.
-
-        The values are provided as dictionary where the name of the parameter is used as key
-        and some kind of specific :class:`.params.Parameter` instance is the value."""
-        if not self._values:
-            self._init_value_specs()
-
-        if self._value_update_needed():
-            self._fetch_values()
-
-        return self._values
-
-
-    def summary_state(self):
-        """Represents a summary state of the channel.
-
-        Formats values and titles of channel values and returns them as string.
-
-        Default formating of channel values. Concatenates titles and values of
-        all channel values except the maintenance channel.
-        The values are sorted by the titles."""
-        formated = []
-        for title, value in sorted([ (v.title, v) for v in self.values.values() if v.readable ]):
-            formated.append("%s: %s" % (title, value))
-        return ", ".join(formated)
 
 
     def on_value_changed(self, func):
@@ -302,14 +303,18 @@ class ChannelMaintenance(Channel):
     name = "Maintenance"
     id = 0 # FIXME: Really no id for maintenance channels?
 
+
+    @property
     def summary_state(self):
         """The maintenance channel does not provide a summary state.
 
-        If you want to get a formated maintenance state, you need to call maintenance_state()."""
+        If you want to get a formated maintenance state, you need to use the property `maintenance_state`."""
         pass
 
+
+    @property
     def maintenance_state(self):
-        super(self, ChannelMaintenance).summary_state()
+        super(self, ChannelMaintenance).summary_state
 
 
 
@@ -317,12 +322,14 @@ class ChannelMaintenance(Channel):
 class ChannelShutterContact(Channel):
     type_name = "SHUTTER_CONTACT"
 
+    @property
     def is_open(self):
         return self.values["STATE"].value
 
 
+    @property
     def summary_state(self):
-        return self.is_open() and "open" or "closed"
+        return self.is_open and "open" or "closed"
 
 
 
@@ -330,16 +337,18 @@ class ChannelShutterContact(Channel):
 class ChannelSwitch(Channel):
     type_name = "SWITCH"
 
+    @property
     def is_on(self):
         return self.values["STATE"].value
 
 
+    @property
     def summary_state(self):
-        return "%s: %s" % (self.values["STATE"].title, self.is_on() and "on" or "off")
+        return "%s: %s" % (self.values["STATE"].title, self.is_on and "on" or "off")
 
 
     def toggle(self):
-        if self.is_on():
+        if self.is_on:
             return self.switch_off()
         else:
             return self.switch_on()
@@ -377,6 +386,7 @@ class ChannelKey(Channel):
         return self.values["PRESS_CONT"].set(True)
 
 
+    @property
     def summary_state(self):
         return None # has no state info as it's a toggle button
 
@@ -432,6 +442,7 @@ class ChannelClimaVentDrive(Channel):
 class ChannelClimaRegulator(Channel):
     type_name = "CLIMATECONTROL_REGULATOR"
 
+    @property
     def summary_state(self):
         val = self.values["SETPOINT"]
         if val == 0.0:
@@ -449,6 +460,7 @@ class ChannelClimaRegulator(Channel):
 class ChannelClimaRTTransceiver(Channel):
     type_name = "CLIMATECONTROL_RT_TRANSCEIVER"
 
+    @property
     def summary_state(self):
         return "Temperature: %s (Target: %s)" % \
                 (self.values["ACTUAL_TEMPERATURE"], self.values["SET_TEMPERATURE"])
@@ -459,6 +471,7 @@ class ChannelClimaRTTransceiver(Channel):
 class ChannelWindowSwitchReceiver(Channel):
     type_name = "WINDOW_SWITCH_RECEIVER"
 
+    @property
     def summary_state(self):
         return None
 
@@ -467,6 +480,7 @@ class ChannelWindowSwitchReceiver(Channel):
 class ChannelWeatherReceiver(Channel):
     type_name = "WEATHER_RECEIVER"
 
+    @property
     def summary_state(self):
         return None
 
@@ -477,6 +491,7 @@ class ChannelWeatherReceiver(Channel):
 class ChannelClimateControlReceiver(Channel):
     type_name = "CLIMATECONTROL_RECEIVER"
 
+    @property
     def summary_state(self):
         return None
 
@@ -487,6 +502,7 @@ class ChannelClimateControlReceiver(Channel):
 class ChannelClimateControlRTReceiver(Channel):
     type_name = "CLIMATECONTROL_RT_RECEIVER"
 
+    @property
     def summary_state(self):
         return None
 
@@ -497,6 +513,7 @@ class ChannelClimateControlRTReceiver(Channel):
 class ChannelRemoteControlReceiver(Channel):
     type_name = "REMOTECONTROL_RECEIVER"
 
+    @property
     def summary_state(self):
         return None
 
@@ -786,31 +803,32 @@ class Device(Entity):
     def rssi(self):
         """Is a two element tuple of the devices current RSSI (Received Signal Strength Indication).
 
-        The first element is the devices RSSI, the second one the CCUs RSSI."""
-        return self.maintenance["RSSI_DEVICE"].value, self.maintenance["RSSI_PEER"].value
+        The first element is the devices RSSI, the second one the CCUs RSSI.
+
+        In case of the CCU itself or a non radio device it is set to ``(None, None)``."""
+        try:
+            return self.maintenance["RSSI_DEVICE"].value, \
+                   self.maintenance["RSSI_PEER"].value
+        except KeyError:
+            return None, None
 
 
-    def channel_by_address(self, address):
-        """Returns the channel object having the requested address.
+    @property
+    def summary_state(self):
+        """Provides a textual summary state of the device.
 
-        When the device has no such channel, a ValueError() is raised.
-        """
-        for channel in self.channels:
-            if address == channel.address:
-                return channel
-        raise KeyError("The channel could not be found on this device.")
-
-
-    def summary_state(self, skip_channel_types=[]):
-        """Returns a textual summary state of the device.
-
-        Returns a string representing some kind of summary state of the device. This
+        Gives you a string representing some kind of summary state of the device. This
         string does not necessarly contain all state information of the devices.
 
-        When a device is unreachable, it does only return this information.
+        When a device is unreachable, it does only contain this information.
 
         This default method concatenates values and titles of channel values and
-        returns them as string. The values are sorted by the titles.
+        provides them as string. The values are sorted by the titles."""
+        return self._get_summary_state()
+
+
+    def _get_summary_state(self, skip_channel_types=[]):
+        """Internal helper for :prop:`summary_state`.
 
         It is possible to exclude the states of specific channels by listing the
         names of the channel classes in the optional *skip_channel_types* argument."""
@@ -832,7 +850,7 @@ class Device(Entity):
 
         for channel in self.channels:
             if type(channel).__name__ not in skip_channel_types:
-                txt = channel.summary_state()
+                txt = channel.summary_state
                 if txt != None:
                     formated.append(txt)
 
@@ -840,6 +858,17 @@ class Device(Entity):
             return ", ".join(formated)
         else:
             return "Device reports no operational state"
+
+
+    def channel_by_address(self, address):
+        """Returns the channel object having the requested address.
+
+        When the device has no such channel, a ValueError() is raised.
+        """
+        for channel in self.channels:
+            if address == channel.address:
+                return channel
+        raise KeyError("The channel could not be found on this device.")
 
 
     def on_value_changed(self, func):
@@ -876,6 +905,7 @@ class HMRCV50(SpecificDevice):
 class HMSecSC(SpecificDevice):
     type_name = "HM-Sec-SC"
 
+
     # Make methods of ChannelShutterContact() available
     def __getattr__(self, attr):
         return getattr(self.channels[1], attr)
@@ -886,13 +916,15 @@ class HMSecSC(SpecificDevice):
 class HMESPMSw1Pl(SpecificDevice):
     type_name = "HM-ES-PMSw1-Pl"
 
+
     # Make methods of ChannelSwitch() available
     def __getattr__(self, attr):
         return getattr(self.channels[1], attr)
 
 
+    @property
     def summary_state(self):
-        return super(HMESPMSw1Pl, self).summary_state(
+        return super(HMESPMSw1Pl, self)._get_summary_state(
             skip_channel_types=["ChannelConditionPower", "ChannelConditionCurrent",
                                 "ChannelConditionVoltage", "ChannelConditionFrequency"])
 

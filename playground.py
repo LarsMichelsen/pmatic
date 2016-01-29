@@ -42,7 +42,7 @@ ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECR
 for room in ccu.rooms.get():
     print(room.name)
     for device in room.devices:
-        print(" ", device.name, device.summary_state(), device.rssi)
+        print(" ", device.name, device.summary_state, device.rssi)
 
 sys.exit(1)
 
@@ -51,7 +51,7 @@ for device in ccu.devices:
     print(device.name, device.address, len(device.channels))
     try:
         for channel in device.channels:
-            print(" ", channel.name, channel.address, channel.summary_state())
+            print(" ", channel.name, channel.address, channel.summary_state)
     except PMDeviceOffline:
         print("  The device is offline!")
 
@@ -111,10 +111,10 @@ for device in Device.get_devices(API):
     else:
         for channel in device.channels:
             if channel.__class__ == Channel:
-                print("", device.name, channel.channel_type, channel.name, channel.summary_state())
+                print("", device.name, channel.channel_type, channel.name, channel.summary_state)
                 print(channel.values)
             else:
-                print(device.name, channel.channel_type, channel.name, channel.summary_state())
+                print(device.name, channel.channel_type, channel.name, channel.summary_state)
                 print(channel.values)
                 for name, v in channel.values.items():
                     print(name, v.datatype)

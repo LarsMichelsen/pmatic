@@ -111,7 +111,7 @@ instantly.
 
     # This function is executed on each state update
     def print_summary_state(param):
-        print("%s %s" % (param.channel.device.name, param.channel.summary_state()))
+        print("%s %s" % (param.channel.device.name, param.channel.summary_state))
 
     devices.on_value_updated(print_summary_state)
 
