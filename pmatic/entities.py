@@ -323,7 +323,7 @@ class ChannelMaintenance(Channel):
 
     @property
     def maintenance_state(self):
-        super(self, ChannelMaintenance).summary_state
+        return super(self, ChannelMaintenance).summary_state
 
 
 
@@ -786,7 +786,7 @@ class Device(Entity):
         return self._get_summary_state()
 
 
-    def _get_summary_state(self, skip_channel_types=[]):
+    def _get_summary_state(self, skip_channel_types=None):
         """Internal helper for :prop:`summary_state`.
 
         It is possible to exclude the states of specific channels by listing the
@@ -808,7 +808,7 @@ class Device(Entity):
         # FIXME: Add bad rssi?
 
         for channel in self.channels:
-            if type(channel).__name__ not in skip_channel_types:
+            if skip_channel_types != None and type(channel).__name__ not in skip_channel_types:
                 txt = channel.summary_state
                 if txt != None:
                     formated.append(txt)

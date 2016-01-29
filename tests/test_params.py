@@ -105,15 +105,15 @@ class TestParameter(lib.TestCCU):
 
 
     def test_from_api_value(self, p):
-        p._from_api_value("X") == "X"
+        assert p._from_api_value("X") == "X"
 
 
     def test_to_api_value(self, p):
-        p._to_api_value("X") == "X"
+        assert p._to_api_value("X") == "X"
 
 
     def test_validate(self, p):
-        p._validate("X") == True
+        assert p._validate("X") == True
 
 
     def test_readable(self, p):
@@ -419,7 +419,7 @@ class TestParameterACTION(TestParameterBOOL):
 
     def test_get_value(self, p):
         with pytest.raises(PMException) as e:
-            p.value
+            assert p.value != None
         assert "can not be read." in str(e.value)
 
 

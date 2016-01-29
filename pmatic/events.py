@@ -297,7 +297,7 @@ class EventHandler(utils.LogMixin, object):
 
         try:
             return func(*params)
-        except:
+        except Exception:
             self.logger.error("Exception in XML-RPC call %s%r:" %
                                 (method, tuple(params)), exc_info=True)
             return False
