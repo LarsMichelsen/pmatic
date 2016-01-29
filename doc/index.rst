@@ -14,6 +14,7 @@ Contents:
    install.rst
    basic_usage.rst
    pmatic_module.rst
+   advanced.rst
    about_and_license.rst
 
 Indices and tables

@@ -4,8 +4,8 @@
 [![Coverage Status](https://coveralls.io/repos/LaMi-/pmatic/badge.svg?branch=master&service=github)](https://coveralls.io/github/LaMi-/pmatic?branch=master)
 
 The pmatic module provides access to the Homematic CCU which operates as
-the central unit in Homematic based home automation setips.. You can use
-pmatic directly on the CCU2 or another system having Python installed.
+the central unit in Homematic based home automation setups. You can use
+pmatic directly on the CCU or another system having Python installed.
 With pmatic you can write your own Python scripts to communicate with
 your CCU device.
 
@@ -99,49 +99,6 @@ ccu = pmatic.CCU()
 for device in ccu.devices.get(device_type="HM-Sec-SC"):
     print("%-20s %6s" % (device.name, device.is_open() and "open" or "closed"))
 ```
-
-### Some use cases
-
-You might use pmatic for different kind of software. Some ideas:
-
-#### Manually triggered one shot scripts
-
-The most simple use cases I can imagine is to create small scripts which
-are executed, gather some information, print them or do anything else with
-it and then finish. Of curse these scripts could also trigger something.
-
-An example could be a script which triggers a power switch when you turn on
-your workstation which is then powering on some kind of ambient light.
-
-Take a look at the `example` directory for more ideas.
-
-#### Continously running daemons
-
-A program which is e.g. starting with the system/CCU, permanently running,
-observing things and performing actions depending on the gathered information.
-
-This daemon could either continously poll the needed information on it's own
-using the APIs pmatic provides or register for specific events happening and
-then perform custom actions.
-
-#### Planned: Scripts executed based on events
-
-The event handling is not finished yet, but this will also be a way to use
-pmatic. The complexity is equal to the manually triggered one shot scripts.
-The only difference is that the scripts are registering with pmatic and then
-pmatic is triggering them on it's own when the configured condition to start
-the script is met.
-
-## Advanced topic: Build the CCU addon package on your own
-
-If you want to create a CCU addon package on your own, follow these steps
-on a linux host:
-
-* download a snapshot of the git repository or clone the repository
-* run `make setup chroot dist-ccu`
-
-Now you should have a CCU addon archive at `dist/pmatic-*_ccu.tar.gz`.
-You can now upload this file to your CCU to install pmatic on it.
 
 ## What is planned?
 
