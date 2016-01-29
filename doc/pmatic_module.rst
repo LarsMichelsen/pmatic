@@ -15,6 +15,8 @@ Devices - A Collection of Devices
 .. autoclass:: pmatic.entities.Devices
     :members:
     :undoc-members:
+    :special-members:
+    :exclude-members: __init__,__module__
 
 Device - Device connected with the CCU
 ======================================
@@ -37,6 +39,8 @@ Rooms - A Collection of Rooms
 .. autoclass:: pmatic.entities.Rooms
     :members:
     :undoc-members:
+    :special-members:
+    :exclude-members: __init__,__module__
 
 Room - A Configured Room
 ========================

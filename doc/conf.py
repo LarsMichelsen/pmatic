@@ -32,6 +32,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
+    'sphinx.ext.intersphinx',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -262,3 +263,5 @@ texinfo_documents = [
 #texinfo_no_detailmenu = False
 
 autodoc_member_order = "bysource"
+
+intersphinx_mapping = {'python': ('https://docs.python.org/2.7', None)}

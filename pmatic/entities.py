@@ -155,6 +155,14 @@ class Channel(utils.LogMixin, Entity):
 
     @classmethod
     def from_channel_dicts(cls, device, channel_dicts):
+        """Creates channel instances associated with the given *device* instance from the given attribute dictionaries.
+
+        Uses the list of channel attribute dictionaries given with *channel_dicts* to create a list
+        of specific `Channel` instances (like e.g. :class:`ChannelShutterContact`) or the generic
+        :class:`Channel` class. Normally each channel should have a specific class. In case an
+        unknown channel needs to be created a debug message is being logged.
+
+        The list of the created channels is then returned."""
         channel_objects = []
         for channel_dict in channel_dicts:
             channel_class = channel_classes_by_type_name.get(channel_dict["type"], Channel)
@@ -641,16 +649,6 @@ class Devices(object):
             return self._devices[address]
 
 
-    # FIXME: Trigger device spec fetch?
-    def __iter__(self):
-        for value in self._devices.values():
-            yield value
-
-
-    def __len__(self):
-        return len(self._devices)
-
-
     def on_value_changed(self, func):
         """Register a function to be called each time a value of a device in this collection changed."""
         for device in self._devices.values():
@@ -661,6 +659,18 @@ class Devices(object):
         """Register a function to be called each time a value of a device in this collection updated."""
         for device in self._devices.values():
             device.on_value_updated(func)
+
+
+    # FIXME: Trigger device spec fetch?
+    def __iter__(self):
+        """Provides an iterator over the devices of this collection."""
+        for value in self._devices.values():
+            yield value
+
+
+    def __len__(self):
+        """Is e.g. used by :func:`len`. Returns the number of devices in this collection."""
+        return len(self._devices)
 
 
 
@@ -1009,11 +1019,13 @@ class Rooms(object):
 
     # FIXME: Trigger spec fetch?
     def __iter__(self):
+        """Provides an iterator over the rooms of this collection."""
         for value in self._rooms.values():
             yield value
 
 
     def __len__(self):
+        """Is e.g. used by :func:`len`. Returns the number of rooms in this collection."""
         return len(self._rooms)
 
 
@@ -1032,6 +1044,7 @@ class Room(Entity):
 
     @classmethod
     def get_rooms(self, api):
+        """Returns a list of all currently configured :class:`.Room` instances."""
         rooms = []
         for room_dict in api.room_get_all():
             rooms.append(Room(api, room_dict))
@@ -1049,7 +1062,7 @@ class Room(Entity):
 
     @property
     def channels(self):
-        """Returns list of channel objects associated with this room."""
+        """Holds a list of channel objects associated with this room."""
         # FIXME: Cache this?
         room_channels = []
         for device in self._devices.get(has_channel_ids=self.channel_ids):
