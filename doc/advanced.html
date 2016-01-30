@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Meta information &mdash; pmatic 0.1 documentation</title>
+    <title>Advanced things &mdash; pmatic 0.1 documentation</title>
     
     <link rel="stylesheet" href="_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -24,7 +24,8 @@
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
     <link rel="top" title="pmatic 0.1 documentation" href="index.html" />
-    <link rel="prev" title="Advanced things" href="advanced.html" /> 
+    <link rel="next" title="Meta information" href="about_and_license.html" />
+    <link rel="prev" title="The pmatic Module" href="pmatic_module.html" /> 
   </head>
   <body role="document">
     <div class="related" role="navigation" aria-label="related navigation">
@@ -37,7 +38,10 @@
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="advanced.html" title="Advanced things"
+          <a href="about_and_license.html" title="Meta information"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pmatic_module.html" title="The pmatic Module"
              accesskey="P">previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">pmatic 0.1 documentation</a> &raquo;</li> 
       </ul>
@@ -48,22 +52,19 @@
         <div class="bodywrapper">
           <div class="body" role="main">
             
-  <div class="section" id="meta-information">
-<h1>Meta information<a class="headerlink" href="#meta-information" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="reporting-bugs-feature-requests">
-<h2>Reporting Bugs, Feature Requests<a class="headerlink" href="#reporting-bugs-feature-requests" title="Permalink to this headline">¶</a></h2>
-<p>Please use the issue tracker on the <a class="reference external" href="https://github.com/LaMi-/pmatic">pmatic GitHub page</a>.</p>
-</div>
-<div class="section" id="copyright">
-<h2>Copyright<a class="headerlink" href="#copyright" title="Permalink to this headline">¶</a></h2>
-<p>Copyright © 2016 Lars Michelsen &lt;<a class="reference external" href="mailto:lm&#37;&#52;&#48;larsmichelsen&#46;com">lm<span>&#64;</span>larsmichelsen<span>&#46;</span>com</a>&gt;. All rights reserved.</p>
-<p>See Licensing for complete license and permissions information.</p>
-</div>
-<div class="section" id="licensing">
-<h2>Licensing<a class="headerlink" href="#licensing" title="Permalink to this headline">¶</a></h2>
-<p>All outcome of the project is licensed under the terms of the GNU GPL v2.
-Take a look at the <a class="reference external" href="https://github.com/LaMi-/pmatic/blob/master/LICENSE">LICENSE</a>
-file for details.</p>
+  <div class="section" id="advanced-things">
+<h1>Advanced things<a class="headerlink" href="#advanced-things" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="build-the-ccu-addon-package-on-your-own">
+<h2>Build the CCU addon package on your own<a class="headerlink" href="#build-the-ccu-addon-package-on-your-own" title="Permalink to this headline">¶</a></h2>
+<p>If you want to create a CCU addon package on your own, follow these steps
+on a linux system of your choice. The current Debian or Ubuntu releases are a
+good choice, but others should work too:</p>
+<ul class="simple">
+<li>download a snapshot of the git repository or clone the repository</li>
+<li>run <cite>make setup chroot dist-ccu</cite></li>
+</ul>
+<p>Now you should have a CCU addon archive at <cite>dist/pmatic-*_ccu.tar.gz</cite>.
+You can now upload this file to your CCU to install pmatic on it.</p>
 </div>
 </div>
 
@@ -75,21 +76,22 @@ file for details.</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">Meta information</a><ul>
-<li><a class="reference internal" href="#reporting-bugs-feature-requests">Reporting Bugs, Feature Requests</a></li>
-<li><a class="reference internal" href="#copyright">Copyright</a></li>
-<li><a class="reference internal" href="#licensing">Licensing</a></li>
+<li><a class="reference internal" href="#">Advanced things</a><ul>
+<li><a class="reference internal" href="#build-the-ccu-addon-package-on-your-own">Build the CCU addon package on your own</a></li>
 </ul>
 </li>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="advanced.html"
-                        title="previous chapter">Advanced things</a></p>
+  <p class="topless"><a href="pmatic_module.html"
+                        title="previous chapter">The pmatic Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="about_and_license.html"
+                        title="next chapter">Meta information</a></p>
   <div role="note" aria-label="source link">
     <h3>This Page</h3>
     <ul class="this-page-menu">
-      <li><a href="_sources/about_and_license.txt"
+      <li><a href="_sources/advanced.txt"
             rel="nofollow">Show Source</a></li>
     </ul>
    </div>
@@ -120,7 +122,10 @@ file for details.</p>
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="advanced.html" title="Advanced things"
+          <a href="about_and_license.html" title="Meta information"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pmatic_module.html" title="The pmatic Module"
              >previous</a> |</li>
         <li class="nav-item nav-item-0"><a href="index.html">pmatic 0.1 documentation</a> &raquo;</li> 
       </ul>
