@@ -80,11 +80,11 @@ class EventXMLRPCServer(SimpleXMLRPCServer, threading.Thread):
 
 class EventXMLRPCRequestHandler(SimpleXMLRPCRequestHandler, utils.LogMixin):
     """HTTP request handler for the XML-RPC API requests."""
-    def log_message(self, format, *args):
+    def log_message(self, format_str, *args):
         """Logger messages for the web server logs."""
         self.logger.debug("%s - - [%s] %s\n" % (self.address_string(),
                                             self.log_date_time_string(),
-                                            format%args))
+                                            format_str%args))
 
 
 
@@ -140,7 +140,7 @@ class EventListener(object):
             # listen on all interfaces. Use port 9123 by default.
             self._listen_address = ('', 9123)
 
-        elif type(listen_address) == tuple and len(listen_address) == 2:
+        elif isinstance(listen_address, tuple) and len(listen_address) == 2:
             self._listen_address = listen_address
 
         else:
@@ -330,7 +330,8 @@ class EventHandler(utils.LogMixin, object):
     # zumindest teilweise merken. Es ist dabei ausreichend, wenn je weils die Member ADDRESS
     # und VERSION einer DeviceDescription gesetzt sind.
     def listDevices(self, interface_id):
-        """The CCU asks for all already known devices. Send back the address and description version."""
+        """The CCU asks for all already known devices. Send back the address and description
+        version."""
         devices = []
         for device in self._ccu.devices:
             devices.append({"ADDRESS": device.address, "VERSION": device.version})
