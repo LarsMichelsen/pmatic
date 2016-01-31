@@ -271,6 +271,7 @@ class CCURooms(Rooms):
 
 
     # FIXME: Add filter options
+    # FIXME: Document existing filters: room_name, room_name_regex
     def query(self, **filters):
         rooms = Rooms(self._ccu)
         for room in self._query_for_rooms(**filters):
@@ -299,6 +300,15 @@ class CCURooms(Rooms):
                 room = Room(self._ccu, room_dict)
 
             # Now perform optional filtering
+
+            # Exact match device name
+            if "room_name" in filters and filters["room_name"] != room.name:
+                continue
+
+            # regex match device name
+            if "room_name_regex" in filters \
+               and not re.match(filters["room_name_regex"], room.name):
+                continue
 
             yield room
 
