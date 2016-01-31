@@ -187,9 +187,10 @@
 <span class="k">class</span> <span class="nc">CCUDevices</span><span class="p">(</span><span class="n">Devices</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The central device management class.</span>
 
-<span class="sd">    CCUDevices class is just like the :class:`Devices` class, with the difference that it provides the</span>
-<span class="sd">    :meth:`query` method which can be used to create new :class:`Devices` collections. Another difference</span>
-<span class="sd">    is that it is initializing all devices when generic methods to access the devices are called.&quot;&quot;&quot;</span>
+<span class="sd">    CCUDevices class is just like the :class:`Devices` class, with the difference that it provides</span>
+<span class="sd">    the :meth:`query` method which can be used to create new :class:`Devices` collections. Another</span>
+<span class="sd">    difference is that it is initializing all devices when generic methods to access the devices</span>
+<span class="sd">    are called.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CCUDevices</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ccu</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_device_specs</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">DeviceSpecs</span><span class="p">(</span><span class="n">ccu</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
@@ -210,7 +211,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span><span class="p">[</span><span class="n">device</span><span class="o">.</span><span class="n">address</span><span class="p">]</span> <span class="o">=</span> <span class="n">device</span>
 
 
-    <span class="c1"># FIXME: Documentation about possible filters: device_type=None, device_name=None, device_name_regex=None, has_channel_ids=None):</span>
+    <span class="c1"># FIXME: Documentation about possible filters: device_type=None, device_name=None,</span>
+    <span class="c1">#        device_name_regex=None, has_channel_ids=None):</span>
     <span class="c1"># FIXME: Add more filter options</span>
     <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
         <span class="n">devices</span> <span class="o">=</span> <span class="n">Devices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="p">)</span>
@@ -244,7 +246,8 @@
                 <span class="k">continue</span>
 
             <span class="c1"># regex match device name</span>
-            <span class="k">if</span> <span class="s2">&quot;device_name_regex&quot;</span> <span class="ow">in</span> <span class="n">filters</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">filters</span><span class="p">[</span><span class="s2">&quot;device_name_regex&quot;</span><span class="p">],</span> <span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="k">if</span> <span class="s2">&quot;device_name_regex&quot;</span> <span class="ow">in</span> <span class="n">filters</span> \
+               <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">filters</span><span class="p">[</span><span class="s2">&quot;device_name_regex&quot;</span><span class="p">],</span> <span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
                 <span class="k">continue</span>
 
             <span class="c1"># Add devices which have one of the channel ids listed in has_channel_ids</span>
@@ -258,9 +261,9 @@
     <span class="k">def</span> <span class="nf">_init_all_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Adds all devices known to the CCU to this collection.</span>
 
-<span class="sd">        It is called to initialize the devices on the first accessor method call. It initializes the</span>
-<span class="sd">        device collections once. You can enforce the collection too be re-initialized by calling</span>
-<span class="sd">        :meth:`clear` and then call an accessor again.&quot;&quot;&quot;</span>
+<span class="sd">        It is called to initialize the devices on the first accessor method call. It initializes</span>
+<span class="sd">        the device collections once. You can enforce the collection too be re-initialized by</span>
+<span class="sd">        calling :meth:`clear` and then call an accessor again.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_for_devices</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_add_without_init</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 

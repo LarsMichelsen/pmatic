@@ -93,7 +93,8 @@
 <span class="kn">import</span> <span class="nn">logging</span> <span class="kn">as</span> <span class="nn">_logging</span>
 
 <span class="kn">from</span> <span class="nn">pmatic.ccu</span> <span class="kn">import</span> <span class="n">CCU</span> <span class="c1"># noqa</span>
-<span class="kn">from</span> <span class="nn">pmatic.exceptions</span> <span class="kn">import</span> <span class="o">*</span> <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">pmatic.exceptions</span> <span class="kn">import</span> <span class="n">PMException</span><span class="p">,</span> <span class="n">PMConnectionError</span><span class="p">,</span> \
+                              <span class="n">PMDeviceOffline</span><span class="p">,</span> <span class="n">PMActionFailed</span> <span class="c1"># noqa</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;CCU&quot;</span><span class="p">,</span> <span class="s2">&quot;logging&quot;</span><span class="p">,</span>
             <span class="s2">&quot;PMException&quot;</span><span class="p">,</span> <span class="s2">&quot;PMConnectionError&quot;</span><span class="p">,</span> <span class="s2">&quot;PMDeviceOffline&quot;</span><span class="p">,</span>

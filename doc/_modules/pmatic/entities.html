@@ -123,7 +123,8 @@
                 <span class="k">if</span> <span class="n">func_type</span> <span class="ow">in</span> <span class="p">[</span> <span class="s2">&quot;instancemethod&quot;</span><span class="p">,</span> <span class="s2">&quot;function&quot;</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span> <span class="p">]:</span>
                     <span class="n">args</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="n">offset</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">func_type</span> <span class="ow">in</span> <span class="p">[</span> <span class="s2">&quot;instancemethod&quot;</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span> <span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>
-                    <span class="k">for</span> <span class="n">arg_name</span> <span class="ow">in</span> <span class="n">trans_func</span><span class="o">.</span><span class="n">__code__</span><span class="o">.</span><span class="n">co_varnames</span><span class="p">[</span><span class="n">offset</span><span class="p">:</span><span class="n">trans_func</span><span class="o">.</span><span class="n">__code__</span><span class="o">.</span><span class="n">co_argcount</span><span class="p">]:</span>
+                    <span class="n">argcount</span> <span class="o">=</span> <span class="n">trans_func</span><span class="o">.</span><span class="n">__code__</span><span class="o">.</span><span class="n">co_argcount</span>
+                    <span class="k">for</span> <span class="n">arg_name</span> <span class="ow">in</span> <span class="n">trans_func</span><span class="o">.</span><span class="n">__code__</span><span class="o">.</span><span class="n">co_varnames</span><span class="p">[</span><span class="n">offset</span><span class="p">:</span><span class="n">argcount</span><span class="p">]:</span>
                         <span class="k">if</span> <span class="n">arg_name</span> <span class="o">==</span> <span class="s2">&quot;api&quot;</span><span class="p">:</span>
                             <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
                         <span class="k">elif</span> <span class="n">arg_name</span> <span class="o">==</span> <span class="s2">&quot;ccu&quot;</span><span class="p">:</span>
@@ -198,7 +199,8 @@
     <span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">Device</span><span class="p">),</span> <span class="s2">&quot;device object is not a Device derived class: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">device</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">Device</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Device object is not a Device derived class: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">device</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Channel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">_ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
@@ -206,7 +208,8 @@
 
     <span class="nd">@classmethod</span>
 <div class="viewcode-block" id="Channel.from_channel_dicts"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Channel.from_channel_dicts">[docs]</a>    <span class="k">def</span> <span class="nf">from_channel_dicts</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">channel_dicts</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates channel instances associated with the given *device* instance from the given attribute dictionaries.</span>
+        <span class="sd">&quot;&quot;&quot;Creates channel instances associated with the given *device* instance from the given</span>
+<span class="sd">        attribute dictionaries.</span>
 
 <span class="sd">        Uses the list of channel attribute dictionaries given with *channel_dicts* to create a list</span>
 <span class="sd">        of specific `Channel` instances (like e.g. :class:`ChannelShutterContact`) or the generic</span>
@@ -219,7 +222,8 @@
             <span class="n">channel_class</span> <span class="o">=</span> <span class="n">channel_classes_by_type_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">channel_dict</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="n">Channel</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">channel_class</span> <span class="o">==</span> <span class="n">Channel</span><span class="p">:</span>
-                <span class="n">cls</span><span class="o">.</span><span class="n">cls_logger</span><span class="p">()</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Using generic Channel class (Type: </span><span class="si">%s</span><span class="s2">): </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">channel_dict</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="n">channel_dict</span><span class="p">))</span>
+                <span class="n">cls</span><span class="o">.</span><span class="n">cls_logger</span><span class="p">()</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Using generic Channel class (Type: </span><span class="si">%s</span><span class="s2">): </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span>
+                                                    <span class="p">(</span><span class="n">channel_dict</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="n">channel_dict</span><span class="p">))</span>
 
             <span class="n">channel_objects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">channel_class</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">channel_dict</span><span class="p">))</span>
         <span class="k">return</span> <span class="n">channel_objects</span></div>
@@ -242,8 +246,9 @@
             <span class="n">class_name</span> <span class="o">=</span> <span class="s2">&quot;Parameter</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;TYPE&quot;</span><span class="p">]</span>
             <span class="n">cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pmatic</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">cls</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: Skipping unknown parameter </span><span class="si">%s</span><span class="s2"> of type </span><span class="si">%s</span><span class="s2">. Class </span><span class="si">%s</span><span class="s2"> not implemented.&quot;</span> <span class="o">%</span>
-                                              <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_type</span><span class="p">,</span> <span class="n">param_id</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;TYPE&quot;</span><span class="p">],</span> <span class="n">class_name</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: Skipping unknown parameter </span><span class="si">%s</span><span class="s2"> of type </span><span class="si">%s</span><span class="s2">. &quot;</span>
+                                    <span class="s2">&quot;Class </span><span class="si">%s</span><span class="s2"> not implemented.&quot;</span> <span class="o">%</span>
+                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_type</span><span class="p">,</span> <span class="n">param_id</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;TYPE&quot;</span><span class="p">],</span> <span class="n">class_name</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">param_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">)</span>
 
@@ -334,8 +339,10 @@
         <span class="c1">#pprint.pprint(attrs)</span>
         <span class="c1">#sys.exit(1)</span>
         <span class="c1"># Skip non needed attributes (already set by low level data)</span>
-        <span class="c1"># FIXME: &#39;direction&#39;: 1, from low level API might be duplicate of u&#39;category&#39;: u&#39;CATEGORY_SENDER&#39;,</span>
-        <span class="c1"># FIXME: &#39;aes_active&#39;: True, from low level API might be duplicate of u&#39;mode&#39;: u&#39;MODE_AES&#39;,</span>
+        <span class="c1"># FIXME: &#39;direction&#39;: 1, from low level API might be duplicate of</span>
+        <span class="c1">#        u&#39;category&#39;: u&#39;CATEGORY_SENDER&#39;,</span>
+        <span class="c1"># FIXME: &#39;aes_active&#39;: True, from low level API might be duplicate</span>
+        <span class="c1">#        of u&#39;mode&#39;: u&#39;MODE_AES&#39;,</span>
         <span class="n">attrs</span> <span class="o">=</span> <span class="n">attrs</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">[</span> <span class="s2">&quot;address&quot;</span><span class="p">,</span> <span class="s2">&quot;device_id&quot;</span> <span class="p">]:</span>
             <span class="k">del</span> <span class="n">attrs</span><span class="p">[</span><span class="n">a</span><span class="p">]</span>
@@ -344,13 +351,15 @@
 
 
 <div class="viewcode-block" id="Channel.on_value_changed"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Channel.on_value_changed">[docs]</a>    <span class="k">def</span> <span class="nf">on_value_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Register a function to be called each time a value of this channel parameters has changed.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Register a function to be called each time a value of this channel parameters</span>
+<span class="sd">        has changed.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">value</span><span class="o">.</span><span class="n">register_callback</span><span class="p">(</span><span class="s2">&quot;value_changed&quot;</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Channel.on_value_updated"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Channel.on_value_updated">[docs]</a>    <span class="k">def</span> <span class="nf">on_value_updated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Register a function to be called each time a value of this channel parameters has been updated.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Register a function to be called each time a value of this channel parameters has</span>
+<span class="sd">        been updated.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">value</span><span class="o">.</span><span class="n">register_callback</span><span class="p">(</span><span class="s2">&quot;value_updated&quot;</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span></div></div>
 
@@ -367,7 +376,8 @@
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The maintenance channel does not provide a summary state.</span>
 
-<span class="sd">        If you want to get a formated maintenance state, you need to use the property `maintenance_state`.&quot;&quot;&quot;</span>
+<span class="sd">        If you want to get a formated maintenance state, you need to use the property</span>
+<span class="sd">        `maintenance_state`.&quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
 
@@ -515,7 +525,12 @@
 <span class="c1"># Devices:</span>
 <span class="c1">#  HM-CC-RT-DN</span>
 <span class="c1"># FIXME: Values:</span>
-<span class="c1"># {u&#39;SET_TEMPERATURE&#39;: u&#39;21.500000&#39;, u&#39;PARTY_START_MONTH&#39;: u&#39;1&#39;, u&#39;BATTERY_STATE&#39;: u&#39;2.400000&#39;, u&#39;PARTY_START_DAY&#39;: u&#39;1&#39;, u&#39;PARTY_STOP_DAY&#39;: u&#39;1&#39;, u&#39;PARTY_START_YEAR&#39;: u&#39;0&#39;, u&#39;FAULT_REPORTING&#39;: u&#39;0&#39;, u&#39;PARTY_STOP_TIME&#39;: u&#39;0&#39;, u&#39;ACTUAL_TEMPERATURE&#39;: u&#39;23.100000&#39;, u&#39;BOOST_STATE&#39;: u&#39;15&#39;, u&#39;PARTY_STOP_YEAR&#39;: u&#39;0&#39;, u&#39;PARTY_STOP_MONTH&#39;: u&#39;1&#39;, u&#39;VALVE_STATE&#39;: u&#39;10&#39;, u&#39;PARTY_START_TIME&#39;: u&#39;450&#39;, u&#39;PARTY_TEMPERATURE&#39;: u&#39;5.000000&#39;, u&#39;CONTROL_MODE&#39;: u&#39;1&#39;}</span>
+<span class="c1"># {u&#39;SET_TEMPERATURE&#39;: u&#39;21.500000&#39;, u&#39;PARTY_START_MONTH&#39;: u&#39;1&#39;, u&#39;BATTERY_STATE&#39;: u&#39;2.400000&#39;,</span>
+<span class="c1">#  u&#39;PARTY_START_DAY&#39;: u&#39;1&#39;, u&#39;PARTY_STOP_DAY&#39;: u&#39;1&#39;, u&#39;PARTY_START_YEAR&#39;: u&#39;0&#39;,</span>
+<span class="c1">#  u&#39;FAULT_REPORTING&#39;: u&#39;0&#39;, u&#39;PARTY_STOP_TIME&#39;: u&#39;0&#39;, u&#39;ACTUAL_TEMPERATURE&#39;: u&#39;23.100000&#39;,</span>
+<span class="c1">#  u&#39;BOOST_STATE&#39;: u&#39;15&#39;, u&#39;PARTY_STOP_YEAR&#39;: u&#39;0&#39;, u&#39;PARTY_STOP_MONTH&#39;: u&#39;1&#39;,</span>
+<span class="c1">#  u&#39;VALVE_STATE&#39;: u&#39;10&#39;, u&#39;PARTY_START_TIME&#39;: u&#39;450&#39;, u&#39;PARTY_TEMPERATURE&#39;: u&#39;5.000000&#39;,</span>
+<span class="c1">#  u&#39;CONTROL_MODE&#39;: u&#39;1&#39;}</span>
 <span class="k">class</span> <span class="nc">ChannelClimaRTTransceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CLIMATECONTROL_RT_TRANSCEIVER&quot;</span>
 
