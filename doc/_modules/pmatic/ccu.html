@@ -321,6 +321,7 @@
 
 
     <span class="c1"># FIXME: Add filter options</span>
+    <span class="c1"># FIXME: Document existing filters: room_name, room_name_regex</span>
     <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
         <span class="n">rooms</span> <span class="o">=</span> <span class="n">Rooms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">room</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_for_rooms</span><span class="p">(</span><span class="o">**</span><span class="n">filters</span><span class="p">):</span>
@@ -349,6 +350,15 @@
                 <span class="n">room</span> <span class="o">=</span> <span class="n">Room</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="p">,</span> <span class="n">room_dict</span><span class="p">)</span>
 
             <span class="c1"># Now perform optional filtering</span>
+
+            <span class="c1"># Exact match device name</span>
+            <span class="k">if</span> <span class="s2">&quot;room_name&quot;</span> <span class="ow">in</span> <span class="n">filters</span> <span class="ow">and</span> <span class="n">filters</span><span class="p">[</span><span class="s2">&quot;room_name&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">room</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># regex match device name</span>
+            <span class="k">if</span> <span class="s2">&quot;room_name_regex&quot;</span> <span class="ow">in</span> <span class="n">filters</span> \
+               <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">filters</span><span class="p">[</span><span class="s2">&quot;room_name_regex&quot;</span><span class="p">],</span> <span class="n">room</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+                <span class="k">continue</span>
 
             <span class="k">yield</span> <span class="n">room</span>
 
