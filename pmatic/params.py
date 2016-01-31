@@ -54,7 +54,8 @@ class Parameter(object):
 
 
     def __init__(self, channel, spec):
-        assert isinstance(channel, pmatic.entities.Channel), "channel is not a Channel: %r" % channel
+        assert isinstance(channel, pmatic.entities.Channel), \
+                     "channel is not a Channel: %r" % channel
         assert isinstance(spec, dict), "spec is not a dictionary: %r" % spec
         self.channel = channel
         self._init_attributes(spec)
@@ -407,7 +408,7 @@ class ParameterBOOL(Parameter):
 
 
 # 'control': u'NONE', 'operations': 5, 'name': u'ERROR', 'min': 0, 'default': 0, 'max': 4,
-# '_value': 0, 'tab_order': 1, 'value_list': u'NO_ERROR VALVE_DRIVE_BLOCKED 
+# '_value': 0, 'tab_order': 1, 'value_list': u'NO_ERROR VALVE_DRIVE_BLOCKED
 # VALVE_DRIVE_LOOSE ADJUSTING_RANGE_TO_SMALL LOWBAT', 'flags': 9, 'unit': u'',
 # 'type': u'ENUM', 'id': u'ERROR',
 # 'channel': <pmatic.entities.ChannelClimaVentDrive object at 0x7fb7574b6750>}

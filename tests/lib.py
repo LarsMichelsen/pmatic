@@ -92,7 +92,8 @@ def fake_urlopen(url, data=None, timeout=None):
 
 
 def fake_session_id(data_byte_str, byte_str):
-    new_str = re.sub(b'"_session_id_": "[0-9A-Za-z]{10}"', b'"_session_id_": "xxxxxxxxxx"', byte_str)
+    new_str = re.sub(b'"_session_id_": "[0-9A-Za-z]{10}"',
+                     b'"_session_id_": "xxxxxxxxxx"', byte_str)
     if b"Sessian.login" in data_byte_str:
         # Session.login returns the session id as result. Replace it here.
         return re.sub(b'"result": "[0-9A-Za-z]{10}"', b'"result": "xxxxxxxxxx"', new_str)
@@ -146,7 +147,7 @@ class TestRemoteAPI(object):
             #log_level=pmatic.DEBUG,
         )
 
-        request.addfinalizer(lambda: API.close())
+        request.addfinalizer(API.close)
 
         return API
 
