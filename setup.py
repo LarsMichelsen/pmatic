@@ -26,10 +26,11 @@ except ImportError:
 setup(name='pmatic',
     version='0.1',
     description='A simple API to to the Homematic CCU2',
-    long_description='pmatic is a python library to provide access to the Homematic CCU2. You ' \
-                     'can execute pmatic directly on the CCU2 or another system having Python ' \
-                     'installed. With pmatic you can write your own Python scripts to communicate ' \
-                     'with your CCU2 devices.',
+    long_description=\
+        'pmatic is a python library to provide access to the Homematic CCU2. You ' \
+        'can execute pmatic directly on the CCU2 or another system having Python ' \
+        'installed. With pmatic you can write your own Python scripts to communicate ' \
+        'with your CCU2 devices.',
     author='Lars Michelsen',
     author_email='lm@larsmichelsen.com',
     url='https://github.com/LaMi-/pmatic',

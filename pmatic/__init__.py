@@ -44,7 +44,8 @@ __copyright__ = 'Copyright 2016 Lars Michelsen'
 import logging as _logging
 
 from pmatic.ccu import CCU # noqa
-from pmatic.exceptions import * # noqa
+from pmatic.exceptions import PMException, PMConnectionError, \
+                              PMDeviceOffline, PMActionFailed # noqa
 
 __all__ = [ "CCU", "logging",
             "PMException", "PMConnectionError", "PMDeviceOffline",

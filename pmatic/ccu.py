@@ -137,9 +137,10 @@ class CCU(object):
 class CCUDevices(Devices):
     """The central device management class.
 
-    CCUDevices class is just like the :class:`Devices` class, with the difference that it provides the
-    :meth:`query` method which can be used to create new :class:`Devices` collections. Another difference
-    is that it is initializing all devices when generic methods to access the devices are called."""
+    CCUDevices class is just like the :class:`Devices` class, with the difference that it provides
+    the :meth:`query` method which can be used to create new :class:`Devices` collections. Another
+    difference is that it is initializing all devices when generic methods to access the devices
+    are called."""
     def __init__(self, ccu):
         super(CCUDevices, self).__init__(ccu)
         self._device_specs = pmatic.api.DeviceSpecs(ccu.api)
@@ -160,7 +161,8 @@ class CCUDevices(Devices):
         self._device_dict[device.address] = device
 
 
-    # FIXME: Documentation about possible filters: device_type=None, device_name=None, device_name_regex=None, has_channel_ids=None):
+    # FIXME: Documentation about possible filters: device_type=None, device_name=None,
+    #        device_name_regex=None, has_channel_ids=None):
     # FIXME: Add more filter options
     def query(self, **filters):
         devices = Devices(self._ccu)
@@ -194,7 +196,8 @@ class CCUDevices(Devices):
                 continue
 
             # regex match device name
-            if "device_name_regex" in filters and not re.match(filters["device_name_regex"], device.name):
+            if "device_name_regex" in filters \
+               and not re.match(filters["device_name_regex"], device.name):
                 continue
 
             # Add devices which have one of the channel ids listed in has_channel_ids
@@ -208,9 +211,9 @@ class CCUDevices(Devices):
     def _init_all_devices(self):
         """Adds all devices known to the CCU to this collection.
 
-        It is called to initialize the devices on the first accessor method call. It initializes the
-        device collections once. You can enforce the collection too be re-initialized by calling
-        :meth:`clear` and then call an accessor again."""
+        It is called to initialize the devices on the first accessor method call. It initializes
+        the device collections once. You can enforce the collection too be re-initialized by
+        calling :meth:`clear` and then call an accessor again."""
         for device in self._query_for_devices():
             self._add_without_init(device)
 

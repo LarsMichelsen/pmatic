@@ -48,32 +48,14 @@ class Parameter(object):
         # mask: 1=Read, 2=Write, 4=Event
         'OPERATIONS' : int,
         'TAB_ORDER'  : int,
-        # mask: 
-        # 0x01 : Visible-Flag. Dieser Parameter sollte für de
-        # n Endanwender sichtbar sein. 
-        # 0x02 : Internal-Flag. Dieser Parameter wird nur int
-        # ern verwendet. 
-        # 0x04 : Transform-Flag. Änderungen dieses Parameters
-        #  ändern das Verhalten des 
-        #  entsprechenden Kanals völlig. Darf nur geändert wer
-        #  den, wenn keine Verknüpfungen 
-        #  am entsprechenden Kanal vorhanden sind. 
-        #  0x08 : Service-Flag. Dieser Parameter soll als Serv
-        #  icemeldung behandelt werden. Als 
-        #  Datentyp für Servicemeldungen sind nur Boolean und 
-        #  Integer zulässig. Bei 0 bzw. false liegt dabei keine
-        #  Meldung vor, ansonsten liegt eine Meldung vor. 
-        #  0x10 : Sticky-Flag. Nur bei Servicemeldungen. Servi
-        #  cemeldung setzt sich nicht selbst 
-        #  zurück, sondern muss von der Oberfläche zurückgeset
-        #  zt werden. 
+        # mask: 1=visible, 2=internal, 4=transform, 8=service, 10=sticky-service
         'FLAGS'      : int,
     }
 
 
     def __init__(self, channel, spec):
         assert isinstance(channel, pmatic.entities.Channel), "channel is not a Channel: %r" % channel
-        assert type(spec) == dict, "spec is not a dictionary: %r" % spec
+        assert isinstance(spec, dict), "spec is not a dictionary: %r" % spec
         self.channel = channel
         self._init_attributes(spec)
 
@@ -345,7 +327,7 @@ class ParameterINTEGER(Parameter):
 
 
     def _validate(self, value):
-        if type(value) != int:
+        if not isinstance(value, int):
             raise PMException("Invalid type. You need to provide an integer value.")
 
         if value > self.max:
@@ -408,7 +390,8 @@ class ParameterBOOL(Parameter):
     datatype = "boolean"
 
     def _from_api_value(self, value):
-        """ "1" comes from JSON API and True from XML-RPC. Later one would not need this transform method."""
+        """ "1" comes from JSON API and True from XML-RPC. Later one would not need
+        this transform method."""
         return value in [ "1", True ]
 
 
@@ -417,13 +400,17 @@ class ParameterBOOL(Parameter):
 
 
     def _validate(self, value):
-        if type(value) != bool:
+        if not isinstance(value, bool):
             raise PMException("Invalid type. You need to provide a bool value.")
 
         return True
 
 
-# 'control': u'NONE', 'operations': 5, 'name': u'ERROR', 'min': 0, 'default': 0, 'max': 4, '_value': 0, 'tab_order': 1, 'value_list': u'NO_ERROR VALVE_DRIVE_BLOCKED VALVE_DRIVE_LOOSE ADJUSTING_RANGE_TO_SMALL LOWBAT', 'flags': 9, 'unit': u'', 'type': u'ENUM', 'id': u'ERROR', 'channel': <pmatic.entities.ChannelClimaVentDrive object at 0x7fb7574b6750>}
+# 'control': u'NONE', 'operations': 5, 'name': u'ERROR', 'min': 0, 'default': 0, 'max': 4,
+# '_value': 0, 'tab_order': 1, 'value_list': u'NO_ERROR VALVE_DRIVE_BLOCKED 
+# VALVE_DRIVE_LOOSE ADJUSTING_RANGE_TO_SMALL LOWBAT', 'flags': 9, 'unit': u'',
+# 'type': u'ENUM', 'id': u'ERROR',
+# 'channel': <pmatic.entities.ChannelClimaVentDrive object at 0x7fb7574b6750>}
 class ParameterENUM(ParameterINTEGER):
     _transform_attributes = dict(ParameterINTEGER._transform_attributes,
         VALUE_LIST=lambda v: v.split(" "),

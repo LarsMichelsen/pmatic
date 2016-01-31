@@ -63,10 +63,12 @@ def test_explicit_wrong_init():
 def test_local_remote_detection():
     orig_uname = os.uname
 
-    os.uname = lambda: ('Linux', 'dev', '3.16.0-4-amd64', '#1 SMP Debian 3.16.7-ckt9-3~deb8u1 (2015-04-24)', 'x86_64')
+    os.uname = lambda: ('Linux', 'dev', '3.16.0-4-amd64',
+                        '#1 SMP Debian 3.16.7-ckt9-3~deb8u1 (2015-04-24)', 'x86_64')
     assert not pmatic.api.is_ccu()
 
-    os.uname = lambda: ('Linux', 'ccu', '3.4.11.ccu2', '#1 PREEMPT Fri Oct 16 10:43:35 CEST 2015', 'armv5tejl')
+    os.uname = lambda: ('Linux', 'ccu', '3.4.11.ccu2',
+                        '#1 PREEMPT Fri Oct 16 10:43:35 CEST 2015', 'armv5tejl')
     assert pmatic.api.is_ccu()
 
     os.uname = orig_uname
