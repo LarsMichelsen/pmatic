@@ -73,7 +73,8 @@ class Entity(object):
                 if func_type in [ "instancemethod", "function", "method" ]:
                     args = []
                     offset = 1 if func_type in [ "instancemethod", "method" ] else 0
-                    for arg_name in trans_func.__code__.co_varnames[offset:trans_func.__code__.co_argcount]:
+                    argcount = trans_func.__code__.co_argcount
+                    for arg_name in trans_func.__code__.co_varnames[offset:argcount]:
                         if arg_name == "api":
                             args.append(self._ccu.api)
                         elif arg_name == "ccu":
@@ -148,7 +149,8 @@ class Channel(utils.LogMixin, Entity):
     ]
 
     def __init__(self, device, spec):
-        assert isinstance(device, Device), "device object is not a Device derived class: %r" % device
+        if not isinstance(device, Device):
+            raise PMException("Device object is not a Device derived class: %r" % device)
         self.device = device
         self._values = {}
         super(Channel, self).__init__(device._ccu, spec)
@@ -156,7 +158,8 @@ class Channel(utils.LogMixin, Entity):
 
     @classmethod
     def from_channel_dicts(cls, device, channel_dicts):
-        """Creates channel instances associated with the given *device* instance from the given attribute dictionaries.
+        """Creates channel instances associated with the given *device* instance from the given
+        attribute dictionaries.
 
         Uses the list of channel attribute dictionaries given with *channel_dicts* to create a list
         of specific `Channel` instances (like e.g. :class:`ChannelShutterContact`) or the generic
@@ -169,7 +172,8 @@ class Channel(utils.LogMixin, Entity):
             channel_class = channel_classes_by_type_name.get(channel_dict["type"], Channel)
 
             if channel_class == Channel:
-                cls.cls_logger().debug("Using generic Channel class (Type: %s): %r" % (channel_dict["type"], channel_dict))
+                cls.cls_logger().debug("Using generic Channel class (Type: %s): %r" %
+                                                    (channel_dict["type"], channel_dict))
 
             channel_objects.append(channel_class(device, channel_dict))
         return channel_objects
@@ -192,8 +196,9 @@ class Channel(utils.LogMixin, Entity):
             class_name = "Parameter%s" % param_spec["TYPE"]
             cls = getattr(pmatic.params, class_name)
             if not cls:
-                self.logger.warning("%s: Skipping unknown parameter %s of type %s. Class %s not implemented." %
-                                              (self.channel_type, param_id, param_spec["TYPE"], class_name))
+                self.logger.warning("%s: Skipping unknown parameter %s of type %s. "
+                                    "Class %s not implemented." %
+                            (self.channel_type, param_id, param_spec["TYPE"], class_name))
             else:
                 self._values[param_id] = cls(self, param_spec)
 
@@ -284,8 +289,10 @@ class Channel(utils.LogMixin, Entity):
         #pprint.pprint(attrs)
         #sys.exit(1)
         # Skip non needed attributes (already set by low level data)
-        # FIXME: 'direction': 1, from low level API might be duplicate of u'category': u'CATEGORY_SENDER',
-        # FIXME: 'aes_active': True, from low level API might be duplicate of u'mode': u'MODE_AES',
+        # FIXME: 'direction': 1, from low level API might be duplicate of
+        #        u'category': u'CATEGORY_SENDER',
+        # FIXME: 'aes_active': True, from low level API might be duplicate
+        #        of u'mode': u'MODE_AES',
         attrs = attrs.copy()
         for a in [ "address", "device_id" ]:
             del attrs[a]
@@ -294,13 +301,15 @@ class Channel(utils.LogMixin, Entity):
 
 
     def on_value_changed(self, func):
-        """Register a function to be called each time a value of this channel parameters has changed."""
+        """Register a function to be called each time a value of this channel parameters
+        has changed."""
         for value in self.values.values():
             value.register_callback("value_changed", func)
 
 
     def on_value_updated(self, func):
-        """Register a function to be called each time a value of this channel parameters has been updated."""
+        """Register a function to be called each time a value of this channel parameters has
+        been updated."""
         for value in self.values.values():
             value.register_callback("value_updated", func)
 
@@ -317,7 +326,8 @@ class ChannelMaintenance(Channel):
     def summary_state(self):
         """The maintenance channel does not provide a summary state.
 
-        If you want to get a formated maintenance state, you need to use the property `maintenance_state`."""
+        If you want to get a formated maintenance state, you need to use the property
+        `maintenance_state`."""
         pass
 
 
@@ -465,7 +475,12 @@ class ChannelClimaRegulator(Channel):
 # Devices:
 #  HM-CC-RT-DN
 # FIXME: Values:
-# {u'SET_TEMPERATURE': u'21.500000', u'PARTY_START_MONTH': u'1', u'BATTERY_STATE': u'2.400000', u'PARTY_START_DAY': u'1', u'PARTY_STOP_DAY': u'1', u'PARTY_START_YEAR': u'0', u'FAULT_REPORTING': u'0', u'PARTY_STOP_TIME': u'0', u'ACTUAL_TEMPERATURE': u'23.100000', u'BOOST_STATE': u'15', u'PARTY_STOP_YEAR': u'0', u'PARTY_STOP_MONTH': u'1', u'VALVE_STATE': u'10', u'PARTY_START_TIME': u'450', u'PARTY_TEMPERATURE': u'5.000000', u'CONTROL_MODE': u'1'}
+# {u'SET_TEMPERATURE': u'21.500000', u'PARTY_START_MONTH': u'1', u'BATTERY_STATE': u'2.400000',
+#  u'PARTY_START_DAY': u'1', u'PARTY_STOP_DAY': u'1', u'PARTY_START_YEAR': u'0',
+#  u'FAULT_REPORTING': u'0', u'PARTY_STOP_TIME': u'0', u'ACTUAL_TEMPERATURE': u'23.100000',
+#  u'BOOST_STATE': u'15', u'PARTY_STOP_YEAR': u'0', u'PARTY_STOP_MONTH': u'1',
+#  u'VALVE_STATE': u'10', u'PARTY_START_TIME': u'450', u'PARTY_TEMPERATURE': u'5.000000',
+#  u'CONTROL_MODE': u'1'}
 class ChannelClimaRTTransceiver(Channel):
     type_name = "CLIMATECONTROL_RT_TRANSCEIVER"
 

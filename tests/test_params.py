@@ -522,8 +522,8 @@ class TestParameterENUM(lib.TestCCU):
 class TestParameterSTRING(lib.TestCCU):
     @pytest.fixture(scope="function")
     def p(self, ccu):
-        clima_rt_transceiver = list(ccu.devices.query(device_name="Schlafzimmer-Links-Heizung"))[0].channels[4]
-        return clima_rt_transceiver.values["PARTY_MODE_SUBMIT"]
+        trans = list(ccu.devices.query(device_name="Schlafzimmer-Links-Heizung"))[0].channels[4]
+        return trans.values["PARTY_MODE_SUBMIT"]
 
     def test_attributes(self, p):
         assert type(p) == ParameterSTRING

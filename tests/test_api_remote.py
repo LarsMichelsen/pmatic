@@ -36,7 +36,7 @@ from pmatic.exceptions import PMException
 import lib
 
 
-def setup_module(module):
+def setup_module():
     """ When executed against a real CCU (recording mode), all existing
     resource files are deleted."""
     if lib.is_testing_with_real_ccu():
