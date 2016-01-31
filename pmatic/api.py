@@ -549,7 +549,8 @@ class LocalAPI(AbstractAPI):
                 response_txt += line
 
         self.logger.debug("  RESPONSE: %r" % response_txt)
-        header, body = response_txt.split("\n\n", 1)
+        # index 0 would be the header, but we don't need it
+        body = response_txt.split("\n\n", 1)[1]
 
         return self._parse_api_response(method_name_int, kwargs, body)
 

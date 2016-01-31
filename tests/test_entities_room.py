@@ -35,7 +35,7 @@ import lib
 class TestRoom(lib.TestCCU):
     @pytest.fixture(scope="function")
     def room(self, ccu):
-        assert type(ccu.rooms) == CCURooms
+        assert isinstance(ccu.rooms, CCURooms)
         return list(ccu.rooms)[0]
 
 
@@ -50,7 +50,7 @@ class TestRoom(lib.TestCCU):
         assert utils.is_text(room.description)
         room.description.encode("utf-8")
 
-        assert type(room.channel_ids) == list
+        assert isinstance(room.channel_ids, list)
         for channel_id in room.channel_ids:
             assert isinstance(channel_id, int)
 

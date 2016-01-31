@@ -116,7 +116,7 @@ class TestRemoteAPILowLevel(lib.TestRemoteAPI):
 
     def test_methods_initialized(self, API):
         assert len(API._methods) > 10
-        for method_name, method in API._methods.items():
+        for method in API._methods.values():
             assert "INFO" in method
             assert "NAME" in method
             assert "LEVEL" in method

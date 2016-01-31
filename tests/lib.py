@@ -50,7 +50,7 @@ import pmatic.api
 resources_path = "tests/resources"
 
 
-def request_id(url, data):
+def request_id(data):
     req = json.loads(data.decode("utf-8"))
 
     # For hashing we need a constant sorted representation of the data
@@ -81,7 +81,7 @@ def fake_urlopen(url, data=None, timeout=None):
     """
     fake_data = fake_session_id(data, data)
 
-    rid = request_id(url, fake_data)
+    rid = request_id(fake_data)
     response = open(response_file_path(rid), "rb").read()
     http_status = int(open(status_file_path(rid), "rb").read())
 
@@ -116,7 +116,7 @@ def wrap_urlopen(url, data=None, timeout=None):
     fake_data = fake_session_id(data, data)
     fake_response = fake_session_id(data, response)
 
-    rid = request_id(url, fake_data)
+    rid = request_id(fake_data)
 
     open(response_file_path(rid), "wb").write(fake_response)
     open(status_file_path(rid), "wb").write(str(http_status).encode("utf-8"))

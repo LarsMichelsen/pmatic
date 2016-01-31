@@ -244,7 +244,7 @@ class TestDevices(lib.TestCCU):
         assert len(ccu.devices._device_dict) == len(all_returned)
 
 
-    def test_add(self, API, ccu, devices):
+    def test_add(self, ccu, devices):
         device1 = list(ccu.devices)[0]
 
         if isinstance(self, TestCCUDevices):
@@ -357,7 +357,7 @@ class TestCCUDevices(TestDevices):
         assert len(devices) == expected_len
 
 
-    def test_add(self, API, ccu, devices):
+    def test_add(self, ccu, devices):
         device1 = list(ccu.devices)[0]
 
         assert len(devices) > 0
