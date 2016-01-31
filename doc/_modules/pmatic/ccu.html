@@ -80,9 +80,13 @@
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="k">pass</span>
 
+<span class="kn">import</span> <span class="nn">re</span>
+
 <span class="kn">import</span> <span class="nn">pmatic.api</span>
 <span class="kn">import</span> <span class="nn">pmatic.events</span>
-<span class="kn">from</span> <span class="nn">pmatic.entities</span> <span class="kn">import</span> <span class="n">Devices</span><span class="p">,</span> <span class="n">Rooms</span>
+<span class="kn">import</span> <span class="nn">pmatic.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">pmatic.entities</span> <span class="kn">import</span> <span class="n">Devices</span><span class="p">,</span> <span class="n">Device</span><span class="p">,</span> <span class="n">Rooms</span><span class="p">,</span> <span class="n">Room</span>
+<span class="kn">from</span> <span class="nn">pmatic.exceptions</span> <span class="kn">import</span> <span class="n">PMException</span>
 
 
 <div class="viewcode-block" id="CCU"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCU">[docs]</a><span class="k">class</span> <span class="nc">CCU</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -112,7 +116,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CCU</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">rssi</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rssi</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">=</span> <span class="bp">None</span>
@@ -123,8 +127,8 @@
         <span class="sd">&quot;&quot;&quot;This property provides access to the collection of all known devices.</span>
 
 <span class="sd">        The collection is an :class:`pmatic.entities.Devices` instance.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="n">Devices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="n">CCUDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span>
 
 
@@ -143,8 +147,8 @@
         <span class="sd">&quot;&quot;&quot;Provides access to the collection of all known rooms.</span>
 
 <span class="sd">        This collection is an :class:`pmatic.entities.Rooms` instance.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">=</span> <span class="n">Rooms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">=</span> <span class="n">CCURooms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span>
 
 
@@ -172,10 +176,194 @@
 
 
     <span class="c1"># FIXME: Consolidate API with self.devices.(...)</span>
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">signal_strengths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">RSSI</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">RSSI</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">SignalStrength</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">RSSI</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rssi</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_rssi</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">SignalStrength</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rssi</span></div>
+
+
+
+<span class="k">class</span> <span class="nc">CCUDevices</span><span class="p">(</span><span class="n">Devices</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The central device management class.</span>
+
+<span class="sd">    CCUDevices class is just like the :class:`Devices` class, with the difference that it provides the</span>
+<span class="sd">    :meth:`query` method which can be used to create new :class:`Devices` collections. Another difference</span>
+<span class="sd">    is that it is initializing all devices when generic methods to access the devices are called.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CCUDevices</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ccu</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_device_specs</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">DeviceSpecs</span><span class="p">(</span><span class="n">ccu</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_device_logic</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">DeviceLogic</span><span class="p">(</span><span class="n">ccu</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Optional initializer of the devices data structure, called on first access.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_all_devices</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span>
+
+
+    <span class="k">def</span> <span class="nf">_add_without_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span><span class="p">[</span><span class="n">device</span><span class="o">.</span><span class="n">address</span><span class="p">]</span> <span class="o">=</span> <span class="n">device</span>
+
+
+    <span class="c1"># FIXME: Documentation about possible filters: device_type=None, device_name=None, device_name_regex=None, has_channel_ids=None):</span>
+    <span class="c1"># FIXME: Add more filter options</span>
+    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
+        <span class="n">devices</span> <span class="o">=</span> <span class="n">Devices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_for_devices</span><span class="p">(</span><span class="o">**</span><span class="n">filters</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_without_init</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">devices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">devices</span>
+
+
+    <span class="k">def</span> <span class="nf">_query_for_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;device_type&quot;</span> <span class="ow">in</span> <span class="n">filters</span> <span class="ow">and</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_string</span><span class="p">(</span><span class="n">filters</span><span class="p">[</span><span class="s2">&quot;device_type&quot;</span><span class="p">]):</span>
+            <span class="n">filters</span><span class="p">[</span><span class="s2">&quot;device_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">filters</span><span class="p">[</span><span class="s2">&quot;device_type&quot;</span><span class="p">]]</span>
+
+        <span class="k">for</span> <span class="n">address</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_specs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># First try to get an olready created room object from the central</span>
+            <span class="c1"># CCU room collection. Otherwise create the room object and add it</span>
+            <span class="c1"># to the central collection and this collection.</span>
+            <span class="n">device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">device</span><span class="p">:</span>
+                <span class="n">device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_from_low_level_dict</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+
+            <span class="c1"># Now perform optional filtering</span>
+
+            <span class="c1"># Filter by device type</span>
+            <span class="k">if</span> <span class="s2">&quot;device_type&quot;</span> <span class="ow">in</span> <span class="n">filters</span> <span class="ow">and</span> <span class="n">device</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">[</span><span class="s2">&quot;device_type&quot;</span><span class="p">]:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Exact match device name</span>
+            <span class="k">if</span> <span class="s2">&quot;device_name&quot;</span> <span class="ow">in</span> <span class="n">filters</span> <span class="ow">and</span> <span class="n">filters</span><span class="p">[</span><span class="s2">&quot;device_name&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># regex match device name</span>
+            <span class="k">if</span> <span class="s2">&quot;device_name_regex&quot;</span> <span class="ow">in</span> <span class="n">filters</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">filters</span><span class="p">[</span><span class="s2">&quot;device_name_regex&quot;</span><span class="p">],</span> <span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Add devices which have one of the channel ids listed in has_channel_ids</span>
+            <span class="k">if</span> <span class="s2">&quot;has_channel_ids&quot;</span> <span class="ow">in</span> <span class="n">filters</span> \
+               <span class="ow">and</span> <span class="ow">not</span> <span class="p">[</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">device</span><span class="o">.</span><span class="n">channels</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">[</span><span class="s2">&quot;has_channel_ids&quot;</span><span class="p">]</span> <span class="p">]:</span>
+                <span class="k">continue</span>
+
+            <span class="k">yield</span> <span class="n">device</span>
+
+
+    <span class="k">def</span> <span class="nf">_init_all_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds all devices known to the CCU to this collection.</span>
+
+<span class="sd">        It is called to initialize the devices on the first accessor method call. It initializes the</span>
+<span class="sd">        device collections once. You can enforce the collection too be re-initialized by calling</span>
+<span class="sd">        :meth:`clear` and then call an accessor again.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_for_devices</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_without_init</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">add_from_low_level_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a device object and add it to the collection.</span>
+
+<span class="sd">        This method can be used to create a device object by providing a valid</span>
+<span class="sd">        low level attributes dictionary specifying an object.</span>
+
+<span class="sd">        It creates the device and also assigns the logic level attributes to</span>
+<span class="sd">        the object so that it is a fully initialized device object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_from_low_level_dict</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">_create_from_low_level_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a device object from a low level device spec.&quot;&quot;&quot;</span>
+        <span class="n">device</span> <span class="o">=</span> <span class="n">Device</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+        <span class="n">device</span><span class="o">.</span><span class="n">set_logic_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device_logic</span><span class="p">[</span><span class="n">device</span><span class="o">.</span><span class="n">address</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">device</span>
+
+
+    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove all objects from this devices collection.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span>
+
+
+
+<span class="k">class</span> <span class="nc">CCURooms</span><span class="p">(</span><span class="n">Rooms</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Manages a collection of rooms.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">CCURooms</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ccu</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ccu</span><span class="p">,</span> <span class="n">CCU</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Invalid ccu object provided: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ccu</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span> <span class="o">=</span> <span class="n">ccu</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span>
+
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_rooms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Optional initializer of the rooms data structure, called on first access.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_room_dict</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_all_rooms</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_room_dict</span>
+
+
+    <span class="k">def</span> <span class="nf">_add_without_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_room_dict</span><span class="p">[</span><span class="n">room</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">room</span>
+
+
+    <span class="c1"># FIXME: Add filter options</span>
+    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
+        <span class="n">rooms</span> <span class="o">=</span> <span class="n">Rooms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">room</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_for_rooms</span><span class="p">(</span><span class="o">**</span><span class="n">filters</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_without_init</span><span class="p">(</span><span class="n">room</span><span class="p">)</span>
+            <span class="n">rooms</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">room</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">rooms</span>
+
+
+    <span class="k">def</span> <span class="nf">_query_for_rooms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes the list of rooms for this collection.</span>
+
+<span class="sd">        When the rooms have not been fetched yet, the room specs might be fetched</span>
+<span class="sd">        from the CCU.</span>
+
+<span class="sd">        You can enforce reinitialization by first calling :meth:`clear` and the access the data</span>
+<span class="sd">        of this instance again.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">room_dict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">room_get_all</span><span class="p">():</span>
+            <span class="c1"># First try to get an olready created room object from the central</span>
+            <span class="c1"># CCU room collection. Otherwise create the room object and add it</span>
+            <span class="c1"># to the central collection and this collection.</span>
+            <span class="n">room</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_room_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">room_dict</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">room</span><span class="p">:</span>
+                <span class="n">room</span> <span class="o">=</span> <span class="n">Room</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="p">,</span> <span class="n">room_dict</span><span class="p">)</span>
+
+            <span class="c1"># Now perform optional filtering</span>
+
+            <span class="k">yield</span> <span class="n">room</span>
+
+
+    <span class="k">def</span> <span class="nf">_init_all_rooms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds all rooms known to the CCU to this collection.</span>
+
+<span class="sd">        It is called to initialize the rooms on the first accessor method call. It initializes the</span>
+<span class="sd">        collections once. You can enforce the collection too be re-initialized by calling</span>
+<span class="sd">        :meth:`clear` and then call an accessor again.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">room</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_for_rooms</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_without_init</span><span class="p">(</span><span class="n">room</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Remove all :class:`Room` objects from this collection.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span>
 </pre></div>
 
           </div>

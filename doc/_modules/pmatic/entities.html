@@ -78,7 +78,6 @@
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
 
-<span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="k">try</span><span class="p">:</span>
@@ -97,10 +96,10 @@
     <span class="n">_skip_attributes</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">_mandatory_attributes</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
-        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">AbstractAPI</span><span class="p">),</span> <span class="s2">&quot;api is not of API class: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">api</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ccu</span><span class="p">,</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">ccu</span><span class="o">.</span><span class="n">CCU</span><span class="p">),</span> <span class="s2">&quot;ccu is not of CCU class: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ccu</span>
         <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">,</span> <span class="s2">&quot;spec is not a dictionary: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">spec</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_api</span> <span class="o">=</span> <span class="n">api</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span> <span class="o">=</span> <span class="n">ccu</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_attributes</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verify_mandatory_attributes</span><span class="p">()</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Entity</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
@@ -126,7 +125,9 @@
                     <span class="n">offset</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">func_type</span> <span class="ow">in</span> <span class="p">[</span> <span class="s2">&quot;instancemethod&quot;</span><span class="p">,</span> <span class="s2">&quot;method&quot;</span> <span class="p">]</span> <span class="k">else</span> <span class="mi">0</span>
                     <span class="k">for</span> <span class="n">arg_name</span> <span class="ow">in</span> <span class="n">trans_func</span><span class="o">.</span><span class="n">__code__</span><span class="o">.</span><span class="n">co_varnames</span><span class="p">[</span><span class="n">offset</span><span class="p">:</span><span class="n">trans_func</span><span class="o">.</span><span class="n">__code__</span><span class="o">.</span><span class="n">co_argcount</span><span class="p">]:</span>
                         <span class="k">if</span> <span class="n">arg_name</span> <span class="o">==</span> <span class="s2">&quot;api&quot;</span><span class="p">:</span>
-                            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="p">)</span>
+                            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
+                        <span class="k">elif</span> <span class="n">arg_name</span> <span class="o">==</span> <span class="s2">&quot;ccu&quot;</span><span class="p">:</span>
+                            <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="p">)</span>
                         <span class="k">elif</span> <span class="n">arg_name</span> <span class="o">==</span> <span class="s2">&quot;device&quot;</span><span class="p">:</span>
                             <span class="n">args</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
                         <span class="k">elif</span> <span class="n">arg_name</span> <span class="o">==</span> <span class="s2">&quot;obj&quot;</span><span class="p">:</span>
@@ -200,7 +201,7 @@
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">Device</span><span class="p">),</span> <span class="s2">&quot;device object is not a Device derived class: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">device</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Channel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">_api</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Channel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">_ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
 
 
     <span class="nd">@classmethod</span>
@@ -234,7 +235,7 @@
 <span class="sd">        This method is called on the first access to the values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">param_spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">interface_get_paramset_description</span><span class="p">(</span><span class="n">interface</span><span class="o">=</span><span class="s2">&quot;BidCos-RF&quot;</span><span class="p">,</span>
+        <span class="k">for</span> <span class="n">param_spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">interface_get_paramset_description</span><span class="p">(</span><span class="n">interface</span><span class="o">=</span><span class="s2">&quot;BidCos-RF&quot;</span><span class="p">,</span>
                                                     <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">paramsetType</span><span class="o">=</span><span class="s2">&quot;VALUES&quot;</span><span class="p">):</span>
             <span class="n">param_id</span> <span class="o">=</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span>
 
@@ -280,7 +281,7 @@
             <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;The value parameters are not yet initialized.&quot;</span><span class="p">)</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">interface_get_paramset</span><span class="p">(</span><span class="n">interface</span><span class="o">=</span><span class="s2">&quot;BidCos-RF&quot;</span><span class="p">,</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">interface_get_paramset</span><span class="p">(</span><span class="n">interface</span><span class="o">=</span><span class="s2">&quot;BidCos-RF&quot;</span><span class="p">,</span>
                                          <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span><span class="n">paramsetKey</span><span class="o">=</span><span class="s2">&quot;VALUES&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">PMException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="c1"># FIXME: Clean this 601 in &quot;%s&quot; up!</span>
@@ -372,7 +373,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">maintenance_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ChannelMaintenance</span><span class="p">)</span><span class="o">.</span><span class="n">summary_state</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ChannelMaintenance</span><span class="p">)</span><span class="o">.</span><span class="n">summary_state</span>
 
 
 
@@ -580,75 +581,27 @@
 <div class="viewcode-block" id="Devices"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Devices">[docs]</a><span class="k">class</span> <span class="nc">Devices</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Manages a collection of CCU devices.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Devices</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">AbstractAPI</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Invalid api object provided: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">api</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_api</span> <span class="o">=</span> <span class="n">api</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_device_specs</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">DeviceSpecs</span><span class="p">(</span><span class="n">api</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_device_logic</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">DeviceLogic</span><span class="p">(</span><span class="n">api</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ccu</span><span class="p">,</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">ccu</span><span class="o">.</span><span class="n">CCU</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Invalid ccu object provided: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ccu</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span> <span class="o">=</span> <span class="n">ccu</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span> <span class="o">=</span> <span class="p">{}</span>
 
 
-    <span class="c1"># FIXME: Add more filter options</span>
-<div class="viewcode-block" id="Devices.get"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Devices.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_type</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">device_name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">device_name_regex</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">has_channel_ids</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns all device objects matching the provided filters.</span>
-
-<span class="sd">        When the devices have not been fetched yet, the device specs might be fetched</span>
-<span class="sd">        from the CCU and objects are created for all devices.&quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_string</span><span class="p">(</span><span class="n">device_type</span><span class="p">):</span>
-            <span class="n">device_type</span> <span class="o">=</span> <span class="p">[</span><span class="n">device_type</span><span class="p">]</span>
-
-        <span class="c1"># Create new device group which is returned as result for this query</span>
-        <span class="n">group</span> <span class="o">=</span> <span class="n">Devices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">address</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_specs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="c1"># First create the device objects</span>
-            <span class="n">device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">device</span><span class="p">:</span>
-                <span class="n">device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_from_low_level_dict</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
-
-            <span class="c1"># Now perform optional filtering</span>
-
-            <span class="c1"># Filter by device type</span>
-            <span class="k">if</span> <span class="n">device_type</span> <span class="o">!=</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">device</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">device_type</span><span class="p">:</span>
-                <span class="k">continue</span>
-
-            <span class="c1"># Exact match device name</span>
-            <span class="k">if</span> <span class="n">device_name</span> <span class="o">!=</span> <span class="bp">None</span> <span class="ow">and</span> <span class="n">device_name</span> <span class="o">!=</span> <span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-                <span class="k">continue</span>
-
-            <span class="c1"># regex match device name</span>
-            <span class="k">if</span> <span class="n">device_name_regex</span> <span class="o">!=</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">device_name_regex</span><span class="p">,</span> <span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
-                <span class="k">continue</span>
-
-            <span class="c1"># Add devices which have one of the channel ids listed in has_channel_ids</span>
-            <span class="k">if</span> <span class="n">has_channel_ids</span> <span class="o">!=</span> <span class="bp">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="p">[</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">device</span><span class="o">.</span><span class="n">channels</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">has_channel_ids</span> <span class="p">]:</span>
-                <span class="k">continue</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="p">[</span><span class="n">address</span><span class="p">]</span> <span class="o">=</span> <span class="n">device</span>
-            <span class="n">group</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">group</span></div>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Optional initializer of the devices data structure, called on first access.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span>
 
 
-    <span class="k">def</span> <span class="nf">_create_from_low_level_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates a device object from a low level device spec.&quot;&quot;&quot;</span>
-        <span class="n">device</span> <span class="o">=</span> <span class="n">Device</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
-        <span class="n">device</span><span class="o">.</span><span class="n">set_logic_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_device_logic</span><span class="p">[</span><span class="n">device</span><span class="o">.</span><span class="n">address</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">device</span>
+<div class="viewcode-block" id="Devices.get"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Devices.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">deflt</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the device matching the given device address.</span>
 
-
-<div class="viewcode-block" id="Devices.add_from_low_level_dict"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Devices.add_from_low_level_dict">[docs]</a>    <span class="k">def</span> <span class="nf">add_from_low_level_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Creates a device object and add it to the collection.</span>
-
-<span class="sd">        This method can be used to create a device object by providing a valid</span>
-<span class="sd">        low level attributes dictionary specifying an object.</span>
-
-<span class="sd">        It creates the device and also assigns the logic level attributes to</span>
-<span class="sd">        the object so that it is a fully initialized device object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_from_low_level_dict</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span></div>
+<span class="sd">        If there is none matching the given address either None or the value</span>
+<span class="sd">        specified by the optional attribute *deflt* is returned.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">deflt</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Devices.add"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Devices.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
@@ -658,13 +611,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="p">[</span><span class="n">device</span><span class="o">.</span><span class="n">address</span><span class="p">]</span> <span class="o">=</span> <span class="n">device</span></div>
 
 
-    <span class="c1"># FIXME: Trigger device spec fetch?</span>
 <div class="viewcode-block" id="Devices.exists"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Devices.exists">[docs]</a>    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check whether or not a device with the given address is in this collection.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">address</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span></div>
 
 
-    <span class="c1"># FIXME: Trigger device spec fetch?</span>
 <div class="viewcode-block" id="Devices.addresses"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Devices.addresses">[docs]</a>    <span class="k">def</span> <span class="nf">addresses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of all addresses of all initialized devices.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div>
@@ -686,7 +637,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
 
 
-    <span class="c1"># FIXME: Trigger device spec fetch?</span>
 <div class="viewcode-block" id="Devices.get_device_or_channel_by_address"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Devices.get_device_or_channel_by_address">[docs]</a>    <span class="k">def</span> <span class="nf">get_device_or_channel_by_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the device or channel object of the given address.</span>
 
@@ -711,7 +661,6 @@
             <span class="n">device</span><span class="o">.</span><span class="n">on_value_updated</span><span class="p">(</span><span class="n">func</span><span class="p">)</span></div>
 
 
-    <span class="c1"># FIXME: Trigger device spec fetch?</span>
 <div class="viewcode-block" id="Devices.__iter__"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Devices.__iter__">[docs]</a>    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Provides an iterator over the devices of this collection.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -772,25 +721,25 @@
         <span class="s2">&quot;channels&quot;</span><span class="p">,</span>
     <span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Device</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Device</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
 
 
     <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Device.from_dict"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Device.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+<div class="viewcode-block" id="Device.from_dict"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Device.from_dict">[docs]</a>    <span class="k">def</span> <span class="nf">from_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Creates a new device object from the attributes given in the *spec* dictionary.</span>
 
 <span class="sd">        The *spec* dictionary needs to contain the mandatory attributes with values of the correct</span>
 <span class="sd">        format. Depending on the device type specified by the *spec* dictionary, either a specific</span>
 <span class="sd">        device class or the generic :class:`Device` class is used to create the object.&quot;&quot;&quot;</span>
         <span class="n">device_class</span> <span class="o">=</span> <span class="n">device_classes_by_type_name</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">spec</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">],</span> <span class="n">Device</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">device_class</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">device_class</span><span class="p">(</span><span class="n">ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span></div>
 
 
-    <span class="c1"># FIXME: Still support this API or drop it? It is not officially documented.</span>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Devices</span><span class="p">(</span><span class="n">api</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="c1">## FIXME: Still support this API or drop it? It is not officially documented.</span>
+    <span class="c1">#@classmethod</span>
+    <span class="c1">#def get_devices(self, api, **kwargs):</span>
+    <span class="c1">#    return Devices(api).get(**kwargs)</span>
 
 
     <span class="c1"># {u&#39;UNREACH&#39;: u&#39;1&#39;, u&#39;AES_KEY&#39;: u&#39;1&#39;, u&#39;UPDATE_PENDING&#39;: u&#39;1&#39;, u&#39;RSSI_PEER&#39;: u&#39;-65535&#39;,</span>
@@ -887,7 +836,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_summary_state</span><span class="p">()</span>
 
 
-    <span class="k">def</span> <span class="nf">_get_summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_channel_types</span><span class="o">=</span><span class="p">[]):</span>
+    <span class="k">def</span> <span class="nf">_get_summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_channel_types</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Internal helper for :prop:`summary_state`.</span>
 
 <span class="sd">        It is possible to exclude the states of specific channels by listing the</span>
@@ -909,7 +858,7 @@
         <span class="c1"># FIXME: Add bad rssi?</span>
 
         <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_channel_types</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">skip_channel_types</span> <span class="o">!=</span> <span class="bp">None</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_channel_types</span><span class="p">:</span>
                 <span class="n">txt</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">summary_state</span>
                 <span class="k">if</span> <span class="n">txt</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
                     <span class="n">formated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
@@ -945,9 +894,11 @@
 
 
 <span class="k">class</span> <span class="nc">SpecificDevice</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span> <span class="nf">get_all</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">API</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">Device</span><span class="o">.</span><span class="n">get_devices</span><span class="p">(</span><span class="n">API</span><span class="p">,</span> <span class="n">device_type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">type_name</span><span class="p">)</span>
+    <span class="c1"># FIXME: Still support hits method?</span>
+    <span class="c1">#@classmethod</span>
+    <span class="c1">#def get_all(self, API):</span>
+    <span class="c1">#    return Device.get_devices(API, device_type=self.type_name)</span>
+    <span class="k">pass</span>
 
 
 
@@ -1001,36 +952,26 @@
 <div class="viewcode-block" id="Rooms"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Rooms">[docs]</a><span class="k">class</span> <span class="nc">Rooms</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Manages a collection of rooms.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Rooms</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">AbstractAPI</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Invalid api object provided: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">api</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_api</span> <span class="o">=</span> <span class="n">api</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ccu</span><span class="p">,</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">ccu</span><span class="o">.</span><span class="n">CCU</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Invalid ccu object provided: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ccu</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span> <span class="o">=</span> <span class="n">ccu</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_room_dict</span> <span class="o">=</span> <span class="p">{}</span>
 
 
-    <span class="c1"># FIXME: Add filter options</span>
-<div class="viewcode-block" id="Rooms.get"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Rooms.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns all room objects matching the provided filters.</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_rooms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Optional initializer of the rooms data structure, called on first access.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_room_dict</span>
 
-<span class="sd">        When the rooms have not been fetched yet, the room specs might be fetched</span>
-<span class="sd">        from the CCU.&quot;&quot;&quot;</span>
 
-        <span class="c1"># Create new room group which is returned as result for this query</span>
-        <span class="n">rooms</span> <span class="o">=</span> <span class="n">Rooms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="p">)</span>
+<div class="viewcode-block" id="Rooms.get"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Rooms.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room_id</span><span class="p">,</span> <span class="n">deflt</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the :class:`Room` matching the given room id.</span>
 
-        <span class="c1"># FIXME: Cache this?</span>
-        <span class="k">for</span> <span class="n">room_dict</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">room_get_all</span><span class="p">():</span>
-            <span class="c1"># First create the room objects</span>
-            <span class="n">room</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">room_dict</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]))</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">room</span><span class="p">:</span>
-                <span class="n">room</span> <span class="o">=</span> <span class="n">Room</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="p">,</span> <span class="n">room_dict</span><span class="p">)</span>
-
-            <span class="c1"># Now perform optional filtering</span>
-
-            <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="p">[</span><span class="n">room</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">room</span>
-            <span class="n">rooms</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">room</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">rooms</span></div>
+<span class="sd">        If there is none matching the given ID either None or the value</span>
+<span class="sd">        specified by the optional attribute *deflt* is returned.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">room_id</span><span class="p">,</span> <span class="n">deflt</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Rooms.add"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Rooms.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room</span><span class="p">):</span>
@@ -1040,13 +981,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="p">[</span><span class="n">room</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">room</span></div>
 
 
-    <span class="c1"># FIXME: Trigger spec fetch?</span>
 <div class="viewcode-block" id="Rooms.exists"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Rooms.exists">[docs]</a>    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check whether or not a :class:`Room` with the given id is in this collection.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">room_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span></div>
 
 
-    <span class="c1"># FIXME: Trigger spec fetch?</span>
 <div class="viewcode-block" id="Rooms.ids"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Rooms.ids">[docs]</a>    <span class="k">def</span> <span class="nf">ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of all addresses of all initialized room.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div>
@@ -1067,7 +1006,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span></div>
 
 
-    <span class="c1"># FIXME: Trigger spec fetch?</span>
 <div class="viewcode-block" id="Rooms.__iter__"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Rooms.__iter__">[docs]</a>    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Provides an iterator over the rooms of this collection.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
@@ -1086,19 +1024,19 @@
         <span class="s2">&quot;channelIds&quot;</span>       <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="n">x</span><span class="p">)),</span>
     <span class="p">}</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="n">Devices</span><span class="p">(</span><span class="n">api</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Room</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Room</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
 
 
-    <span class="nd">@classmethod</span>
-<div class="viewcode-block" id="Room.get_rooms"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Room.get_rooms">[docs]</a>    <span class="k">def</span> <span class="nf">get_rooms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns a list of all currently configured :class:`.Room` instances.&quot;&quot;&quot;</span>
-        <span class="n">rooms</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">room_dict</span> <span class="ow">in</span> <span class="n">api</span><span class="o">.</span><span class="n">room_get_all</span><span class="p">():</span>
-            <span class="n">rooms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Room</span><span class="p">(</span><span class="n">api</span><span class="p">,</span> <span class="n">room_dict</span><span class="p">))</span>
-        <span class="k">return</span> <span class="n">rooms</span></div>
+    <span class="c1">#@classmethod</span>
+    <span class="c1">#def get_rooms(self, api):</span>
+    <span class="c1">#    &quot;&quot;&quot;Returns a list of all currently configured :class:`.Room` instances.&quot;&quot;&quot;</span>
+    <span class="c1">#    rooms = []</span>
+    <span class="c1">#    for room_dict in api.room_get_all():</span>
+    <span class="c1">#        rooms.append(Room(api, room_dict))</span>
+    <span class="c1">#    return rooms</span>
 
 
     <span class="nd">@property</span>
@@ -1106,8 +1044,9 @@
         <span class="sd">&quot;&quot;&quot;Provides access to a collection of :class:`.Device` objects which have at least one channel associated with this room.</span>
 
 <span class="sd">        The collections is a :class:`.Devices` instance.&quot;&quot;&quot;</span>
-        <span class="c1"># FIXME: Cache this?</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">has_channel_ids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_ids</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">has_channel_ids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_ids</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span>
 
 
     <span class="nd">@property</span>
@@ -1115,7 +1054,7 @@
         <span class="sd">&quot;&quot;&quot;Holds a list of channel objects associated with this room.&quot;&quot;&quot;</span>
         <span class="c1"># FIXME: Cache this?</span>
         <span class="n">room_channels</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">has_channel_ids</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_ids</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">devices</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">device</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">channel</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel_ids</span><span class="p">:</span>
                     <span class="n">room_channels</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span>

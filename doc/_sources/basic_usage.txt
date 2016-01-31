@@ -15,8 +15,8 @@ contacts and their current states:
     #!/usr/bin/python
     import pmatic
 
-    for device in pmatic.CCU().devices.get(device_type="HM-Sec-SC"):
-        print("%-20s %6s" % (device.name, device.is_open() and "open" or "closed"))
+    for device in pmatic.CCU().devices.query(device_type="HM-Sec-SC"):
+        print("%-20s %6s" % (device.name, device.is_open and "open" or "closed"))
 
 When I execute this script on my CCU2, I get the following output:
 
@@ -39,8 +39,8 @@ just by adding the address and credentials to access the CCU.
     import pmatic
     ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
-    for device in ccu.devices.get(device_type="HM-Sec-SC"):
-        print("%-20s %6s" % (device.name, device.is_open() and "open" or "closed"))
+    for device in ccu.devices.query(device_type="HM-Sec-SC"):
+        print("%-20s %6s" % (device.name, device.is_open and "open" or "closed"))
 
 Please note: I moved the CCU object definition to a separate line for readability.
 
@@ -61,7 +61,7 @@ whether or not devices are currently reachable or have a low battery.
     ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
     print("Low battery: ")
-    for device in ccu.devices.get():
+    for device in ccu.devices:
         if device.is_battery_low:
             print("  %s" % device.name)
     else:
@@ -78,7 +78,7 @@ Or do you want to simulate key presses of your buttons (e.g. HM-PBI-4-FM)?
     import pmatic
     ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
-    for device in ccu.devices.get(device_name=u"Büro-Schalter"):
+    for device in ccu.devices.query(device_name=u"Büro-Schalter"):
         if device.button(0).press_short():
             print("done.")
         else:
@@ -107,7 +107,7 @@ instantly.
     import pmatic
     ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
-    devices = ccu.devices.get(device_type=["HM-CC-TC", "HM-WDS10-TH-O", "HM-CC-RT-DN"])
+    devices = ccu.devices.query(device_type=["HM-CC-TC", "HM-WDS10-TH-O", "HM-CC-RT-DN"])
 
     # This function is executed on each state update
     def print_summary_state(param):
@@ -138,7 +138,7 @@ grouped by the rooms.
     import pmatic
     ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
-    for room in ccu.rooms.get():
+    for room in ccu.rooms:
         print(room.name)
         for device in room.devices:
             print(" ", device.name)

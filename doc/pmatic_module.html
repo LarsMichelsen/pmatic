@@ -152,24 +152,14 @@ is raised. Means it is worth it to try again later with same parameters.</p>
 <h2>Devices - A Collection of Devices<a class="headerlink" href="#devices-a-collection-of-devices" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pmatic.entities.Devices">
-<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">Devices</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Devices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Devices" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">Devices</code><span class="sig-paren">(</span><em>ccu</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Devices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Devices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manages a collection of CCU devices.</p>
 <dl class="method">
 <dt id="pmatic.entities.Devices.get">
-<code class="descname">get</code><span class="sig-paren">(</span><em>device_type=None</em>, <em>device_name=None</em>, <em>device_name_regex=None</em>, <em>has_channel_ids=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Devices.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Devices.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns all device objects matching the provided filters.</p>
-<p>When the devices have not been fetched yet, the device specs might be fetched
-from the CCU and objects are created for all devices.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pmatic.entities.Devices.add_from_low_level_dict">
-<code class="descname">add_from_low_level_dict</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Devices.add_from_low_level_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Devices.add_from_low_level_dict" title="Permalink to this definition">¶</a></dt>
-<dd><p>Creates a device object and add it to the collection.</p>
-<p>This method can be used to create a device object by providing a valid
-low level attributes dictionary specifying an object.</p>
-<p>It creates the device and also assigns the logic level attributes to
-the object so that it is a fully initialized device object.</p>
+<code class="descname">get</code><span class="sig-paren">(</span><em>address</em>, <em>deflt=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Devices.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Devices.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the device matching the given device address.</p>
+<p>If there is none matching the given address either None or the value
+specified by the optional attribute <em>deflt</em> is returned.</p>
 </dd></dl>
 
 <dl class="method">
@@ -238,7 +228,7 @@ address in the already fetched objects.</p>
 
 <dl class="attribute">
 <dt id="pmatic.entities.Devices.__dict__">
-<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'pmatic.entities', 'addresses': &lt;function addresses at 0x2b841ba90c80&gt;, 'exists': &lt;function exists at 0x2b841ba90c08&gt;, 'get': &lt;function get at 0x2b841ba90a28&gt;, '_create_from_low_level_dict': &lt;function _create_from_low_level_dict at 0x2b841ba90aa0&gt;, '__iter__': &lt;function __iter__ at 0x2b841ba90f50&gt;, '__dict__': &lt;attribute '__dict__' of 'Devices' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Devices' objects&gt;, '__init__': &lt;function __init__ at 0x2b841ba909b0&gt;, 'add_from_low_level_dict': &lt;function add_from_low_level_dict at 0x2b841ba90b18&gt;, 'clear': &lt;function clear at 0x2b841ba90d70&gt;, 'add': &lt;function add at 0x2b841ba90b90&gt;, 'get_device_or_channel_by_address': &lt;function get_device_or_channel_by_address at 0x2b841ba90de8&gt;, 'on_value_changed': &lt;function on_value_changed at 0x2b841ba90e60&gt;, 'on_value_updated': &lt;function on_value_updated at 0x2b841ba90ed8&gt;, '__doc__': u'Manages a collection of CCU devices.', '__len__': &lt;function __len__ at 0x2b841baa3050&gt;, 'delete': &lt;function delete at 0x2b841ba90cf8&gt;})</em><a class="headerlink" href="#pmatic.entities.Devices.__dict__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'pmatic.entities', 'addresses': &lt;function addresses at 0x2b3f88913ed8&gt;, 'exists': &lt;function exists at 0x2b3f88913e60&gt;, 'get': &lt;function get at 0x2b3f88913d70&gt;, 'clear': &lt;function clear at 0x2b3f88926050&gt;, 'add': &lt;function add at 0x2b3f88913de8&gt;, '_devices': &lt;property object at 0x2b3f88915a48&gt;, '__dict__': &lt;attribute '__dict__' of 'Devices' objects&gt;, '__iter__': &lt;function __iter__ at 0x2b3f88926230&gt;, 'get_device_or_channel_by_address': &lt;function get_device_or_channel_by_address at 0x2b3f889260c8&gt;, '__init__': &lt;function __init__ at 0x2b3f88913c80&gt;, 'on_value_changed': &lt;function on_value_changed at 0x2b3f88926140&gt;, 'on_value_updated': &lt;function on_value_updated at 0x2b3f889261b8&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Devices' objects&gt;, '__doc__': u'Manages a collection of CCU devices.', '__len__': &lt;function __len__ at 0x2b3f889262a8&gt;, 'delete': &lt;function delete at 0x2b3f88913f50&gt;})</em><a class="headerlink" href="#pmatic.entities.Devices.__dict__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -254,10 +244,10 @@ address in the already fetched objects.</p>
 <h2>Device - Device connected with the CCU<a class="headerlink" href="#device-device-connected-with-the-ccu" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pmatic.entities.Device">
-<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">Device</code><span class="sig-paren">(</span><em>api</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Device" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">Device</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Device" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="classmethod">
 <dt id="pmatic.entities.Device.from_dict">
-<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>api</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Device.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Device.from_dict" title="Permalink to this definition">¶</a></dt>
+<em class="property">classmethod </em><code class="descname">from_dict</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Device.from_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Device.from_dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a new device object from the attributes given in the <em>spec</em> dictionary.</p>
 <p>The <em>spec</em> dictionary needs to contain the mandatory attributes with values of the correct
 format. Depending on the device type specified by the <em>spec</em> dictionary, either a specific
@@ -407,14 +397,14 @@ for some attributes which are already set by the low level attributes.</p>
 <h2>Rooms - A Collection of Rooms<a class="headerlink" href="#rooms-a-collection-of-rooms" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pmatic.entities.Rooms">
-<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">Rooms</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Rooms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Rooms" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">Rooms</code><span class="sig-paren">(</span><em>ccu</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Rooms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Rooms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manages a collection of rooms.</p>
 <dl class="method">
 <dt id="pmatic.entities.Rooms.get">
-<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Rooms.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Rooms.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns all room objects matching the provided filters.</p>
-<p>When the rooms have not been fetched yet, the room specs might be fetched
-from the CCU.</p>
+<code class="descname">get</code><span class="sig-paren">(</span><em>room_id</em>, <em>deflt=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Rooms.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Rooms.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <code class="xref py py-class docutils literal"><span class="pre">Room</span></code> matching the given room id.</p>
+<p>If there is none matching the given ID either None or the value
+specified by the optional attribute <em>deflt</em> is returned.</p>
 </dd></dl>
 
 <dl class="method">
@@ -462,7 +452,7 @@ from the CCU.</p>
 
 <dl class="attribute">
 <dt id="pmatic.entities.Rooms.__dict__">
-<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'pmatic.entities', 'exists': &lt;function exists at 0x2b841baa3b90&gt;, 'get': &lt;function get at 0x2b841baa3aa0&gt;, 'clear': &lt;function clear at 0x2b841baa3cf8&gt;, 'ids': &lt;function ids at 0x2b841baa3c08&gt;, '__iter__': &lt;function __iter__ at 0x2b841baa3d70&gt;, 'add': &lt;function add at 0x2b841baa3b18&gt;, '__init__': &lt;function __init__ at 0x2b841baa3a28&gt;, '__dict__': &lt;attribute '__dict__' of 'Rooms' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Rooms' objects&gt;, '__doc__': u'Manages a collection of rooms.', '__len__': &lt;function __len__ at 0x2b841baa3de8&gt;, 'delete': &lt;function delete at 0x2b841baa3c80&gt;})</em><a class="headerlink" href="#pmatic.entities.Rooms.__dict__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'pmatic.entities', 'exists': &lt;function exists at 0x2b3f88926d70&gt;, 'get': &lt;function get at 0x2b3f88926c80&gt;, 'clear': &lt;function clear at 0x2b3f88926ed8&gt;, 'ids': &lt;function ids at 0x2b3f88926de8&gt;, '__iter__': &lt;function __iter__ at 0x2b3f88926f50&gt;, 'add': &lt;function add at 0x2b3f88926cf8&gt;, '__init__': &lt;function __init__ at 0x2b3f88926b90&gt;, '_rooms': &lt;property object at 0x2b3f88922050&gt;, '__dict__': &lt;attribute '__dict__' of 'Rooms' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Rooms' objects&gt;, '__doc__': u'Manages a collection of rooms.', '__len__': &lt;function __len__ at 0x2b3f88903050&gt;, 'delete': &lt;function delete at 0x2b3f88926e60&gt;})</em><a class="headerlink" href="#pmatic.entities.Rooms.__dict__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -478,14 +468,8 @@ from the CCU.</p>
 <h2>Room - A Configured Room<a class="headerlink" href="#room-a-configured-room" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pmatic.entities.Room">
-<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">Room</code><span class="sig-paren">(</span><em>api</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Room"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Room" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="classmethod">
-<dt id="pmatic.entities.Room.get_rooms">
-<em class="property">classmethod </em><code class="descname">get_rooms</code><span class="sig-paren">(</span><em>api</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Room.get_rooms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Room.get_rooms" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a list of all currently configured <a class="reference internal" href="#pmatic.entities.Room" title="pmatic.entities.Room"><code class="xref py py-class docutils literal"><span class="pre">Room</span></code></a> instances.</p>
-</dd></dl>
-
-<dl class="attribute">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">Room</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Room"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Room" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
 <dt id="pmatic.entities.Room.devices">
 <code class="descname">devices</code><a class="headerlink" href="#pmatic.entities.Room.devices" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides access to a collection of <a class="reference internal" href="#pmatic.entities.Device" title="pmatic.entities.Device"><code class="xref py py-class docutils literal"><span class="pre">Device</span></code></a> objects which have at least one channel associated with this room.</p>
