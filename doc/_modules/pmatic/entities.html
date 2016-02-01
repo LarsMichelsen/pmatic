@@ -98,7 +98,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
         <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ccu</span><span class="p">,</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">ccu</span><span class="o">.</span><span class="n">CCU</span><span class="p">),</span> <span class="s2">&quot;ccu is not of CCU class: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ccu</span>
-        <span class="k">assert</span> <span class="nb">type</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">,</span> <span class="s2">&quot;spec is not a dictionary: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">spec</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s2">&quot;spec is not a dictionary: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">spec</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span> <span class="o">=</span> <span class="n">ccu</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_set_attributes</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_verify_mandatory_attributes</span><span class="p">()</span>
@@ -160,8 +160,8 @@
         <span class="s2">&quot;partner_id&quot;</span>       <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">None</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
         <span class="c1"># Low level attributes:</span>
         <span class="s2">&quot;aes_active&quot;</span>        <span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-        <span class="s2">&quot;link_source_roles&quot;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="k">else</span> <span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">),</span>
-        <span class="s2">&quot;link_target_roles&quot;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span> <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span> <span class="k">else</span> <span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">),</span>
+        <span class="s2">&quot;link_source_roles&quot;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">),</span>
+        <span class="s2">&quot;link_target_roles&quot;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">),</span>
     <span class="p">}</span>
 
     <span class="c1"># Don&#39;t add these keys to the objects attributes</span>
@@ -665,13 +665,15 @@
 
 
 <div class="viewcode-block" id="Devices.on_value_changed"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Devices.on_value_changed">[docs]</a>    <span class="k">def</span> <span class="nf">on_value_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Register a function to be called each time a value of a device in this collection changed.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Register a function to be called each time a value of a device in this</span>
+<span class="sd">        collection changed.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">device</span><span class="o">.</span><span class="n">on_value_changed</span><span class="p">(</span><span class="n">func</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Devices.on_value_updated"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Devices.on_value_updated">[docs]</a>    <span class="k">def</span> <span class="nf">on_value_updated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Register a function to be called each time a value of a device in this collection updated.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Register a function to be called each time a value of a device in this</span>
+<span class="sd">        collection updated.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">device</span><span class="o">.</span><span class="n">on_value_updated</span><span class="p">(</span><span class="n">func</span><span class="p">)</span></div>
 
@@ -807,7 +809,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">has_pending_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Is ``True`` when the CCU has pending configuration changes for this device. Otherwise it is ``False``.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Is ``True`` when the CCU has pending configuration changes for this device.</span>
+<span class="sd">        Otherwise it is ``False``.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;HM-RCV-50&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
         <span class="k">else</span><span class="p">:</span>
@@ -816,7 +819,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">has_pending_update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Is ``True`` when the CCU has a pending firmware update for this device. Otherwise it is ``False``.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Is ``True`` when the CCU has a pending firmware update for this device.</span>
+<span class="sd">        Otherwise it is ``False``.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="p">[</span><span class="s2">&quot;UPDATE_PENDING&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -1009,7 +1013,8 @@
 <div class="viewcode-block" id="Rooms.delete"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Rooms.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Deletes the :class:`Room` with the given id from the pmatic runtime.</span>
 
-<span class="sd">        The room is not deleted from the CCU. When the room is not known, the method is tollerating that.&quot;&quot;&quot;</span>
+<span class="sd">        The room is not deleted from the CCU. When the room is not known, the method is</span>
+<span class="sd">        tollerating that.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">del</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="p">[</span><span class="n">room_id</span><span class="p">]</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
@@ -1056,7 +1061,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">devices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Provides access to a collection of :class:`.Device` objects which have at least one channel associated with this room.</span>
+        <span class="sd">&quot;&quot;&quot;Provides access to a collection of :class:`.Device` objects which have at least one</span>
+<span class="sd">        channel associated with this room.</span>
 
 <span class="sd">        The collections is a :class:`.Devices` instance.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="p">:</span>
@@ -1078,7 +1084,8 @@
 
 <span class="c1">#    @property</span>
 <span class="c1">#    def programs(self):</span>
-<span class="c1">#        &quot;&quot;&quot;Returns list of program objects which use at least one channel associated with this room.&quot;&quot;&quot;</span>
+<span class="c1">#        &quot;&quot;&quot;Returns list of program objects which use at least one channel associated</span>
+<span class="c1">#        with this room.&quot;&quot;&quot;</span>
 <span class="c1">#        # FIXME: Implement!</span>
 <span class="c1">#        # FIXME: Cache this?</span>
 <span class="c1">#        return []</span>

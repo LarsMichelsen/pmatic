@@ -205,13 +205,15 @@ address in the already fetched objects.</p>
 <dl class="method">
 <dt id="pmatic.entities.Devices.on_value_changed">
 <code class="descname">on_value_changed</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Devices.on_value_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Devices.on_value_changed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Register a function to be called each time a value of a device in this collection changed.</p>
+<dd><p>Register a function to be called each time a value of a device in this
+collection changed.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="pmatic.entities.Devices.on_value_updated">
 <code class="descname">on_value_updated</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Devices.on_value_updated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Devices.on_value_updated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Register a function to be called each time a value of a device in this collection updated.</p>
+<dd><p>Register a function to be called each time a value of a device in this
+collection updated.</p>
 </dd></dl>
 
 <dl class="method">
@@ -228,7 +230,7 @@ address in the already fetched objects.</p>
 
 <dl class="attribute">
 <dt id="pmatic.entities.Devices.__dict__">
-<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'pmatic.entities', 'addresses': &lt;function addresses at 0x2ab701420e60&gt;, 'exists': &lt;function exists at 0x2ab701420de8&gt;, 'get': &lt;function get at 0x2ab701420cf8&gt;, 'clear': &lt;function clear at 0x2ab701420f50&gt;, 'add': &lt;function add at 0x2ab701420d70&gt;, '_devices': &lt;property object at 0x2ab70141faa0&gt;, '__dict__': &lt;attribute '__dict__' of 'Devices' objects&gt;, '__iter__': &lt;function __iter__ at 0x2ab70142f1b8&gt;, 'get_device_or_channel_by_address': &lt;function get_device_or_channel_by_address at 0x2ab70142f050&gt;, '__init__': &lt;function __init__ at 0x2ab701420c08&gt;, 'on_value_changed': &lt;function on_value_changed at 0x2ab70142f0c8&gt;, 'on_value_updated': &lt;function on_value_updated at 0x2ab70142f140&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Devices' objects&gt;, '__doc__': u'Manages a collection of CCU devices.', '__len__': &lt;function __len__ at 0x2ab70142f230&gt;, 'delete': &lt;function delete at 0x2ab701420ed8&gt;})</em><a class="headerlink" href="#pmatic.entities.Devices.__dict__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'pmatic.entities', 'addresses': &lt;function addresses at 0x2b3fba5c4e60&gt;, 'exists': &lt;function exists at 0x2b3fba5c4de8&gt;, 'get': &lt;function get at 0x2b3fba5c4cf8&gt;, 'clear': &lt;function clear at 0x2b3fba5c4f50&gt;, 'add': &lt;function add at 0x2b3fba5c4d70&gt;, '_devices': &lt;property object at 0x2b3fba5c5aa0&gt;, '__dict__': &lt;attribute '__dict__' of 'Devices' objects&gt;, '__iter__': &lt;function __iter__ at 0x2b3fba5d41b8&gt;, 'get_device_or_channel_by_address': &lt;function get_device_or_channel_by_address at 0x2b3fba5d4050&gt;, '__init__': &lt;function __init__ at 0x2b3fba5c4c08&gt;, 'on_value_changed': &lt;function on_value_changed at 0x2b3fba5d40c8&gt;, 'on_value_updated': &lt;function on_value_updated at 0x2b3fba5d4140&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Devices' objects&gt;, '__doc__': u'Manages a collection of CCU devices.', '__len__': &lt;function __len__ at 0x2b3fba5d4230&gt;, 'delete': &lt;function delete at 0x2b3fba5c4ed8&gt;})</em><a class="headerlink" href="#pmatic.entities.Devices.__dict__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -286,13 +288,15 @@ non battery powered device, then it is <code class="docutils literal"><span clas
 <dl class="attribute">
 <dt id="pmatic.entities.Device.has_pending_config">
 <code class="descname">has_pending_config</code><a class="headerlink" href="#pmatic.entities.Device.has_pending_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Is <code class="docutils literal"><span class="pre">True</span></code> when the CCU has pending configuration changes for this device. Otherwise it is <code class="docutils literal"><span class="pre">False</span></code>.</p>
+<dd><p>Is <code class="docutils literal"><span class="pre">True</span></code> when the CCU has pending configuration changes for this device.
+Otherwise it is <code class="docutils literal"><span class="pre">False</span></code>.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="pmatic.entities.Device.has_pending_update">
 <code class="descname">has_pending_update</code><a class="headerlink" href="#pmatic.entities.Device.has_pending_update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Is <code class="docutils literal"><span class="pre">True</span></code> when the CCU has a pending firmware update for this device. Otherwise it is <code class="docutils literal"><span class="pre">False</span></code>.</p>
+<dd><p>Is <code class="docutils literal"><span class="pre">True</span></code> when the CCU has a pending firmware update for this device.
+Otherwise it is <code class="docutils literal"><span class="pre">False</span></code>.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -432,7 +436,8 @@ specified by the optional attribute <em>deflt</em> is returned.</p>
 <dt id="pmatic.entities.Rooms.delete">
 <code class="descname">delete</code><span class="sig-paren">(</span><em>room_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Rooms.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Rooms.delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>Deletes the <code class="xref py py-class docutils literal"><span class="pre">Room</span></code> with the given id from the pmatic runtime.</p>
-<p>The room is not deleted from the CCU. When the room is not known, the method is tollerating that.</p>
+<p>The room is not deleted from the CCU. When the room is not known, the method is
+tollerating that.</p>
 </dd></dl>
 
 <dl class="method">
@@ -455,7 +460,7 @@ specified by the optional attribute <em>deflt</em> is returned.</p>
 
 <dl class="attribute">
 <dt id="pmatic.entities.Rooms.__dict__">
-<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'pmatic.entities', 'exists': &lt;function exists at 0x2ab70142fcf8&gt;, 'get': &lt;function get at 0x2ab70142fc08&gt;, 'clear': &lt;function clear at 0x2ab70142fe60&gt;, 'ids': &lt;function ids at 0x2ab70142fd70&gt;, '__iter__': &lt;function __iter__ at 0x2ab70142fed8&gt;, 'add': &lt;function add at 0x2ab70142fc80&gt;, '__init__': &lt;function __init__ at 0x2ab70142fb18&gt;, '_rooms': &lt;property object at 0x2ab70140d0a8&gt;, '__dict__': &lt;attribute '__dict__' of 'Rooms' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Rooms' objects&gt;, '__doc__': u'Manages a collection of rooms.', '__len__': &lt;function __len__ at 0x2ab70142ff50&gt;, 'delete': &lt;function delete at 0x2ab70142fde8&gt;})</em><a class="headerlink" href="#pmatic.entities.Rooms.__dict__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'pmatic.entities', 'exists': &lt;function exists at 0x2b3fba5d4cf8&gt;, 'get': &lt;function get at 0x2b3fba5d4c08&gt;, 'clear': &lt;function clear at 0x2b3fba5d4e60&gt;, 'ids': &lt;function ids at 0x2b3fba5d4d70&gt;, '__iter__': &lt;function __iter__ at 0x2b3fba5d4ed8&gt;, 'add': &lt;function add at 0x2b3fba5d4c80&gt;, '__init__': &lt;function __init__ at 0x2b3fba5d4b18&gt;, '_rooms': &lt;property object at 0x2b3fba5b20a8&gt;, '__dict__': &lt;attribute '__dict__' of 'Rooms' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Rooms' objects&gt;, '__doc__': u'Manages a collection of rooms.', '__len__': &lt;function __len__ at 0x2b3fba5d4f50&gt;, 'delete': &lt;function delete at 0x2b3fba5d4de8&gt;})</em><a class="headerlink" href="#pmatic.entities.Rooms.__dict__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -475,7 +480,8 @@ specified by the optional attribute <em>deflt</em> is returned.</p>
 <dd><dl class="attribute">
 <dt id="pmatic.entities.Room.devices">
 <code class="descname">devices</code><a class="headerlink" href="#pmatic.entities.Room.devices" title="Permalink to this definition">¶</a></dt>
-<dd><p>Provides access to a collection of <a class="reference internal" href="#pmatic.entities.Device" title="pmatic.entities.Device"><code class="xref py py-class docutils literal"><span class="pre">Device</span></code></a> objects which have at least one channel associated with this room.</p>
+<dd><p>Provides access to a collection of <a class="reference internal" href="#pmatic.entities.Device" title="pmatic.entities.Device"><code class="xref py py-class docutils literal"><span class="pre">Device</span></code></a> objects which have at least one
+channel associated with this room.</p>
 <p>The collections is a <a class="reference internal" href="#pmatic.entities.Devices" title="pmatic.entities.Devices"><code class="xref py py-class docutils literal"><span class="pre">Devices</span></code></a> instance.</p>
 </dd></dl>
 
