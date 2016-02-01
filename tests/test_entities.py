@@ -52,11 +52,11 @@ class TestEntity(lib.TestCCU):
 
     def test_attribute_conversion(self, ccu):
         def transform_with_ccu_obj(ccu, val):
-            assert type(ccu) == pmatic.CCU
+            assert isinstance(ccu, pmatic.CCU)
             return val
 
         def transform_with_api_obj(api, val):
-            assert type(api) == pmatic.api.RemoteAPI
+            assert isinstance(api, pmatic.api.RemoteAPI)
             return val
 
         def transform_with_device_obj(device, val):
@@ -276,9 +276,9 @@ class TestDevices(lib.TestCCU):
         devices.add(device1)
 
         if utils.is_py2():
-            assert type(devices.addresses()) == list
+            assert isinstance(devices.addresses(), list)
         else:
-            assert type(list(devices.addresses())) == list
+            assert isinstance(list(devices.addresses()), list)
 
         assert len(devices.addresses()) == 1
         if utils.is_py2():
@@ -384,9 +384,9 @@ class TestCCUDevices(TestDevices):
 
     def test_addresses(self, ccu, devices):
         if utils.is_py2():
-            assert type(devices.addresses()) == list
+            assert isinstance(devices.addresses(), list)
         else:
-            assert type(list(devices.addresses())) == list
+            assert isinstance(list(devices.addresses()), list)
 
         assert len(devices.addresses()) > 0
 

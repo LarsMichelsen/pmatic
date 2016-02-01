@@ -121,7 +121,7 @@ class AbstractAPI(utils.LogMixin):
         atexit.register(self.close)
 
 
-    def _parse_api_response(self, method_name_int, kwargs, body):
+    def _parse_api_response(self, method_name_int, body):
         # FIXME: The ccu is performing wrong encoding at least for output of
         # executed rega scripts. But maybe this is a generic problem. Let's see
         # and only fix the known issues for the moment.
@@ -182,7 +182,9 @@ class AbstractAPI(utils.LogMixin):
 
         e.g. Interface.activateLinkParamset is changed to API.interface_activate_link_paramset
         """
-        return utils.decamel(method_name_api.replace(".", "_").replace("BidCoS", "bidcos").replace("ReGa", "rega"))
+        return utils.decamel(method_name_api.replace(".", "_") \
+                                            .replace("BidCoS", "bidcos") \
+                                            .replace("ReGa", "rega"))
 
 
     def _get_methods_config(self):
@@ -253,7 +255,8 @@ class AbstractAPI(utils.LogMixin):
                     val = val[1:-1].split() # strip off surrounding braces, split by spaces
 
                     # Internal arguments have the _session_id_ removed
-                    self._methods[method_name_int]["INT_ARGUMENTS"] = [ a for a in val if a != "_session_id_" ]
+                    self._methods[method_name_int]["INT_ARGUMENTS"] = \
+                                    [ a for a in val if a != "_session_id_" ]
 
                 self._methods[method_name_int][key] = val
 
@@ -305,8 +308,9 @@ class RemoteAPI(AbstractAPI):
 
 
     def _set_credentials(self, credentials):
-        if type(credentials) != tuple:
-            raise PMException("Please specify the user credentials to log in to the CCU like this: \"(username, password)\".")
+        if not isinstance(credentials, tuple):
+            raise PMException("Please specify the user credentials to log in to the CCU "
+                              "like this: \"(username, password)\".")
         elif len(credentials) != 2:
             raise PMException("The credentials must be given as tuple of two elements.")
         elif not utils.is_string(credentials[0]):
@@ -417,9 +421,9 @@ class RemoteAPI(AbstractAPI):
             handle = urlopen(url, data=json_data.encode("utf-8"),
                              timeout=self._connect_timeout)
         except Exception as e:
-            if type(e) == URLError:
+            if isinstance(e, URLError):
                 msg = e.reason
-            elif type(e) == BadStatusLine:
+            elif isinstance(e, BadStatusLine):
                 msg = "Request terminated. Is the device rebooting?"
             else:
                 msg = e
@@ -437,7 +441,7 @@ class RemoteAPI(AbstractAPI):
                                     (http_status, url, response_txt))
 
         self.logger.debug("  RESPONSE: %s" % response_txt)
-        return self._parse_api_response(method_name_int, kwargs, response_txt)
+        return self._parse_api_response(method_name_int, response_txt)
 
 
     @property
@@ -467,7 +471,8 @@ class LocalAPI(AbstractAPI):
                 shell=False)
         except OSError as e:
             if e.errno == 2:
-                raise PMException("Could not find /bin/tclsh. Maybe running local API on non CCU device?")
+                raise PMException("Could not find /bin/tclsh. Maybe running local API on "
+                                  "non CCU device?")
             else:
                 raise
 
@@ -552,7 +557,7 @@ class LocalAPI(AbstractAPI):
         # index 0 would be the header, but we don't need it
         body = response_txt.split("\n\n", 1)[1]
 
-        return self._parse_api_response(method_name_int, kwargs, body)
+        return self._parse_api_response(method_name_int, body)
 
 
     def close(self):
@@ -627,9 +632,9 @@ class DeviceLogic(CachedAPICall):
             for k in d:
                 value = d.pop(k)
 
-                if type(value) == list:
+                if isinstance(value, list):
                     for entry in value:
-                        if type(entry) == dict:
+                        if isinstance(entry, dict):
                             decamel_dict_keys(entry)
 
                 d[utils.decamel(k)] = value

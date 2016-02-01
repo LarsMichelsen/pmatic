@@ -154,7 +154,7 @@ class TestRemoteAPILowLevel(lib.TestRemoteAPI):
         assert "name" in room
         assert "description" in room
         assert "channelIds" in room
-        assert type(room["channelIds"]) == list
+        assert isinstance(room["channelIds"], list)
 
 
     def test_room_get_all(self, API):
@@ -163,7 +163,7 @@ class TestRemoteAPILowLevel(lib.TestRemoteAPI):
             room["name"].encode("utf-8")
             assert utils.is_text(room["description"])
             room["description"].encode("utf-8")
-            assert type(room["channelIds"]) == list
+            assert isinstance(room["channelIds"], list)
 
 
     def test_ccu_get_ssh_state(self, API):

@@ -91,12 +91,12 @@ class TestParameter(lib.TestCCU):
 
     def test_attributes(self, p):
         assert p.control == "SWITCH.STATE"
-        assert type(p.operations) == int
+        assert isinstance(p.operations, int)
         assert p.operations == 7
         assert p.name == "STATE"
         assert p._value == "0"
-        assert type(p.tab_order) == int
-        assert type(p.flags) == int
+        assert isinstance(p.tab_order, int)
+        assert isinstance(p.flags, int)
         assert utils.is_text(p.unit)
         assert p.unit == ""
         assert p.type == "BOOL"
@@ -322,14 +322,14 @@ class TestParameterFLOAT(lib.TestCCU):
 
 
     def test_attributes(self, p):
-        assert type(p) == ParameterFLOAT
+        assert isinstance(p, ParameterFLOAT)
         assert p.type == "FLOAT"
         assert p.unit == u"°C"
         assert p.name == "SETPOINT"
-        assert type(p.value) == float
-        assert type(p.min) == float
-        assert type(p.max) == float
-        assert type(p.default) == float
+        assert isinstance(p.value, float)
+        assert isinstance(p.min, float)
+        assert isinstance(p.max, float)
+        assert isinstance(p.default, float)
 
 
     def test_from_api_value(self, p):
@@ -373,11 +373,11 @@ class TestParameterBOOL(lib.TestCCU):
 
 
     def test_attributes(self, p):
-        assert type(p) == ParameterBOOL
+        assert isinstance(p, ParameterBOOL)
         assert p.type == "BOOL"
         assert p.unit == ""
         assert p.name == "STATE"
-        assert type(p.value) == bool
+        assert isinstance(p.value, bool)
 
 
     def test_from_api_value(self, p):
@@ -402,12 +402,12 @@ class TestParameterACTION(TestParameterBOOL):
     @pytest.fixture(scope="function")
     def p(self, ccu):
         button0 = list(ccu.devices.query(device_name="Büro-Schalter"))[0].button(0)
-        assert type(button0) == ChannelKey
+        assert isinstance(button0, ChannelKey)
         return button0.values["PRESS_SHORT"]
 
 
     def test_attributes(self, p):
-        assert type(p) == ParameterACTION
+        assert isinstance(p, ParameterACTION)
         assert p.type == "ACTION"
         assert p.unit == ""
         assert p.name == "PRESS_SHORT"
@@ -443,14 +443,14 @@ class TestParameterINTEGER(lib.TestCCU):
 
 
     def test_attributes(self, p):
-        assert type(p) == ParameterINTEGER
+        assert isinstance(p, ParameterINTEGER)
         assert p.type == "INTEGER"
         assert p.unit == "%"
         assert p.name == "VALVE_STATE"
-        assert type(p.value) == int
-        assert type(p.min) == int
-        assert type(p.max) == int
-        assert type(p.default) == int
+        assert isinstance(p.value, int)
+        assert isinstance(p.min, int)
+        assert isinstance(p.max, int)
+        assert isinstance(p.default, int)
 
 
     def test_from_api_value(self, p):
@@ -498,19 +498,19 @@ class TestParameterENUM(lib.TestCCU):
         return clima_vent_drive.values["ERROR"]
 
     def test_attributes(self, p):
-        assert type(p) == ParameterENUM
+        assert isinstance(p, ParameterENUM)
         assert p.type == "ENUM"
         assert p.unit == ""
         assert p.name == "ERROR"
-        assert type(p.value) == int
-        assert type(p.min) == int
-        assert type(p.max) == int
-        assert type(p.default) == int
-        assert type(p.value_list) == list
+        assert isinstance(p.value, int)
+        assert isinstance(p.min, int)
+        assert isinstance(p.max, int)
+        assert isinstance(p.default, int)
+        assert isinstance(p.value_list, list)
 
 
     def test_possible_values(self, p):
-        assert type(p.possible_values) == list
+        assert isinstance(p.possible_values, list)
 
 
     def test_formated(self, p):
@@ -526,7 +526,7 @@ class TestParameterSTRING(lib.TestCCU):
         return trans.values["PARTY_MODE_SUBMIT"]
 
     def test_attributes(self, p):
-        assert type(p) == ParameterSTRING
+        assert isinstance(p, ParameterSTRING)
         assert p.type == "STRING"
         assert p.unit == ""
         assert p.name == "PARTY_MODE_SUBMIT"
