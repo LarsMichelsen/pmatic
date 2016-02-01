@@ -48,7 +48,7 @@ class Entity(object):
 
     def __init__(self, ccu, spec):
         assert isinstance(ccu, pmatic.ccu.CCU), "ccu is not of CCU class: %r" % ccu
-        assert type(spec) == dict, "spec is not a dictionary: %r" % spec
+        assert isinstance(spec, dict), "spec is not a dictionary: %r" % spec
         self._ccu = ccu
         self._set_attributes(spec)
         self._verify_mandatory_attributes()
@@ -110,8 +110,8 @@ class Channel(utils.LogMixin, Entity):
         "partner_id"       : lambda x: None if x == "" else int(x),
         # Low level attributes:
         "aes_active"        : bool,
-        "link_source_roles" : lambda v: v if type(v) == list else v.split(" "),
-        "link_target_roles" : lambda v: v if type(v) == list else v.split(" "),
+        "link_source_roles" : lambda v: v if isinstance(v, list) else v.split(" "),
+        "link_target_roles" : lambda v: v if isinstance(v, list) else v.split(" "),
     }
 
     # Don't add these keys to the objects attributes
@@ -615,13 +615,15 @@ class Devices(object):
 
 
     def on_value_changed(self, func):
-        """Register a function to be called each time a value of a device in this collection changed."""
+        """Register a function to be called each time a value of a device in this
+        collection changed."""
         for device in self._devices.values():
             device.on_value_changed(func)
 
 
     def on_value_updated(self, func):
-        """Register a function to be called each time a value of a device in this collection updated."""
+        """Register a function to be called each time a value of a device in this
+        collection updated."""
         for device in self._devices.values():
             device.on_value_updated(func)
 
@@ -757,7 +759,8 @@ class Device(Entity):
 
     @property
     def has_pending_config(self):
-        """Is ``True`` when the CCU has pending configuration changes for this device. Otherwise it is ``False``."""
+        """Is ``True`` when the CCU has pending configuration changes for this device.
+        Otherwise it is ``False``."""
         if self.type == "HM-RCV-50":
             return False
         else:
@@ -766,7 +769,8 @@ class Device(Entity):
 
     @property
     def has_pending_update(self):
-        """Is ``True`` when the CCU has a pending firmware update for this device. Otherwise it is ``False``."""
+        """Is ``True`` when the CCU has a pending firmware update for this device.
+        Otherwise it is ``False``."""
         try:
             return self.maintenance["UPDATE_PENDING"].value
         except KeyError:
@@ -959,7 +963,8 @@ class Rooms(object):
     def delete(self, room_id):
         """Deletes the :class:`Room` with the given id from the pmatic runtime.
 
-        The room is not deleted from the CCU. When the room is not known, the method is tollerating that."""
+        The room is not deleted from the CCU. When the room is not known, the method is
+        tollerating that."""
         try:
             del self._rooms[room_id]
         except KeyError:
@@ -1006,7 +1011,8 @@ class Room(Entity):
 
     @property
     def devices(self):
-        """Provides access to a collection of :class:`.Device` objects which have at least one channel associated with this room.
+        """Provides access to a collection of :class:`.Device` objects which have at least one
+        channel associated with this room.
 
         The collections is a :class:`.Devices` instance."""
         if not self._devices:
@@ -1028,7 +1034,8 @@ class Room(Entity):
 
 #    @property
 #    def programs(self):
-#        """Returns list of program objects which use at least one channel associated with this room."""
+#        """Returns list of program objects which use at least one channel associated
+#        with this room."""
 #        # FIXME: Implement!
 #        # FIXME: Cache this?
 #        return []
