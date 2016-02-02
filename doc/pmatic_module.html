@@ -55,7 +55,7 @@
   <div class="section" id="the-pmatic-module">
 <h1>The pmatic Module<a class="headerlink" href="#the-pmatic-module" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="module-pmatic">
-<span id="ccu-the-central-object"></span><h2>CCU - The central object<a class="headerlink" href="#module-pmatic" title="Permalink to this headline">¶</a></h2>
+<span id="ccu-the-central-object"></span><h2>CCU - The Central Object<a class="headerlink" href="#module-pmatic" title="Permalink to this headline">¶</a></h2>
 <p>A simple to use API to the Homematic CCU</p>
 <p>The pmatic module provides access to the Homematic CCU which operates as
 the central unit in Homematic based home automation setips.. You can use
@@ -96,7 +96,8 @@ for example <code class="docutils literal"><span class="pre">(&quot;admin&quot;,
 <dt id="pmatic.CCU.devices">
 <code class="descname">devices</code><a class="headerlink" href="#pmatic.CCU.devices" title="Permalink to this definition">¶</a></dt>
 <dd><p>This property provides access to the collection of all known devices.</p>
-<p>The collection is an <a class="reference internal" href="#pmatic.entities.Devices" title="pmatic.entities.Devices"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Devices</span></code></a> instance.</p>
+<p>This collection is an instance of <a class="reference internal" href="#pmatic.ccu.CCUDevices" title="pmatic.ccu.CCUDevices"><code class="xref py py-class docutils literal"><span class="pre">pmatic.ccu.CCUDevices</span></code></a>, which is a subclass
+of the room collection class <a class="reference internal" href="#pmatic.entities.Devices" title="pmatic.entities.Devices"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Devices</span></code></a>.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -110,7 +111,8 @@ for example <code class="docutils literal"><span class="pre">(&quot;admin&quot;,
 <dt id="pmatic.CCU.rooms">
 <code class="descname">rooms</code><a class="headerlink" href="#pmatic.CCU.rooms" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides access to the collection of all known rooms.</p>
-<p>This collection is an <a class="reference internal" href="#pmatic.entities.Rooms" title="pmatic.entities.Rooms"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Rooms</span></code></a> instance.</p>
+<p>This collection is an instance of <a class="reference internal" href="#pmatic.ccu.CCURooms" title="pmatic.ccu.CCURooms"><code class="xref py py-class docutils literal"><span class="pre">pmatic.ccu.CCURooms</span></code></a>, which is a subclass
+of the room collection class <a class="reference internal" href="#pmatic.entities.Rooms" title="pmatic.entities.Rooms"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Rooms</span></code></a>.</p>
 </dd></dl>
 
 </dd></dl>
@@ -148,8 +150,66 @@ is raised. Means it is worth it to try again later with same parameters.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="devices-a-collection-of-devices">
-<h2>Devices - A Collection of Devices<a class="headerlink" href="#devices-a-collection-of-devices" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ccudevices-top-level-collection-of-devices">
+<h2>CCUDevices - Top Level Collection of Devices<a class="headerlink" href="#ccudevices-top-level-collection-of-devices" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pmatic.ccu.CCUDevices">
+<em class="property">class </em><code class="descclassname">pmatic.ccu.</code><code class="descname">CCUDevices</code><span class="sig-paren">(</span><em>ccu</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/ccu.html#CCUDevices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.ccu.CCUDevices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pmatic.entities.Devices" title="pmatic.entities.Devices"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Devices</span></code></a></p>
+<p>The central device management class.</p>
+<p>CCUDevices class is just like the <a class="reference internal" href="#pmatic.entities.Devices" title="pmatic.entities.Devices"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Devices</span></code></a> class, with the difference
+that it provides the <a class="reference internal" href="#pmatic.ccu.CCUDevices.query" title="pmatic.ccu.CCUDevices.query"><code class="xref py py-meth docutils literal"><span class="pre">CCUDevices.query()</span></code></a> method which can be used to create new
+<a class="reference internal" href="#pmatic.entities.Devices" title="pmatic.entities.Devices"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Devices</span></code></a> collections. Another difference is, that it is initializing
+all devices configured in the CCU as device objects when generic methods to access the devices
+like <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#len" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">len()</span></code></a> are called on the object.</p>
+<dl class="method">
+<dt id="pmatic.ccu.CCUDevices.query">
+<code class="descname">query</code><span class="sig-paren">(</span><span class="optional">[</span><em>device_type=None</em><span class="optional">[</span>, <em>device_name=None</em><span class="optional">[</span>, <em>device_name_regex=None</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/ccu.html#CCUDevices.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.ccu.CCUDevices.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this function to query the CCU for a collection of devices.</p>
+<p>The devices are returned in a <a class="reference internal" href="#pmatic.entities.Devices" title="pmatic.entities.Devices"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Devices</span></code></a> collection.
+Additionally the device objects are cached in the centrall <a class="reference internal" href="#pmatic.CCU" title="pmatic.CCU"><code class="xref py py-class docutils literal"><span class="pre">pmatic.CCU</span></code></a> object for
+later reference, when e.g. another search is asking for the same device. In
+case the same object is returned.</p>
+<p>The object can be filtered using different filter parameters.</p>
+<p>The <em>device_type</em>
+can be used to either search for devices of one specific or multiple types. The
+device type needs to be given as string which needs to be the exact product name,
+for example <code class="docutils literal"><span class="pre">device_type=&quot;HM-Sec-SC&quot;</span></code>. If you want to get multiple device types,
+you can do it like this: <code class="docutils literal"><span class="pre">device_type=[&quot;HM-Sec-SC&quot;,</span> <span class="pre">&quot;HM-CC-RT-DN&quot;]</span></code>.</p>
+<p>You can also search for specific devices by their names. The first option is to
+search for the exact name of one single device by setting the <em>device_name</em> to the
+name of the device, for example: <code class="docutils literal"><span class="pre">device_name=&quot;Wohnzimmer-Fenster&quot;</span></code>. Please note
+that this filter is case sensitive and a full exact match for the device name.</p>
+<p>If you need more flexible filtering by the name, you can use the <em>device_name_regex</em>
+filter. You can either provide a regex in form of a string which is then matched
+with the device name from the start of the name (prefix match).
+One example to match all device names ending with <em>-Fenster</em>:
+<code class="docutils literal"><span class="pre">device_name_regex=&quot;.*-Fenster$&quot;</span></code>.
+You can also provide the result of <a class="reference external" href="https://docs.python.org/2.7/library/re.html#re.compile" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">re.compile()</span></code></a> as value of <em>device_name_regex</em>.
+This is useful if you want to specify some special regex flags for your matching regex.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.ccu.CCUDevices.add_from_low_level_dict">
+<code class="descname">add_from_low_level_dict</code><span class="sig-paren">(</span><em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/ccu.html#CCUDevices.add_from_low_level_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.ccu.CCUDevices.add_from_low_level_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a device object and add it to the collection.</p>
+<p>This method can be used to create a device object by providing a valid
+low level attributes dictionary specifying an object.</p>
+<p>It creates the device and also assigns the logic level attributes to
+the object so that it is a fully initialized device object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.ccu.CCUDevices.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/ccu.html#CCUDevices.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.ccu.CCUDevices.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all objects from this devices collection.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="devices-collections-of-devices">
+<h2>Devices - Collections of Devices<a class="headerlink" href="#devices-collections-of-devices" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pmatic.entities.Devices">
 <em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">Devices</code><span class="sig-paren">(</span><em>ccu</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Devices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Devices" title="Permalink to this definition">¶</a></dt>
@@ -230,7 +290,7 @@ collection updated.</p>
 
 <dl class="attribute">
 <dt id="pmatic.entities.Devices.__dict__">
-<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'pmatic.entities', 'addresses': &lt;function addresses at 0x2b3fba5c4e60&gt;, 'exists': &lt;function exists at 0x2b3fba5c4de8&gt;, 'get': &lt;function get at 0x2b3fba5c4cf8&gt;, 'clear': &lt;function clear at 0x2b3fba5c4f50&gt;, 'add': &lt;function add at 0x2b3fba5c4d70&gt;, '_devices': &lt;property object at 0x2b3fba5c5aa0&gt;, '__dict__': &lt;attribute '__dict__' of 'Devices' objects&gt;, '__iter__': &lt;function __iter__ at 0x2b3fba5d41b8&gt;, 'get_device_or_channel_by_address': &lt;function get_device_or_channel_by_address at 0x2b3fba5d4050&gt;, '__init__': &lt;function __init__ at 0x2b3fba5c4c08&gt;, 'on_value_changed': &lt;function on_value_changed at 0x2b3fba5d40c8&gt;, 'on_value_updated': &lt;function on_value_updated at 0x2b3fba5d4140&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Devices' objects&gt;, '__doc__': u'Manages a collection of CCU devices.', '__len__': &lt;function __len__ at 0x2b3fba5d4230&gt;, 'delete': &lt;function delete at 0x2b3fba5c4ed8&gt;})</em><a class="headerlink" href="#pmatic.entities.Devices.__dict__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'pmatic.entities', 'addresses': &lt;function addresses at 0x2b06844f1e60&gt;, 'exists': &lt;function exists at 0x2b06844f1de8&gt;, 'get': &lt;function get at 0x2b06844f1cf8&gt;, 'clear': &lt;function clear at 0x2b06844f1f50&gt;, 'add': &lt;function add at 0x2b06844f1d70&gt;, '_devices': &lt;property object at 0x2b06844f7b50&gt;, '__dict__': &lt;attribute '__dict__' of 'Devices' objects&gt;, '__iter__': &lt;function __iter__ at 0x2b06844fa1b8&gt;, 'get_device_or_channel_by_address': &lt;function get_device_or_channel_by_address at 0x2b06844fa050&gt;, '__init__': &lt;function __init__ at 0x2b06844f1c08&gt;, 'on_value_changed': &lt;function on_value_changed at 0x2b06844fa0c8&gt;, 'on_value_updated': &lt;function on_value_updated at 0x2b06844fa140&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Devices' objects&gt;, '__doc__': u'Manages a collection of CCU devices.', '__len__': &lt;function __len__ at 0x2b06844fa230&gt;, 'delete': &lt;function delete at 0x2b06844f1ed8&gt;})</em><a class="headerlink" href="#pmatic.entities.Devices.__dict__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -400,8 +460,51 @@ been updated.</p>
 </dd></dl>
 
 </div>
-<div class="section" id="rooms-a-collection-of-rooms">
-<h2>Rooms - A Collection of Rooms<a class="headerlink" href="#rooms-a-collection-of-rooms" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="ccurooms-top-level-collection-of-rooms">
+<h2>CCURooms - Top Level Collection of Rooms<a class="headerlink" href="#ccurooms-top-level-collection-of-rooms" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pmatic.ccu.CCURooms">
+<em class="property">class </em><code class="descclassname">pmatic.ccu.</code><code class="descname">CCURooms</code><span class="sig-paren">(</span><em>ccu</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/ccu.html#CCURooms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.ccu.CCURooms" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pmatic.entities.Rooms" title="pmatic.entities.Rooms"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Rooms</span></code></a></p>
+<p>The central room management class.</p>
+<p>The <a class="reference internal" href="#pmatic.ccu.CCURooms" title="pmatic.ccu.CCURooms"><code class="xref py py-class docutils literal"><span class="pre">CCURooms</span></code></a> class is just like the <a class="reference internal" href="#pmatic.entities.Rooms" title="pmatic.entities.Rooms"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Rooms</span></code></a> class, with the difference
+that it provides the <a class="reference internal" href="#pmatic.ccu.CCURooms.query" title="pmatic.ccu.CCURooms.query"><code class="xref py py-meth docutils literal"><span class="pre">CCURooms.query()</span></code></a> method which can be used to create new
+<a class="reference internal" href="#pmatic.entities.Rooms" title="pmatic.entities.Rooms"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Rooms</span></code></a> collections. Another difference is, that it is initializing
+all rooms configured in the CCU as room objects when generic methods to access the rooms
+like <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#len" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">len()</span></code></a> are called on the object.</p>
+<dl class="method">
+<dt id="pmatic.ccu.CCURooms.query">
+<code class="descname">query</code><span class="sig-paren">(</span><span class="optional">[</span><em>room_name=None</em><span class="optional">[</span>, <em>room_name_regex=None</em><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/ccu.html#CCURooms.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.ccu.CCURooms.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this function to query the CCU for a collection of rooms.</p>
+<p>The room objects are returned in a <a class="reference internal" href="#pmatic.entities.Rooms" title="pmatic.entities.Rooms"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Rooms</span></code></a> collection.
+Additionally the room objects are cached in the central <a class="reference internal" href="#pmatic.CCU" title="pmatic.CCU"><code class="xref py py-class docutils literal"><span class="pre">pmatic.CCU</span></code></a> object for
+later reference, when e.g. another search is asking for the same room. In
+case the same object is returned.</p>
+<p>The object can be filtered using different filter parameters.</p>
+<p>You can search for specific rooms by their names. The first option is to
+search for the exact name of one single room by setting the <em>room_name</em> to the
+name of the room, for example: <code class="docutils literal"><span class="pre">room_name=&quot;Wohnzimmer&quot;</span></code>. Please note
+that this filter is case sensitive and a full exact match for the room name.</p>
+<p>If you need more flexible filtering by the name, you can use the <em>room_name_regex</em>
+filter. You can either provide a regex in form of a string which is then matched
+with the room name from the start of the name (prefix match).
+One example to match all room names ending with <em>-2-Floor</em>:
+<code class="docutils literal"><span class="pre">room_name_regex=&quot;.*-2-Floor$&quot;</span></code>.
+You can also provide the result of <a class="reference external" href="https://docs.python.org/2.7/library/re.html#re.compile" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">re.compile()</span></code></a> as value of <em>room_name_regex</em>.
+This is useful if you want to specify some special regex flags for your matching regex.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.ccu.CCURooms.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/ccu.html#CCURooms.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.ccu.CCURooms.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove all <code class="xref py py-class docutils literal"><span class="pre">Room</span></code> objects from this collection.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="rooms-collections-of-rooms">
+<h2>Rooms - Collections of Rooms<a class="headerlink" href="#rooms-collections-of-rooms" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pmatic.entities.Rooms">
 <em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">Rooms</code><span class="sig-paren">(</span><em>ccu</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Rooms"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Rooms" title="Permalink to this definition">¶</a></dt>
@@ -460,7 +563,7 @@ tollerating that.</p>
 
 <dl class="attribute">
 <dt id="pmatic.entities.Rooms.__dict__">
-<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'pmatic.entities', 'exists': &lt;function exists at 0x2b3fba5d4cf8&gt;, 'get': &lt;function get at 0x2b3fba5d4c08&gt;, 'clear': &lt;function clear at 0x2b3fba5d4e60&gt;, 'ids': &lt;function ids at 0x2b3fba5d4d70&gt;, '__iter__': &lt;function __iter__ at 0x2b3fba5d4ed8&gt;, 'add': &lt;function add at 0x2b3fba5d4c80&gt;, '__init__': &lt;function __init__ at 0x2b3fba5d4b18&gt;, '_rooms': &lt;property object at 0x2b3fba5b20a8&gt;, '__dict__': &lt;attribute '__dict__' of 'Rooms' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Rooms' objects&gt;, '__doc__': u'Manages a collection of rooms.', '__len__': &lt;function __len__ at 0x2b3fba5d4f50&gt;, 'delete': &lt;function delete at 0x2b3fba5d4de8&gt;})</em><a class="headerlink" href="#pmatic.entities.Rooms.__dict__" title="Permalink to this definition">¶</a></dt>
+<code class="descname">__dict__</code><em class="property"> = dict_proxy({'__module__': 'pmatic.entities', 'exists': &lt;function exists at 0x2b06844facf8&gt;, 'get': &lt;function get at 0x2b06844fac08&gt;, 'clear': &lt;function clear at 0x2b06844fae60&gt;, 'ids': &lt;function ids at 0x2b06844fad70&gt;, '__iter__': &lt;function __iter__ at 0x2b06844faed8&gt;, 'add': &lt;function add at 0x2b06844fac80&gt;, '__init__': &lt;function __init__ at 0x2b06844fab18&gt;, '_rooms': &lt;property object at 0x2b06844fd158&gt;, '__dict__': &lt;attribute '__dict__' of 'Rooms' objects&gt;, '__weakref__': &lt;attribute '__weakref__' of 'Rooms' objects&gt;, '__doc__': u'Manages a collection of rooms.', '__len__': &lt;function __len__ at 0x2b06844faf50&gt;, 'delete': &lt;function delete at 0x2b06844fade8&gt;})</em><a class="headerlink" href="#pmatic.entities.Rooms.__dict__" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
@@ -570,11 +673,13 @@ is still alive or <code class="docutils literal"><span class="pre">False</span><
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">The pmatic Module</a><ul>
-<li><a class="reference internal" href="#module-pmatic">CCU - The central object</a></li>
-<li><a class="reference internal" href="#devices-a-collection-of-devices">Devices - A Collection of Devices</a></li>
+<li><a class="reference internal" href="#module-pmatic">CCU - The Central Object</a></li>
+<li><a class="reference internal" href="#ccudevices-top-level-collection-of-devices">CCUDevices - Top Level Collection of Devices</a></li>
+<li><a class="reference internal" href="#devices-collections-of-devices">Devices - Collections of Devices</a></li>
 <li><a class="reference internal" href="#device-device-connected-with-the-ccu">Device - Device connected with the CCU</a></li>
 <li><a class="reference internal" href="#channel-manages-values">Channel - Manages values</a></li>
-<li><a class="reference internal" href="#rooms-a-collection-of-rooms">Rooms - A Collection of Rooms</a></li>
+<li><a class="reference internal" href="#ccurooms-top-level-collection-of-rooms">CCURooms - Top Level Collection of Rooms</a></li>
+<li><a class="reference internal" href="#rooms-collections-of-rooms">Rooms - Collections of Rooms</a></li>
 <li><a class="reference internal" href="#room-a-configured-room">Room - A Configured Room</a></li>
 <li><a class="reference internal" href="#eventlistener-listen-for-ccu-events">EventListener - Listen for CCU Events</a></li>
 </ul>

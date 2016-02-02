@@ -109,7 +109,6 @@
 <span class="sd">    The default TCP connect timeout for the HTTP requests to the CCU is set to</span>
 <span class="sd">    10 seconds. If you like to change the timeout, you need to set the argument</span>
 <span class="sd">    *connect_timeout* to a number of seconds of your choice.</span>
-
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;__init__([address[, credentials[, connect_timeout=10]]])</span>
@@ -126,7 +125,8 @@
     <span class="k">def</span> <span class="nf">devices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This property provides access to the collection of all known devices.</span>
 
-<span class="sd">        The collection is an :class:`pmatic.entities.Devices` instance.&quot;&quot;&quot;</span>
+<span class="sd">        This collection is an instance of :class:`pmatic.ccu.CCUDevices`, which is a subclass</span>
+<span class="sd">        of the room collection class :class:`pmatic.entities.Devices`.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="n">CCUDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span>
@@ -146,7 +146,8 @@
     <span class="k">def</span> <span class="nf">rooms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Provides access to the collection of all known rooms.</span>
 
-<span class="sd">        This collection is an :class:`pmatic.entities.Rooms` instance.&quot;&quot;&quot;</span>
+<span class="sd">        This collection is an instance of :class:`pmatic.ccu.CCURooms`, which is a subclass</span>
+<span class="sd">        of the room collection class :class:`pmatic.entities.Rooms`.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">=</span> <span class="n">CCURooms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span>
@@ -184,13 +185,15 @@
 
 
 
-<span class="k">class</span> <span class="nc">CCUDevices</span><span class="p">(</span><span class="n">Devices</span><span class="p">):</span>
+<div class="viewcode-block" id="CCUDevices"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCUDevices">[docs]</a><span class="k">class</span> <span class="nc">CCUDevices</span><span class="p">(</span><span class="n">Devices</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;The central device management class.</span>
 
-<span class="sd">    CCUDevices class is just like the :class:`Devices` class, with the difference that it provides</span>
-<span class="sd">    the :meth:`query` method which can be used to create new :class:`Devices` collections. Another</span>
-<span class="sd">    difference is that it is initializing all devices when generic methods to access the devices</span>
-<span class="sd">    are called.&quot;&quot;&quot;</span>
+<span class="sd">    CCUDevices class is just like the :class:`.pmatic.entities.Devices` class, with the difference</span>
+<span class="sd">    that it provides the :meth:`.CCUDevices.query` method which can be used to create new</span>
+<span class="sd">    :class:`.pmatic.entities.Devices` collections. Another difference is, that it is initializing</span>
+<span class="sd">    all devices configured in the CCU as device objects when generic methods to access the devices</span>
+<span class="sd">    like :func:`len` are called on the object.&quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CCUDevices</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ccu</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_device_specs</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">DeviceSpecs</span><span class="p">(</span><span class="n">ccu</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
@@ -211,16 +214,43 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span><span class="p">[</span><span class="n">device</span><span class="o">.</span><span class="n">address</span><span class="p">]</span> <span class="o">=</span> <span class="n">device</span>
 
 
-    <span class="c1"># FIXME: Documentation about possible filters: device_type=None, device_name=None,</span>
-    <span class="c1">#        device_name_regex=None, has_channel_ids=None):</span>
     <span class="c1"># FIXME: Add more filter options</span>
-    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
+<div class="viewcode-block" id="CCUDevices.query"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCUDevices.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;query([device_type=None[, device_name=None[, device_name_regex=None]]])</span>
+<span class="sd">        Use this function to query the CCU for a collection of devices.</span>
+
+<span class="sd">        The devices are returned in a :class:`.pmatic.entities.Devices` collection.</span>
+<span class="sd">        Additionally the device objects are cached in the centrall :class:`.pmatic.CCU` object for</span>
+<span class="sd">        later reference, when e.g. another search is asking for the same device. In</span>
+<span class="sd">        case the same object is returned.</span>
+
+<span class="sd">        The object can be filtered using different filter parameters.</span>
+
+<span class="sd">        The *device_type*</span>
+<span class="sd">        can be used to either search for devices of one specific or multiple types. The</span>
+<span class="sd">        device type needs to be given as string which needs to be the exact product name,</span>
+<span class="sd">        for example ``device_type=&quot;HM-Sec-SC&quot;``. If you want to get multiple device types,</span>
+<span class="sd">        you can do it like this: ``device_type=[&quot;HM-Sec-SC&quot;, &quot;HM-CC-RT-DN&quot;]``.</span>
+
+<span class="sd">        You can also search for specific devices by their names. The first option is to</span>
+<span class="sd">        search for the exact name of one single device by setting the *device_name* to the</span>
+<span class="sd">        name of the device, for example: ``device_name=&quot;Wohnzimmer-Fenster&quot;``. Please note</span>
+<span class="sd">        that this filter is case sensitive and a full exact match for the device name.</span>
+
+<span class="sd">        If you need more flexible filtering by the name, you can use the *device_name_regex*</span>
+<span class="sd">        filter. You can either provide a regex in form of a string which is then matched</span>
+<span class="sd">        with the device name from the start of the name (prefix match).</span>
+<span class="sd">        One example to match all device names ending with *-Fenster*:</span>
+<span class="sd">        ``device_name_regex=&quot;.*-Fenster$&quot;``.</span>
+<span class="sd">        You can also provide the result of :func:`re.compile` as value of *device_name_regex*.</span>
+<span class="sd">        This is useful if you want to specify some special regex flags for your matching regex.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">devices</span> <span class="o">=</span> <span class="n">Devices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_for_devices</span><span class="p">(</span><span class="o">**</span><span class="n">filters</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_add_without_init</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
             <span class="n">devices</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">devices</span>
+        <span class="k">return</span> <span class="n">devices</span></div>
 
 
     <span class="k">def</span> <span class="nf">_query_for_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
@@ -268,7 +298,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_add_without_init</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">add_from_low_level_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+<div class="viewcode-block" id="CCUDevices.add_from_low_level_dict"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCUDevices.add_from_low_level_dict">[docs]</a>    <span class="k">def</span> <span class="nf">add_from_low_level_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Creates a device object and add it to the collection.</span>
 
 <span class="sd">        This method can be used to create a device object by providing a valid</span>
@@ -277,7 +307,7 @@
 <span class="sd">        It creates the device and also assigns the logic level attributes to</span>
 <span class="sd">        the object so that it is a fully initialized device object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_from_low_level_dict</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_from_low_level_dict</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span></div>
 
 
     <span class="k">def</span> <span class="nf">_create_from_low_level_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
@@ -287,15 +317,21 @@
         <span class="k">return</span> <span class="n">device</span>
 
 
-    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CCUDevices.clear"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCUDevices.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove all objects from this devices collection.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span></div></div>
 
 
 
-<span class="k">class</span> <span class="nc">CCURooms</span><span class="p">(</span><span class="n">Rooms</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Manages a collection of rooms.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="CCURooms"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCURooms">[docs]</a><span class="k">class</span> <span class="nc">CCURooms</span><span class="p">(</span><span class="n">Rooms</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The central room management class.</span>
+
+<span class="sd">    The :class:`.CCURooms` class is just like the :class:`.pmatic.entities.Rooms` class, with the difference</span>
+<span class="sd">    that it provides the :meth:`.CCURooms.query` method which can be used to create new</span>
+<span class="sd">    :class:`.pmatic.entities.Rooms` collections. Another difference is, that it is initializing</span>
+<span class="sd">    all rooms configured in the CCU as room objects when generic methods to access the rooms</span>
+<span class="sd">    like :func:`len` are called on the object.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CCURooms</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ccu</span><span class="p">)</span>
@@ -321,14 +357,36 @@
 
 
     <span class="c1"># FIXME: Add filter options</span>
-    <span class="c1"># FIXME: Document existing filters: room_name, room_name_regex</span>
-    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
+<div class="viewcode-block" id="CCURooms.query"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCURooms.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;query([room_name=None[, room_name_regex=None]])</span>
+<span class="sd">        Use this function to query the CCU for a collection of rooms.</span>
+
+<span class="sd">        The room objects are returned in a :class:`.pmatic.entities.Rooms` collection.</span>
+<span class="sd">        Additionally the room objects are cached in the central :class:`.pmatic.CCU` object for</span>
+<span class="sd">        later reference, when e.g. another search is asking for the same room. In</span>
+<span class="sd">        case the same object is returned.</span>
+
+<span class="sd">        The object can be filtered using different filter parameters.</span>
+
+<span class="sd">        You can search for specific rooms by their names. The first option is to</span>
+<span class="sd">        search for the exact name of one single room by setting the *room_name* to the</span>
+<span class="sd">        name of the room, for example: ``room_name=&quot;Wohnzimmer&quot;``. Please note</span>
+<span class="sd">        that this filter is case sensitive and a full exact match for the room name.</span>
+
+<span class="sd">        If you need more flexible filtering by the name, you can use the *room_name_regex*</span>
+<span class="sd">        filter. You can either provide a regex in form of a string which is then matched</span>
+<span class="sd">        with the room name from the start of the name (prefix match).</span>
+<span class="sd">        One example to match all room names ending with *-2-Floor*:</span>
+<span class="sd">        ``room_name_regex=&quot;.*-2-Floor$&quot;``.</span>
+<span class="sd">        You can also provide the result of :func:`re.compile` as value of *room_name_regex*.</span>
+<span class="sd">        This is useful if you want to specify some special regex flags for your matching regex.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">rooms</span> <span class="o">=</span> <span class="n">Rooms</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">room</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_for_rooms</span><span class="p">(</span><span class="o">**</span><span class="n">filters</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_add_without_init</span><span class="p">(</span><span class="n">room</span><span class="p">)</span>
             <span class="n">rooms</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">room</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">rooms</span>
+        <span class="k">return</span> <span class="n">rooms</span></div>
 
 
     <span class="k">def</span> <span class="nf">_query_for_rooms</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
@@ -373,10 +431,10 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_add_without_init</span><span class="p">(</span><span class="n">room</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="CCURooms.clear"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCURooms.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove all :class:`Room` objects from this collection.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span></div></div>
 </pre></div>
 
           </div>
