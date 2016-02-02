@@ -16,8 +16,10 @@ info)
   #echo "Update: $CONFIG_URL/update-check.cgi"
   ;;
 uninstall)
-  # remove whole pmatic (same as in update_script)
+  # remove pmatic program directory + python but keep other directories
+  # like the user scripts in $ADDON_DIR/scripts.
   rm /usr/local/bin/python2.7 /usr/local/bin/python
-  rm -rf $ADDON_DIR
+  rm -rf $ADDON_DIR/python
+  rm -rf $ADDON_DIR/pmatic
   ;;
 esac

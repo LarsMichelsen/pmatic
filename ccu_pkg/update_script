@@ -21,10 +21,18 @@ fi
 
 # remove files of old versions (same as in pmatic.init)
 rm /usr/local/bin/python2.7 /usr/local/bin/python
-rm -rf $ADDON_DIR
+rm -rf $ADDON_DIR/pmatic
+rm -rf $ADDON_DIR/python
 
-mkdir -p $ADDON_DIR $RCD_DIR
-chmod 755 $ADDON_DIR $RCD_DIR
+if [ ! -d $ADDON_DIR ]; then
+    mkdir -p $ADDON_DIR
+    chmod 755 $ADDON_DIR
+fi
+
+if [ ! -d $RCD_DIR ]; then
+    mkdir -p $RCD_DIR
+    chmod 755 $RCD_DIR
+fi
 
 # Make python executable shipped with pmatic available via PATH
 ln -s ../etc/config/addons/pmatic/python/bin/python2.7 $BIN_DIR/python2.7
