@@ -131,6 +131,7 @@ dist-ccu-step1:
 	    lib/python2.7/SocketServer.py \
 	    lib/python2.7/BaseHTTPServer.py \
 	    lib/python2.7/SimpleXMLRPCServer.py \
+	    lib/python2.7/xmllib.py \
 	    \
 	    $(CCU_PREDIST_PATH)/python
 
