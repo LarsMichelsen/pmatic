@@ -753,12 +753,6 @@
         <span class="k">return</span> <span class="n">device_class</span><span class="p">(</span><span class="n">ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span></div>
 
 
-    <span class="c1">## FIXME: Still support this API or drop it? It is not officially documented.</span>
-    <span class="c1">#@classmethod</span>
-    <span class="c1">#def get_devices(self, api, **kwargs):</span>
-    <span class="c1">#    return Devices(api).get(**kwargs)</span>
-
-
     <span class="c1"># {u&#39;UNREACH&#39;: u&#39;1&#39;, u&#39;AES_KEY&#39;: u&#39;1&#39;, u&#39;UPDATE_PENDING&#39;: u&#39;1&#39;, u&#39;RSSI_PEER&#39;: u&#39;-65535&#39;,</span>
     <span class="c1">#  u&#39;LOWBAT&#39;: u&#39;0&#39;, u&#39;STICKY_UNREACH&#39;: u&#39;1&#39;, u&#39;DEVICE_IN_BOOTLOADER&#39;: u&#39;0&#39;,</span>
     <span class="c1">#  u&#39;CONFIG_PENDING&#39;: u&#39;0&#39;, u&#39;RSSI_DEVICE&#39;: u&#39;-65535&#39;, u&#39;DUTYCYCLE&#39;: u&#39;0&#39;}</span>
@@ -913,10 +907,6 @@
 
 
 <span class="k">class</span> <span class="nc">SpecificDevice</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
-    <span class="c1"># FIXME: Still support hits method?</span>
-    <span class="c1">#@classmethod</span>
-    <span class="c1">#def get_all(self, API):</span>
-    <span class="c1">#    return Device.get_devices(API, device_type=self.type_name)</span>
     <span class="k">pass</span>
 
 
