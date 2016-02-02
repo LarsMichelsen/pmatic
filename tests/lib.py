@@ -139,7 +139,6 @@ class TestRemoteAPI(object):
             # When executed with real ccu we wrap urlopen for enabling recording
             self.monkeypatch.setattr(pmatic.api, 'urlopen', wrap_urlopen)
 
-        # FIXME: Make credentials configurable
         API = pmatic.api.RemoteAPI(
             address="http://192.168.1.26",
             credentials=("Admin", "EPIC-SECRET-PW"),

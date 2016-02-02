@@ -44,7 +44,6 @@ class LogMixin(object):
         return logging.getLogger('.'.join([__name__, self.__class__.__name__]))
 
 
-    # FIXME: Is there a cleaner way to make the logger available in class methods?
     @classmethod
     def cls_logger(cls):
         return logging.getLogger('.'.join([__name__, cls.__name__]))

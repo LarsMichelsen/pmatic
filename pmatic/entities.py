@@ -703,12 +703,6 @@ class Device(Entity):
         return device_class(ccu, spec)
 
 
-    ## FIXME: Still support this API or drop it? It is not officially documented.
-    #@classmethod
-    #def get_devices(self, api, **kwargs):
-    #    return Devices(api).get(**kwargs)
-
-
     # {u'UNREACH': u'1', u'AES_KEY': u'1', u'UPDATE_PENDING': u'1', u'RSSI_PEER': u'-65535',
     #  u'LOWBAT': u'0', u'STICKY_UNREACH': u'1', u'DEVICE_IN_BOOTLOADER': u'0',
     #  u'CONFIG_PENDING': u'0', u'RSSI_DEVICE': u'-65535', u'DUTYCYCLE': u'0'}
@@ -863,10 +857,6 @@ class Device(Entity):
 
 
 class SpecificDevice(Device):
-    # FIXME: Still support hits method?
-    #@classmethod
-    #def get_all(self, API):
-    #    return Device.get_devices(API, device_type=self.type_name)
     pass
 
 

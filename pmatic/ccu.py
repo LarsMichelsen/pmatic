@@ -277,8 +277,8 @@ class CCUDevices(Devices):
 class CCURooms(Rooms):
     """The central room management class.
 
-    The :class:`.CCURooms` class is just like the :class:`.pmatic.entities.Rooms` class, with the difference
-    that it provides the :meth:`.CCURooms.query` method which can be used to create new
+    The :class:`.CCURooms` class is just like the :class:`.pmatic.entities.Rooms` class, with the
+    difference that it provides the :meth:`.CCURooms.query` method which can be used to create new
     :class:`.pmatic.entities.Rooms` collections. Another difference is, that it is initializing
     all rooms configured in the CCU as room objects when generic methods to access the rooms
     like :func:`len` are called on the object."""
