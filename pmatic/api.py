@@ -85,7 +85,7 @@ def init(mode=None, **kwargs):
         if not is_ccu():
             raise PMException("local mode can only be used on the CCU.")
 
-        return LocalAPI(**kwargs)
+        return LocalAPI()
     elif mode == "remote":
         try:
             return RemoteAPI(**kwargs)

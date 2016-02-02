@@ -100,6 +100,7 @@ dist-ccu-step1:
 	    lib/python2.7/json/*.py \
 	    lib/python2.7/codecs.py \
 	    lib/python2.7/encodings/*.py \
+	    lib/python2.7/stringprep.py \
 	    lib/python2.7/__future__.py \
 	    \
 	    lib/python2.7/logging/*.py \
