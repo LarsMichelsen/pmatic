@@ -1,7 +1,7 @@
 The pmatic Module
 -----------------
 
-CCU - The central object
+CCU - The Central Object
 ========================
 
 .. automodule:: pmatic
@@ -9,8 +9,18 @@ CCU - The central object
     :undoc-members:
     :exclude-members: bidcos_interfaces,interfaces,signal_strengths
 
-Devices - A Collection of Devices
-=================================
+CCUDevices - Top Level Collection of Devices
+============================================
+
+.. autoclass:: pmatic.ccu.CCUDevices
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :special-members:
+    :exclude-members: __init__,__module__
+
+Devices - Collections of Devices
+================================
 
 .. autoclass:: pmatic.entities.Devices
     :members:
@@ -33,7 +43,17 @@ Channel - Manages values
     :members:
     :undoc-members:
 
-Rooms - A Collection of Rooms
+CCURooms - Top Level Collection of Rooms
+========================================
+
+.. autoclass:: pmatic.ccu.CCURooms
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :special-members:
+    :exclude-members: __init__,__module__
+
+Rooms - Collections of Rooms
 =============================
 
 .. autoclass:: pmatic.entities.Rooms

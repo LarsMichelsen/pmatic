@@ -59,7 +59,6 @@ class CCU(object):
     The default TCP connect timeout for the HTTP requests to the CCU is set to
     10 seconds. If you like to change the timeout, you need to set the argument
     *connect_timeout* to a number of seconds of your choice.
-
     """
     def __init__(self, **kwargs):
         """__init__([address[, credentials[, connect_timeout=10]]])
@@ -76,7 +75,8 @@ class CCU(object):
     def devices(self):
         """This property provides access to the collection of all known devices.
 
-        The collection is an :class:`pmatic.entities.Devices` instance."""
+        This collection is an instance of :class:`pmatic.ccu.CCUDevices`, which is a subclass
+        of the room collection class :class:`pmatic.entities.Devices`."""
         if self._devices == None:
             self._devices = CCUDevices(self)
         return self._devices
@@ -96,7 +96,8 @@ class CCU(object):
     def rooms(self):
         """Provides access to the collection of all known rooms.
 
-        This collection is an :class:`pmatic.entities.Rooms` instance."""
+        This collection is an instance of :class:`pmatic.ccu.CCURooms`, which is a subclass
+        of the room collection class :class:`pmatic.entities.Rooms`."""
         if self._rooms == None:
             self._rooms = CCURooms(self)
         return self._rooms
@@ -137,10 +138,12 @@ class CCU(object):
 class CCUDevices(Devices):
     """The central device management class.
 
-    CCUDevices class is just like the :class:`Devices` class, with the difference that it provides
-    the :meth:`query` method which can be used to create new :class:`Devices` collections. Another
-    difference is that it is initializing all devices when generic methods to access the devices
-    are called."""
+    CCUDevices class is just like the :class:`.pmatic.entities.Devices` class, with the difference
+    that it provides the :meth:`.CCUDevices.query` method which can be used to create new
+    :class:`.pmatic.entities.Devices` collections. Another difference is, that it is initializing
+    all devices configured in the CCU as device objects when generic methods to access the devices
+    like :func:`len` are called on the object."""
+
     def __init__(self, ccu):
         super(CCUDevices, self).__init__(ccu)
         self._device_specs = pmatic.api.DeviceSpecs(ccu.api)
@@ -161,10 +164,37 @@ class CCUDevices(Devices):
         self._device_dict[device.address] = device
 
 
-    # FIXME: Documentation about possible filters: device_type=None, device_name=None,
-    #        device_name_regex=None, has_channel_ids=None):
     # FIXME: Add more filter options
     def query(self, **filters):
+        """query([device_type=None[, device_name=None[, device_name_regex=None]]])
+        Use this function to query the CCU for a collection of devices.
+
+        The devices are returned in a :class:`.pmatic.entities.Devices` collection.
+        Additionally the device objects are cached in the centrall :class:`.pmatic.CCU` object for
+        later reference, when e.g. another search is asking for the same device. In
+        case the same object is returned.
+
+        The object can be filtered using different filter parameters.
+
+        The *device_type*
+        can be used to either search for devices of one specific or multiple types. The
+        device type needs to be given as string which needs to be the exact product name,
+        for example ``device_type="HM-Sec-SC"``. If you want to get multiple device types,
+        you can do it like this: ``device_type=["HM-Sec-SC", "HM-CC-RT-DN"]``.
+
+        You can also search for specific devices by their names. The first option is to
+        search for the exact name of one single device by setting the *device_name* to the
+        name of the device, for example: ``device_name="Wohnzimmer-Fenster"``. Please note
+        that this filter is case sensitive and a full exact match for the device name.
+
+        If you need more flexible filtering by the name, you can use the *device_name_regex*
+        filter. You can either provide a regex in form of a string which is then matched
+        with the device name from the start of the name (prefix match).
+        One example to match all device names ending with *-Fenster*:
+        ``device_name_regex=".*-Fenster$"``.
+        You can also provide the result of :func:`re.compile` as value of *device_name_regex*.
+        This is useful if you want to specify some special regex flags for your matching regex.
+        """
         devices = Devices(self._ccu)
         for device in self._query_for_devices(**filters):
             self._add_without_init(device)
@@ -245,7 +275,13 @@ class CCUDevices(Devices):
 
 
 class CCURooms(Rooms):
-    """Manages a collection of rooms."""
+    """The central room management class.
+
+    The :class:`.CCURooms` class is just like the :class:`.pmatic.entities.Rooms` class, with the difference
+    that it provides the :meth:`.CCURooms.query` method which can be used to create new
+    :class:`.pmatic.entities.Rooms` collections. Another difference is, that it is initializing
+    all rooms configured in the CCU as room objects when generic methods to access the rooms
+    like :func:`len` are called on the object."""
 
     def __init__(self, ccu):
         super(CCURooms, self).__init__(ccu)
@@ -271,8 +307,30 @@ class CCURooms(Rooms):
 
 
     # FIXME: Add filter options
-    # FIXME: Document existing filters: room_name, room_name_regex
     def query(self, **filters):
+        """query([room_name=None[, room_name_regex=None]])
+        Use this function to query the CCU for a collection of rooms.
+
+        The room objects are returned in a :class:`.pmatic.entities.Rooms` collection.
+        Additionally the room objects are cached in the central :class:`.pmatic.CCU` object for
+        later reference, when e.g. another search is asking for the same room. In
+        case the same object is returned.
+
+        The object can be filtered using different filter parameters.
+
+        You can search for specific rooms by their names. The first option is to
+        search for the exact name of one single room by setting the *room_name* to the
+        name of the room, for example: ``room_name="Wohnzimmer"``. Please note
+        that this filter is case sensitive and a full exact match for the room name.
+
+        If you need more flexible filtering by the name, you can use the *room_name_regex*
+        filter. You can either provide a regex in form of a string which is then matched
+        with the room name from the start of the name (prefix match).
+        One example to match all room names ending with *-2-Floor*:
+        ``room_name_regex=".*-2-Floor$"``.
+        You can also provide the result of :func:`re.compile` as value of *room_name_regex*.
+        This is useful if you want to specify some special regex flags for your matching regex.
+        """
         rooms = Rooms(self._ccu)
         for room in self._query_for_rooms(**filters):
             self._add_without_init(room)
