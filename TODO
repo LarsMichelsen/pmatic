@@ -4,6 +4,7 @@ Ideas:
   * document classes / methods inline
   * create HTML docs
   * move some of the docs from the README to the HTML docs
+* Talk directly with Rega (8181)
 * Provide standard way to store data on the local system
 * Create Object based access to the system variables of the CCU
 * For the CCU:
