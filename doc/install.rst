@@ -8,14 +8,14 @@ want to run your scripts when all your other devices aren't running.
 Installation on the CCU2
 ------------------------
 
-You can download the snapshot addon from `here <http://lami-.github.io/pmatic/pmatic-snapshot_ccu.tar.gz>`_.
+You can download the snapshot addon from `here <http://pmatic.larsmichelsen.com/pmatic/pmatic-snapshot_ccu.tar.gz>`_.
 It is a snapshot package which is automatically built from the latest
 git version available. So please note that this is not as stable as a
 released version would be. But feel free to try and test it. Let me know
 if you experience any issues with it. Once there is a better version ready
 I'll change these lines.
 
-`Download the file <http://lami-.github.io/pmatic/pmatic-snapshot_ccu.tar.gz>`_
+`Download the file <http://pmatic.larsmichelsen.com/pmatic/pmatic-snapshot_ccu.tar.gz>`_
 to your workstation and upload this file to your CCU using the regular addon
 upload form to install pmatic on it.
 
