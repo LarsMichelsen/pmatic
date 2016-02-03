@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>pmatic by LaMi-</title>
+    <title>pmatic by LarsMichelsen</title>
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/github-light.css">
@@ -24,7 +24,7 @@
         <h1>pmatic</h1>
         <p>A simple to use API to the Homematic CCU</p>
 
-        <p class="view"><a href="https://github.com/LaMi-/pmatic">View the Project on GitHub <small>LaMi-/pmatic</small></a></p>
+        <p class="view"><a href="https://github.com/LarsMichelsen/pmatic">View the Project on GitHub <small>LarsMichelsen/pmatic</small></a></p>
 
         <h2>Documentation</h2>
         <p>Take a look at the documenation for implementation and usage details.</p>
@@ -34,9 +34,9 @@
 
         <h2>Git Repository</h2>
         <ul>
-          <li><a href="https://github.com/LaMi-/pmatic/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/LaMi-/pmatic/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/LaMi-/pmatic">View On <strong>GitHub</strong></a></li>
+          <li><a href="https://github.com/LarsMichelsen/pmatic/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/LarsMichelsen/pmatic/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/LarsMichelsen/pmatic">View On <strong>GitHub</strong></a></li>
         </ul>
 
         <h2>Snapshot-Releases</h2>
@@ -51,13 +51,19 @@
         <h1>
 <a id="pmatic---a-simple-api-to-to-the-homematic-ccu2" class="anchor" href="#pmatic---a-simple-api-to-to-the-homematic-ccu2" aria-hidden="true"><span class="octicon octicon-link"></span></a>pmatic - A simple API to to the Homematic CCU2</h1>
 
-<p><a href="https://travis-ci.org/LaMi-/pmatic"><img src="https://travis-ci.org/LaMi-/pmatic.svg?branch=master" alt="Build Status"></a>
-<a href="https://coveralls.io/github/LaMi-/pmatic?branch=master"><img src="https://coveralls.io/repos/LaMi-/pmatic/badge.svg?branch=master&amp;service=github" alt="Coverage Status"></a></p>
+<p>The pmatic module provides access to the Homematic CCU which operates as the central unit in Homematic based home automation setups. You can use pmatic directly on the CCU or another system having Python installed. With pmatic you can write your own Python scripts to communicate with your CCU device.</p>
 
-<p>pmatic is a python library to provide access to the Homematic CCU2. You
-can execute pmatic directly on the CCU2 or another system having Python
-installed. With pmatic you can write your own Python scripts to communicate
-with your CCU2 devices.</p>
+<h2>What to do with pmatic?</h2>
+
+<ul>
+<li>Create even small (one line) scripts to read info or trigger actions.</li>
+<li>Execute scripts on any linux system or directly on the CCU.</li>
+<li>Edit scripts in your favorite editor, test on your workstation,
+deploy on another device, for example the CCU, later.</li>
+<li>Code in a very beginner friendly language: Python.</li>
+</ul>
+
+<h2>Why pmatic?</h2>
 
 <p>Before I built this API I tried to create a small script to <em>just</em> check
 all my window sensors, record the time they are opened and then alarm
@@ -106,94 +112,31 @@ scripts, if you like.</p>
 <h2>
 <a id="requirements" class="anchor" href="#requirements" aria-hidden="true"><span class="octicon octicon-link"></span></a>Requirements</h2>
 
-<p>pmatic is currently not expecting any special Python modules. pmatic
-is supported with Python 2.7, 3.4 and newer. Older versions of Python are not
-supported.</p>
+<p>pmatic is currently not expecting any special Python modules. pmatic is supported with Python 2.7, 3.4 and newer. Older versions of Python are not supported.</p>
 
-<p>Please note about Python 3: I started development with Python 2.7 and have
-not tested the code very well with Python 3. So there may still be bugs. I
-welcome patches!</p>
-
-<h2>
-<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h2>
-
-<h3>
-<a id="installation-on-the-ccu2" class="anchor" href="#installation-on-the-ccu2" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation on the CCU2</h3>
-
-<p>pmatic can be packed as CCU addon package. On first release I will provide a
-pre-packed package for the CCU.</p>
-
-<p>Until the first release you can create CCU addon packages on your own by
-following these steps on a linux host:</p>
-
-<ul>
-<li>download a snapshot of the git repository or clone the repository</li>
-<li>run <code>make setup chroot dist-ccu</code>
-</li>
-</ul>
-
-<p>Now you should have a CCU addon archive at <code>dist/pmatic-0.1_ccu.tar.gz</code>.
-You can now upload this file to your CCU to install pmatic on it.</p>
-
-<p>Now you can connect to your CCU via SSH and run this command to confirm
-pmatic has been installed correctly:</p>
-
-<pre><code>python -c 'import pmatic'
-</code></pre>
-
-<p>When the command completes silently (without <code>ImportError</code> exception) the
-installation was successful.</p>
-
-<p>The installation has been finished. You can now execute your own
-python and pmatic scripts on your CCU. For some examples you can change
-to <code>/etc/config/addons/pmatic/examples</code> and have a look at the source or
-just try them.</p>
-
-<h3>
-<a id="installation-on-your-workstation" class="anchor" href="#installation-on-your-workstation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation on your workstation</h3>
-
-<p>The installation should be straight forward. First download pmatic by either
-cloning from the Git or download a release archive, unpack it and change to
-the extracted directory <code>pmatic-*</code>. Then execute:</p>
-
-<pre><code>python setup.py install
-</code></pre>
-
-<p>After installation you can confirm pmatic has been installed by executing</p>
-
-<pre><code>python -c 'import pmatic'
-</code></pre>
-
-<p>When the command completes silently (without <code>ImportError</code> exception) the
-installation was successful.</p>
-
-<p>I developed and tested pmatic on a Debian 8 system with Python 2.7.9, but
-pmatic should work on other platforms meeting the requirements listed above.</p>
-
-<p>Please let me know or send me a pull request if there are compatibility
-issues on a platform you would expect pmatic to work.</p>
+<p>Potentially pmatic could even be used on Windows systems which have a Python interpreter installed. But I did not test it and I am pretty sure there are some changes needed to make it work. But maybe someone wants to make this work. Should not be too much work.</p>
 
 <h2>
 <a id="usage" class="anchor" href="#usage" aria-hidden="true"><span class="octicon octicon-link"></span></a>Usage</h2>
 
-<p>Please take a look at the scripts below the <code>examples</code> directory for some
-sample scripts. I'll try to add more in the near future. Just to give you
-a quick view, here a simple example how to list all shutter contacts and
-their current states on the CCU2:</p>
+<p>You can find several usage examples in the <a href="">examples</a>. I'll try to add more in the near future.
+Some more examples can be found in the <a href="doc/basic_usage.html">documentation</a>.</p>
 
-<pre><code>import pmatic.api
-from pmatic.entities import HMSecSC
+<p>Just a short example:</p>
 
-API = pmatic.api.init()
+<pre><code>#!/usr/bin/python
 
-for device in HMSecSC.get_all(API):
-    print device.name, device.formated_value()
+import pmatic
+ccu = pmatic.CCU()
+
+for device in ccu.devices.query(device_type="HM-Sec-SC"):
+    print("%-20s %6s" % (device.name, device.is_open and "open" or "closed"))
 </code></pre>
 
 <h2>
 <a id="reporting-bugs-feature-requests" class="anchor" href="#reporting-bugs-feature-requests" aria-hidden="true"><span class="octicon octicon-link"></span></a>Reporting Bugs, Feature Requests</h2>
 
-<p>Please use the issue tracker on the <a href="https://github.com/LaMi-/pmatic">pmatic GitHub page</a>.</p>
+<p>Please use the issue tracker on the <a href="https://github.com/LarsMichelsen/pmatic">pmatic GitHub page</a>.</p>
 
 <h2>
 <a id="licensing" class="anchor" href="#licensing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Licensing</h2>
@@ -204,11 +147,10 @@ for device in HMSecSC.get_all(API):
 Take a look at the LICENSE file for details.</p>
       </section>
       <footer>
-        <p>This project is maintained by <a href="https://github.com/LaMi-">LaMi-</a></p>
+        <p>This project is maintained by <a href="https://github.com/LarsMichelsen">LarsMichelsen</a></p>
         <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
-    
   </body>
 </html>
