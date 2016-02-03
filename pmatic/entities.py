@@ -1053,5 +1053,5 @@ for key, val in list(globals().items()):
 channel_classes_by_type_name = {}
 for key, val in list(globals().items()):
     if isinstance(val, type):
-        if issubclass(val, Channel) and key != "Channel":
+        if issubclass(val, Channel) and val != Channel:
             channel_classes_by_type_name[val.type_name] = val
