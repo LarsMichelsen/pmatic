@@ -76,18 +76,18 @@ to make this work. Should not be too much work.
 
 ## Installation
 
-Take a look at the [installation documentation](http://pmatic.larsmichelsen.com/doc/install.html).
+Take a look at the [installation documentation](https://larsmichelsen.github.io/pmatic/doc/install.html).
 
 ## Documentation
 
-The current [documentation](http://pmatic.larsmichelsen.com/doc/index.html)
+The current [documentation](https://larsmichelsen.github.io/pmatic//doc/index.html)
 can be found on the official web site of pmatic.
 
 ## Usage
 
 You can find several usage examples in the `examples`. I'll try to add more
 in the near future. Some more examples can be found in the
-[documentation](http://pmatic.larsmichelsen.com/doc/basic_usage.html).
+[documentation](https://larsmichelsen.github.io/pmatic/doc/basic_usage.html).
 
 Just a short example:
 
