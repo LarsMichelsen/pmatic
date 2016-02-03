@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/LaMi-/pmatic.svg?branch=master)](https://travis-ci.org/LaMi-/pmatic)
 [![Coverage Status](https://coveralls.io/repos/LaMi-/pmatic/badge.svg?branch=master&service=github)](https://coveralls.io/github/LaMi-/pmatic?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/0b6d7874a5e248a2af685761cccc131c)](https://www.codacy.com/app/lm/pmatic)
+[![Code Health](https://landscape.io/github/LarsMichelsen/pmatic/master/landscape.svg?style=flat)](https://landscape.io/github/LarsMichelsen/pmatic/master)
 
 The pmatic module provides access to the Homematic CCU which operates as
 the central unit in Homematic based home automation setups. You can use
