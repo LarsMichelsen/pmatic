@@ -218,7 +218,7 @@ travis-build:
 	cd $$HOME ; \
 	git config --global user.email "travis@travis-ci.org" ; \
 	git config --global user.name "Travis" ; \
-	git clone --quiet --branch=gh-pages https://$$GH_TOKEN@github.com/LaMi-/pmatic.git gh-pages > /dev/null ; \
+	git clone --quiet --branch=gh-pages https://$$GH_TOKEN@github.com/LarsMichelsen/pmatic.git gh-pages > /dev/null ; \
 	cd gh-pages ; \
 	cp -f $$PKG_PATH/pmatic-$${GIT_COMMIT}_ccu.tar.gz pmatic-snapshot_ccu.tar.gz ; \
 	cp -f $$PKG_PATH/pmatic-$${GIT_COMMIT}.tar.gz pmatic-snapshot.tar.gz ; \
