@@ -45,7 +45,7 @@ div#content h2:first-child {
 }
 
 a.btn {
-    background-color: #ddd;
+    background-color: #212121;
     border-radius: 5px;
     display: inline-block;
     width: 25px;
@@ -57,8 +57,11 @@ a.btn {
 }
 
 a.btn:hover {
-    color: #000;
+    color: #989a97;
+    background-color: #111;
 }
+
+/* MESSAGES */
 
 div.message {
     padding: 8px 15px;
@@ -74,4 +77,40 @@ div.message.success {
     background-color: #dff2bf;
     color: #4f8a10;
     border: 1px solid #4f8a10;
+}
+
+div.message.error {
+    background-color: #ffbaba;
+    color: #d8000c;
+    border: 1px solid #d8000c;
+}
+
+/* TABLES */
+
+table {
+    min-width: 600px;
+}
+
+table tr th,
+table tr td {
+    text-align: left;
+    padding: 13px;
+    white-space: nowrap;
+}
+
+table tr th {
+    color: #fff;
+    background-color: #5da1f4;
+}
+
+table tr th.largest {
+    width: 100%;
+}
+
+table tr:nth-child(2n)  {
+    background-color: #f4f4f4;
+}
+
+table tr:nth-child(2n+1)  {
+    background-color: #eaeaea;
 }

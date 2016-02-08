@@ -35,6 +35,7 @@ except ImportError:
 import os
 import cgi
 import sys
+import time
 import signal
 import traceback
 #import mimetypes
@@ -412,8 +413,13 @@ class PageMain(PageHandler, Html, utils.LogMixin):
         self.h2("Scripts")
         self.write("<div class=\"scripts\">\n")
         self.write("<table><tr>\n")
-        self.write("<th>Actions</th><th>Filename</th></tr>\n")
+        self.write("<th>Actions</th>"
+                   "<th class=\"largest\">Filename</th>"
+                   "<th>Last modified</th></tr>\n")
         for filename in self.get_scripts():
+            path = os.path.join(Config.script_path, filename)
+            last_mod_ts = os.stat(path).st_mtime
+
             self.write("<tr>")
             self.write("<td>")
             self.icon_button("trash", "?action=delete&script=%s" % filename,
@@ -422,6 +428,7 @@ class PageMain(PageHandler, Html, utils.LogMixin):
                               "Execute this script now")
             self.write("</td>")
             self.write("<td>%s</td>" % filename)
+            self.write("<td>%s</td>" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(last_mod_ts)))
             self.write("</tr>")
         self.write("</table>\n")
         self.write("</div>\n")
