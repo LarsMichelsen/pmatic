@@ -53,7 +53,7 @@ class Config(object):
 # FIXME This handling is only for testing purposes and will be cleaned up soon
 if not utils.is_ccu():
     Config.script_path = "/tmp/pmatic-scripts"
-    Config.static_path = "/home/lm/git/lm/pmatic/manager_static"
+    Config.static_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + "/manager_static"
 
 
 class Html(object):
@@ -87,7 +87,7 @@ class Html(object):
 
 
     def is_action(self):
-        return self._vars.getvalue("action") != ""
+        return bool(self._vars.getvalue("action"))
 
 
     def begin_form(self, multipart=None):
@@ -128,7 +128,12 @@ class Html(object):
 
 
     def message(self, text, cls):
-        self.write("<div class=\"message %s\">%s</div>\n" % (cls, text))
+        if cls == "success":
+            icon = "check-circle-o"
+        else:
+            icon = "bomb"
+        self.write("<div class=\"message %s\"><i class=\"fa fa-2x fa-%s\"></i> "
+                   "%s</div>\n" % (cls, icon, text))
 
 
     def h2(self, title):
@@ -207,8 +212,12 @@ class PageHandler(object):
                                   keep_blank_values=1)
 
 
-    def process_page(self):
+    def _send_http_header(self):
         self._start_response(self._http_status(200), self._http_headers)
+
+
+    def process_page(self):
+        self._send_http_header()
 
         self.page_header()
         self.navigation()
@@ -417,8 +426,15 @@ class PageMain(PageHandler, Html, utils.LogMixin):
         self.write("</table>\n")
         self.write("</div>\n")
 
+
+
 class Page404(PageHandler, Html, utils.LogMixin):
     base_url = "404"
+
+
+    def _send_http_header(self):
+        self._start_response(self._http_status(404), self._http_headers)
+
 
     def title(self):
         return "404 - Page not Found"
@@ -426,6 +442,7 @@ class Page404(PageHandler, Html, utils.LogMixin):
 
     def process(self):
         self.write("The requested page could not be found.")
+
 
 
 wsgiref.simple_server.ServerHandler.server_software = 'pmatic-manager'

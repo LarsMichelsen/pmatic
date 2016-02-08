@@ -59,3 +59,19 @@ a.btn {
 a.btn:hover {
     color: #000;
 }
+
+div.message {
+    padding: 8px 15px;
+    border-radius: 10px;
+}
+
+div.message i {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+
+div.message.success {
+    background-color: #dff2bf;
+    color: #4f8a10;
+    border: 1px solid #4f8a10;
+}
