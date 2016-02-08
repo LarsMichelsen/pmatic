@@ -584,7 +584,9 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
 
         filepath = os.path.join(Config.config_path, "manager.secret")
         file(filepath, "w").write(sha256(password).hexdigest()+"\n")
-        self.success("The password has been set.")
+        self.success("The password has been set. You will be redirect to the "
+                     "<a href=\"/\">login</a>.")
+        self.redirect(2, "/")
 
 
     def process(self):
