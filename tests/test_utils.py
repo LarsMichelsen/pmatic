@@ -113,3 +113,17 @@ def test_fmt_percentage_int():
 
     with pytest.raises(Exception):
         assert utils.fmt_percentage_int(None)
+
+
+def test_is_ccu():
+    orig_uname = os.uname
+
+    os.uname = lambda: ('Linux', 'dev', '3.16.0-4-amd64',
+                        '#1 SMP Debian 3.16.7-ckt9-3~deb8u1 (2015-04-24)', 'x86_64')
+    assert not utils.is_ccu()
+
+    os.uname = lambda: ('Linux', 'ccu', '3.4.11.ccu2',
+                        '#1 PREEMPT Fri Oct 16 10:43:35 CEST 2015', 'armv5tejl')
+    assert utils.is_ccu()
+
+    os.uname = orig_uname

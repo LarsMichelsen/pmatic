@@ -1,0 +1,82 @@
+#!/usr/bin/env python
+# encoding: utf-8
+#
+# pmatic - A simple API to to the Homematic CCU2
+# Copyright (C) 2016 Lars Michelsen <lm@larsmichelsen.com>
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+"""A daemon for managing pmatic scripts
+
+The pmatic manager is used to manage pmatic scripts on the local system. The
+main purpose for this manager is to make the pmatic scripts on the CCU be
+manageable using a web GUI. However, it is possible to run the pmatic manager
+on any linux system of your choice. This might have the advantage that the
+manager and scripts are performing better than running it directly on the CCU.
+
+The tasks of the manager:
+
+* Make it possible to upload and delete scripts
+
+  You are completely free to upload, delete or modify the scripts using other
+  ways, for example via SSH at any time.
+
+* Run the scripts for testing
+
+  This is also possible via SSH but more comfortable via your browser using
+  the pmatic manager.
+
+* Invoke the scripts based on your configuration
+
+  The pmatic manager can execute scripts of your choice when specific events
+  occur like a value changed or based on dates / times.
+"""
+
+# Add Python 3.x behaviour to 2.7
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+from __future__ import unicode_literals
+
+try:
+    # Is recommended for Python 3.x but fails on 2.7, but is not mandatory
+    from builtins import object
+except ImportError:
+    pass
+
+import sys
+import traceback
+
+import pmatic.manager
+
+# FIXME: Make configurable (logfile/syslog)
+pmatic.logging(pmatic.DEBUG)
+
+# FIXME: Implement command line argument handling (-h, --help, -v, --version)
+opt_foreground = '-g' in sys.argv or '--foreground' in sys.argv
+
+manager = pmatic.manager.Manager(('', 9120))
+if not opt_foreground:
+    manager.daemonize()
+manager.register_signal_handlers()
+
+try:
+    manager.serve_forever()
+except pmatic.manager.SignalException as e:
+    manager.logger.info("Killed with signal %d." % e._signum)
+    sys.exit(1)
+except Exception as e:
+    manager.logger.error("Unhandled exception: %s" % traceback.format_exc())
+    sys.exit(1)

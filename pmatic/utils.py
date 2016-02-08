@@ -30,6 +30,7 @@ try:
 except ImportError:
     pass
 
+import os
 import re
 import sys
 import logging
@@ -94,3 +95,8 @@ def fmt_humidity(hum):
 
 def fmt_percentage_int(perc):
     return "%d%%" % perc
+
+
+def is_ccu():
+    """Returns True when executed on a CCU device. Otherwise False is being returned."""
+    return "ccu" in os.uname()

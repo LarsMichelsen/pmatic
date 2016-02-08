@@ -79,10 +79,10 @@ def init(mode=None, **kwargs):
     which must be valid credentials to authenticate with the CCU.
     """
     if mode == None:
-        mode = is_ccu() and "local" or "remote"
+        mode = utils.is_ccu() and "local" or "remote"
 
     if mode == "local":
-        if not is_ccu():
+        if not utils.is_ccu():
             raise PMException("local mode can only be used on the CCU.")
 
         return LocalAPI()
@@ -94,11 +94,6 @@ def init(mode=None, **kwargs):
                               "to access your CCU (%s)." % e)
     else:
         raise PMException("Invalid mode given. Valid ones are \"local\" and \"remote\".")
-
-
-def is_ccu():
-    """Returns True when executed on a CCU device. Otherwise False is being returned."""
-    return "ccu" in os.uname()
 
 
 

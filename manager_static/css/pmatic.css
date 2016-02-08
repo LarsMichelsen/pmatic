@@ -1,0 +1,61 @@
+body {
+    font-family: Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+ul#navigation {
+    width: 100%;
+    background-color: #212121;
+    list-style: none;
+    height: 40px;
+    margin: 0;
+    padding: 0;
+}
+
+ul#navigation li {
+    float: left;
+}
+
+ul#navigation li.right {
+    float: right;
+}
+
+ul#navigation li a {
+    display: block;
+    height: 30px;
+    color: #989A97;
+    width: 180px;
+    text-align: center;
+    padding-top: 10px;
+    text-decoration: none;
+}
+
+ul#navigation li a:hover {
+    background-color: #111;
+    color: #fff;
+}
+
+div#content {
+    padding: 20px;
+}
+
+div#content h2:first-child {
+    margin-top: 0;
+}
+
+a.btn {
+    background-color: #ddd;
+    border-radius: 5px;
+    display: inline-block;
+    width: 25px;
+    height: 25px;
+    margin-right: 2px;
+    line-height: 25px;
+    text-align: center;
+    color: #fff;
+}
+
+a.btn:hover {
+    color: #000;
+}
