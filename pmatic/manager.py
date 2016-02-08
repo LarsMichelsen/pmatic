@@ -54,7 +54,8 @@ class Config(object):
 # FIXME This handling is only for testing purposes and will be cleaned up soon
 if not utils.is_ccu():
     Config.script_path = "/tmp/pmatic-scripts"
-    Config.static_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) + "/manager_static"
+    Config.static_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) \
+                         + "/manager_static"
 
 
 class Html(object):
@@ -140,6 +141,9 @@ class Html(object):
     def h2(self, title):
         self.write("<h2>%s</h2>\n" % title)
 
+
+    def p(self, content):
+        self.write("<p>%s</p>\n" % content)
 
 
 class FieldStorage(cgi.FieldStorage):
@@ -282,10 +286,11 @@ class PageHandler(object):
 class StaticFile(PageHandler):
     @classmethod
     def get(self, path_info):
-        #if ".." in path_info:
-        #    return # don't allow .. in paths to prevent opening of unintended files
+        if ".." in path_info:
+            return # don't allow .. in paths to prevent opening of unintended files
 
-        if path_info.startswith("/css/") or path_info.startswith("/fonts/"):
+        if path_info.startswith("/css/") or path_info.startswith("/fonts/") \
+           or path_info.startswith("/scripts/"):
             file_path = StaticFile.system_path_from_pathinfo(path_info)
             if os.path.exists(file_path):
                 return StaticFile
@@ -293,7 +298,10 @@ class StaticFile(PageHandler):
 
     @classmethod
     def system_path_from_pathinfo(self, path_info):
-        return os.path.join(Config.static_path, path_info.lstrip("/"))
+        if path_info.startswith("/scripts/"):
+            return os.path.join(Config.script_path, os.path.basename(path_info))
+        else:
+            return os.path.join(Config.static_path, path_info.lstrip("/"))
 
 
     def _get_content_type(self):
@@ -311,14 +319,21 @@ class StaticFile(PageHandler):
         elif ext == "woff2":
             return "application/octet-stream"
         else:
-            return "text/plain"
+            return "text/plain; charset=UTF-8"
 
 
     def process_page(self):
+        path_info = self._env["PATH_INFO"]
+
+        if path_info.startswith("/scripts"):
+            self._http_headers.append((b"Content-Disposition",
+                b"attachment; filename=\"%s\"" % os.path.basename(path_info)))
+
         self._start_response(self._http_status(200), self._http_headers)
 
         file_path = StaticFile.system_path_from_pathinfo(self._env["PATH_INFO"])
         return [ l for l in file(file_path) ]
+
 
 
 class PageMain(PageHandler, Html, utils.LogMixin):
@@ -397,10 +412,12 @@ class PageMain(PageHandler, Html, utils.LogMixin):
 
 
     def upload_form(self):
-        self.h2("Upload new Script")
-        self.write("<p>You can either upload your scripts using this form or "
-                   "copy the files on your own, e.g. using SFTP or SCP, directly "
-                   "to <tt>%s</tt>." % Config.script_path)
+        self.h2("Upload Script")
+        self.p("<p>You can either upload your scripts using this form or "
+               "copy the files on your own, e.g. using SFTP or SCP, directly "
+               "to <tt>%s</tt>." % Config.script_path)
+        self.p("Please note that existing scripts with equal names will be overwritten "
+               "without warning.")
         self.write("<div class=\"upload_form\">\n")
         self.begin_form(multipart=True)
         self.file_upload("script")
@@ -426,9 +443,12 @@ class PageMain(PageHandler, Html, utils.LogMixin):
                               "Delete this script")
             self.icon_button("bolt", "/run?script=%s" % filename,
                               "Execute this script now")
+            self.icon_button("download", "/scripts/%s" % filename,
+                              "Download this script")
             self.write("</td>")
             self.write("<td>%s</td>" % filename)
-            self.write("<td>%s</td>" % time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(last_mod_ts)))
+            self.write("<td>%s</td>" % time.strftime("%Y-%m-%d %H:%M:%S",
+                                                     time.localtime(last_mod_ts)))
             self.write("</tr>")
         self.write("</table>\n")
         self.write("</div>\n")
