@@ -3,8 +3,11 @@ Ideas:
 * Talk directly with Rega (8181)
 * Provide standard way to store data on the local system
 * Create Object based access to the system variables of the CCU
-* For the CCU:
-  * Standardize script path (/etc/config/addons/pmatic/scripts)
-  * Add some kind of scheduling mechanism for scripts (use homematic ones?)
-  * Add interface to manage scripts and jobs as alternative to just deploy
-    the files e.g. via SSH.
+* Ship precompiled *.pyc files for faster startups even on first load?
+* Manager:
+  * Configurable scheduling of scripts
+  * Execute scripts via browser
+  * Make caching of static files possible
+  * Log file for manager? Make log level configurable
+  * Add confirm dialog for script deletion
+  * Tests for the manager

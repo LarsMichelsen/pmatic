@@ -155,6 +155,15 @@ class Html(object):
         self.write("<p>%s</p>\n" % content)
 
 
+    def js(self, script):
+        self.write("<script type=\"text/javascript\">%s</script>" % script)
+
+
+    def redirect(self, delay, url):
+        self.js("setTimeout(\"location.href = '%s';\", %d);" % (url, delay*1000))
+
+
+
 class FieldStorage(cgi.FieldStorage):
     def getvalue(self, key):
         return cgi.FieldStorage.getvalue(self, key.encode("utf-8"))
@@ -390,7 +399,7 @@ class PageMain(PageHandler, Html, utils.LogMixin):
     base_url = ""
 
     def title(self):
-        return "The page title"
+        return "Manage pmatic Scripts"
 
 
     def save_script(self, filename, script):
@@ -527,8 +536,8 @@ class PageLogin(PageHandler, Html, utils.LogMixin):
             raise UserError("Invalid password.")
 
         self._login(secret)
-        # FIXME: Automatically redirect
         self.success("You have been authenticated. You can now <a href=\"/\">proceed</a>.")
+        self.redirect(2, "/")
 
 
     def _login(self, secret):
