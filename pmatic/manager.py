@@ -48,7 +48,7 @@ import pmatic.utils as utils
 
 class Config(object):
     script_path = "/etc/config/addons/pmatic/scripts"
-    static_path = "/etc/config/addons/pmatic/manager"
+    static_path = "/etc/config/addons/pmatic/manager_static"
 
 
 # FIXME This handling is only for testing purposes and will be cleaned up soon

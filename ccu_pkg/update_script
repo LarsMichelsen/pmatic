@@ -20,9 +20,9 @@ elif [ "$1" = "HM-RASPBERRYMATIC" ]; then
 fi
 
 # remove files of old versions (same as in pmatic.init)
-rm /usr/local/bin/python2.7 /usr/local/bin/python
-rm -rf $ADDON_DIR/pmatic
+rm $BIN_DIR/python2.7 $BIN_DIR/python $BIN_DIR/pmatic-manager
 rm -rf $ADDON_DIR/python
+rm -rf $ADDON_DIR/manager_static
 
 if [ ! -d $ADDON_DIR ]; then
     mkdir -p $ADDON_DIR
@@ -34,13 +34,22 @@ if [ ! -d $RCD_DIR ]; then
     chmod 755 $RCD_DIR
 fi
 
+if [ ! -d $ADDON_DIR/scripts ]; then
+    mkdir -p $ADDON_DIR/scripts
+    chmod 755 $ADDON_DIR/scripts
+fi
+
 # Make python executable shipped with pmatic available via PATH
 ln -s ../etc/config/addons/pmatic/python/bin/python2.7 $BIN_DIR/python2.7
 cp python-wrapper $BIN_DIR/python
 chmod +x $BIN_DIR/python
 
+cp pmatic-manager $BIN_DIR/
+chmod +x $BIN_DIR/pmatic-manager
+
 # copy all stuff and setup rc.d
-cp -R examples python $ADDON_DIR/
+cp -R python manager_static $ADDON_DIR/
+cp -R examples $ADDON_DIR/scripts/
 cp -R pmatic $ADDON_DIR/python/lib/python2.7/
 ln -s python/lib/python2.7/pmatic $ADDON_DIR/pmatic
 cp pmatic.init $RCD_DIR/pmatic

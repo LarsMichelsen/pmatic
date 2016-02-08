@@ -5,10 +5,12 @@ ADDON_DIR=/etc/config/addons/pmatic
 
 case "$1" in
 ""|start)
+  pmatic-manager
   ;;
 info)
   echo "Info: <center><b>pmatic CCU Addon</b><center>"
-  echo "Info: <center><a href='https://github.com/LaMi-/pmatic'>https://github.com/LaMi-/pmatic</a><center>"
+  echo "Info: <center><a href='https://github.com/LarsMichelsen/pmatic' target='_blank'>https://github.com/LarsMichelsen/pmatic</a><center>"
+  echo "Info: <center><a href='/' onclick='javascript:event.target.port=9120' target='_blank'>pmatic Manager</a><center>"
   echo "Version: $VERSION"
   echo "Name: pmatic"
   echo "Operations: uninstall"
@@ -16,10 +18,10 @@ info)
   #echo "Update: $CONFIG_URL/update-check.cgi"
   ;;
 uninstall)
-  # remove pmatic program directory + python but keep other directories
-  # like the user scripts in $ADDON_DIR/scripts.
-  rm /usr/local/bin/python2.7 /usr/local/bin/python
+  # remove pmatic program + python related files but keep directories
+  # containing user files like $ADDON_DIR/scripts.
+  rm /usr/local/bin/python2.7 /usr/local/bin/python /usr/local/bin/pmatic-manager
   rm -rf $ADDON_DIR/python
-  rm -rf $ADDON_DIR/pmatic
+  rm -rf $ADDON_DIR/manager_static
   ;;
 esac

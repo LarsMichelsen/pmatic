@@ -132,6 +132,11 @@ dist-ccu-step1:
 	    lib/python2.7/BaseHTTPServer.py \
 	    lib/python2.7/SimpleXMLRPCServer.py \
 	    lib/python2.7/xmllib.py \
+	    lib/python2.7/xmlrpclib.py \
+	    \
+	    lib/python2.7/cgi.py \
+	    lib/python2.7/Cookie.py \
+	    lib/python2.7/wsgiref/*.py \
 	    \
 	    $(CCU_PREDIST_PATH)/python
 
@@ -140,7 +145,7 @@ dist-ccu-step2:
 	rsync -aRv --no-g \
 	    --exclude=\*.pyc \
 	    --exclude=__pycache__ \
-	    pmatic examples \
+	    pmatic examples pmatic-manager manager_static \
 	    $(CCU_PKG_PATH)
 	tar -cv -C $(CCU_PKG_PATH) -f $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar .
 	[ -d $(CCU_PKG_PATH) ] && rm -rf $(CCU_PKG_PATH) || true
