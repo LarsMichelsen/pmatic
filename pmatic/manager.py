@@ -41,12 +41,14 @@ import traceback
 #import mimetypes
 import wsgiref.simple_server
 from Cookie import SimpleCookie
+from hashlib import sha256
 
 import pmatic
 import pmatic.utils as utils
 
 
 class Config(object):
+    config_path = "/etc/config/addons/pmatic/etc"
     script_path = "/etc/config/addons/pmatic/scripts"
     static_path = "/etc/config/addons/pmatic/manager_static"
 
@@ -56,6 +58,8 @@ if not utils.is_ccu():
     Config.script_path = "/tmp/pmatic-scripts"
     Config.static_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) \
                          + "/manager_static"
+    Config.config_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) \
+                         + "/etc"
 
 
 class Html(object):
@@ -83,6 +87,7 @@ class Html(object):
         self.write("<ul id=\"navigation\">\n")
         self.write("<li><a href=\"/\">Scripts</a></li>\n")
         self.write("<li><a href=\"/run\">Live Execution</a></li>\n")
+        self.write("<li><a href=\"/config\">Configuration</a></li>\n")
         self.write("<li class=\"right\"><a href=\"https://larsmichelsen.github.io/pmatic/\" "
                    "target=\"_blank\">pmatic %s</a></li>\n" % pmatic.__version__)
         self.write("</ul>\n")
@@ -109,6 +114,10 @@ class Html(object):
 
     def hidden(self, name, value):
         self.write("<input type=\"hidden\" name=\"%s\" value=\"%s\">\n" % (name, value))
+
+
+    def password(self, name):
+        self.write("<input type=\"password\" name=\"%s\">\n" % name)
 
 
     def submit(self, label, value="1"):
@@ -171,13 +180,46 @@ class PageHandler(object):
     def get(cls, environ):
         pages = cls.pages()
         try:
-            return pages[cls.base_url(environ)]
+            page = pages[cls.base_url(environ)]
+
+            if cls.is_password_set() and not cls._is_authenticated(environ):
+                return pages["login"]
+            else:
+                return page
         except KeyError:
             static_file_class = StaticFile.get(environ['PATH_INFO'])
             if not static_file_class:
                 return pages["404"]
             else:
                 return static_file_class
+
+
+    @classmethod
+    def is_password_set(self):
+        return os.path.exists(os.path.join(Config.config_path, "manager.secret"))
+
+
+    @classmethod
+    def _get_auth_cookie_value(self, environ):
+        for name, cookie in SimpleCookie(environ.get("HTTP_COOKIE")).items():
+            if name == "pmatic_auth":
+                return cookie.value
+
+
+    @classmethod
+    def _is_authenticated(self, environ):
+        value = self._get_auth_cookie_value(environ)
+        if not value or value.count(":") != 1:
+            return False
+
+        salt, salted_hash = value.split(":", 1)
+
+        filepath = os.path.join(Config.config_path, "manager.secret")
+        secret = file(filepath).read().strip()
+
+        correct_hash = sha256(secret + salt).hexdigest().decode("utf-8")
+
+        return salted_hash == correct_hash
 
 
     def __init__(self, environ, start_response):
@@ -198,13 +240,12 @@ class PageHandler(object):
 
     def _read_environment(self):
         self._read_vars()
-        self._read_cookies()
 
 
-    def _read_cookies(self):
-        self._cookies = dict([ (k, c.value)
-            for k, c in SimpleCookie(self._env.get('HTTP_COOKIE')).items()
-            if c.value != "None"])
+    def _set_cookie(self, name, value):
+        cookie = SimpleCookie()
+        cookie[name.encode("utf-8")] = value.encode("utf-8")
+        self._http_headers.append((b"Set-Cookie", cookie[name.encode("utf-8")].OutputString()))
 
 
     def _read_vars(self):
@@ -238,6 +279,8 @@ class PageHandler(object):
 
         try:
             self.process()
+        except UserError as e:
+            self.error(e)
         except Exception as e:
             self.error("Unhandled exception: %s" % e)
 
@@ -245,6 +288,13 @@ class PageHandler(object):
         self.page_footer()
 
         return self._page
+
+
+    def ensure_password_is_set(self):
+        if not self.is_password_set():
+            raise UserError("To be able to access this page you first have to "
+                            "<a href=\"/config\">set a password</a> and authenticate "
+                            "afterwards.")
 
 
     def title(self):
@@ -366,6 +416,7 @@ class PageMain(PageHandler, Html, utils.LogMixin):
 
 
     def action(self):
+        self.ensure_password_is_set()
         action = self._vars.getvalue("action")
         if action == "upload":
             self._handle_upload()
@@ -407,6 +458,7 @@ class PageMain(PageHandler, Html, utils.LogMixin):
 
 
     def process(self):
+        self.ensure_password_is_set()
         self.upload_form()
         self.scripts()
 
@@ -451,6 +503,105 @@ class PageMain(PageHandler, Html, utils.LogMixin):
                                                      time.localtime(last_mod_ts)))
             self.write("</tr>")
         self.write("</table>\n")
+        self.write("</div>\n")
+
+
+
+class PageLogin(PageHandler, Html, utils.LogMixin):
+    base_url = "login"
+
+    def title(self):
+        return "Log in to pmatic Manager"
+
+
+    def action(self):
+        password = self._vars.getvalue("password")
+
+        if not password:
+            raise UserError("Invalid password.")
+
+        filepath = os.path.join(Config.config_path, "manager.secret")
+        secret = file(filepath).read().strip()
+
+        if secret != sha256(password).hexdigest():
+            raise UserError("Invalid password.")
+
+        self._login(secret)
+        # FIXME: Automatically redirect
+        self.success("You have been authenticated. You can now <a href=\"/\">proceed</a>.")
+
+
+    def _login(self, secret):
+        salt = "%d" % int(time.time())
+        salted_hash = sha256(secret + salt).hexdigest()
+        cookie_value = salt + ":" + salted_hash
+        self._set_cookie("pmatic_auth", cookie_value)
+
+
+    def process(self):
+        self.h2("Login")
+        self.p("<p>Welcome to the pmatic Manager. Please provide your manager "
+               "password to log in.")
+        self.write("<div class=\"login\">\n")
+        self.begin_form()
+        self.password("password")
+        self.submit("Log in", "login")
+        self.end_form()
+        self.write("</div>\n")
+
+
+
+class PageConfiguration(PageHandler, Html, utils.LogMixin):
+    base_url = "config"
+
+    def title(self):
+        return "Configuration of pmatic Manager"
+
+
+    def action(self):
+        action = self._vars.getvalue("action")
+        if action == "set_password":
+            self._handle_set_password()
+
+
+    def _handle_set_password(self):
+        password = self._vars.getvalue("password")
+
+        if not password:
+            raise UserError("You need to provide a password and it must not be empty.")
+
+        if len(password) < 6:
+            raise UserError("The password must have a minimal length of 6 characters.")
+
+        filepath = os.path.join(Config.config_path, "manager.secret")
+        file(filepath, "w").write(sha256(password).hexdigest()+"\n")
+        self.success("The password has been set.")
+
+
+    def process(self):
+        self.password_form()
+        #self.config_form()
+
+
+    def password_form(self):
+        self.h2("Set Manager Password")
+        self.p("<p>To make the pmatic manager fully functional, you need to "
+               "configure a password for accessing the manager first. Only after "
+               "setting a password functions like uploading files are enabled.")
+        self.write("<div class=\"password_form\">\n")
+        self.begin_form()
+        self.password("password")
+        self.submit("Set Password", "set_password")
+        self.end_form()
+        self.write("</div>\n")
+
+
+    def config_form(self):
+        self.h2("Configuration")
+        self.write("<div class=\"config_form\">\n")
+        self.begin_form()
+        # FIXME: Configuration!
+        self.end_form()
         self.write("</div>\n")
 
 

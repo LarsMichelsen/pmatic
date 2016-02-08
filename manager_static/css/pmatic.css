@@ -79,10 +79,18 @@ div.message.success {
     border: 1px solid #4f8a10;
 }
 
+div.message.success a {
+    color: #4f8a10;
+}
+
 div.message.error {
     background-color: #ffbaba;
     color: #d8000c;
     border: 1px solid #d8000c;
+}
+
+div.message.error a {
+    color: #d8000c;
 }
 
 /* TABLES */
