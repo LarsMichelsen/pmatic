@@ -24,7 +24,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import pytest, sys
+import pytest
+import sys
+import os
 from pmatic import utils
 
 

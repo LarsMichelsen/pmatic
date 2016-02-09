@@ -59,31 +59,54 @@ except ImportError:
 import sys
 import traceback
 import socket
+import argparse
 
 import pmatic.manager
 from pmatic.exceptions import SignalReceived
 
-# FIXME: Make configurable (logfile/syslog)
-pmatic.logging(pmatic.DEBUG)
+parser = argparse.ArgumentParser()
+parser.add_argument('-a',
+    dest="address",
+    default="",
+    help="Specify another host address than the default (all) to listen on.")
+parser.add_argument('-p',
+    dest="port",
+    default="9120",
+    type=int,
+    help="Specify another TCP port than the default one (9120) to listen on.")
+parser.add_argument('-g',
+    dest="foreground",
+    action="store_true",
+    help="Execute the pmatic manager in foreground instead of daemonizing.")
+parser.add_argument('-l',
+    dest="log_level",
+    help="Specify the log level (defaults to WARNING). You can choose from the following: "
+         "CRITICAL, ERROR, WARNING, INFO, DEBUG.",
+    default="WARNING",
+    choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"])
 
-# FIXME: Implement command line argument handling (-h, --help, -v, --version)
-opt_foreground = '-g' in sys.argv or '--foreground' in sys.argv
+args = parser.parse_args()
+
+# Set log level according to user supplied arguments
+pmatic.logging(getattr(pmatic, args.log_level))
 
 try:
-    manager = pmatic.manager.Manager(('', 9120))
+    manager = pmatic.manager.Manager((args.address, args.port))
 except socket.error as e:
     if e.errno == 98:
-        sys.stderr.write("Failed to start. Maybe another pmatic manager process is already running?\n"
-                         " (%s)\n" % e)
+        sys.stderr.write("Failed to start. Maybe another pmatic manager process is already "
+                         "running?\n (%s)\n" % e)
         sys.exit(1)
     else:
         raise
 
-if not opt_foreground:
+if not args.foreground:
     manager.daemonize()
+
 manager.register_signal_handlers()
 
 try:
+    manager.logger.info("Start listening on TCP %d..." % args.port)
     manager.serve_forever()
 except SignalReceived as e:
     manager.logger.info("Killed with signal %d." % e._signum)
