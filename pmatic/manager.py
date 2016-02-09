@@ -66,6 +66,14 @@ if not utils.is_ccu():
 
 
 class Html(object):
+    html_escape_table = {
+        "&": "&amp;",
+        '"': "&quot;",
+        "'": "&apos;",
+        ">": "&gt;",
+        "<": "&lt;",
+    }
+
     def page_header(self):
         self.write('<!DOCTYPE HTML>\n'
                    '<html><head>\n')
@@ -159,7 +167,7 @@ class Html(object):
 
 
     def h2(self, title):
-        self.write("<h2>%s</h2>\n" % title)
+        self.write("<h2>%s</h2>\n" % self.escape(title))
 
 
     def p(self, content):
@@ -177,6 +185,14 @@ class Html(object):
     def redirect(self, delay, url):
         self.js("setTimeout(\"location.href = '%s';\", %d);" % (url, delay*1000))
 
+
+    def escape(self, text):
+        """Escape text for embedding into HTML code."""
+        return "".join(self.html_escape_table.get(c, c) for c in text)
+
+
+    def write_text(self, text):
+        self.write(self.escape(text))
 
 
 class FieldStorage(cgi.FieldStorage):
@@ -677,11 +693,11 @@ class PageRun(PageHandler, Html, utils.LogMixin):
 
         # Tell js code to continue reloading or not
         if not g_runner.is_alive():
-            self.write("0")
+            self.write_text("0")
         else:
-            self.write("1")
+            self.write_text("1")
 
-        self.write("".join(g_runner.output))
+        self.write_text("".join(g_runner.output))
 
         return self._page
 

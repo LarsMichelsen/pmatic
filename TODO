@@ -10,3 +10,4 @@ Ideas:
   * Log file for manager? Make log level configurable
   * Add confirm dialog for script deletion
   * Tests for the manager
+  * Escape user provided texts
