@@ -39,6 +39,11 @@ if [ ! -d $ADDON_DIR/scripts ]; then
     chmod 755 $ADDON_DIR/scripts
 fi
 
+if [ ! -d $ADDON_DIR/etc ]; then
+    mkdir -p $ADDON_DIR/etc
+    chmod 755 $ADDON_DIR/etc
+fi
+
 # Make python executable shipped with pmatic available via PATH
 ln -s ../etc/config/addons/pmatic/python/bin/python2.7 $BIN_DIR/python2.7
 cp python-wrapper $BIN_DIR/python
