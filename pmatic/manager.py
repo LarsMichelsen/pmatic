@@ -630,6 +630,8 @@ class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
             return
 
         self.write("<table>")
+        self.write("<tr><th>Script</th>"
+                   "<td>%s</td></tr>" % g_runner.script)
         self.write("<tr><th>Started at</th>"
                    "<td>%s</td></tr>" % time.strftime("%Y-%m-%d %H:%M:%S",
                                                       time.localtime(g_runner.started)))
