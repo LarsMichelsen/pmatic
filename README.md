@@ -89,7 +89,7 @@ Take a look at the [installation documentation](https://larsmichelsen.github.io/
 
 ## Documentation
 
-The current [documentation](https://larsmichelsen.github.io/pmatic//doc/index.html)
+The current [documentation](https://larsmichelsen.github.io/pmatic/doc/index.html)
 can be found on the official web site of pmatic.
 
 ## Usage
@@ -116,7 +116,7 @@ Please take a look at the issue tracker and the TODO file.
 
 ## Reporting Bugs, Feature Requests
 
-Please use the issue tracker on the [pmatic GitHub page](https://github.com/LaMi-/pmatic).
+Please use the issue tracker on the [pmatic GitHub page](https://github.com/LarsMichelsen/pmatic).
 
 ## Licensing
 

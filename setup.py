@@ -33,7 +33,7 @@ setup(name='pmatic',
         'with your CCU2 devices.',
     author='Lars Michelsen',
     author_email='lm@larsmichelsen.com',
-    url='https://github.com/LaMi-/pmatic',
+    url='https://github.com/LarsMichelsen/pmatic',
     license='GPLv2',
     classifiers=[
         'Development Status :: 4 - Beta',

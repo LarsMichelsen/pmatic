@@ -26,7 +26,7 @@ pmatic directly on the CCU2 or another system having Python installed.
 With pmatic you can write your own Python scripts to communicate with
 your CCU device.
 
-Take a look at <https://github.com/LaMi-/pmatic> for details.
+Take a look at <https://github.com/LarsMichelsen/pmatic> for details.
 """
 
 # Add Python 3.x behaviour to 2.7
