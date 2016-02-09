@@ -636,7 +636,7 @@ class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
 
         self.write("<tr><th>Finished at</th>"
                    "<td>")
-        if not self._is_running():
+        if not self._is_running() and g_runner.finished != None:
             self.write(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(g_runner.finished)))
         else:
             self.write("-")
@@ -647,8 +647,10 @@ class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
         if self._is_running():
             self.write("running ")
             self.icon_button("close", "/run?action=abort", "Stop this script.")
+        elif g_runner.exit_code != None:
+            self.write("finished (Exit code: <tt>%d</tt>)" % g_runner.exit_code)
         else:
-            self.write("finished (Exit code: <tt>%d</tt>)" % self._exit_code())
+            self.write("Started but not running - something went wrong.")
         self.write("</td></tr>")
 
         self.write("<tr><th class=\"toplabel\">Output</th>")
@@ -832,7 +834,7 @@ class Page404(PageHandler, Html, utils.LogMixin):
 
 
 
-class ScriptRunner(threading.Thread):
+class ScriptRunner(threading.Thread, utils.LogMixin):
     def __init__(self, script):
         threading.Thread.__init__(self)
         self.script     = script
@@ -843,18 +845,24 @@ class ScriptRunner(threading.Thread):
 
 
     def run(self):
-        script_path = os.path.join(Config.script_path, self.script)
-        self._p = subprocess.Popen(["/usr/bin/python", "-u", script_path], shell=False, cwd="/",
-                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        try:
+            self.logger.info("Starting script: %s" % self.script)
+            script_path = os.path.join(Config.script_path, self.script)
+            self._p = subprocess.Popen(["/usr/bin/env", "python", "-u", script_path], shell=False,
+                                       cwd="/", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-        while True:
-            nextline = self._p.stdout.readline()
-            if nextline == "" and self._p.poll() != None:
-                break
-            self.output.append(nextline)
+            while True:
+                nextline = self._p.stdout.readline().decode("utf-8")
+                if nextline == "" and self._p.poll() != None:
+                    break
+                self.output.append(nextline)
 
-        self.finished  = time.time()
-        self.exit_code = self._p.poll()
+            self.finished  = time.time()
+            self.exit_code = self._p.poll()
+            self.logger.info("Finished.")
+        except Exception as e:
+            self.logger.error("Failed to execute %s: %s" % (self.script, e))
+            self.logger.debug(traceback.format_exc())
 
 
     def abort(self):
