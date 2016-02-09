@@ -15,10 +15,12 @@ function update_output() {
             // automatically scroll down
             output.scrollTop = output.scrollHeight;
 
-            // trigger next reload (when still running)
+            // trigger next update (when still running), otherwise just update once
             var reload = xhttp.responseText.substr(0, 1);
             if (reload == "1")
                 setTimeout(update_output, 1000);
+            else
+                window.location.href = "/run";
         }
     };
 }

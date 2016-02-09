@@ -581,8 +581,7 @@ class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
                             "or stop it to be able to execute another script.")
 
         self._execute_script(script)
-
-        self.success("The script has been started. See below for the results.")
+        self.success("The script has been started.")
 
 
     def _handle_abort(self):
@@ -602,9 +601,10 @@ class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
     def _start_form(self):
         self.h2("Execute Scripts")
         self.p("This page is primarily meant for testing purposes. You can choose "
-               "which script you want to execute and then start it. The whole output of "
-               "the script is caputered and shown in the progress area below. You "
-               "can execute only one script at same time.")
+               "which script you like to execute and then start it. The whole output of "
+               "the script is captured and shown in the progress area below. You "
+               "can execute only one script at the time. Please note: You are totally "
+               "free to execute your scripts on the command line or however you like.")
         self.write("<div class=\"execute_form\">\n")
         self.begin_form()
         self.write("Select the script: ")
@@ -639,12 +639,13 @@ class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
             self.write("running ")
             self.icon_button("close", "/run?action=abort", "Stop this script.")
         else:
-            self.write("finished (Exit-Code: <tt>%d</tt>)" % self._exit_code())
+            self.write("finished (Exit code: <tt>%d</tt>)" % self._exit_code())
         self.write("</td></tr>")
 
         self.write("<tr><th class=\"toplabel\">Output</th>")
         self.write("<td>")
-        self.write("<pre id=\"output\">%s</pre>" % self._output())
+        output = self.escape(self._output()) or "<i>(no output)</i>"
+        self.write("<pre id=\"output\">%s</pre>" % output)
         self.write("</td></tr>")
         self.write("</table>")
 
