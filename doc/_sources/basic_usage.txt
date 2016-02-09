@@ -172,7 +172,7 @@ You might use pmatic for different kind of software. Some ideas:
   An example could be a script which triggers a power switch when you turn on
   your workstation which is then powering on some kind of ambient light.
 
-  Take a look at the `example <https://github.com/LaMi-/pmatic/tree/master/examples>`_
+  Take a look at the `example <https://github.com/LarsMichelsen/pmatic/tree/master/examples>`_
   directory for more ideas.
 
 - **Continously running daemons**

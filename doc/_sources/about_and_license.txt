@@ -4,7 +4,7 @@ Meta information
 Reporting Bugs, Feature Requests
 --------------------------------
 
-Please use the issue tracker on the `pmatic GitHub page <https://github.com/LaMi-/pmatic>`_.
+Please use the issue tracker on the `pmatic GitHub page <https://github.com/LarsMichelsen/pmatic>`_.
 
 Copyright
 ---------
@@ -17,5 +17,5 @@ Licensing
 ---------
 
 All outcome of the project is licensed under the terms of the GNU GPL v2.
-Take a look at the `LICENSE <https://github.com/LaMi-/pmatic/blob/master/LICENSE>`_
+Take a look at the `LICENSE <https://github.com/LarsMichelsen/pmatic/blob/master/LICENSE>`_
 file for details.

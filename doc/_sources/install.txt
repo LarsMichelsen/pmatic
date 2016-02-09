@@ -41,9 +41,11 @@ or not.
 Installation on your workstation
 --------------------------------
 
-The installation should be straight forward. First download pmatic by either
-cloning from the Git or download a release archive, unpack it and change to
-the extracted directory ``pmatic-*``. Then execute:
+The installation should be straight forward. First download pmatic by either downloading the 
+`current git snapshot <https://github.com/LarsMichelsen/pmatic/archive/master.zip>`_, 
+cloning the `Git repository <https://github.com/LarsMichelsen/pmatic>`_ or download a 
+release archive (if available), unpack it and change to the extracted directory
+``pmatic-*``. Then execute:
 
 .. code-block:: shell
 
@@ -60,7 +62,7 @@ installation was successful.
 
 
 I developed and tested pmatic on a Debian 8 system with Python 2.7.9, but
-pmatic should work on other platforms meeting the requirements listed above.
+pmatic should work on other platforms meeting the pmatic requirements.
 
 Please let me know or send me a pull request on GitHub if there are compatibility
 issues on a platform you would expect pmatic to work.
