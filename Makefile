@@ -134,6 +134,12 @@ dist-ccu-step1:
 	    lib/python2.7/xmllib.py \
 	    lib/python2.7/xmlrpclib.py \
 	    \
+	    lib/python2.7/argparse.py \
+	    lib/python2.7/copy.py \
+	    lib/python2.7/textwrap.py \
+	    lib/python2.7/gettext.py \
+	    lib/python2.7/locale.py \
+	    \
 	    lib/python2.7/cgi.py \
 	    lib/python2.7/Cookie.py \
 	    lib/python2.7/wsgiref/*.py \
