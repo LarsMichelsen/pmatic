@@ -196,9 +196,9 @@ version:
 
 setversion:
 	sed -ri 's/^(VERSION[[:space:]]*= *).*/\1'"$(NEW_VERSION)/" Makefile
-	sed -i "s/^__version__ = .*/VERSION = \"$(NEW_VERSION)\"/g" pmatic/__init__.py
+	sed -ri "s/^(__version__[[:space:]]*= *).*/\1\"$(NEW_VERSION)\"/g" pmatic/__init__.py
 	sed -i "s/version='.*',/version='$(NEW_VERSION)',/g" setup.py
-	sed -i "s/VERSION=.*,/VERSION=$(NEW_VERSION)/g" ccu_pkg/pmatic.init
+	sed -i "s/^VERSION=.*/VERSION=$(NEW_VERSION)/g" ccu_pkg/pmatic.init
 
 clean: clean-chroot clean-dist clean-test
 
