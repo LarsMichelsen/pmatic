@@ -6,7 +6,6 @@ Ideas:
 * Ship precompiled *.pyc files for faster startups even on first load?
 * Manager:
   * Configurable scheduling of scripts
-  * Execute scripts via browser
   * Make caching of static files possible
   * Log file for manager? Make log level configurable
   * Add confirm dialog for script deletion

@@ -122,3 +122,22 @@ table tr:nth-child(2n)  {
 table tr:nth-child(2n+1)  {
     background-color: #eaeaea;
 }
+
+/* SCRIPT EXECUTION */
+
+table tr th.toplabel {
+    vertical-align: top;
+}
+
+pre#output {
+    width: 700px;
+    margin: 0;
+    padding: 10px;
+    background-color: #fff;
+    -moz-box-shadow:    inset 0 0 5px #111;
+    -webkit-box-shadow: inset 0 0 5px #111;
+    box-shadow:         inset 0 0 5px #111;
+
+    overflow-y: scroll;
+    max-height: 600px;
+}

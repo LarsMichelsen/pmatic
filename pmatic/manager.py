@@ -38,7 +38,8 @@ import sys
 import time
 import signal
 import traceback
-#import mimetypes
+import threading
+import subprocess
 import wsgiref.simple_server
 from Cookie import SimpleCookie
 from hashlib import sha256
@@ -47,6 +48,8 @@ import pmatic
 import pmatic.utils as utils
 from pmatic.exceptions import UserError, SignalReceived
 
+# Set while a script is executed with the "/run" page
+g_runner = None
 
 class Config(object):
     config_path = "/etc/config/addons/pmatic/etc"
@@ -86,7 +89,7 @@ class Html(object):
     def navigation(self):
         self.write("<ul id=\"navigation\">\n")
         self.write("<li><a href=\"/\">Scripts</a></li>\n")
-        self.write("<li><a href=\"/run\">Live Execution</a></li>\n")
+        self.write("<li><a href=\"/run\">Execute Scripts</a></li>\n")
         self.write("<li><a href=\"/config\">Configuration</a></li>\n")
         self.write("<li class=\"right\"><a href=\"https://larsmichelsen.github.io/pmatic/\" "
                    "target=\"_blank\">pmatic %s</a></li>\n" % pmatic.__version__)
@@ -125,6 +128,14 @@ class Html(object):
                    "value=\"%s\">%s</button>\n" % (value, label))
 
 
+    def select(self, name, choices):
+        self.write("<select name=\"%s\">\n" % name)
+        self.write("<option value=\"\"></option>\n")
+        for choice in choices:
+            self.write("<option value=\"%s\">%s</option>\n" % choice)
+        self.write("</select>\n")
+
+
     def icon_button(self, icon_name, url, title):
         self.write("<a class=\"btn\" href=\"%s\" title=\"%s\">"
                    "<i class=\"fa fa-%s\"></i></a>" % (url, title, icon_name))
@@ -155,8 +166,12 @@ class Html(object):
         self.write("<p>%s</p>\n" % content)
 
 
+    def js_file(self, url):
+        self.write("<script type=\"text/javascript\" src=\"%s\"></script>\n" % url)
+
+
     def js(self, script):
-        self.write("<script type=\"text/javascript\">%s</script>" % script)
+        self.write("<script type=\"text/javascript\">%s</script>\n" % script)
 
 
     def redirect(self, delay, url):
@@ -349,7 +364,7 @@ class StaticFile(PageHandler):
             return # don't allow .. in paths to prevent opening of unintended files
 
         if path_info.startswith("/css/") or path_info.startswith("/fonts/") \
-           or path_info.startswith("/scripts/"):
+           or path_info.startswith("/scripts/") or path_info.startswith("/js/"):
             file_path = StaticFile.system_path_from_pathinfo(path_info)
             if os.path.exists(file_path):
                 return StaticFile
@@ -367,6 +382,8 @@ class StaticFile(PageHandler):
         ext = self._env["PATH_INFO"].split(".")[-1]
         if ext == "css":
             return "text/css; charset=UTF-8"
+        if ext == "js":
+            return "application/x-javascript; charset=UTF-8"
         elif ext == "otf":
             return "application/vnd.ms-opentype"
         elif ext == "eot":
@@ -395,7 +412,22 @@ class StaticFile(PageHandler):
 
 
 
-class PageMain(PageHandler, Html, utils.LogMixin):
+class AbstractScriptPage(object):
+    def _get_scripts(self):
+        try:
+            entries = os.listdir(Config.script_path)
+        except OSError:
+            raise UserError("The script directory %s does not exist." %
+                                                    Config.script_path)
+
+        for filename in entries:
+            filepath = os.path.join(Config.script_path, filename)
+            if os.path.isfile(filepath) and filename[0] != ".":
+                yield filename
+
+
+
+class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
     base_url = ""
 
     def title(self):
@@ -409,19 +441,6 @@ class PageMain(PageHandler, Html, utils.LogMixin):
         filepath = os.path.join(Config.script_path, filename)
         file(filepath, "w").write(script)
         os.chmod(filepath, 0o755)
-
-
-    def get_scripts(self):
-        try:
-            entries = os.listdir(Config.script_path)
-        except OSError:
-            raise UserError("The script directory %s does not exist." %
-                                                    Config.script_path)
-
-        for filename in entries:
-            filepath = os.path.join(Config.script_path, filename)
-            if os.path.isfile(filepath):
-                yield filename
 
 
     def action(self):
@@ -474,7 +493,7 @@ class PageMain(PageHandler, Html, utils.LogMixin):
 
     def upload_form(self):
         self.h2("Upload Script")
-        self.p("<p>You can either upload your scripts using this form or "
+        self.p("You can either upload your scripts using this form or "
                "copy the files on your own, e.g. using SFTP or SCP, directly "
                "to <tt>%s</tt>." % Config.script_path)
         self.p("Please note that existing scripts with equal names will be overwritten "
@@ -494,7 +513,7 @@ class PageMain(PageHandler, Html, utils.LogMixin):
         self.write("<th>Actions</th>"
                    "<th class=\"largest\">Filename</th>"
                    "<th>Last modified</th></tr>\n")
-        for filename in self.get_scripts():
+        for filename in self._get_scripts():
             path = os.path.join(Config.script_path, filename)
             last_mod_ts = os.stat(path).st_mtime
 
@@ -502,7 +521,7 @@ class PageMain(PageHandler, Html, utils.LogMixin):
             self.write("<td>")
             self.icon_button("trash", "?action=delete&script=%s" % filename,
                               "Delete this script")
-            self.icon_button("bolt", "/run?script=%s" % filename,
+            self.icon_button("bolt", "/run?script=%s&action=run" % filename,
                               "Execute this script now")
             self.icon_button("download", "/scripts/%s" % filename,
                               "Download this script")
@@ -513,6 +532,158 @@ class PageMain(PageHandler, Html, utils.LogMixin):
             self.write("</tr>")
         self.write("</table>\n")
         self.write("</div>\n")
+
+
+
+class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
+    base_url = "run"
+
+    def title(self):
+        return "Execute pmatic Scripts"
+
+
+    def action(self):
+        self.ensure_password_is_set()
+        action = self._vars.getvalue("action")
+        if action == "run":
+            self._handle_run()
+        elif action == "abort":
+            self._handle_abort()
+
+
+    def _handle_run(self):
+        script = self._vars.getvalue("script")
+        if not script:
+            raise UserError("You have to select a script.")
+
+        if script not in self._get_scripts():
+            raise UserError("You have to select a valid script.")
+
+        if self._is_running():
+            raise UserError("There is another script running. Wait for it to complete "
+                            "or stop it to be able to execute another script.")
+
+        self._execute_script(script)
+
+        self.success("The script has been started. See below for the results.")
+
+
+    def _handle_abort(self):
+        if not self._is_running():
+            raise UserError("There is no script running to abort.")
+
+        self._abort_script()
+        self.success("The script has been aborted.")
+
+
+    def process(self):
+        self.ensure_password_is_set()
+        self._start_form()
+        self._progress()
+
+
+    def _start_form(self):
+        self.h2("Execute Scripts")
+        self.p("This page is primarily meant for testing purposes. You can choose "
+               "which script you want to execute and then start it. The whole output of "
+               "the script is caputered and shown in the progress area below. You "
+               "can execute only one script at same time.")
+        self.write("<div class=\"execute_form\">\n")
+        self.begin_form()
+        self.write("Select the script: ")
+        self.select("script", sorted([ (s, s) for s in self._get_scripts() ]))
+        self.submit("Run script", "run")
+        self.end_form()
+        self.write("</div>\n")
+
+
+    def _progress(self):
+        self.h2("Progress")
+        if not self._is_started():
+            self.p("There is no script running.")
+            return
+
+        self.write("<table>")
+        self.write("<tr><th>Started at</th>"
+                   "<td>%s</td></tr>" % time.strftime("%Y-%m-%d %H:%M:%S",
+                                                      time.localtime(g_runner.started)))
+
+        self.write("<tr><th>Finished at</th>"
+                   "<td>")
+        if not self._is_running():
+            self.write(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(g_runner.finished)))
+        else:
+            self.write("-")
+        self.write("</td></tr>")
+
+        self.write("<tr><th>Current state</th>"
+                   "<td>")
+        if self._is_running():
+            self.write("running ")
+            self.icon_button("close", "/run?action=abort", "Stop this script.")
+        else:
+            self.write("finished (Exit-Code: <tt>%d</tt>)" % self._exit_code())
+        self.write("</td></tr>")
+
+        self.write("<tr><th class=\"toplabel\">Output</th>")
+        self.write("<td>")
+        self.write("<pre id=\"output\">%s</pre>" % self._output())
+        self.write("</td></tr>")
+        self.write("</table>")
+
+        if self._is_running():
+            self.js_file("js/update_output.js")
+
+
+    def _is_started(self):
+        return g_runner != None
+
+
+    def _is_running(self):
+        return g_runner and g_runner.is_alive()
+
+
+    def _exit_code(self):
+        return g_runner.exit_code
+
+
+    def _output(self):
+        return "".join(g_runner.output)
+
+
+    def _execute_script(self, script):
+        global g_runner
+        g_runner = ScriptRunner(script)
+        g_runner.start()
+
+
+    def _abort_script(self):
+        g_runner.abort()
+
+
+
+class PageRun(PageHandler, Html, utils.LogMixin):
+    base_url = "ajax_update_output"
+
+    def _get_content_type(self):
+        return b"text/plain; charset=UTF-8"
+
+    def process_page(self):
+        output = []
+
+        self._start_response(self._http_status(200), self._http_headers)
+        if not g_runner:
+            return output
+
+        # Tell js code to continue reloading or not
+        if not g_runner.is_alive():
+            self.write("0")
+        else:
+            self.write("1")
+
+        self.write("".join(g_runner.output))
+
+        return self._page
 
 
 
@@ -549,7 +720,7 @@ class PageLogin(PageHandler, Html, utils.LogMixin):
 
     def process(self):
         self.h2("Login")
-        self.p("<p>Welcome to the pmatic Manager. Please provide your manager "
+        self.p("Welcome to the pmatic Manager. Please provide your manager "
                "password to log in.")
         self.write("<div class=\"login\">\n")
         self.begin_form()
@@ -596,7 +767,7 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
 
     def password_form(self):
         self.h2("Set Manager Password")
-        self.p("<p>To make the pmatic manager fully functional, you need to "
+        self.p("To make the pmatic manager fully functional, you need to "
                "configure a password for accessing the manager first. Only after "
                "setting a password functions like uploading files are enabled.")
         self.write("<div class=\"password_form\">\n")
@@ -631,6 +802,41 @@ class Page404(PageHandler, Html, utils.LogMixin):
 
     def process(self):
         self.write("The requested page could not be found.")
+
+
+
+class ScriptRunner(threading.Thread):
+    def __init__(self, script):
+        threading.Thread.__init__(self)
+        self.script     = script
+        self.output     = []
+        self.exit_code  = None
+        self.started    = time.time()
+        self.finished   = None
+
+
+    def run(self):
+        script_path = os.path.join(Config.script_path, self.script)
+        self._p = subprocess.Popen(["/usr/bin/python", "-u", script_path], shell=False, cwd="/",
+                                   stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        while True:
+            nextline = self._p.stdout.readline()
+            if nextline == "" and self._p.poll() != None:
+                break
+            self.output.append(nextline)
+
+        self.finished  = time.time()
+        self.exit_code = self._p.poll()
+
+
+    def abort(self):
+        self._p.terminate()
+        # And wait for the termination (at least shortly)
+        timer = 10
+        while timer > 0 and self._p.poll() == None:
+            timer -= 1
+            time.sleep(0.1)
 
 
 
