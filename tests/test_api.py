@@ -29,7 +29,6 @@ import pytest
 from pmatic import PMException
 import pmatic.utils as utils
 import pmatic.api
-import os
 
 def test_implicit_remote_init_missing_args():
     with pytest.raises(PMException):

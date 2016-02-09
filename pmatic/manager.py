@@ -43,6 +43,8 @@ import subprocess
 import wsgiref.simple_server
 from Cookie import SimpleCookie
 from hashlib import sha256
+from grp import getgrnam
+from pwd import getpwnam
 
 import pmatic
 import pmatic.utils as utils
