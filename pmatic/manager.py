@@ -110,7 +110,7 @@ class Html(object):
 
     def begin_form(self, multipart=None):
         enctype = " enctype=\"multipart/form-data\"" if multipart else ""
-        target_url = self.base_url or "/"
+        target_url = self.url or "/"
         self.write("<form method=\"post\" action=\"%s\" %s>\n" % (target_url, enctype))
 
 
@@ -206,7 +206,8 @@ class PageHandler(object):
     def pages(cls):
         pages = {}
         for subclass in cls.__subclasses__():
-            pages[subclass.base_url] = subclass
+            if hasattr(subclass, "url"):
+                pages[subclass.url] = subclass
         return pages
 
 
@@ -444,7 +445,7 @@ class AbstractScriptPage(object):
 
 
 class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
-    base_url = ""
+    url = ""
 
     def title(self):
         return "Manage pmatic Scripts"
@@ -552,7 +553,7 @@ class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
 
 
 class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
-    base_url = "run"
+    url = "run"
 
     def title(self):
         return "Execute pmatic Scripts"
@@ -678,8 +679,8 @@ class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
 
 
 
-class PageRun(PageHandler, Html, utils.LogMixin):
-    base_url = "ajax_update_output"
+class PageAjaxUpdateOutput(PageHandler, Html, utils.LogMixin):
+    url = "ajax_update_output"
 
     def _get_content_type(self):
         return b"text/plain; charset=UTF-8"
@@ -704,7 +705,7 @@ class PageRun(PageHandler, Html, utils.LogMixin):
 
 
 class PageLogin(PageHandler, Html, utils.LogMixin):
-    base_url = "login"
+    url = "login"
 
     def title(self):
         return "Log in to pmatic Manager"
@@ -748,7 +749,7 @@ class PageLogin(PageHandler, Html, utils.LogMixin):
 
 
 class PageConfiguration(PageHandler, Html, utils.LogMixin):
-    base_url = "config"
+    url = "config"
 
     def title(self):
         return "Configuration of pmatic Manager"
@@ -805,7 +806,7 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
 
 
 class Page404(PageHandler, Html, utils.LogMixin):
-    base_url = "404"
+    url = "404"
 
 
     def _send_http_header(self):
