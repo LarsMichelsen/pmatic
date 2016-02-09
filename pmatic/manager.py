@@ -392,7 +392,7 @@ class StaticFile(PageHandler):
     @classmethod
     def system_path_from_pathinfo(self, path_info):
         if path_info.startswith("/scripts/"):
-            return os.path.join(Config.script_path, os.path.basename(path_info))
+            return os.path.join(Config.script_path, path_info[9:])
         else:
             return os.path.join(Config.static_path, path_info.lstrip("/"))
 
@@ -433,16 +433,23 @@ class StaticFile(PageHandler):
 
 class AbstractScriptPage(object):
     def _get_scripts(self):
-        try:
-            entries = os.listdir(Config.script_path)
-        except OSError:
+        if not os.path.exists(Config.script_path):
             raise UserError("The script directory %s does not exist." %
                                                     Config.script_path)
 
-        for filename in entries:
-            filepath = os.path.join(Config.script_path, filename)
-            if os.path.isfile(filepath) and filename[0] != ".":
-                yield filename
+        for dirpath, dirnames, filenames in os.walk(Config.script_path):
+            if dirpath == Config.script_path:
+                relpath = ""
+            else:
+                relpath = dirpath[len(Config.script_path)+1:]
+
+            for filename in filenames:
+                filepath = os.path.join(dirpath, filename)
+                if os.path.isfile(filepath) and filename[0] != ".":
+                    if relpath:
+                        yield os.path.join(relpath, filename)
+                    else:
+                        yield filename
 
 
 
@@ -496,7 +503,7 @@ class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
         if not filename:
             raise UserError("You need to provide a script name to delete.")
 
-        if filename not in os.listdir(Config.script_path):
+        if filename not in self._get_scripts():
             raise UserError("This script does not exist.")
 
         filepath = os.path.join(Config.script_path, filename)
