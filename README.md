@@ -18,6 +18,7 @@ your CCU device.
 * Edit scripts in your favorite editor, test on your workstation,
   deploy on another device, for example the CCU, later.
 * Code in a very beginner friendly language: Python.
+* Organize and control your scripts on the CCU using the pmatic manager
 
 ## Why pmatic?
 
@@ -63,6 +64,13 @@ It's so much fun :-).
 Even if you write pmatic in Python, you can also execute custom ReGa
 (Homematic Script) through pmatic and also process the output of these
 scripts, if you like.
+
+I am currently developing the pmatic manager which is a standalone daemon
+process running on the CCU that gives you comfortable access via your web
+browser to your scripts. You can currently list, upload, delete and even
+execute your scripts and get the whole output of them using your browser.
+I plan to integrate a script scheduler and the option to trigger your
+scripts based on events received from the CCU in the next weeks.
 
 ## Requirements
 
