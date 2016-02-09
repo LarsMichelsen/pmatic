@@ -821,7 +821,7 @@ class Device(Entity):
         # FIXME: Add bad rssi?
 
         for channel in self.channels:
-            if skip_channel_types != None and type(channel).__name__ not in skip_channel_types:
+            if skip_channel_types == None or type(channel).__name__ not in skip_channel_types:
                 txt = channel.summary_state
                 if txt != None:
                     formated.append(txt)

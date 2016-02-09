@@ -258,7 +258,7 @@ class PageHandler(object):
         salt, salted_hash = value.split(":", 1)
 
         filepath = os.path.join(Config.config_path, "manager.secret")
-        secret = file(filepath).read().strip()
+        secret = open(filepath).read().strip()
 
         correct_hash = sha256(secret + salt).hexdigest().decode("utf-8")
 
@@ -427,7 +427,7 @@ class StaticFile(PageHandler):
         self._start_response(self._http_status(200), self._http_headers)
 
         file_path = StaticFile.system_path_from_pathinfo(self._env["PATH_INFO"])
-        return [ l for l in file(file_path) ]
+        return [ l for l in open(file_path) ]
 
 
 
@@ -465,7 +465,7 @@ class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
             os.makedirs(Config.script_path)
 
         filepath = os.path.join(Config.script_path, filename)
-        file(filepath, "w").write(script)
+        open(filepath, "w").write(script)
         os.chmod(filepath, 0o755)
 
 
@@ -732,7 +732,7 @@ class PageLogin(PageHandler, Html, utils.LogMixin):
             raise UserError("Invalid password.")
 
         filepath = os.path.join(Config.config_path, "manager.secret")
-        secret = file(filepath).read().strip()
+        secret = open(filepath).read().strip()
 
         if secret != sha256(password).hexdigest():
             raise UserError("Invalid password.")
@@ -785,7 +785,7 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
             raise UserError("The password must have a minimal length of 6 characters.")
 
         filepath = os.path.join(Config.config_path, "manager.secret")
-        file(filepath, "w").write(sha256(password).hexdigest()+"\n")
+        open(filepath, "w").write(sha256(password).hexdigest()+"\n")
         self.success("The password has been set. You will be redirect to the "
                      "<a href=\"/\">login</a>.")
         self.redirect(2, "/")
