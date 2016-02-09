@@ -56,3 +56,18 @@ class PMActionFailed(PMException):
     """Is raised when setting a value (parameter) of a channel fails."""
     pass
 
+
+class SignalReceived(PMException):
+    """Is used when a signal handler is registered to propagate the signal through the call stack.
+
+    This is currently only used by the pmatic manager."""
+    def __init__(self, signum):
+        super(SignalReceived, self).__init__("Got signal %d" % signum)
+        self._signum = signum
+
+
+class UserError(PMException):
+    """This exception is used when this situation is explicitly an error caused by the user.
+
+    For example invalid user input in forms of the pmatic manager or similar."""
+    pass

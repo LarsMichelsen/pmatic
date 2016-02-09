@@ -58,8 +58,10 @@ except ImportError:
 
 import sys
 import traceback
+import socket
 
 import pmatic.manager
+from pmatic.exceptions import SignalReceived
 
 # FIXME: Make configurable (logfile/syslog)
 pmatic.logging(pmatic.DEBUG)
@@ -67,14 +69,23 @@ pmatic.logging(pmatic.DEBUG)
 # FIXME: Implement command line argument handling (-h, --help, -v, --version)
 opt_foreground = '-g' in sys.argv or '--foreground' in sys.argv
 
-manager = pmatic.manager.Manager(('', 9120))
+try:
+    manager = pmatic.manager.Manager(('', 9120))
+except socket.error as e:
+    if e.errno == 98:
+        sys.stderr.write("Failed to start. Maybe another pmatic manager process is already running?\n"
+                         " (%s)\n" % e)
+        sys.exit(1)
+    else:
+        raise
+
 if not opt_foreground:
     manager.daemonize()
 manager.register_signal_handlers()
 
 try:
     manager.serve_forever()
-except pmatic.manager.SignalException as e:
+except SignalReceived as e:
     manager.logger.info("Killed with signal %d." % e._signum)
     sys.exit(1)
 except Exception as e:

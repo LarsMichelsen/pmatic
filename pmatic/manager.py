@@ -45,13 +45,13 @@ from hashlib import sha256
 
 import pmatic
 import pmatic.utils as utils
+from pmatic.exceptions import UserError, SignalReceived
 
 
 class Config(object):
     config_path = "/etc/config/addons/pmatic/etc"
     script_path = "/etc/config/addons/pmatic/scripts"
     static_path = "/etc/config/addons/pmatic/manager_static"
-
 
 # FIXME This handling is only for testing purposes and will be cleaned up soon
 if not utils.is_ccu():
@@ -705,7 +705,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
 
     def signal_handler(self, signum, stack_frame):
-        raise SignalException(signum)
+        raise SignalReceived(signum)
 
 
 
@@ -716,15 +716,3 @@ class RequestHandler(wsgiref.simple_server.WSGIRequestHandler, utils.LogMixin):
 
     def log_exception(self, exc_info):
         self.logger("Unhandled exception: %s" % traceback.format_exc())
-
-
-
-class UserError(Exception):
-    pass
-
-
-
-class SignalException(Exception):
-    def __init__(self, signum):
-        super(SignalException, self).__init__("Got signal %d" % signum)
-        self._signum = signum
