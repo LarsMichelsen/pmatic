@@ -42,7 +42,7 @@ Installation on your workstation
 --------------------------------
 
 The installation should be straight forward. First download pmatic by either downloading the 
-`current git snapshot <https://github.com/LarsMichelsen/pmatic/archive/master.zip>`_, 
+`current git snapshot <https://larsmichelsen.github.io/pmatic/pmatic-snapshot.tar.gz>`_, 
 cloning the `Git repository <https://github.com/LarsMichelsen/pmatic>`_ or download a 
 release archive (if available), unpack it and change to the extracted directory
 ``pmatic-*``. Then execute:
