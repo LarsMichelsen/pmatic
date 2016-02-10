@@ -16,11 +16,18 @@ if you experience any issues with it. Once there is a better version ready
 I'll change these lines.
 
 `Download the file <https://larsmichelsen.github.io/pmatic/pmatic-snapshot_ccu.tar.gz>`_
-to your workstation and upload this file to your CCU using the regular addon
-upload form to install pmatic on it.
+to your workstation. Then open up the Web Interface of the CCU in your browser and
+upload this file to your CCU using the regular addon upload form (In German: "Einstellungen /
+Systemsteuerung / Zusatzsoftware") to install pmatic on it.
 
-Now you can connect to your CCU via SSH and run this command to confirm
-pmatic has been installed correctly:
+After the CCU has been restarted, pmatic should have been installed. You can now use
+the pmatic Manager, which can be opened from the addon menu you used before to install
+pmatic. Open this dialog again. You should see an entry for the pmatic addon and a link
+to the pmatic manager in the right column. If you click on it, the pmatic manager will
+be opened. Here you can see a list of example scripts which you can try to execute now.
+
+If you like to stick to the command line instead, you can connect to your CCU via SSH
+and run this command to confirm pmatic has been installed correctly:
 
 .. code-block:: shell
 
@@ -31,8 +38,12 @@ installation was successful.
 
 The installation has been finished. You can now execute your own
 python and pmatic scripts on your CCU. For some examples you can change
-to ``/etc/config/addons/pmatic/examples`` and have a look at the source or
+to ``/etc/config/addons/pmatic/scripts/examples`` and have a look at the source or
 just try them.
+
+Your own scripts should be placed in the directory ``/etc/config/addons/pmatic/scripts``
+or any directory below. This makes the scripts accessible through command line and
+through the pmatic manager.
 
 As I only have a CCU2, not a CCU, I don't know whether or not pmatic is
 working on the CCU too. But I hope so. Please let me know if it is working
