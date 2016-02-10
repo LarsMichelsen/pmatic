@@ -850,8 +850,13 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
         try:
             self.logger.info("Starting script: %s" % self.script)
             script_path = os.path.join(Config.script_path, self.script)
+
+            env = os.environ.copy()
+            env["PYTHONIOENCODING"] = "utf-8"
+
             self._p = subprocess.Popen(["/usr/bin/env", "python", "-u", script_path], shell=False,
-                                       cwd="/", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+                                       cwd="/", env=env, stdout=subprocess.PIPE,
+                                       stderr=subprocess.STDOUT)
 
             while True:
                 nextline = self._p.stdout.readline().decode("utf-8")
