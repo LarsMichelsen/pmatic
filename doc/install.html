@@ -66,10 +66,16 @@ released version would be. But feel free to try and test it. Let me know
 if you experience any issues with it. Once there is a better version ready
 I&#8217;ll change these lines.</p>
 <p><a class="reference external" href="https://larsmichelsen.github.io/pmatic/pmatic-snapshot_ccu.tar.gz">Download the file</a>
-to your workstation and upload this file to your CCU using the regular addon
-upload form to install pmatic on it.</p>
-<p>Now you can connect to your CCU via SSH and run this command to confirm
-pmatic has been installed correctly:</p>
+to your workstation. Then open up the Web Interface of the CCU in your browser and
+upload this file to your CCU using the regular addon upload form (In German: &#8220;Einstellungen /
+Systemsteuerung / Zusatzsoftware&#8221;) to install pmatic on it.</p>
+<p>After the CCU has been restarted, pmatic should have been installed. You can now use
+the pmatic Manager, which can be opened from the addon menu you used before to install
+pmatic. Open this dialog again. You should see an entry for the pmatic addon and a link
+to the pmatic manager in the right column. If you click on it, the pmatic manager will
+be opened. Here you can see a list of example scripts which you can try to execute now.</p>
+<p>If you like to stick to the command line instead, you can connect to your CCU via SSH
+and run this command to confirm pmatic has been installed correctly:</p>
 <div class="highlight-shell"><div class="highlight"><pre>python -c <span class="s1">&#39;import pmatic&#39;</span>
 </pre></div>
 </div>
@@ -77,8 +83,11 @@ pmatic has been installed correctly:</p>
 installation was successful.</p>
 <p>The installation has been finished. You can now execute your own
 python and pmatic scripts on your CCU. For some examples you can change
-to <code class="docutils literal"><span class="pre">/etc/config/addons/pmatic/examples</span></code> and have a look at the source or
+to <code class="docutils literal"><span class="pre">/etc/config/addons/pmatic/scripts/examples</span></code> and have a look at the source or
 just try them.</p>
+<p>Your own scripts should be placed in the directory <code class="docutils literal"><span class="pre">/etc/config/addons/pmatic/scripts</span></code>
+or any directory below. This makes the scripts accessible through command line and
+through the pmatic manager.</p>
 <p>As I only have a CCU2, not a CCU, I don&#8217;t know whether or not pmatic is
 working on the CCU too. But I hope so. Please let me know if it is working
 or not.</p>
