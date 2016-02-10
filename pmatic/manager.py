@@ -146,9 +146,16 @@ class Html(object):
         self.write("</select>\n")
 
 
+    def icon(self, icon_name, title, cls=None):
+        css = " " + cls if cls else ""
+        self.write("<i class=\"fa fa-%s%s\" title=\"%s\"></i>" %
+                            (icon_name, css, self.escape(title)))
+
+
     def icon_button(self, icon_name, url, title):
-        self.write("<a class=\"btn\" href=\"%s\" title=\"%s\">"
-                   "<i class=\"fa fa-%s\"></i></a>" % (url, title, icon_name))
+        self.write("<a class=\"btn\" href=\"%s\">" % url)
+        self.icon(icon_name, title)
+        self.write("</a>")
 
 
     def error(self, text):
@@ -647,12 +654,18 @@ class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
         self.write("<tr><th>Current state</th>"
                    "<td>")
         if self._is_running():
-            self.write("running ")
+            self.icon("spinner", "The script is running...", cls="fa-pulse")
+            self.write(" Running... ")
             self.icon_button("close", "/run?action=abort", "Stop this script.")
         elif g_runner.exit_code != None:
-            self.write("finished (Exit code: <tt>%d</tt>)" % g_runner.exit_code)
+            if g_runner.exit_code == 0:
+                self.icon("check", "Successfully finished")
+            else:
+                self.icon("times", "An error occured")
+            self.write(" Finished (Exit code: <tt>%d</tt>)" % g_runner.exit_code)
         else:
-            self.write("Started but not running - something went wrong.")
+            self.icon("times", "Not running")
+            self.write(" Started but not running - something went wrong.")
         self.write("</td></tr>")
 
         self.write("<tr><th class=\"toplabel\">Output</th>")
