@@ -879,7 +879,7 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
 
             self.finished  = time.time()
             self.exit_code = self._p.poll()
-            self.logger.info("Finished.")
+            self.logger.info("Finished (Exit-Code: %d)." % self.exit_code)
         except Exception as e:
             self.logger.error("Failed to execute %s: %s" % (self.script, e))
             self.logger.debug(traceback.format_exc())
@@ -972,7 +972,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
 class RequestHandler(wsgiref.simple_server.WSGIRequestHandler, utils.LogMixin):
     def log_message(self, fmt, *args):
-        self.logger.info("%s %s" % (self.client_address[0], fmt%args))
+        self.logger.debug("%s %s" % (self.client_address[0], fmt%args))
 
 
     def log_exception(self, exc_info):
