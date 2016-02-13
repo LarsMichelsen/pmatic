@@ -76,6 +76,14 @@ WARNING  = _logging.WARNING
 INFO     = _logging.INFO
 DEBUG    = _logging.DEBUG
 
+log_level_names = [
+    "CRITICAL",
+    "ERROR",
+    "WARNING",
+    "INFO",
+    "DEBUG"
+]
+
 logger_default_handler = None
 
 def logging(log_level=None):

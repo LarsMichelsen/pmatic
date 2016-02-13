@@ -66,6 +66,8 @@ from logging.handlers import RotatingFileHandler
 import pmatic.manager
 from pmatic.exceptions import SignalReceived
 
+pmatic.manager.Config.load()
+
 parser = argparse.ArgumentParser()
 parser.add_argument('-a',
     dest="address",
@@ -84,8 +86,8 @@ parser.add_argument('-l',
     dest="log_level",
     help="Specify the log level (defaults to INFO). You can choose from the following: "
          "CRITICAL, ERROR, WARNING, INFO, DEBUG.",
-    default="INFO",
-    choices=["CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG"])
+    default=pmatic.manager.Config.log_level or "INFO",
+    choices=pmatic.log_level_names)
 parser.add_argument('-f',
     dest="log_file",
     help="Configure the location of the file to write log entries to. When "

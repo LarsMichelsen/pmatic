@@ -36,7 +36,9 @@ import os
 import cgi
 import sys
 import time
+import json
 import signal
+import inspect
 import traceback
 import threading
 import subprocess
@@ -53,10 +55,46 @@ from pmatic.exceptions import UserError, SignalReceived
 # Set while a script is executed with the "/run" page
 g_runner = None
 
-class Config(object):
+class Config(utils.LogMixin):
     config_path = "/etc/config/addons/pmatic/etc"
     script_path = "/etc/config/addons/pmatic/scripts"
     static_path = "/etc/config/addons/pmatic/manager_static"
+
+    log_level = None
+
+    @classmethod
+    def load(cls):
+        try:
+            try:
+                fh = open(cls.config_path + "/manager.config")
+                config = json.load(fh)
+            except IOError as e:
+                # a non existing file is allowed.
+                if e.errno == 2:
+                    config = {}
+                else:
+                    raise
+        except Exception as e:
+            cls.cls_logger().error("Failed to load config: %s. Terminating." % e)
+            sys.exit(1)
+
+        for key, val in config.items():
+            setattr(cls, key, val)
+
+
+    @classmethod
+    def save(cls):
+        config = {}
+
+        for key, val in cls.__dict__.items():
+            if key[0] != "_" and key not in [ "config_path", "script_path", "static_path" ] \
+               and not inspect.isroutine(val):
+                config[key] = val
+
+        json_config = json.dumps(config)
+        open(cls.config_path + "/manager.config", "w").write(json_config + "\n")
+
+
 
 # FIXME This handling is only for testing purposes and will be cleaned up soon
 if not utils.is_ccu():
@@ -138,11 +176,15 @@ class Html(object):
                    "value=\"%s\">%s</button>\n" % (value, label))
 
 
-    def select(self, name, choices):
+    def select(self, name, choices, deflt=None):
         self.write("<select name=\"%s\">\n" % name)
         self.write("<option value=\"\"></option>\n")
         for choice in choices:
-            self.write("<option value=\"%s\">%s</option>\n" % choice)
+            if deflt == choice[0]:
+                selected = " selected"
+            else:
+                selected = ""
+            self.write("<option value=\"%s\"%s>%s</option>\n" % (choice[0], selected, choice[1]))
         self.write("</select>\n")
 
 
@@ -786,6 +828,8 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         action = self._vars.getvalue("action")
         if action == "set_password":
             self._handle_set_password()
+        elif action == "save_config":
+            self._handle_save_config()
 
 
     def _handle_set_password(self):
@@ -804,9 +848,20 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         self.redirect(2, "/")
 
 
+    def _handle_save_config(self):
+        log_level_name = self._vars.getvalue("log_level")
+        if not log_level_name:
+            Config.log_level = None
+        else:
+            Config.log_level = log_level_name
+
+        Config.save()
+        self.success("The configuration has been updated.")
+
+
     def process(self):
         self.password_form()
-        #self.config_form()
+        self.config_form()
 
 
     def password_form(self):
@@ -826,7 +881,13 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         self.h2("Configuration")
         self.write("<div class=\"config_form\">\n")
         self.begin_form()
-        # FIXME: Configuration!
+        self.write("<table>")
+        self.write("<tr><th>Log level</th>")
+        self.write("<td>")
+        self.select("log_level", [ (l, l) for l in pmatic.log_level_names ], Config.log_level)
+        self.write("</td></tr>")
+        self.write("</table>")
+        self.submit("Save configuration", "save_config")
         self.end_form()
         self.write("</div>\n")
 
