@@ -1,0 +1,246 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pmatic.notify &mdash; pmatic 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="pmatic 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="pmatic" href="../pmatic.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pmatic 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../pmatic.html" accesskey="U">pmatic</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pmatic.notify</h1><div class="highlight"><pre>
+<span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># encoding: utf-8</span>
+<span class="c1">#</span>
+<span class="c1"># pmatic - A simple API to to the Homematic CCU2</span>
+<span class="c1"># Copyright (C) 2016 Lars Michelsen &lt;lm@larsmichelsen.com&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software; you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation; either version 2 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License along</span>
+<span class="c1"># with this program; if not, write to the Free Software Foundation, Inc.,</span>
+<span class="c1"># 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.</span>
+
+<span class="c1"># Add Python 3.x behaviour to 2.7</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">urllib.request</span> <span class="kn">import</span> <span class="n">urlopen</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">urllib2</span> <span class="kn">import</span> <span class="n">urlopen</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># Python 2</span>
+    <span class="kn">from</span> <span class="nn">urllib</span> <span class="kn">import</span> <span class="n">urlencode</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="c1"># Python 3+</span>
+    <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlencode</span>
+
+<span class="kn">import</span> <span class="nn">json</span>
+
+<span class="kn">import</span> <span class="nn">pmatic.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">pmatic.exceptions</span> <span class="kn">import</span> <span class="n">PMException</span><span class="p">,</span> <span class="n">PMUserError</span>
+
+
+
+<div class="viewcode-block" id="Pushover"><a class="viewcode-back" href="../../pmatic_notify.html#pmatic.notify.Pushover">[docs]</a><span class="k">class</span> <span class="nc">Pushover</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">LogMixin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This notification class is used to send out notifications using Pushover (pushover.net).</span>
+
+<span class="sd">    The API to this notification class is pretty simple. You normally only need to care</span>
+<span class="sd">    about using the :meth:`send` class method. One example::</span>
+
+<span class="sd">        Pushover.send(&quot;This is the message to send :-)&quot;,</span>
+<span class="sd">                      api_token=&quot;xdrvcc6svnbFQ0hmAx4tDhbWU8nDK6&quot;,</span>
+<span class="sd">                      user_token=&quot;go8cCpgmWdAmbj2jpm4TmdzoHpVUjH&quot;)</span>
+
+<span class="sd">    For details take a look below.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_api_token</span>  <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">_user_token</span> <span class="o">=</span> <span class="bp">None</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Pushover.send"><a class="viewcode-back" href="../../pmatic_notify.html#pmatic.notify.Pushover.send">[docs]</a>    <span class="k">def</span> <span class="nf">send</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">message</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">api_token</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">user_token</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Send a notification via pushover.net.</span>
+
+<span class="sd">        This class method can be used to send out custom notifiations to your tablet or</span>
+<span class="sd">        mobile phone using pushover.net. To be able to send such notifications you need</span>
+<span class="sd">        to register with pushover.net, register your appliation to obtaion an API token</span>
+<span class="sd">        and a user or group token.</span>
+
+<span class="sd">        If you have both, you can use this class method to send a notification containing</span>
+<span class="sd">        only a *message*. But you can also provide an optional *title*.</span>
+
+<span class="sd">        It returns ``True`` when the notification has been sent or raises a</span>
+<span class="sd">        :class:`.pmatic.PMUserError` when either an invalid *message* or *title* is provided.</span>
+<span class="sd">        In case of errors during sending the notification, a :class:`.pmatic.PMException`</span>
+<span class="sd">        is raised.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">api_token</span><span class="p">,</span> <span class="n">user_token</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_load_tokens</span><span class="p">(</span><span class="n">api_token</span><span class="p">,</span> <span class="n">user_token</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_text</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">PMUserError</span><span class="p">(</span><span class="s2">&quot;The message needs to be a unicode string.&quot;</span><span class="p">)</span>
+
+        <span class="n">encoded_msg</span> <span class="o">=</span> <span class="n">message</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">encoded_msg</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1024</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMUserError</span><span class="p">(</span><span class="s2">&quot;The message exceeds the maximum length of 1024 characters.&quot;</span><span class="p">)</span>
+
+        <span class="n">msg</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;token&quot;</span><span class="p">,</span>   <span class="n">api_token</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span>    <span class="n">user_token</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;message&quot;</span><span class="p">,</span> <span class="n">message</span><span class="p">),</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">title</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_text</span><span class="p">(</span><span class="n">title</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">PMUserError</span><span class="p">(</span><span class="s2">&quot;The title needs to be a unicode string.&quot;</span><span class="p">)</span>
+
+            <span class="n">encoded_title</span> <span class="o">=</span> <span class="n">title</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">encoded_title</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">250</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PMUserError</span><span class="p">(</span><span class="s2">&quot;The title exceeds the maximum length of 250 characters.&quot;</span><span class="p">)</span>
+            <span class="n">msg</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="n">title</span><span class="p">))</span>
+
+        <span class="n">handle</span> <span class="o">=</span> <span class="n">urlopen</span><span class="p">(</span><span class="s2">&quot;https://api.pushover.net/1/messages.json&quot;</span><span class="p">,</span>
+                         <span class="n">data</span><span class="o">=</span><span class="n">urlencode</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">_check_response</span><span class="p">(</span><span class="n">handle</span><span class="p">)</span></div>
+
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_check_response</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">handle</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">handle</span><span class="o">.</span><span class="n">getcode</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">200</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Got invalid HTTP status code: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">handle</span><span class="o">.</span><span class="n">getcode</span><span class="p">()))</span>
+
+        <span class="n">response_body</span> <span class="o">=</span> <span class="n">handle</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">cls_logger</span><span class="p">()</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Response-Body: </span><span class="se">\&quot;</span><span class="si">%s</span><span class="se">\&quot;</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">response_body</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response_body</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Got invalid response (</span><span class="si">%d</span><span class="s2">): </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">],</span> <span class="n">response_body</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">True</span>
+
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_load_tokens</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">api_token</span><span class="p">,</span> <span class="n">user_token</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">api_token</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">api_token</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_api_token</span>
+
+        <span class="k">if</span> <span class="n">api_token</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMUserError</span><span class="p">(</span><span class="s2">&quot;You need to either set the default tokens or provide your &quot;</span>
+                              <span class="s2">&quot;API token with the api_token argument.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">user_token</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">user_token</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_user_token</span>
+
+        <span class="k">if</span> <span class="n">user_token</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMUserError</span><span class="p">(</span><span class="s2">&quot;You need to either set the default tokens or provide your &quot;</span>
+                              <span class="s2">&quot;User/Group token with the user_token argument.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">api_token</span><span class="p">,</span> <span class="n">user_token</span>
+
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="Pushover.set_default_tokens"><a class="viewcode-back" href="../../pmatic_notify.html#pmatic.notify.Pushover.set_default_tokens">[docs]</a>    <span class="k">def</span> <span class="nf">set_default_tokens</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">api_token</span><span class="p">,</span> <span class="n">user_token</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set default pushover credentials.</span>
+
+<span class="sd">        They can be set e.g. on startup of your program. If you set the default tokens here,</span>
+<span class="sd">        you don&#39;t need to provide the tokens on every :meth:`send` call. The tokens provided as</span>
+<span class="sd">        arguments to :meth:`send` are overriding the tokens set with this method.&quot;&quot;&quot;</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">_api_token</span> <span class="o">=</span> <span class="n">api_token</span>
+        <span class="n">cls</span><span class="o">.</span><span class="n">_user_token</span> <span class="o">=</span> <span class="n">user_token</span></div></div>
+
+
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pmatic 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../pmatic.html" >pmatic</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Lars Michelsen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
+    </div>
+  </body>
+</html>

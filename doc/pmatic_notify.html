@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Send Notifications with pmatic &mdash; pmatic 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="pmatic 0.1 documentation" href="index.html" />
+    <link rel="next" title="Advanced things" href="advanced.html" />
+    <link rel="prev" title="The pmatic Module" href="pmatic_module.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced things"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pmatic_module.html" title="The pmatic Module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pmatic 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="send-notifications-with-pmatic">
+<h1>Send Notifications with pmatic<a class="headerlink" href="#send-notifications-with-pmatic" title="Permalink to this headline">¶</a></h1>
+<p>The pmatic module can not only communicate with the CCU. It also comes with some handy tools
+which assist you developing your own scripts. For example there are some standard methods to
+send out notifications.</p>
+<span class="target" id="module-pmatic.notify"></span><dl class="class">
+<dt id="pmatic.notify.Pushover">
+<em class="property">class </em><code class="descclassname">pmatic.notify.</code><code class="descname">Pushover</code><a class="reference internal" href="_modules/pmatic/notify.html#Pushover"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.notify.Pushover" title="Permalink to this definition">¶</a></dt>
+<dd><p>This notification class is used to send out notifications using Pushover (pushover.net).</p>
+<p>The API to this notification class is pretty simple. You normally only need to care
+about using the <a class="reference internal" href="#pmatic.notify.Pushover.send" title="pmatic.notify.Pushover.send"><code class="xref py py-meth docutils literal"><span class="pre">send()</span></code></a> class method. One example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">Pushover</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="s2">&quot;This is the message to send :-)&quot;</span><span class="p">,</span>
+              <span class="n">api_token</span><span class="o">=</span><span class="s2">&quot;xdrvcc6svnbFQ0hmAx4tDhbWU8nDK6&quot;</span><span class="p">,</span>
+              <span class="n">user_token</span><span class="o">=</span><span class="s2">&quot;go8cCpgmWdAmbj2jpm4TmdzoHpVUjH&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For details take a look below.</p>
+<dl class="classmethod">
+<dt id="pmatic.notify.Pushover.send">
+<em class="property">classmethod </em><code class="descname">send</code><span class="sig-paren">(</span><em>message</em>, <em>title=None</em>, <em>api_token=None</em>, <em>user_token=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/notify.html#Pushover.send"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.notify.Pushover.send" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send a notification via pushover.net.</p>
+<p>This class method can be used to send out custom notifiations to your tablet or
+mobile phone using pushover.net. To be able to send such notifications you need
+to register with pushover.net, register your appliation to obtaion an API token
+and a user or group token.</p>
+<p>If you have both, you can use this class method to send a notification containing
+only a <em>message</em>. But you can also provide an optional <em>title</em>.</p>
+<p>It returns <code class="docutils literal"><span class="pre">True</span></code> when the notification has been sent or raises a
+<a class="reference internal" href="pmatic_module.html#pmatic.PMUserError" title="pmatic.PMUserError"><code class="xref py py-class docutils literal"><span class="pre">pmatic.PMUserError</span></code></a> when either an invalid <em>message</em> or <em>title</em> is provided.
+In case of errors during sending the notification, a <a class="reference internal" href="pmatic_module.html#pmatic.PMException" title="pmatic.PMException"><code class="xref py py-class docutils literal"><span class="pre">pmatic.PMException</span></code></a>
+is raised.</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pmatic.notify.Pushover.set_default_tokens">
+<em class="property">classmethod </em><code class="descname">set_default_tokens</code><span class="sig-paren">(</span><em>api_token</em>, <em>user_token</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/notify.html#Pushover.set_default_tokens"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.notify.Pushover.set_default_tokens" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set default pushover credentials.</p>
+<p>They can be set e.g. on startup of your program. If you set the default tokens here,
+you don&#8217;t need to provide the tokens on every <a class="reference internal" href="#pmatic.notify.Pushover.send" title="pmatic.notify.Pushover.send"><code class="xref py py-meth docutils literal"><span class="pre">send()</span></code></a> call. The tokens provided as
+arguments to <a class="reference internal" href="#pmatic.notify.Pushover.send" title="pmatic.notify.Pushover.send"><code class="xref py py-meth docutils literal"><span class="pre">send()</span></code></a> are overriding the tokens set with this method.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pmatic_module.html"
+                        title="previous chapter">The pmatic Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="advanced.html"
+                        title="next chapter">Advanced things</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pmatic_notify.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced things"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pmatic_module.html" title="The pmatic Module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pmatic 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Lars Michelsen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
+    </div>
+  </body>
+</html>
