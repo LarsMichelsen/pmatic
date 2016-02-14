@@ -40,8 +40,10 @@ except ImportError:
 
 try:
     from urllib.request import urlopen
+    from urllib.error import HTTPError
 except ImportError:
     from urllib2 import urlopen
+    from urllib2 import HTTPError
 
 
 import pmatic.api
@@ -51,13 +53,19 @@ resources_path = "tests/resources"
 
 
 def request_id(data):
-    req = json.loads(data.decode("utf-8"))
+    try:
+        req = json.loads(data.decode("utf-8"))
+        method = req["method"]
+        # For hashing we need a constant sorted representation of the data
+        fixed_data = json.dumps(req, sort_keys=True).encode("utf-8")
+    except ValueError:
+        # CCU API has always JSON, but pushover notify has urlencoded data
+        fixed_data = data
+        method = "urlopen"
 
-    # For hashing we need a constant sorted representation of the data
-    fixed_data = json.dumps(req, sort_keys=True).encode("utf-8")
     data_hash = sha256(fixed_data).hexdigest()
 
-    return "%s_%s" % (req["method"], data_hash)
+    return "%s_%s" % (method, data_hash)
 
 
 def response_file_path(request_id):
@@ -104,13 +112,16 @@ def fake_session_id(data_byte_str, byte_str):
 def wrap_urlopen(url, data=None, timeout=None):
     """Wraps urlopen to record the response when communicating with a real CCU."""
 
-    obj = urlopen(url, data=data, timeout=timeout)
+    try:
+        obj = urlopen(url, data=data, timeout=timeout)
+        response = obj.read()
+        http_status = obj.getcode()
+    except HTTPError as e:
+        response = e.reason.encode("utf-8")
+        http_status = e.code
 
     if not os.path.exists(resources_path):
         os.makedirs(resources_path)
-
-    response = obj.read()
-    http_status = obj.getcode()
 
     # Fake the session id to a fixed one for offline testing. This is needed
     # to make the recorded data change less frequently.

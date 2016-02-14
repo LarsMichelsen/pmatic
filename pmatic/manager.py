@@ -50,7 +50,7 @@ from pwd import getpwnam
 
 import pmatic
 import pmatic.utils as utils
-from pmatic.exceptions import UserError, SignalReceived
+from pmatic.exceptions import PMUserError, SignalReceived
 
 # Set while a script is executed with the "/run" page
 g_runner = None
@@ -61,6 +61,10 @@ class Config(utils.LogMixin):
     static_path = "/etc/config/addons/pmatic/manager_static"
 
     log_level = None
+    log_file  = "/var/log/pmatic-manager.log"
+
+    pushover_api_token = None
+    pushover_user_token = None
 
     @classmethod
     def load(cls):
@@ -87,7 +91,8 @@ class Config(utils.LogMixin):
         config = {}
 
         for key, val in cls.__dict__.items():
-            if key[0] != "_" and key not in [ "config_path", "script_path", "static_path" ] \
+            if key[0] != "_" and key not in [ "config_path", "script_path",
+                                              "static_path", "log_file" ] \
                and not inspect.isroutine(val):
                 config[key] = val
 
@@ -176,6 +181,11 @@ class Html(object):
                    "value=\"%s\">%s</button>\n" % (value, label))
 
 
+    def input(self, name, deflt=None):
+        value = deflt if deflt != None else ""
+        self.write("<input type=\"text\" name=\"%s\" value=\"%s\">\n" % (name, value))
+
+
     def select(self, name, choices, deflt=None):
         self.write("<select name=\"%s\">\n" % name)
         self.write("<option value=\"\"></option>\n")
@@ -219,6 +229,10 @@ class Html(object):
 
     def h2(self, title):
         self.write("<h2>%s</h2>\n" % self.escape(title))
+
+
+    def h3(self, title):
+        self.write("<h3>%s</h3>\n" % self.escape(title))
 
 
     def p(self, content):
@@ -364,14 +378,14 @@ class PageHandler(object):
         if self.is_action():
             try:
                 self.action()
-            except UserError as e:
+            except PMUserError as e:
                 self.error(e)
             except Exception as e:
                 self.error("Unhandled exception: %s" % e)
 
         try:
             self.process()
-        except UserError as e:
+        except PMUserError as e:
             self.error(e)
         except Exception as e:
             self.error("Unhandled exception: %s" % e)
@@ -384,7 +398,7 @@ class PageHandler(object):
 
     def ensure_password_is_set(self):
         if not self.is_password_set():
-            raise UserError("To be able to access this page you first have to "
+            raise PMUserError("To be able to access this page you first have to "
                             "<a href=\"/config\">set a password</a> and authenticate "
                             "afterwards.")
 
@@ -483,7 +497,7 @@ class StaticFile(PageHandler):
 class AbstractScriptPage(object):
     def _get_scripts(self):
         if not os.path.exists(Config.script_path):
-            raise UserError("The script directory %s does not exist." %
+            raise PMUserError("The script directory %s does not exist." %
                                                     Config.script_path)
 
         for dirpath, dirnames, filenames in os.walk(Config.script_path):
@@ -529,7 +543,7 @@ class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
 
     def _handle_upload(self):
         if not self._vars.getvalue("script"):
-            raise UserError("You need to select a script to upload.")
+            raise PMUserError("You need to select a script to upload.")
 
         filename = self._vars["script"].filename
         script = self._vars["script"].file.read()
@@ -537,10 +551,10 @@ class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
 
         if not first_line.startswith(b"#!/usr/bin/python") \
            and not first_line.startswith(b"#!/usr/bin/env python"):
-            raise UserError("The uploaded file does not seem to be a pmatic script.")
+            raise PMUserError("The uploaded file does not seem to be a pmatic script.")
 
         if len(script) > 1048576:
-            raise UserError("The uploaded file is too large.")
+            raise PMUserError("The uploaded file is too large.")
 
         self.save_script(filename, script)
         self.success("The script has been uploaded.")
@@ -550,10 +564,10 @@ class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
         filename = self._vars.getvalue("script")
 
         if not filename:
-            raise UserError("You need to provide a script name to delete.")
+            raise PMUserError("You need to provide a script name to delete.")
 
         if filename not in self._get_scripts():
-            raise UserError("This script does not exist.")
+            raise PMUserError("This script does not exist.")
 
         filepath = os.path.join(Config.script_path, filename)
         os.unlink(filepath)
@@ -629,13 +643,13 @@ class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
     def _handle_run(self):
         script = self._vars.getvalue("script")
         if not script:
-            raise UserError("You have to select a script.")
+            raise PMUserError("You have to select a script.")
 
         if script not in self._get_scripts():
-            raise UserError("You have to select a valid script.")
+            raise PMUserError("You have to select a valid script.")
 
         if self._is_running():
-            raise UserError("There is another script running. Wait for it to complete "
+            raise PMUserError("There is another script running. Wait for it to complete "
                             "or stop it to be able to execute another script.")
 
         self._execute_script(script)
@@ -644,7 +658,7 @@ class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
 
     def _handle_abort(self):
         if not self._is_running():
-            raise UserError("There is no script running to abort.")
+            raise PMUserError("There is no script running to abort.")
 
         self._abort_script()
         self.success("The script has been aborted.")
@@ -784,13 +798,13 @@ class PageLogin(PageHandler, Html, utils.LogMixin):
         password = self._vars.getvalue("password")
 
         if not password:
-            raise UserError("Invalid password.")
+            raise PMUserError("Invalid password.")
 
         filepath = os.path.join(Config.config_path, "manager.secret")
         secret = open(filepath).read().strip()
 
         if secret != sha256(password).hexdigest():
-            raise UserError("Invalid password.")
+            raise PMUserError("Invalid password.")
 
         self._login(secret)
         self.success("You have been authenticated. You can now <a href=\"/\">proceed</a>.")
@@ -836,10 +850,10 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         password = self._vars.getvalue("password")
 
         if not password:
-            raise UserError("You need to provide a password and it must not be empty.")
+            raise PMUserError("You need to provide a password and it must not be empty.")
 
         if len(password) < 6:
-            raise UserError("The password must have a minimal length of 6 characters.")
+            raise PMUserError("The password must have a minimal length of 6 characters.")
 
         filepath = os.path.join(Config.config_path, "manager.secret")
         open(filepath, "w").write(sha256(password).hexdigest()+"\n")
@@ -854,6 +868,18 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
             Config.log_level = None
         else:
             Config.log_level = log_level_name
+
+        pushover_api_token = self._vars.getvalue("pushover_api_token")
+        if not pushover_api_token:
+            Config.pushover_api_token = None
+        else:
+            Config.pushover_api_token = pushover_api_token
+
+        pushover_user_token = self._vars.getvalue("pushover_user_token")
+        if not pushover_user_token:
+            Config.pushover_user_token = None
+        else:
+            Config.pushover_user_token = pushover_user_token
 
         Config.save()
         self.success("The configuration has been updated.")
@@ -882,11 +908,33 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         self.write("<div class=\"config_form\">\n")
         self.begin_form()
         self.write("<table>")
+
         self.write("<tr><th>Log level</th>")
         self.write("<td>")
         self.select("log_level", [ (l, l) for l in pmatic.log_level_names ], Config.log_level)
-        self.write("</td></tr>")
+        self.write("</td>")
+        self.write("<td>Log entries having the configured log level (or a worse one) are logged to"
+                   " the file <tt>%s</tt> by default.</td>" % Config.log_file)
+        self.write("</tr>")
+
         self.write("</table>")
+
+        self.h3("Pushover Notifications")
+        self.p("If you like to use pushover notifications, you need to configure your "
+               "credentials here in order to make them work.")
+        self.write("<table>")
+        self.write("<tr><th>API Token</th>")
+        self.write("<td>")
+        self.input("pushover_api_token", Config.pushover_api_token)
+        self.write("</td>")
+        self.write("</tr>")
+        self.write("<tr><th>User/Group Token</th>")
+        self.write("<td>")
+        self.input("pushover_user_token", Config.pushover_user_token)
+        self.write("</td>")
+        self.write("</tr>")
+        self.write("</table>")
+        self.write("<br>")
         self.submit("Save configuration", "save_config")
         self.end_form()
         self.write("</div>\n")

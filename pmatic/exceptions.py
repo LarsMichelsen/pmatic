@@ -66,7 +66,7 @@ class SignalReceived(PMException):
         self._signum = signum
 
 
-class UserError(PMException):
+class PMUserError(PMException):
     """This exception is used when this situation is explicitly an error caused by the user.
 
     For example invalid user input in forms of the pmatic manager or similar."""

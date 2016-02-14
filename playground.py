@@ -34,6 +34,8 @@ from pmatic.entities import *
 from pmatic import utils
 from pmatic.exceptions import PMDeviceOffline
 
+from pmatic.notify import Pushover
+
 # Set log level to debug for pmatic and start logging to console
 #pmatic.logging(pmatic.DEBUG)
 

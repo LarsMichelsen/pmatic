@@ -45,11 +45,11 @@ import logging as _logging
 
 from pmatic.ccu import CCU # noqa
 from pmatic.exceptions import PMException, PMConnectionError, \
-                              PMDeviceOffline, PMActionFailed # noqa
+                              PMDeviceOffline, PMActionFailed, PMUserError # noqa
 
 __all__ = [ "CCU", "logging",
             "PMException", "PMConnectionError", "PMDeviceOffline",
-            "PMActionFailed",
+            "PMActionFailed", "PMUserError",
             "CRITICAL", "ERROR", "WARNING", "INFO", "DEBUG" ]
 
 #

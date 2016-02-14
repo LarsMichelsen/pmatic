@@ -127,6 +127,17 @@ table tr:nth-child(2n+1)  {
     background-color: #eaeaea;
 }
 
+/* FORMS */
+
+form table th {
+    width: 180px;
+}
+
+form table input,
+form table select {
+    width: 300px;
+}
+
 /* SCRIPT EXECUTION */
 
 table tr th.toplabel {

@@ -94,7 +94,7 @@ parser.add_argument('-f',
          "the log file reaches a size of ~5MB, it is rotated to LOG_FILE.1, "
          "then to LOG_FILE.2 and then deleted. The default log file is "
          "\"/var/log/pmatic-manager.log\".",
-    default="/var/log/pmatic-manager.log")
+    default=pmatic.manager.Config.log_file)
 
 args = parser.parse_args()
 
@@ -103,6 +103,7 @@ pmatic.logging(getattr(pmatic, args.log_level))
 
 # auto rotate on 5MB, rotate files 2 times, then overwrite
 logger = logging.getLogger("pmatic")
+pmatic.manager.Config.log_file = args.log_file
 file_logger = RotatingFileHandler(args.log_file, maxBytes=5*1024*1024, backupCount=2)
 file_logger.setLevel(args.log_level)
 file_logger.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
