@@ -60,7 +60,7 @@ sample scripts. I&#8217;ll try to add more in the near future.</p>
 <h2>List shutter contact states<a class="headerlink" href="#list-shutter-contact-states" title="Permalink to this headline">¶</a></h2>
 <p>Just to give you a quick view, here a simple example how to list all shutter
 contacts and their current states:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="ch">#!/usr/bin/python</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/python</span>
 <span class="kn">import</span> <span class="nn">pmatic</span>
 
 <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">CCU</span><span class="p">()</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">device_type</span><span class="o">=</span><span class="s2">&quot;HM-Sec-SC&quot;</span><span class="p">):</span>
@@ -68,7 +68,7 @@ contacts and their current states:</p>
 </pre></div>
 </div>
 <p>When I execute this script on my CCU2, I get the following output:</p>
-<div class="highlight-shell"><div class="highlight"><pre>Kind-Fenster         closed
+<div class="highlight-shell"><div class="highlight"><pre><span></span>Kind-Fenster         closed
 Büro-Fenster         closed
 Schlafzimmer-Links   closed
 Bad-Fenster-Rechts   closed
@@ -78,7 +78,7 @@ Wohnzimmer           closed
 </div>
 <p>The same script can now be executed from another system, e.g. a linux workstation,
 just by adding the address and credentials to access the CCU.</p>
-<div class="highlight-python"><div class="highlight"><pre> <span class="c1">#!/usr/bin/python</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span> <span class="c1">#!/usr/bin/python</span>
  <span class="kn">import</span> <span class="nn">pmatic</span>
  <span class="n">ccu</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">CCU</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="s2">&quot;http://192.168.1.26&quot;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Admin&quot;</span><span class="p">,</span> <span class="s2">&quot;EPIC-SECRET-PW&quot;</span><span class="p">))</span>
 
@@ -95,7 +95,7 @@ workstation can be moved to the CCU and executed on it without change.</p>
 <h2>List devices on low battery<a class="headerlink" href="#list-devices-on-low-battery" title="Permalink to this headline">¶</a></h2>
 <p>Besides the current states of devices, you can also query for maintenance information like
 whether or not devices are currently reachable or have a low battery.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="ch">#!/usr/bin/python</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/python</span>
 <span class="kn">import</span> <span class="nn">pmatic</span>
 <span class="n">ccu</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">CCU</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="s2">&quot;http://192.168.1.26&quot;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Admin&quot;</span><span class="p">,</span> <span class="s2">&quot;EPIC-SECRET-PW&quot;</span><span class="p">))</span>
 
@@ -111,7 +111,7 @@ whether or not devices are currently reachable or have a low battery.</p>
 <div class="section" id="trigger-actions">
 <h2>Trigger actions<a class="headerlink" href="#trigger-actions" title="Permalink to this headline">¶</a></h2>
 <p>Or do you want to simulate key presses of your buttons (e.g. HM-PBI-4-FM)?</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="ch">#!/usr/bin/python</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/python</span>
 <span class="kn">import</span> <span class="nn">pmatic</span>
 <span class="n">ccu</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">CCU</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="s2">&quot;http://192.168.1.26&quot;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Admin&quot;</span><span class="p">,</span> <span class="s2">&quot;EPIC-SECRET-PW&quot;</span><span class="p">))</span>
 
@@ -135,7 +135,7 @@ HM-WDS10-TH-O and HM-CC-RT-DN.</p>
 incoming events and prints a message to the user once the a temperature update is received.</p>
 <p>This detection is using the events sent by the CCU. So the state updates are printed nearly
 instantly.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="ch">#!/usr/bin/python</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/python</span>
 <span class="kn">import</span> <span class="nn">pmatic</span>
 <span class="n">ccu</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">CCU</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="s2">&quot;http://192.168.1.26&quot;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Admin&quot;</span><span class="p">,</span> <span class="s2">&quot;EPIC-SECRET-PW&quot;</span><span class="p">))</span>
 
@@ -163,7 +163,7 @@ instantly.</p>
 <p>You can even get the devices grouped by the rooms which they are associated with. Accessing
 the rooms is similar to the devices. See an example below which prints out all devices
 grouped by the rooms.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="ch">#!/usr/bin/python</span>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/python</span>
 <span class="kn">import</span> <span class="nn">pmatic</span>
 <span class="n">ccu</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">CCU</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="s2">&quot;http://192.168.1.26&quot;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Admin&quot;</span><span class="p">,</span> <span class="s2">&quot;EPIC-SECRET-PW&quot;</span><span class="p">))</span>
 
@@ -174,7 +174,7 @@ grouped by the rooms.</p>
 </pre></div>
 </div>
 <p>This script produces an output like this:</p>
-<div class="highlight-shell"><div class="highlight"><pre>Wohnzimmer
+<div class="highlight-shell"><div class="highlight"><pre><span></span>Wohnzimmer
   Wohnzimmer-Licht
   Wohnzimmer-Schalter
   Wohnzimmer-Tür
