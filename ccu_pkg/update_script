@@ -24,6 +24,11 @@ rm $BIN_DIR/python2.7 $BIN_DIR/python $BIN_DIR/pmatic-manager
 rm -rf $ADDON_DIR/python
 rm -rf $ADDON_DIR/manager_static
 
+if [ ! -d $BIN_DIR ]; then
+    mkdir -p $BIN_DIR
+    chmod 755 $BIN_DIR
+fi
+
 if [ ! -d $ADDON_DIR ]; then
     mkdir -p $ADDON_DIR
     chmod 755 $ADDON_DIR
