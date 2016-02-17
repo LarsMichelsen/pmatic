@@ -153,6 +153,12 @@ class Channel(utils.LogMixin, Entity):
             raise PMException("Device object is not a Device derived class: %r" % device)
         self.device = device
         self._values = {}
+
+        self._callbacks_to_register = {
+            "value_updated": [],
+            "value_changed": [],
+        }
+
         super(Channel, self).__init__(device._ccu, spec)
 
 
@@ -201,6 +207,8 @@ class Channel(utils.LogMixin, Entity):
                             (self.channel_type, param_id, param_spec["TYPE"], class_name))
             else:
                 self._values[param_id] = cls(self, param_spec)
+
+        self._register_saved_callbacks()
 
 
     def _value_update_needed(self):
@@ -303,15 +311,49 @@ class Channel(utils.LogMixin, Entity):
     def on_value_changed(self, func):
         """Register a function to be called each time a value of this channel parameters
         has changed."""
-        for value in self.values.values():
+        try:
+            values = self.values.values()
+        except PMDeviceOffline:
+            # Unable to register with parameters right now. Save for later registration
+            # when values are available one day.
+            self._save_callback_to_register("value_changed", func)
+            return
+
+        for value in values:
             value.register_callback("value_changed", func)
 
 
     def on_value_updated(self, func):
         """Register a function to be called each time a value of this channel parameters has
         been updated."""
-        for value in self.values.values():
+        try:
+            values = self.values.values()
+        except PMDeviceOffline:
+            # Unable to register with parameters right now. Save for later registration
+            # when values are available one day.
+            self._save_callback_to_register("value_updated", func)
+            return
+
+        for value in values:
             value.register_callback("value_updated", func)
+
+
+    def _save_callback_to_register(self, cb_name, func):
+        """Stores a callback function for attaching it later to the parameters."""
+        self._callbacks_to_register[cb_name].append(func)
+
+
+    def _register_saved_callbacks(self):
+        """If there are saved callbacks to register to new fetched parameters, register them!"""
+        values = self._values.values()
+
+        for cb_name, callbacks in self._callbacks_to_register.items():
+            if not callbacks:
+                continue
+
+            for func in callbacks:
+                for value in values:
+                    value.register_callback(cb_name, func)
 
 
 
