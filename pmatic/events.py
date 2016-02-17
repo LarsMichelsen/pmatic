@@ -67,6 +67,13 @@ class EventXMLRPCServer(SimpleXMLRPCServer, threading.Thread):
         self.daemon = True
 
 
+    def system_listMethods(self, interface_id):
+        """Wrap the standard system_listMethods of SimpleXMLRPCDispatcher. This is needed
+        because the CCU sends an argument (the interface_id) which is not handled by the
+        default system_listMethods() method."""
+        return super(EventXMLRPCServer, self).system_listMethods()
+
+
     def run(self):
         """Starts listening for requests in the thread."""
         self.serve_forever()
@@ -191,9 +198,6 @@ class EventListener(object):
                                          requestHandler=EventXMLRPCRequestHandler)
 
         # Register system.listMethods, system.methodHelp and system.methodSignature
-        # FIXME: standard system.listMethods does not seem to be OK for the CCU. Seems as it
-        # is sending an argument with the call (I think the interace_id). Seems we need to
-        # build it on our own.
         self._server.register_introspection_functions()
         # Allow multicalls
         self._server.register_multicall_functions()
@@ -333,10 +337,14 @@ class EventHandler(utils.LogMixin, object):
         """The CCU asks for all already known devices. Send back the address and description
         version."""
         devices = []
-        for device in self._ccu.devices:
+
+        # Don't fetch new new devices here. Use the already known ones. The CCU will inform
+        # us about the ones we don't know yet.
+        for device in self._ccu.devices._already_initialized_devices:
             devices.append({"ADDRESS": device.address, "VERSION": device.version})
             for channel in device.channels:
                 devices.append({"ADDRESS": channel.address, "VERSION": channel.version})
+
         return devices
 
 
