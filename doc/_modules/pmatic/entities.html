@@ -203,6 +203,12 @@
             <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Device object is not a Device derived class: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">device</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">device</span> <span class="o">=</span> <span class="n">device</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks_to_register</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;value_updated&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;value_changed&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+
         <span class="nb">super</span><span class="p">(</span><span class="n">Channel</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">device</span><span class="o">.</span><span class="n">_ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
 
 
@@ -251,6 +257,8 @@
                             <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_type</span><span class="p">,</span> <span class="n">param_id</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;TYPE&quot;</span><span class="p">],</span> <span class="n">class_name</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">param_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_register_saved_callbacks</span><span class="p">()</span>
 
 
     <span class="k">def</span> <span class="nf">_value_update_needed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -353,15 +361,49 @@
 <div class="viewcode-block" id="Channel.on_value_changed"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Channel.on_value_changed">[docs]</a>    <span class="k">def</span> <span class="nf">on_value_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Register a function to be called each time a value of this channel parameters</span>
 <span class="sd">        has changed.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">PMDeviceOffline</span><span class="p">:</span>
+            <span class="c1"># Unable to register with parameters right now. Save for later registration</span>
+            <span class="c1"># when values are available one day.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_callback_to_register</span><span class="p">(</span><span class="s2">&quot;value_changed&quot;</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
             <span class="n">value</span><span class="o">.</span><span class="n">register_callback</span><span class="p">(</span><span class="s2">&quot;value_changed&quot;</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Channel.on_value_updated"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Channel.on_value_updated">[docs]</a>    <span class="k">def</span> <span class="nf">on_value_updated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Register a function to be called each time a value of this channel parameters has</span>
 <span class="sd">        been updated.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-            <span class="n">value</span><span class="o">.</span><span class="n">register_callback</span><span class="p">(</span><span class="s2">&quot;value_updated&quot;</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span></div></div>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">PMDeviceOffline</span><span class="p">:</span>
+            <span class="c1"># Unable to register with parameters right now. Save for later registration</span>
+            <span class="c1"># when values are available one day.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_save_callback_to_register</span><span class="p">(</span><span class="s2">&quot;value_updated&quot;</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+            <span class="n">value</span><span class="o">.</span><span class="n">register_callback</span><span class="p">(</span><span class="s2">&quot;value_updated&quot;</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_save_callback_to_register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cb_name</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stores a callback function for attaching it later to the parameters.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks_to_register</span><span class="p">[</span><span class="n">cb_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_register_saved_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;If there are saved callbacks to register to new fetched parameters, register them!&quot;&quot;&quot;</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">cb_name</span><span class="p">,</span> <span class="n">callbacks</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks_to_register</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">callbacks</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="k">for</span> <span class="n">func</span> <span class="ow">in</span> <span class="n">callbacks</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                    <span class="n">value</span><span class="o">.</span><span class="n">register_callback</span><span class="p">(</span><span class="n">cb_name</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span></div>
 
 
 
