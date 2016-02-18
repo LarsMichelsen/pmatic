@@ -231,12 +231,16 @@ class Parameter(object):
         """
         old_value = self._value
 
-        self._value_updated = time.time()
+        now = time.time()
+
+        self._value_updated = now
         self._value = value
+
+        if value != old_value:
+            self._value_changed = now
 
         self._callback("value_updated")
         if value != old_value:
-            self._value_changed = time.time()
             self._callback("value_changed")
 
 
