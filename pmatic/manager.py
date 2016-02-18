@@ -143,8 +143,8 @@ class Html(object):
         self.write("<ul id=\"navigation\">\n")
         self.write("<li><a href=\"/\"><i class=\"fa fa-code\"></i>Scripts</a></li>\n")
         self.write("<li><a href=\"/run\"><i class=\"fa fa-flash\"></i>Execute Scripts</a></li>\n")
-        self.write("<li><a href=\"/config\"><i class=\"fa fa-gear\"></i>Configuration</a></li>\n")
         self.write("<li><a href=\"/event_log\"><i class=\"fa fa-list\"></i>Event Log</a></li>\n")
+        self.write("<li><a href=\"/config\"><i class=\"fa fa-gear\"></i>Configuration</a></li>\n")
         self.write("<li class=\"right\"><a href=\"https://larsmichelsen.github.io/pmatic/\" "
                    "target=\"_blank\">pmatic %s</a></li>\n" % pmatic.__version__)
         self.write("</ul>\n")
