@@ -124,6 +124,7 @@ if not args.foreground:
     manager.daemonize()
 
 manager.register_signal_handlers()
+manager.register_for_ccu_events()
 
 try:
     manager.logger.info("Start listening on TCP %d..." % args.port)

@@ -144,6 +144,7 @@ class Html(object):
         self.write("<li><a href=\"/\"><i class=\"fa fa-code\"></i>Scripts</a></li>\n")
         self.write("<li><a href=\"/run\"><i class=\"fa fa-flash\"></i>Execute Scripts</a></li>\n")
         self.write("<li><a href=\"/config\"><i class=\"fa fa-gear\"></i>Configuration</a></li>\n")
+        self.write("<li><a href=\"/event_log\"><i class=\"fa fa-list\"></i>Event Log</a></li>\n")
         self.write("<li class=\"right\"><a href=\"https://larsmichelsen.github.io/pmatic/\" "
                    "target=\"_blank\">pmatic %s</a></li>\n" % pmatic.__version__)
         self.write("</ul>\n")
@@ -211,18 +212,18 @@ class Html(object):
 
 
     def error(self, text):
-        self.message(text, "error")
+        self.message(text, "error", "bomb")
 
 
     def success(self, text):
-        self.message(text, "success")
+        self.message(text, "success", "check-circle-o")
 
 
-    def message(self, text, cls):
-        if cls == "success":
-            icon = "check-circle-o"
-        else:
-            icon = "bomb"
+    def info(self, text):
+        self.message(text, "info", "info-circle")
+
+
+    def message(self, text, cls, icon):
         self.write("<div class=\"message %s\"><i class=\"fa fa-2x fa-%s\"></i> "
                    "%s</div>\n" % (cls, icon, text))
 
@@ -328,7 +329,8 @@ class PageHandler(object):
         return salted_hash == correct_hash
 
 
-    def __init__(self, environ, start_response):
+    def __init__(self, manager, environ, start_response):
+        self._manager = manager
         self._env = environ
         self._start_response = start_response
 
@@ -941,6 +943,57 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
 
 
 
+class PageEventLog(PageHandler, Html, utils.LogMixin):
+    url = "event_log"
+
+    def title(self):
+        return "Events received from the CCU"
+
+
+    def process(self):
+        self.h2("Events received from the CCU")
+        self.p("This page shows the last 1000 events received from the CCU. These are events "
+               "which you can register your pmatic scripts on to be called once such an event "
+               "is received.")
+
+        if not self._manager._events_initialized:
+            self.info("The event processing has not been initialized yet. Please come back "
+                      "in one or two minutes.")
+            return
+
+        self.p("Received <i>%d</i> events in total since the pmatic manager has been started." %
+                                                    self._manager.events.num_events_total)
+
+        self.write("<table>")
+        self.write("<tr><th>Time</th><th>Device</th><th>Channel</th><th>Parameter</th>"
+                   "<th>Event-Type</th><th>Value</th>")
+        self.write("</tr>")
+        for event in reversed(self._manager.events.events):
+            #"time"           : updated_param.last_updated,
+            #"time_changed"   : updated_param.last_changed,
+            #"param"          : updated_param,
+            #"value"          : updated_param.value,
+            #"formated_value" : "%s" % updated_param,
+            param = event["param"]
+
+            if event["time"] == event["time_changed"]:
+                ty = "changed"
+            else:
+                ty = "updated"
+
+            self.write("<tr>")
+            self.write("<td>%s</td>" % time.strftime("%Y-%m-%d %H:%M:%S",
+                                                     time.localtime(event["time"])))
+            self.write("<td>%s</td>" % param.channel.name)
+            self.write("<td>%s</td>" % param.channel.device.name)
+            self.write("<td>%s</td>" % param.title)
+            self.write("<td>%s</td>" % ty)
+            self.write("<td>%s (Raw value: %s)</td>" %
+                            (event["formated_value"], event["value"]))
+            self.write("</tr>")
+        self.write("</table>")
+
+
 class Page404(PageHandler, Html, utils.LogMixin):
     url = "404"
 
@@ -1013,10 +1066,18 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
             self, address, RequestHandler)
         self.set_app(self.handle_request)
 
+        self._events_initialized = False
+
+        # FIXME: Configurable for remote usage
+        self.ccu = pmatic.CCU(address="http://192.168.1.26",
+                              credentials=("Admin", "EPIC-SECRET-PW"))
+
+        self.events = Events()
+
 
     def handle_request(self, environ, start_response):
         handler_class = PageHandler.get(environ)
-        page = handler_class(environ, start_response)
+        page = handler_class(self, environ, start_response)
         return page.process_page()
 
 
@@ -1078,6 +1139,26 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         raise SignalReceived(signum)
 
 
+    def register_for_ccu_events(self):
+        threading.Thread(target=self._do_register_for_ccu_events).start()
+
+
+    def _do_register_for_ccu_events(self):
+        self.ccu.events.init()
+        self.ccu.devices.on_value_updated(self._on_value_updated)
+        self._events_initialized = True
+
+
+    def _on_value_updated(self, updated_param):
+        self.events.add_event({
+            "time"           : updated_param.last_updated,
+            "time_changed"   : updated_param.last_changed,
+            "param"          : updated_param,
+            "value"          : updated_param.value,
+            "formated_value" : "%s" % updated_param,
+        })
+
+
 
 class RequestHandler(wsgiref.simple_server.WSGIRequestHandler, utils.LogMixin):
     def log_message(self, fmt, *args):
@@ -1086,3 +1167,27 @@ class RequestHandler(wsgiref.simple_server.WSGIRequestHandler, utils.LogMixin):
 
     def log_exception(self, exc_info):
         self.logger("Unhandled exception: %s" % traceback.format_exc())
+
+
+
+class Events(object):
+    def __init__(self):
+        self._events = []
+        self._num_events_total = 0
+
+
+    def add_event(self, event_dict):
+        self._num_events_total += 1
+        self._events.append(event_dict)
+        if len(self._events) > 1000:
+            self._events.pop(0)
+
+
+    @property
+    def events(self):
+        return self._events
+
+
+    @property
+    def num_events_total(self):
+        return self._num_events_total

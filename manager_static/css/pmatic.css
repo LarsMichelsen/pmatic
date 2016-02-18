@@ -97,6 +97,12 @@ div.message.error a {
     color: #d8000c;
 }
 
+div.message.info {
+    background-color: #66ccff;
+    color: #0066ff;
+    border: 1px solid #0066ff;
+}
+
 /* TABLES */
 
 table {

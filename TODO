@@ -10,3 +10,7 @@ Ideas:
   * Add confirm dialog for script deletion
   * Tests for the manager
   * Escape user provided texts
+  * Events: Close on shutdown when registered?
+  * Events: Only register when there is at least one script asking for events
+  * Event-Log: Make length of event history configurable
+* Cleanup: Parameters should use .name just like other objects instead of .title

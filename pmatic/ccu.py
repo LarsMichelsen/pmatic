@@ -160,6 +160,12 @@ class CCUDevices(Devices):
         return self._device_dict
 
 
+    @property
+    def _already_initialized_devices(self):
+        """Provides access to the already known devices without fetching new ones."""
+        return self._device_dict
+
+
     def _add_without_init(self, device):
         self._device_dict[device.address] = device
 
