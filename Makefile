@@ -144,6 +144,12 @@ dist-ccu-step1:
 	    lib/python2.7/Cookie.py \
 	    lib/python2.7/wsgiref/*.py \
 	    \
+	    lib/python2.7/inspect.py \
+	    lib/python2.7/dis.py \
+	    lib/python2.7/opcode.py \
+	    lib/python2.7/tokenize.py \
+	    lib/python2.7/token.py \
+	    \
 	    $(CCU_PREDIST_PATH)/python
 
 dist-ccu-step2:
@@ -186,6 +192,11 @@ install-ccu: install-ccu-python install-ccu-pmatic
 
 install-ccu-python:
 	@echo TODO
+	rsync -av --no-g \
+	    --exclude=\*.pyc \
+	    --exclude=__pycache__ \
+	    $(CCU_PREDIST_PATH)/python/* \
+	    root@$(CCU_HOST):/usr/local/etc/config/addons/pmatic/python/
 
 install-ccu-pmatic:
 	rsync -aRv --no-g \
