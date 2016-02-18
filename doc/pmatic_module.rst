@@ -26,7 +26,7 @@ Devices - Collections of Devices
     :members:
     :undoc-members:
     :special-members:
-    :exclude-members: __init__,__module__
+    :exclude-members: __init__,__module__,__dict__,__weakref__
 
 Device - Device connected with the CCU
 ======================================
@@ -51,7 +51,7 @@ CCURooms - Top Level Collection of Rooms
     :members:
     :undoc-members:
     :special-members:
-    :exclude-members: __init__,__module__
+    :exclude-members: __init__,__module__,__dict__,__weakref__
 
 Rooms - Collections of Rooms
 =============================
@@ -60,7 +60,7 @@ Rooms - Collections of Rooms
     :members:
     :undoc-members:
     :special-members:
-    :exclude-members: __init__,__module__
+    :exclude-members: __init__,__module__,__dict__,__weakref__
 
 Room - A Configured Room
 ========================
