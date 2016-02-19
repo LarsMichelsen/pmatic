@@ -1088,10 +1088,8 @@ def _server_handler_write(self, data):
     try:
         SimpleHandler.write(self, data)
     except socket.error as e:
-        if e.errno == 32:
-            # Client disconnected while answering it's request.
-            pass
-        else:
+        # Client disconnected while answering it's request.
+        if e.errno != 32:
             raise
 
 
@@ -1128,7 +1126,6 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         except socket.error as e:
             if e.errno == 32:
                 self.logger.debug("%s: Client disconnected while answering it's request.")
-                pass
             else:
                 raise
 
