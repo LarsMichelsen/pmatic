@@ -1192,7 +1192,9 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
 
     def register_for_ccu_events(self):
-        threading.Thread(target=self._do_register_for_ccu_events).start()
+        thread = threading.Thread(target=self._do_register_for_ccu_events)
+        thread.daemon = True
+        thread.start()
 
 
     def _do_register_for_ccu_events(self):
