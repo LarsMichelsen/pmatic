@@ -37,11 +37,13 @@ import cgi
 import sys
 import time
 import json
+import socket
 import signal
 import inspect
 import traceback
 import threading
 import subprocess
+from wsgiref.handlers import SimpleHandler
 import wsgiref.simple_server
 from Cookie import SimpleCookie
 from hashlib import sha256
@@ -1057,7 +1059,21 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
 
 
 
+# Hook into ServerHandler to be able to catch exceptions about disconnected clients
+def _server_handler_write(self, data):
+    try:
+        SimpleHandler.write(self, data)
+    except socket.error as e:
+        if e.errno == 32:
+            # Client disconnected while answering it's request.
+            pass
+        else:
+            raise
+
+
 wsgiref.simple_server.ServerHandler.server_software = 'pmatic-manager'
+# Found no elegant way to patch it. Sorry.
+wsgiref.simple_server.ServerHandler.write = _server_handler_write
 
 
 class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
@@ -1079,6 +1095,17 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         handler_class = PageHandler.get(environ)
         page = handler_class(self, environ, start_response)
         return page.process_page()
+
+
+    def process_request(self, request, client_address):
+        try:
+            super(Manager, self).process_request(request, client_address)
+        except socket.error as e:
+            if e.errno == 32:
+                self.logger.debug("%s: Client disconnected while answering it's request.")
+                pass
+            else:
+                raise
 
 
     def daemonize(self, user=0, group=0):
