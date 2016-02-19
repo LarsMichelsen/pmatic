@@ -484,16 +484,40 @@ class StaticFile(PageHandler):
             return "text/plain; charset=UTF-8"
 
 
+    def _check_cached(self, file_path):
+        client_cached_age = self._env.get('HTTP_IF_MODIFIED_SINCE', None)
+        if not client_cached_age:
+            return False
+
+        # Try to parse the If-Modified-Since HTTP header provided by
+        # the client to make client cache usage possible.
+        try:
+            t = time.strptime(client_cached_age, "%a, %d %b %Y %H:%M:%S %Z")
+            if t == time.gmtime(os.stat(file_path).st_mtime):
+                return True
+        except ValueError:
+            # strptime raises ValueError when wrong time format is being provided
+            return False
+
+
     def process_page(self):
         path_info = self._env["PATH_INFO"]
+        file_path = StaticFile.system_path_from_pathinfo(self._env["PATH_INFO"])
+
+        is_cached = self._check_cached(file_path)
+        if is_cached:
+            self._start_response(self._http_status(304), [])
+            return []
+
+        mtime = os.stat(file_path).st_mtime
+        self._http_headers.append((b"Last-Modified",
+                    time.strftime("%a, %d %b %Y %H:%M:%S UTC", time.gmtime(mtime))))
 
         if path_info.startswith("/scripts"):
             self._http_headers.append((b"Content-Disposition",
                 b"attachment; filename=\"%s\"" % os.path.basename(path_info)))
 
         self._start_response(self._http_status(200), self._http_headers)
-
-        file_path = StaticFile.system_path_from_pathinfo(self._env["PATH_INFO"])
         return [ l for l in open(file_path) ]
 
 
@@ -1092,6 +1116,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
 
     def handle_request(self, environ, start_response):
+        # handler_class may be any subclass of PageHandler
         handler_class = PageHandler.get(environ)
         page = handler_class(self, environ, start_response)
         return page.process_page()
