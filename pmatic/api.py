@@ -42,6 +42,7 @@ import sys
 import json
 import time
 import atexit
+import threading
 
 # Specific for the LocalAPI()
 import subprocess
@@ -403,6 +404,10 @@ class RemoteAPI(AbstractAPI):
         args   = self.get_arguments(method, kwargs)
 
         self.logger.debug("CALL: %s ARGS: %r" % (method["NAME"], args))
+        #import traceback
+        #stack = "" #("".join(traceback.format_stack()[:-1])).encode("utf-8")
+        #print(b"".join(traceback.format_stack()[:-1]))
+        #self.logger.debug("  Callstack: %s\n" % stack)
 
         json_data = json.dumps({
             "method": method["NAME"],
@@ -570,14 +575,17 @@ class CachedAPICall(dict):
         self._api = api
         self._max_cache_age = max_cache_age # seconds
         self._last_update = None
+        self._lock = threading.Lock()
 
 
     def _update_data(self):
+        self._lock.acquire()
         if self._last_update == None \
            or self._last_update + self._max_cache_age < time.time():
             self.clear()
             self._update()
             self._last_update = time.time()
+        self._lock.release()
 
 
     def __getitem__(self, key):

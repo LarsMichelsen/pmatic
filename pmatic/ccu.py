@@ -263,7 +263,7 @@ class CCUDevices(Devices):
         It creates the device and also assigns the logic level attributes to
         the object so that it is a fully initialized device object.
         """
-        self.add(self._create_from_low_level_dict(spec))
+        self._add_without_init(self._create_from_low_level_dict(spec))
 
 
     def _create_from_low_level_dict(self, spec):
