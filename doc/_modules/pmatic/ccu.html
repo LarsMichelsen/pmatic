@@ -313,7 +313,7 @@
 <span class="sd">        It creates the device and also assigns the logic level attributes to</span>
 <span class="sd">        the object so that it is a fully initialized device object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_from_low_level_dict</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_without_init</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_from_low_level_dict</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span></div>
 
 
     <span class="k">def</span> <span class="nf">_create_from_low_level_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
