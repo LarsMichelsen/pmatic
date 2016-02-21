@@ -48,7 +48,7 @@ div#content h2:first-child {
     margin-top: 0;
 }
 
-a.btn {
+a.icon_button {
     background-color: #212121;
     border-radius: 5px;
     display: inline-block;
@@ -60,10 +60,32 @@ a.btn {
     color: #fff;
 }
 
-a.btn:hover {
+a.icon_button:hover {
     color: #989a97;
     background-color: #111;
 }
+
+a.button {
+    background-color: #5da1f4;
+    border-radius: 5px;
+    display: inline-block;
+    margin-right: 2px;
+    line-height: 25px;
+    text-align: center;
+    color: #fff;
+    padding: 2px 10px;
+    text-decoration: none;
+}
+
+a.button i {
+    margin: 0 6px 0 0;
+}
+
+a.button:hover {
+    color: #989a97;
+    background-color: #111;
+}
+
 
 /* MESSAGES */
 
@@ -121,6 +143,12 @@ table tr th {
     background-color: #5da1f4;
 }
 
+table tr th p {
+    font-weight: normal;
+    display: block;
+    font-size: 0.8em;
+}
+
 table tr th.largest {
     width: 100%;
 }
@@ -137,9 +165,15 @@ table tr:nth-child(2n+1)  {
 
 form table th {
     width: 180px;
+    white-space: normal;
 }
 
-form table input,
+form table td {
+    vertical-align: top;
+}
+
+form table input[type="text"],
+form table input[type="password"],
 form table select {
     width: 300px;
 }

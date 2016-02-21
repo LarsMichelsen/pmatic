@@ -152,6 +152,7 @@ class Html(object):
         self.write("<ul id=\"navigation\">\n")
         self.write("<li><a href=\"/\"><i class=\"fa fa-code\"></i>Scripts</a></li>\n")
         self.write("<li><a href=\"/run\"><i class=\"fa fa-flash\"></i>Execute Scripts</a></li>\n")
+        self.write("<li><a href=\"/schedule\"><i class=\"fa fa-tasks\"></i>Schedule</a></li>\n")
         self.write("<li><a href=\"/event_log\"><i class=\"fa fa-list\"></i>Event Log</a></li>\n")
         self.write("<li><a href=\"/config\"><i class=\"fa fa-gear\"></i>Configuration</a></li>\n")
         self.write("<li class=\"right\"><a href=\"https://larsmichelsen.github.io/pmatic/\" "
@@ -196,8 +197,18 @@ class Html(object):
         self.write("<input type=\"text\" name=\"%s\" value=\"%s\">\n" % (name, value))
 
 
-    def select(self, name, choices, deflt=None):
-        self.write("<select name=\"%s\">\n" % name)
+    def checkbox(self, name, deflt=False):
+        checked = " checked" if deflt else ""
+        self.write("<input type=\"checkbox\" name=\"%s\"%s>\n" % (name, checked))
+
+
+    def is_checked(self, name):
+        return self._vars.getvalue(name) != None
+
+
+    def select(self, name, choices, deflt=None, onchange=None):
+        onchange = " onchange=\"%s\"" % onchange if onchange else ""
+        self.write("<select name=\"%s\"%s>\n" % (name, onchange))
         self.write("<option value=\"\"></option>\n")
         for choice in choices:
             if deflt == choice[0]:
@@ -215,8 +226,15 @@ class Html(object):
 
 
     def icon_button(self, icon_name, url, title):
-        self.write("<a class=\"btn\" href=\"%s\">" % url)
+        self.write("<a class=\"icon_button\" href=\"%s\">" % url)
         self.icon(icon_name, title)
+        self.write("</a>")
+
+
+    def button(self, icon_name, label, url):
+        self.write("<a class=\"button\" href=\"%s\">" % url)
+        self.icon(icon_name, "")
+        self.write(label)
         self.write("</a>")
 
 
@@ -950,7 +968,12 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
                "setting a password functions like uploading files are enabled.")
         self.write("<div class=\"password_form\">\n")
         self.begin_form()
+        self.write("<table>")
+        self.write("<tr><th>Password</th>")
+        self.write("<td>")
         self.password("password")
+        self.write("</td></tr>")
+        self.write("</table>")
         self.submit("Set Password", "set_password")
         self.end_form()
         self.write("</div>\n")
@@ -961,12 +984,14 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         self.write("<div class=\"config_form\">\n")
         self.begin_form()
         self.write("<table>")
-        self.write("<tr><th>Log level</th>")
+
+        self.write("<tr><th>Log level"
+                   "<p>Log entries having the configured log level (or a worse one) are logged to"
+                   " the file <tt>%s</tt> by default.</p>"
+                   "</th>" % Config.log_file)
         self.write("<td>")
         self.select("log_level", [ (l, l) for l in pmatic.log_level_names ], Config.log_level)
         self.write("</td>")
-        self.write("<td>Log entries having the configured log level (or a worse one) are logged to"
-                   " the file <tt>%s</tt> by default.</td>" % Config.log_file)
         self.write("</tr>")
 
         self.write("</table>")
@@ -1067,6 +1092,222 @@ class PageEventLog(PageHandler, Html, utils.LogMixin):
         self.write("</table>")
 
 
+
+class PageSchedule(PageHandler, Html, utils.LogMixin):
+    url = "schedule"
+
+    def title(self):
+        return "Schedule your pmatic Scripts"
+
+
+    def action(self):
+        self.ensure_password_is_set()
+        action = self._vars.getvalue("action")
+        if action == "delete":
+            self._handle_delete()
+
+
+    def _handle_delete(self):
+        schedule_id = self._vars.getvalue("schedule_id")
+        if not schedule_id:
+            raise PMUserError("You need to provide a schedule to delete.")
+        schedule_id = int(schedule_id)
+
+        if not self._manager.scheduler.exists(schedule_id):
+            raise PMUserError("This schedule does not exist.")
+
+        self._manager.scheduler.remove(schedule_id)
+        self._manager.scheduler.save()
+        self.success("The schedule has been deleted.")
+
+
+    def process(self):
+        self.h2("Schedule your pmatic Scripts")
+        self.p("This page shows you all currently existing script schedules. A schedule controls "
+               "in which situations a script is being executed.")
+
+        self.button("tasks", "Add Schedule", "/add_schedule")
+        self.write("<br>")
+        self.write("<br>")
+
+        self.write("<table>")
+        self.write("<tr><th>Actions</th><th>Name</th><th>Conditions</th>"
+                   "<th>Script</th><th>Last triggered</th><th>Currently running</th>")
+        self.write("</tr>")
+        for schedule in self._manager.scheduler.schedules:
+            self.write("<tr>")
+            self.write("<td>")
+            self.icon_button("edit", "/edit_schedule?schedule_id=%d" % schedule.id,
+                              "Edit this schedule")
+            self.icon_button("trash", "?action=delete&schedule_id=%d" % schedule.id,
+                              "Delete this schedule")
+            self.write("</td>")
+            self.write("<td>%s</td>" % schedule.name)
+            self.write("<td>")
+            for condition in schedule.conditions:
+                self.write(condition.display()+"<br>")
+            self.write("</td>")
+            self.write("<td>%s</td>" % schedule.script)
+            last_triggered = schedule.last_triggered
+            if last_triggered:
+                last_triggered = time.strftime("%Y-%m-%d %H:%M:%S",
+                                               time.localtime(last_triggered))
+            else:
+                last_triggered = "<i>Not triggered yet.</i>"
+            self.write("<td>%s</td>" % last_triggered)
+            self.write("<td>%s</td>" % ("running" if schedule.is_running else "not running"))
+            self.write("</tr>")
+        self.write("</table>")
+
+
+
+class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
+    url = "edit_schedule"
+
+    def _get_mode(self):
+        return "edit"
+
+
+    def _get_schedule(self):
+        schedule_id = self._vars.getvalue("schedule_id")
+        if schedule_id == None:
+            raise PMUserError("You need to provide a <tt>schedule_id</tt>.")
+        schedule_id = int(schedule_id)
+
+        if not self._manager.scheduler.exists(schedule_id):
+            raise PMUserError("The schedule you are trying to edit does not exist.")
+
+        return self._manager.scheduler.get(schedule_id)
+
+
+    def _get_condition_types(self):
+        types = []
+        for subclass in Condition.types():
+            types.append((subclass.type_name, subclass.type_title))
+        return types
+
+
+    def _set_submitted_vars(self, schedule, submit):
+        if self._vars.getvalue("submitted") == "1":
+            # submitted for reload or saving!
+
+            schedule.name = self._vars.getvalue("name")
+            if submit and not schedule.name:
+                raise PMUserError("You have to provide a name.")
+
+            schedule.keep_running = self.is_checked("keep_running")
+
+            script = self._vars.getvalue("script")
+            if script and script not in self._get_scripts():
+                raise PMUserError("The given script does not exist.")
+            if submit and not script:
+                raise PMUserError("You have to select a script.")
+            schedule.script = script
+
+            num_conditions = int(self._vars.getvalue("num_conditions"))
+            schedule.clear_conditions()
+            for condition_id in range(num_conditions):
+                condition_type = self._vars.getvalue("cond_%d_type" % condition_id)
+                if condition_type:
+                    cls = Condition.get(condition_type)
+                    if not cls:
+                        raise PMUserError("Invalid condition type \"%s\" given." % condition_type)
+
+                    condition = cls(self._manager)
+                    try:
+                        condition.set_submitted_vars(self, "cond_%d_" % condition_id)
+                    except PMUserError as e:
+                        self.error(e)
+                    schedule.add_condition(condition)
+
+
+    def action(self):
+        schedule = self._get_schedule()
+        self._set_submitted_vars(schedule, submit=True)
+        schedule.save()
+        self.success("The schedule has been saved. Opening the schedule list now.")
+        self.redirect(2, "/schedule")
+
+
+    def title(self):
+        return "Edit Script Schedule"
+
+
+    def process(self):
+        self.h2(self.title())
+
+        mode = self._get_mode()
+        schedule = self._get_schedule()
+        self._set_submitted_vars(schedule, submit=False)
+
+        self.begin_form()
+        if mode == "edit":
+            self.hidden("schedule_id", str(schedule.id))
+        self.hidden("submitted", "1")
+        self.write("<table>")
+        self.write("<tr><th>Name</th><td>")
+        self.input("name", schedule.name)
+        self.write("</td></tr>")
+        self.write("<tr><th>Keep running"
+                   "<p>Keep the script running and restart it automatically after it has been "
+                   "started once. <i>Note:</i> If the script is respawning too often, it's "
+                   "restarts will be delayed.</p></th><td>")
+        self.checkbox("keep_running", schedule.keep_running)
+        self.write("</td></tr>")
+        self.write("<tr><th>Script to execute</th><td>")
+        self.select("script", sorted([ (s, s) for s in self._get_scripts() ]), schedule.script)
+        self.write("</td></tr>")
+        self.write("</table>")
+
+        self.h3("Conditions")
+        self.p("Here you need to specify at least one condition for the script to be started. "
+               "If you create multiple conditions, each of the conditions issues the script on "
+               "it's own.")
+        self.write("<table>")
+        self.write("<tr>")
+        self.write("<th>Type</th>")
+        self.write("<th>Parameters</th>")
+        self.write("</tr>")
+
+        self.hidden("num_conditions", str(len(schedule.conditions)+1))
+        for condition_id, condition in enumerate(schedule.conditions + [Condition(self._manager)]):
+            varprefix = "cond_%d_" % condition_id
+            self.write("<tr>")
+            self.write("<td>")
+            self.write("Execute script ")
+            self.select(varprefix+"type", self._get_condition_types(),
+                        deflt=condition.type_name,
+                        onchange="this.form.submit()")
+            self.write("</td>")
+
+            self.write("<td>")
+            condition.input_parameters(self, varprefix)
+            self.write("</td>")
+            self.write("</tr>")
+
+        self.write("</table>")
+        self.write("<br>")
+        self.submit("Save", "save")
+        self.end_form()
+
+
+
+class PageAddSchedule(PageEditSchedule, PageHandler):
+    url = "add_schedule"
+
+    def _get_mode(self):
+        return "new"
+
+
+    def _get_schedule(self):
+        return Schedule(self._manager)
+
+
+    def title(self):
+        return "Add Script Schedule"
+
+
+
 class Page404(PageHandler, Html, utils.LogMixin):
     url = "404"
 
@@ -1156,8 +1397,16 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
         self._init_ccu()
         self.events = Events()
+        self.scheduler = Scheduler(self)
 
 
+    # FIXME: When running the manager from remote:
+    # - Make addresse and credentials configurable
+    # - Handle pmatic.exceptions.PMConnectionError correctly
+    #   The connection should be retried later and all depending
+    #   code needs to be able to deal with an unconnected manager.
+    # - Handle pmatic.exceptions.PMException:
+    #       [session_login] JSONRPCError: too many sessions (501)
     def _init_ccu(self):
         if Config.ccu_enabled:
             self.logger.info("Initializing connection with CCU")
@@ -1301,3 +1550,395 @@ class Events(object):
     @property
     def num_events_total(self):
         return self._num_events_total
+
+
+
+class Scheduler(threading.Thread, utils.LogMixin):
+    def __init__(self, manager):
+        threading.Thread.__init__(self)
+        self._manager = manager
+        self._schedules = []
+
+        self._on_startup_executed = False
+        self._on_ccu_init_executed = False
+
+        self.load()
+
+
+    def run(self):
+        while True:
+            try:
+                if not self._on_startup_executed:
+                    # Run on startup scripts
+                    for schedule in self._schedules_with_condition_type(ConditionOnStartup):
+                        self.execute(schedule)
+                    self._on_startup_executed = True
+
+                if not self._on_ccu_init_executed and self._manager._events_initialized:
+                    # Run on ccu init scripts
+                    for schedule in self._schedules_with_condition_type(ConditionOnCCUInitialized):
+                        self.execute(schedule)
+                    self._on_ccu_init_executed = True
+
+                # FIXME: Check for timing conditions
+
+            except Exception as e:
+                self.logger.error("Exception in Scheduler: %s" % e)
+                self.logger.debug(traceback.format_exc())
+
+
+    def _schedules_with_condition_type(self, cls):
+        for schedule in self._schedules:
+            matched = False
+            for condition in schedule.conditions:
+                if isinstance(condition, cls):
+                    matched = True
+                    break
+
+            if matched:
+                yield schedule
+
+
+    def execute(self, schedule):
+        """Executes a script schedule. This is normally issued by the Scheduler itself when it
+        detected that a condition of a schedule matched.
+
+        Each of the executed scripts are started in a separate ScriptRunner object which is
+        managing the executed script, collecting it's output and restarts the script when it
+        it is configured to be kept running and terminates.
+
+        The script runner is connected with the *schedule* object so that the Scheduler knows
+        that the schedule is currently being executed and should not be started a second time
+        in parallel.
+        """
+        if schedule.is_running:
+            self.logger.info("[%s] Conditions matched, but script was already running." %
+                                                                            schedule.name)
+            return
+
+        runner = ScriptRunner(schedule.script)
+        schedule.add_runner(runner)
+        runner.start()
+
+
+    @property
+    def schedules(self):
+        return self._schedules
+
+
+    def exists(self, schedule_id):
+        try:
+            self._schedules[schedule_id]
+            return True
+        except IndexError:
+            return False
+
+
+    def get(self, schedule_id):
+        return self._schedules[schedule_id]
+
+
+    def add(self, schedule):
+        if schedule.id == None:
+            num = len(self._schedules)
+            schedule.id = num
+            self._schedules.append(schedule)
+        else:
+            self._schedules[schedule.id] = schedule
+
+
+    def remove(self, schedule_id):
+        """Removes the schedule with the given *schedule_id* from the Scheduler. Tolerates non
+        existing schedule ids."""
+        try:
+            self._schedules.pop(schedule_id)
+        except IndexError:
+            pass
+
+
+    def load(self):
+        try:
+            try:
+                fh = open(Config.config_path + "/manager.schedules")
+                schedule_config = json.load(fh)
+            except IOError as e:
+                # a non existing file is allowed.
+                if e.errno == 2:
+                    schedule_config = []
+                else:
+                    raise
+
+            for schedule_cfg in schedule_config:
+                schedule = Schedule(self._manager)
+                schedule.from_config(schedule_cfg)
+                self.add(schedule)
+
+        except Exception as e:
+            self.logger.error("Failed to load schedules: %s. Terminating." % e)
+            sys.exit(1)
+
+
+    def save(self):
+        schedule_config = []
+        for schedule in self._schedules:
+            schedule_config.append(schedule.to_config())
+
+        json_config = json.dumps(schedule_config)
+        open(Config.config_path + "/manager.schedules", "w").write(json_config + "\n")
+
+
+
+class Schedule(object):
+    def __init__(self, manager):
+        self._manager     = manager
+
+        self.id           = None
+        self.name         = ""
+        self.keep_running = False
+        self.script       = ""
+        self.conditions   = []
+
+        self.last_triggered = None
+        self._runner        = None
+
+
+    @property
+    def is_running(self):
+        return self._runner and self._runner.is_alive()
+
+
+    def add_runner(self, runner):
+        self._runner = runner
+
+
+    def add_condition(self, condition):
+        num = len(self.conditions)
+        condition.id = num
+        self.conditions.append(condition)
+
+
+    def clear_conditions(self):
+        self.conditions = []
+
+
+    def from_config(self, cfg):
+        for key, val in cfg.items():
+            if key != "conditions":
+                setattr(self, key, val)
+            else:
+                for condition_cfg in val:
+                    cls = Condition.get(condition_cfg["type_name"])
+                    if not cls:
+                        raise PMUserError("Failed to load condition type: %s" %
+                                                        condition_cfg["type_name"])
+                    condition = cls(self._manager)
+                    condition.from_config(condition_cfg)
+                    self.add_condition(condition)
+
+
+    def to_config(self):
+        return {
+            "name"         : self.name,
+            "keep_running" : self.keep_running,
+            "script"       : self.script,
+            "conditions"   : [ c.to_config() for c in self.conditions ],
+        }
+
+
+    def save(self):
+        self._manager.scheduler.add(self)
+        self._manager.scheduler.save()
+
+
+
+class Condition(object):
+    type_name = ""
+    type_title = ""
+
+    @classmethod
+    def types(cls):
+        return cls.__subclasses__()
+
+    @classmethod
+    def get(cls, type_name):
+        for subclass in cls.__subclasses__():
+            if subclass.type_name == type_name:
+                return subclass
+        return None
+
+
+    def __init__(self, manager):
+        self._manager = manager
+
+
+    def from_config(self, cfg):
+        for key, val in cfg.items():
+            setattr(self, key, val)
+
+
+    def to_config(self):
+        return {
+            "type_name": self.type_name,
+        }
+
+
+    def display(self):
+        return self.type_title
+
+
+    def input_parameters(self, page, varprefix):
+        pass
+
+
+    def set_submitted_vars(self, page, varprefix):
+        pass
+
+
+
+class ConditionOnStartup(Condition):
+    type_name = "on_startup"
+    type_title = "on manager startup"
+
+    def input_parameters(self, page, varprefix):
+        page.write("<i>This condition has no parameters.</i>")
+
+
+
+class ConditionOnCCUInitialized(Condition):
+    type_name = "on_ccu_initialized"
+    type_title = "on connection with CCU initialized"
+
+    def input_parameters(self, page, varprefix):
+        page.write("<i>This condition has no parameters.</i>")
+
+
+
+class ConditionOnDeviceEvent(Condition):
+    type_name = "on_device_event"
+    type_title = "on device event"
+
+    _event_types = [
+        ("updated", "Value updated"),
+        ("changed", "Value changed"),
+    ]
+
+    def __init__(self, manager):
+        super(ConditionOnDeviceEvent, self).__init__(manager)
+        self.device     = None
+        self.channel    = None
+        self.param      = None
+        self.event_type = None
+
+
+    def from_config(self, cfg):
+        self.device = self._manager.ccu.devices.query(
+                                device_address=cfg["device_address"]).get(cfg["device_address"])
+        if not self.device:
+            return
+
+        try:
+            self.channel = self.device.channel_by_address(cfg["channel_address"])
+        except KeyError:
+            return
+
+        self.param = self.channel.values.get(cfg["param_id"])
+        if not self.param:
+            return
+
+        self.event_type = cfg["event_type"]
+
+
+    def to_config(self):
+        cfg = super(ConditionOnDeviceEvent, self).to_config()
+        cfg.update({
+            "device_address"  : self.device.address,
+            "channel_address" : self.channel.address,
+            "param_id"        : self.param.id,
+            "event_type"      : self.event_type,
+        })
+        return cfg
+
+
+    def display(self):
+        txt = super(ConditionOnDeviceEvent, self).display()
+        txt += ": %s, %s, %s, %s" % (self.device.name, self.channel.name,
+                                     self.param.title, dict(self._event_types)[self.event_type])
+        return txt
+
+
+    def _device_choices(self, page):
+        for device in self._manager.ccu.devices:
+            yield device.address, "%s (%s)" % (device.name, device.address)
+
+
+    def _channel_choices(self, page):
+        if not self.device:
+            return
+
+        for channel in self.device.channels:
+            yield channel.address, "%s (%s)" % (channel.name, channel.address)
+
+
+    def _param_choices(self, page):
+        if not self.channel:
+            return
+
+        for param_id, param in self.channel.values.items():
+            yield param_id, "%s (%s)" % (param.title, param_id)
+
+
+    def input_parameters(self, page, varprefix):
+        page.write("Device: ")
+        page.select(varprefix+"device_address",
+                    sorted(self._device_choices(page), key=lambda x: x[1]),
+                    self.device and self.device.address, onchange="this.form.submit()")
+        page.write("Channel: ")
+        page.select(varprefix+"channel_address",
+                    sorted(self._channel_choices(page), key=lambda x: x[1]),
+                    self.channel and self.channel.address, onchange="this.form.submit()")
+        page.write("Parameter: ")
+        page.select(varprefix+"param_id",
+                    sorted(self._param_choices(page), key=lambda x: x[1]),
+                    self.param and self.param.id, onchange="this.form.submit()")
+        page.write("Type: ")
+        page.select(varprefix+"event_type", self._event_types, self.event_type)
+
+
+    def set_submitted_vars(self, page, varprefix):
+        device_address = page._vars.getvalue(varprefix+"device_address")
+        if device_address:
+            self.device = self._manager.ccu.devices.query(
+                                device_address=device_address).get(device_address)
+            if not self.device:
+                raise PMUserError("Unable to find the given device.")
+        else:
+            return
+
+        channel_address = page._vars.getvalue(varprefix+"channel_address")
+        if channel_address:
+            try:
+                self.channel = self.device.channel_by_address(channel_address)
+            except KeyError:
+                raise PMUserError("Unable to find the given channel.")
+        else:
+            return
+
+        param_id = page._vars.getvalue(varprefix+"param_id")
+        if param_id:
+            self.param = self.channel.values.get(param_id)
+            if not self.param:
+                raise PMUserError("Unable to find the given channel.")
+        else:
+            return
+
+        event_type = page._vars.getvalue(varprefix+"event_type")
+        if event_type:
+            if event_type not in dict(self._event_types):
+                raise PMUserError("Invalid event type given.")
+            self.event_type = event_type
+
+
+
+class ConditionOnTime(Condition):
+    type_name = "on_time"
+    type_title = "based on time"
