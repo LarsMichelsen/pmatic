@@ -222,7 +222,7 @@
 
     <span class="c1"># FIXME: Add more filter options</span>
 <div class="viewcode-block" id="CCUDevices.query"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCUDevices.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;query([device_type=None[, device_name=None[, device_name_regex=None]]])</span>
+        <span class="sd">&quot;&quot;&quot;query([device_type=None[, device_name=None[, device_name_regex=None[, device_address=None ]]]])</span>
 <span class="sd">        Use this function to query the CCU for a collection of devices.</span>
 
 <span class="sd">        The devices are returned in a :class:`.pmatic.entities.Devices` collection.</span>
@@ -250,6 +250,10 @@
 <span class="sd">        ``device_name_regex=&quot;.*-Fenster$&quot;``.</span>
 <span class="sd">        You can also provide the result of :func:`re.compile` as value of *device_name_regex*.</span>
 <span class="sd">        This is useful if you want to specify some special regex flags for your matching regex.</span>
+
+<span class="sd">        The *device_address* can be used to get a specific device by it&#39;s address. This is an</span>
+<span class="sd">        exact match filter. So you can either get a device collection of one device or an empty</span>
+<span class="sd">        one back.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">devices</span> <span class="o">=</span> <span class="n">Devices</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_query_for_devices</span><span class="p">(</span><span class="o">**</span><span class="n">filters</span><span class="p">):</span>
@@ -289,6 +293,10 @@
             <span class="c1"># Add devices which have one of the channel ids listed in has_channel_ids</span>
             <span class="k">if</span> <span class="s2">&quot;has_channel_ids&quot;</span> <span class="ow">in</span> <span class="n">filters</span> \
                <span class="ow">and</span> <span class="ow">not</span> <span class="p">[</span> <span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">device</span><span class="o">.</span><span class="n">channels</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">[</span><span class="s2">&quot;has_channel_ids&quot;</span><span class="p">]</span> <span class="p">]:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># exact device address match</span>
+            <span class="k">if</span> <span class="s2">&quot;device_address&quot;</span> <span class="ow">in</span> <span class="n">filters</span> <span class="ow">and</span> <span class="n">device</span><span class="o">.</span><span class="n">address</span> <span class="o">!=</span> <span class="n">filters</span><span class="p">[</span><span class="s2">&quot;device_address&quot;</span><span class="p">]:</span>
                 <span class="k">continue</span>
 
             <span class="k">yield</span> <span class="n">device</span>

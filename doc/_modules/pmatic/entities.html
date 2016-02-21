@@ -927,7 +927,7 @@
 <div class="viewcode-block" id="Device.channel_by_address"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Device.channel_by_address">[docs]</a>    <span class="k">def</span> <span class="nf">channel_by_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the channel object having the requested address.</span>
 
-<span class="sd">        When the device has no such channel, a ValueError() is raised.</span>
+<span class="sd">        When the device has no such channel, a KeyError() is raised.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">address</span> <span class="o">==</span> <span class="n">channel</span><span class="o">.</span><span class="n">address</span><span class="p">:</span>

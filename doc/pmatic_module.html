@@ -171,7 +171,7 @@ all devices configured in the CCU as device objects when generic methods to acce
 like <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#len" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">len()</span></code></a> are called on the object.</p>
 <dl class="method">
 <dt id="pmatic.ccu.CCUDevices.query">
-<code class="descname">query</code><span class="sig-paren">(</span><span class="optional">[</span><em>device_type=None</em><span class="optional">[</span>, <em>device_name=None</em><span class="optional">[</span>, <em>device_name_regex=None</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/ccu.html#CCUDevices.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.ccu.CCUDevices.query" title="Permalink to this definition">¶</a></dt>
+<code class="descname">query</code><span class="sig-paren">(</span><span class="optional">[</span><em>device_type=None</em><span class="optional">[</span>, <em>device_name=None</em><span class="optional">[</span>, <em>device_name_regex=None</em><span class="optional">[</span>, <em>device_address=None</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/ccu.html#CCUDevices.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.ccu.CCUDevices.query" title="Permalink to this definition">¶</a></dt>
 <dd><p>Use this function to query the CCU for a collection of devices.</p>
 <p>The devices are returned in a <a class="reference internal" href="#pmatic.entities.Devices" title="pmatic.entities.Devices"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Devices</span></code></a> collection.
 Additionally the device objects are cached in the centrall <a class="reference internal" href="#pmatic.CCU" title="pmatic.CCU"><code class="xref py py-class docutils literal"><span class="pre">pmatic.CCU</span></code></a> object for
@@ -194,6 +194,9 @@ One example to match all device names ending with <em>-Fenster</em>:
 <code class="docutils literal"><span class="pre">device_name_regex=&quot;.*-Fenster$&quot;</span></code>.
 You can also provide the result of <a class="reference external" href="https://docs.python.org/2.7/library/re.html#re.compile" title="(in Python v2.7)"><code class="xref py py-func docutils literal"><span class="pre">re.compile()</span></code></a> as value of <em>device_name_regex</em>.
 This is useful if you want to specify some special regex flags for your matching regex.</p>
+<p>The <em>device_address</em> can be used to get a specific device by it&#8217;s address. This is an
+exact match filter. So you can either get a device collection of one device or an empty
+one back.</p>
 </dd></dl>
 
 <dl class="method">
@@ -378,7 +381,7 @@ provides them as string. The values are sorted by the titles.</p>
 <dt id="pmatic.entities.Device.channel_by_address">
 <code class="descname">channel_by_address</code><span class="sig-paren">(</span><em>address</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Device.channel_by_address"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Device.channel_by_address" title="Permalink to this definition">¶</a></dt>
 <dd><p>Returns the channel object having the requested address.</p>
-<p>When the device has no such channel, a ValueError() is raised.</p>
+<p>When the device has no such channel, a KeyError() is raised.</p>
 </dd></dl>
 
 <dl class="method">
