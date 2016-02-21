@@ -172,7 +172,7 @@ class CCUDevices(Devices):
 
     # FIXME: Add more filter options
     def query(self, **filters):
-        """query([device_type=None[, device_name=None[, device_name_regex=None]]])
+        """query([device_type=None[, device_name=None[, device_name_regex=None[, device_address=None ]]]])
         Use this function to query the CCU for a collection of devices.
 
         The devices are returned in a :class:`.pmatic.entities.Devices` collection.
@@ -200,6 +200,10 @@ class CCUDevices(Devices):
         ``device_name_regex=".*-Fenster$"``.
         You can also provide the result of :func:`re.compile` as value of *device_name_regex*.
         This is useful if you want to specify some special regex flags for your matching regex.
+
+        The *device_address* can be used to get a specific device by it's address. This is an
+        exact match filter. So you can either get a device collection of one device or an empty
+        one back.
         """
         devices = Devices(self._ccu)
         for device in self._query_for_devices(**filters):
@@ -239,6 +243,10 @@ class CCUDevices(Devices):
             # Add devices which have one of the channel ids listed in has_channel_ids
             if "has_channel_ids" in filters \
                and not [ c for c in device.channels if c.id in filters["has_channel_ids"] ]:
+                continue
+
+            # exact device address match
+            if "device_address" in filters and device.address != filters["device_address"]:
                 continue
 
             yield device
