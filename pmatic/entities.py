@@ -877,7 +877,7 @@ class Device(Entity):
     def channel_by_address(self, address):
         """Returns the channel object having the requested address.
 
-        When the device has no such channel, a ValueError() is raised.
+        When the device has no such channel, a KeyError() is raised.
         """
         for channel in self.channels:
             if address == channel.address:
