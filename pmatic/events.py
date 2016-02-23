@@ -89,9 +89,9 @@ class EventXMLRPCRequestHandler(SimpleXMLRPCRequestHandler, utils.LogMixin):
     """HTTP request handler for the XML-RPC API requests."""
     def log_message(self, format_str, *args):
         """Logger messages for the web server logs."""
-        self.logger.debug("%s - - [%s] %s\n" % (self.address_string(),
+        self.logger.debug("%s - - [%s] %s\n", self.address_string(),
                                             self.log_date_time_string(),
-                                            format_str%args))
+                                            format_str%args)
 
 
 
@@ -143,7 +143,7 @@ class EventListener(object):
 
     def _init_listen_address(self, listen_address):
         """Parses the listen_address provided by the user."""
-        if listen_address == None:
+        if listen_address is None:
             # listen on all interfaces. Use port 9123 by default.
             self._listen_address = ('', 9123)
 
@@ -157,7 +157,7 @@ class EventListener(object):
 
     def _init_interface_id(self, interface_id):
         """Initializes the interface ID of this object."""
-        if interface_id != None:
+        if interface_id is not None:
             if utils.is_string(interface_id):
                 self._interface_id = interface_id
             else:
@@ -269,7 +269,7 @@ class EventListener(object):
         try:
             while self._server.is_alive():
                 time.sleep(0.1)
-                if timeout != None:
+                if timeout is not None:
                     timeout -= 0.1
                     if timeout <= 0:
                         break
@@ -302,8 +302,8 @@ class EventHandler(utils.LogMixin, object):
         try:
             return func(*params)
         except Exception:
-            self.logger.error("Exception in XML-RPC call %s%r:" %
-                                (method, tuple(params)), exc_info=True)
+            self.logger.error("Exception in XML-RPC call %s%r:",
+                                method, tuple(params), exc_info=True)
             return False
 
 
@@ -321,7 +321,7 @@ class EventHandler(utils.LogMixin, object):
     # Values-Parameter-Sets des entsprechenden logischen Gerätes.
     def event(self, interface_id, address, value_key, value):
         """Receives an event from the CCU and applies the update."""
-        self.logger.debug("[EVENT] %s %s = %r" % (address, value_key, value))
+        self.logger.debug("[EVENT] %s %s = %r", address, value_key, value)
         obj = self._ccu.devices.get_device_or_channel_by_address(address)
         obj.values[value_key]._set_from_api(value)
         return True
@@ -360,7 +360,7 @@ class EventHandler(utils.LogMixin, object):
     # Logikschicht so weit wie möglich erhalten bleiben.
     def newDevices(self, interface_id, dev_descriptions):
         """The CCU informs about new devices. Creates objects known for them."""
-        self.logger.debug("[NEW DEVICES] Got %d new devices/channels" % len(dev_descriptions))
+        self.logger.debug("[NEW DEVICES] Got %d new devices/channels", len(dev_descriptions))
 
         # Incoming dict keys are upper case.
         # The dict keys are directly handed over to the device/channel objects. So they
@@ -395,7 +395,7 @@ class EventHandler(utils.LogMixin, object):
     # FIXME: Only handling device addresses. Can we get channels here?
     def deleteDevices(self, interface_id, addresses):
         """A device has been removed from the CCU. Reflect that change."""
-        self.logger.debug("[DELETE DEVICES] Delete %d devices/channels" % len(addresses))
+        self.logger.debug("[DELETE DEVICES] Delete %d devices/channels", len(addresses))
         for address in addresses:
             self._ccu.devices.delete(address)
         return True
@@ -418,5 +418,5 @@ class EventHandler(utils.LogMixin, object):
     # FIXME: To be implemented.
     def updateDevices(self, interface_id, address, hint):
         """The CCU wants to update the parameters of a device."""
-        self.logger.debug("[UPDATE DEVICES] Update for device %s (%d)" % (address, hint))
+        self.logger.debug("[UPDATE DEVICES] Update for device %s (%d)", address, hint)
         return True
