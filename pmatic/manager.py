@@ -1328,6 +1328,8 @@ class Page404(PageHandler, Html, utils.LogMixin):
 class ScriptRunner(threading.Thread, utils.LogMixin):
     def __init__(self, script):
         threading.Thread.__init__(self)
+        self.daemon = True
+
         self.script     = script
         self.output     = []
         self.exit_code  = None
@@ -1398,6 +1400,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         self._init_ccu()
         self.events = Events()
         self.scheduler = Scheduler(self)
+        self.scheduler.start()
 
 
     # FIXME: When running the manager from remote:
@@ -1556,6 +1559,8 @@ class Events(object):
 class Scheduler(threading.Thread, utils.LogMixin):
     def __init__(self, manager):
         threading.Thread.__init__(self)
+        self.daemon = True
+
         self._manager = manager
         self._schedules = []
 
@@ -1566,6 +1571,7 @@ class Scheduler(threading.Thread, utils.LogMixin):
 
 
     def run(self):
+        self.logger.debug("Starting Scheduler")
         while True:
             try:
                 if not self._on_startup_executed:
@@ -1585,6 +1591,7 @@ class Scheduler(threading.Thread, utils.LogMixin):
             except Exception as e:
                 self.logger.error("Exception in Scheduler: %s" % e)
                 self.logger.debug(traceback.format_exc())
+        self.logger.debug("Stopped Scheduler")
 
 
     def _schedules_with_condition_type(self, cls):
@@ -1611,14 +1618,13 @@ class Scheduler(threading.Thread, utils.LogMixin):
         that the schedule is currently being executed and should not be started a second time
         in parallel.
         """
+        self.logger.info("[%s] Executing script..." % schedule.name)
         if schedule.is_running:
             self.logger.info("[%s] Conditions matched, but script was already running." %
                                                                             schedule.name)
             return
 
-        runner = ScriptRunner(schedule.script)
-        schedule.add_runner(runner)
-        runner.start()
+        schedule.execute()
 
 
     @property
@@ -1705,6 +1711,13 @@ class Schedule(object):
     @property
     def is_running(self):
         return self._runner and self._runner.is_alive()
+
+
+    def execute(self):
+        self.last_triggered = time.time()
+        # FIXME: Recycle old runner?
+        self._runner = ScriptRunner(self.script)
+        self._runner.start()
 
 
     def add_runner(self, runner):
