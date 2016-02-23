@@ -264,9 +264,9 @@ class Html(object):
 
 
 class FieldStorage(cgi.FieldStorage):
-    def getvalue(self, key):
-        value = cgi.FieldStorage.getvalue(self, key.encode("utf-8"))
-        if value != None:
+    def getvalue(self, key, default=None):
+        value = cgi.FieldStorage.getvalue(self, key.encode("utf-8"), default)
+        if value is not None:
             return value.decode("utf-8")
         else:
             return None
