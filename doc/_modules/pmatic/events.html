@@ -139,9 +139,9 @@
     <span class="sd">&quot;&quot;&quot;HTTP request handler for the XML-RPC API requests.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">log_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">format_str</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Logger messages for the web server logs.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> - - [</span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">address_string</span><span class="p">(),</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> - - [</span><span class="si">%s</span><span class="s2">] </span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">address_string</span><span class="p">(),</span>
                                             <span class="bp">self</span><span class="o">.</span><span class="n">log_date_time_string</span><span class="p">(),</span>
-                                            <span class="n">format_str</span><span class="o">%</span><span class="n">args</span><span class="p">))</span>
+                                            <span class="n">format_str</span><span class="o">%</span><span class="n">args</span><span class="p">)</span>
 
 
 
@@ -193,7 +193,7 @@
 
     <span class="k">def</span> <span class="nf">_init_listen_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen_address</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Parses the listen_address provided by the user.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">listen_address</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">listen_address</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
             <span class="c1"># listen on all interfaces. Use port 9123 by default.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_listen_address</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">9123</span><span class="p">)</span>
 
@@ -207,7 +207,7 @@
 
     <span class="k">def</span> <span class="nf">_init_interface_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes the interface ID of this object.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">interface_id</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">interface_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_string</span><span class="p">(</span><span class="n">interface_id</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_interface_id</span> <span class="o">=</span> <span class="n">interface_id</span>
             <span class="k">else</span><span class="p">:</span>
@@ -319,7 +319,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">timeout</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
                     <span class="n">timeout</span> <span class="o">-=</span> <span class="mf">0.1</span>
                     <span class="k">if</span> <span class="n">timeout</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="k">break</span>
@@ -352,8 +352,8 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in XML-RPC call </span><span class="si">%s%r</span><span class="s2">:&quot;</span> <span class="o">%</span>
-                                <span class="p">(</span><span class="n">method</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">params</span><span class="p">)),</span> <span class="n">exc_info</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in XML-RPC call </span><span class="si">%s%r</span><span class="s2">:&quot;</span><span class="p">,</span>
+                                <span class="n">method</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">params</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
             <span class="k">return</span> <span class="bp">False</span>
 
 
@@ -371,7 +371,7 @@
     <span class="c1"># Values-Parameter-Sets des entsprechenden logischen Gerätes.</span>
     <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">value_key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Receives an event from the CCU and applies the update.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[EVENT] </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">value_key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[EVENT] </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">value_key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">get_device_or_channel_by_address</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
         <span class="n">obj</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">value_key</span><span class="p">]</span><span class="o">.</span><span class="n">_set_from_api</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">True</span>
@@ -410,7 +410,7 @@
     <span class="c1"># Logikschicht so weit wie möglich erhalten bleiben.</span>
     <span class="k">def</span> <span class="nf">newDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">dev_descriptions</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The CCU informs about new devices. Creates objects known for them.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[NEW DEVICES] Got </span><span class="si">%d</span><span class="s2"> new devices/channels&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">dev_descriptions</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[NEW DEVICES] Got </span><span class="si">%d</span><span class="s2"> new devices/channels&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dev_descriptions</span><span class="p">))</span>
 
         <span class="c1"># Incoming dict keys are upper case.</span>
         <span class="c1"># The dict keys are directly handed over to the device/channel objects. So they</span>
@@ -445,7 +445,7 @@
     <span class="c1"># FIXME: Only handling device addresses. Can we get channels here?</span>
     <span class="k">def</span> <span class="nf">deleteDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">addresses</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;A device has been removed from the CCU. Reflect that change.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[DELETE DEVICES] Delete </span><span class="si">%d</span><span class="s2"> devices/channels&quot;</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">addresses</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[DELETE DEVICES] Delete </span><span class="si">%d</span><span class="s2"> devices/channels&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">addresses</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="n">addresses</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">True</span>
@@ -468,7 +468,7 @@
     <span class="c1"># FIXME: To be implemented.</span>
     <span class="k">def</span> <span class="nf">updateDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">hint</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The CCU wants to update the parameters of a device.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[UPDATE DEVICES] Update for device </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">address</span><span class="p">,</span> <span class="n">hint</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[UPDATE DEVICES] Update for device </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">hint</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">True</span>
 </pre></div>
 
