@@ -17,3 +17,5 @@ Ideas:
 * Cleanup: Parameters should use .name just like other objects instead of .title
 * Cleanup: set_submitted_vars() shows: Cleanup access to channel by address to
   have an API equal to getting a device from devices or param from channel.
+* FIX: CCU object: After ccu.events has initialized all objects, mark the devices
+  of the CCU object as already initialized. listAllDevices is not needed anymore then.

@@ -810,7 +810,7 @@ class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
 
     def _execute_script(self, script):
         global g_runner
-        g_runner = ScriptRunner(script)
+        g_runner = ScriptRunner(self._manager, script)
         g_runner.start()
 
 
@@ -1196,6 +1196,7 @@ class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
                 raise PMUserError("You have to provide a name.")
 
             schedule.keep_running = self.is_checked("keep_running")
+            schedule.run_inline = self.is_checked("run_inline")
 
             script = self._vars.getvalue("script")
             if script and script not in self._get_scripts():
@@ -1248,12 +1249,25 @@ class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
         self.write("<tr><th>Name</th><td>")
         self.input("name", schedule.name)
         self.write("</td></tr>")
+
         self.write("<tr><th>Keep running"
                    "<p>Keep the script running and restart it automatically after it has been "
                    "started once. <i>Note:</i> If the script is respawning too often, it's "
                    "restarts will be delayed.</p></th><td>")
         self.checkbox("keep_running", schedule.keep_running)
         self.write("</td></tr>")
+
+        self.write("<tr><th>Run inline"
+                   "<p>Execute the script inline the manager process with access to the managers "
+                   "CCU object. Use this if your scripts need access to CCU provided information "
+                   "like devices, channels or values. If you uncheck this, your script will be "
+                   "started as separate process.<br>You can use your regular, unmodified pmatic "
+                   "scripts with this. If you create a CCU() object in your code, it will not "
+                   "create a new object but use the pmatic managers object which is already "
+                   "initialized then.</p></th><td>")
+        self.checkbox("run_inline", schedule.run_inline)
+        self.write("</td></tr>")
+
         self.write("<tr><th>Script to execute</th><td>")
         self.select("script", sorted([ (s, s) for s in self._get_scripts() ]), schedule.script)
         self.write("</td></tr>")
@@ -1326,44 +1340,96 @@ class Page404(PageHandler, Html, utils.LogMixin):
 
 
 class ScriptRunner(threading.Thread, utils.LogMixin):
-    def __init__(self, script):
+    def __init__(self, manager, script, run_inline=False):
         threading.Thread.__init__(self)
         self.daemon = True
 
+        self._manager   = manager
+
         self.script     = script
+        self.run_inline = run_inline
+
         self.output     = []
         self.exit_code  = None
         self.started    = time.time()
         self.finished   = None
 
+        self._p = None
+
 
     def run(self):
         try:
-            self.logger.info("Starting script: %s" % self.script)
+            self.logger.info("Starting script (%s): %s" %
+                    ("inline" if self.run_inline else "external", self.script))
             script_path = os.path.join(Config.script_path, self.script)
 
-            env = os.environ.copy()
-            env["PYTHONIOENCODING"] = "utf-8"
+            if self.run_inline:
+                exit_code, output = self._run_inline(script_path)
+            else:
+                exit_code, output = self._run_external(script_path)
 
-            self._p = subprocess.Popen(["/usr/bin/env", "python", "-u", script_path], shell=False,
-                                       cwd="/", env=env, stdout=subprocess.PIPE,
-                                       stderr=subprocess.STDOUT)
-
-            while True:
-                nextline = self._p.stdout.readline().decode("utf-8")
-                if nextline == "" and self._p.poll() != None:
-                    break
-                self.output.append(nextline)
-
+            self.exit_code = exit_code
+            self.output    = output
             self.finished  = time.time()
-            self.exit_code = self._p.poll()
+
             self.logger.info("Finished (Exit-Code: %d)." % self.exit_code)
         except Exception as e:
             self.logger.error("Failed to execute %s: %s" % (self.script, e))
             self.logger.debug(traceback.format_exc())
 
 
+    def _run_external(self, script_path):
+        env = os.environ.copy()
+        env["PYTHONIOENCODING"] = "utf-8"
+
+        self._p = subprocess.Popen(["/usr/bin/env", "python", "-u", script_path], shell=False,
+                                   cwd="/", env=env, stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT)
+
+        output = []
+        while True:
+            nextline = self._p.stdout.readline().decode("utf-8")
+            if nextline == "" and self._p.poll() != None:
+                break
+            output.append(nextline)
+        exit_code = self._p.poll()
+
+        return exit_code, output
+
+
+    def _run_inline(self, script_path):
+        exit_code = 0
+        try:
+            # Make the ccu object available globally so that the __new__ method
+            # of the CCU class can use and return this instead of creating a new
+            # CCU object within the pmatic scripts.
+            import __builtin__
+            __builtin__.manager_ccu = self._manager.ccu
+
+            # FIXME: Catch stdout
+            # FIXME: What about stderr?
+
+            script_globals = {}
+            execfile(script_path, script_globals)
+            output = ""
+        except SystemExit as e:
+            exit_code = e.code
+
+        return exit_code, output
+
+
     def abort(self):
+        if self.run_inline:
+            self._abort_inline()
+        else:
+            self._abort_external()
+
+
+    # FIXME: Set self.exit_code, self.output and self.finished()?
+    def _abort_external(self):
+        if not self._p:
+            return
+
         self._p.terminate()
         # And wait for the termination (at least shortly)
         timer = 10
@@ -1701,6 +1767,7 @@ class Schedule(object):
         self.id           = None
         self.name         = ""
         self.keep_running = False
+        self.run_inline   = True
         self.script       = ""
         self.conditions   = []
 
@@ -1716,7 +1783,7 @@ class Schedule(object):
     def execute(self):
         self.last_triggered = time.time()
         # FIXME: Recycle old runner?
-        self._runner = ScriptRunner(self.script)
+        self._runner = ScriptRunner(self._manager, self.script, self.run_inline)
         self._runner.start()
 
 
@@ -1753,6 +1820,7 @@ class Schedule(object):
         return {
             "name"         : self.name,
             "keep_running" : self.keep_running,
+            "run_inline"   : self.run_inline,
             "script"       : self.script,
             "conditions"   : [ c.to_config() for c in self.conditions ],
         }

@@ -63,12 +63,42 @@ class CCU(object):
     def __init__(self, **kwargs):
         """__init__([address[, credentials[, connect_timeout=10]]])
         """
+        if hasattr(self, "api"):
+            return # Skip second __init__ of pmatic manager CCU intances (see __new__ below)
+
         super(CCU, self).__init__()
         self.api = pmatic.api.init(**kwargs)
         self._rssi = None
         self._devices = None
         self._events = None
         self._rooms = None
+
+
+    def __new__(cls, **kwargs):
+        """This special method is used to prevent creation of a new CCU object by scripts which are
+        executed with the option "run inline" by the pmatic manager.
+
+        In this mode the scripts are not executed as separate process, but in the context of the
+        pmatic manager. This mode has been implemented to provide direct access to the already
+        fully initialized CCU() object off the pmatic manager. So scripts can access all devices,
+        channels, values etc. without the need to fetch them on their own from the CCU. This makes
+        running scripts running a lot faster while producing a very small load.
+
+        This method makes it possible to use regular pmatic scripts which create their own
+        CCU object and connect to the CCU on their own when run as dedicated programs within the
+        contxt of the pmatic manager and use the CCU object of the manager when executed in
+        "run inline" mode.
+
+        But this only works as intended after the connection of the manager with the CCU has been
+        initialized. So better not use the "on startup of manager" condition for this.
+
+        We need to override the __new__ instead of e.g. use a factory to keep the API of the
+        pmatic scripts equal in all pmatic script use cases.
+        """
+        if "manager_ccu" in globals()["__builtins__"]:
+            return globals()["__builtins__"]["manager_ccu"]
+        else:
+            return super(CCU, cls).__new__(cls, **kwargs)
 
 
     @property
