@@ -5,8 +5,9 @@ function update_output() {
     xhttp.send();
     xhttp.onreadystatechange = function() {
         if (xhttp.readyState === 4 && xhttp.status === 200) {
-            if (xhttp.responseText === "")
+            if (xhttp.responseText === "") {
                 return;
+            }
 
             // update the content
             var output = document.getElementById("output");
@@ -17,10 +18,11 @@ function update_output() {
 
             // trigger next update (when still running), otherwise just update once
             var reload = xhttp.responseText.substr(0, 1);
-            if (reload === "1")
+            if (reload === "1") {
                 setTimeout(update_output, 1000);
-            else
+            } else {
                 window.location.href = "/run";
+            }
         }
     };
 }
