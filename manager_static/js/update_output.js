@@ -4,8 +4,8 @@ function update_output() {
     xhttp.open("GET", "/ajax_update_output", true);
     xhttp.send();
     xhttp.onreadystatechange = function() {
-        if (xhttp.readyState == 4 && xhttp.status == 200) {
-            if (xhttp.responseText == "")
+        if (xhttp.readyState === 4 && xhttp.status === 200) {
+            if (xhttp.responseText === "")
                 return;
 
             // update the content
@@ -17,7 +17,7 @@ function update_output() {
 
             // trigger next update (when still running), otherwise just update once
             var reload = xhttp.responseText.substr(0, 1);
-            if (reload == "1")
+            if (reload === "1")
                 setTimeout(update_output, 1000);
             else
                 window.location.href = "/run";
