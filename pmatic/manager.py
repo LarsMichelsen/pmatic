@@ -1106,7 +1106,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
     def __init__(self, address):
         wsgiref.simple_server.WSGIServer.__init__(
             self, address, RequestHandler)
-        self.set_app(self.handle_request)
+        self.set_app(self._request_handler)
 
         self._events_initialized = False
 
@@ -1117,7 +1117,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         self.events = Events()
 
 
-    def handle_request(self, environ, start_response):
+    def _request_handler(self, environ, start_response):
         # handler_class may be any subclass of PageHandler
         handler_class = PageHandler.get(environ)
         page = handler_class(self, environ, start_response)
