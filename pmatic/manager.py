@@ -1221,7 +1221,7 @@ class RequestHandler(wsgiref.simple_server.WSGIRequestHandler, utils.LogMixin):
 
 
     def log_exception(self, exc_info):
-        self.logger("Unhandled exception: %s" % traceback.format_exc())
+        self.logger.error("Unhandled exception: %s" % traceback.format_exc())
 
 
 
