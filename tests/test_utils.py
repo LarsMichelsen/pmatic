@@ -128,4 +128,8 @@ def test_is_ccu():
                         '#1 PREEMPT Fri Oct 16 10:43:35 CEST 2015', 'armv5tejl')
     assert utils.is_ccu()
 
+    os.uname = lambda: ('Linux', 'ccu2', '3.4.11.ccu2',
+                        '#1 PREEMPT Wed Dec 16 09:23:30 CET 2015', 'armv5tejl')
+    assert utils.is_ccu()
+
     os.uname = orig_uname

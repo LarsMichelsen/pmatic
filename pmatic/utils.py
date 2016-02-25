@@ -99,4 +99,4 @@ def fmt_percentage_int(perc):
 
 def is_ccu():
     """Returns True when executed on a CCU device. Otherwise False is being returned."""
-    return "ccu" in os.uname()
+    return ".ccu" in os.uname()[2]
