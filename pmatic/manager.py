@@ -71,6 +71,8 @@ class Config(utils.LogMixin):
     log_level = None
     log_file  = "/var/log/pmatic-manager.log"
 
+    event_history_length = 1000
+
     pushover_api_token = None
     pushover_user_token = None
 
@@ -974,6 +976,16 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         else:
             Config.pushover_user_token = pushover_user_token
 
+        event_history_length = self._vars.getvalue("event_history_length")
+        try:
+            event_history_length = int(event_history_length)
+            if event_history_length < 1:
+                raise PMUserError("The minimum event history length is 1.")
+            Config.event_history_length = event_history_length
+
+        except ValueError:
+            raise PMUserError("Invalid event history length given.")
+
         Config.save()
         self.success("The configuration has been updated.")
 
@@ -1013,6 +1025,15 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
                    "</th>" % Config.log_file)
         self.write("<td>")
         self.select("log_level", [ (l, l) for l in pmatic.log_level_names ], Config.log_level)
+        self.write("</td>")
+        self.write("</tr>")
+
+        self.write("<tr><th>Event Log Entries"
+                   "<p>Number of event log entries to keep. Once you the pmatic manager received "
+                   "more events from the CCU, the older ones will be dropped.</p>"
+                   "</th>")
+        self.write("<td>")
+        self.input("event_history_length", str(Config.event_history_length))
         self.write("</td>")
         self.write("</tr>")
 
@@ -1072,9 +1093,9 @@ class PageEventLog(PageHandler, Html, utils.LogMixin):
 
     def process(self):
         self.h2("Events received from the CCU")
-        self.p("This page shows the last 1000 events received from the CCU. These are events "
+        self.p("This page shows the last %d events received from the CCU. These are events "
                "which you can register your pmatic scripts on to be called once such an event "
-               "is received.")
+               "is received." % Config.event_history_length)
 
         if not self._manager._events_initialized:
             self.info("The event processing has not been initialized yet. Please come back "
@@ -1705,7 +1726,7 @@ class Events(object):
     def add_event(self, event_dict):
         self._num_events_total += 1
         self._events.append(event_dict)
-        if len(self._events) > 1000:
+        if len(self._events) > Config.event_history_length:
             self._events.pop(0)
 
 

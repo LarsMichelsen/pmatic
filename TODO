@@ -14,7 +14,6 @@ Ideas:
   * Escape user provided texts
   * Events: Close on shutdown when registered?
   * Events: Only register when there is at least one script asking for events
-  * Event-Log: Make length of event history configurable
 * Cleanup: Parameters should use .name just like other objects instead of .title
 * Cleanup: set_submitted_vars() shows: Cleanup access to channel by address to
   have an API equal to getting a device from devices or param from channel.
