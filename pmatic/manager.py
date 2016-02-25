@@ -580,6 +580,18 @@ class AbstractScriptProgressPage(Html):
         self._runner = None
 
 
+    def _abort_url(self):
+        raise NotImplemented()
+
+
+    def _handle_abort(self):
+        if not self._is_running():
+            raise PMUserError("There is no script running to abort.")
+
+        self._runner.abort()
+        self.success("The script has been aborted.")
+
+
     def _progress(self):
         self.h2("Progress")
         if not self._is_started():
@@ -608,7 +620,8 @@ class AbstractScriptProgressPage(Html):
         if self._is_running():
             self.icon("spinner", "The script is running...", cls="fa-pulse")
             self.write(" Running... ")
-            self.icon_button("close", "/run?action=abort", "Stop this script.")
+            if runner.abortable:
+                self.icon_button("close", self._abort_url(), "Stop this script.")
         elif runner.exit_code != None:
             if runner.exit_code == 0:
                 self.icon("check", "Successfully finished")
@@ -648,7 +661,7 @@ class AbstractScriptProgressPage(Html):
 
 
     def _output(self):
-        return "".join(self._runner.output)
+        return "".join(self._runner.output.getvalue())
 
 
 
@@ -767,12 +780,17 @@ class PageRun(PageHandler, AbstractScriptProgressPage, AbstractScriptPage, utils
         return "Execute pmatic Scripts"
 
 
+    def _abort_url(self):
+        return "/run?action=abort"
+
+
     def action(self):
         self.ensure_password_is_set()
         action = self._vars.getvalue("action")
         if action == "run":
             self._handle_run()
         elif action == "abort":
+            self._set_runner(g_runner)
             self._handle_abort()
 
 
@@ -790,14 +808,6 @@ class PageRun(PageHandler, AbstractScriptProgressPage, AbstractScriptPage, utils
 
         self._execute_script(script)
         self.success("The script has been started.")
-
-
-    def _handle_abort(self):
-        if not self._is_running():
-            raise PMUserError("There is no script running to abort.")
-
-        self._abort_script()
-        self.success("The script has been aborted.")
 
 
     def process(self):
@@ -828,10 +838,6 @@ class PageRun(PageHandler, AbstractScriptProgressPage, AbstractScriptPage, utils
         global g_runner
         g_runner = ScriptRunner(self._manager, script)
         g_runner.start()
-
-
-    def _abort_script(self):
-        g_runner.abort()
 
 
 
@@ -1361,11 +1367,27 @@ class PageScheduleResult(PageHandler, AbstractScriptProgressPage, utils.LogMixin
         return self._manager.scheduler.get(schedule_id)
 
 
+    def _abort_url(self):
+        schedule_id = int(self._vars.getvalue("schedule_id"))
+        return "/schedule_result?schedule_id=%d&action=abort" % schedule_id
+
+
+    def action(self):
+        self.ensure_password_is_set()
+        action = self._vars.getvalue("action")
+        if action == "abort":
+            schedule = self._get_schedule()
+            self._set_runner(schedule.runner)
+
+            self._handle_abort()
+
+
     def process(self):
         self.ensure_password_is_set()
 
         schedule = self._get_schedule()
         self._set_runner(schedule.runner)
+
         self._progress()
 
 
@@ -1413,7 +1435,7 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
         self.script     = script
         self.run_inline = run_inline
 
-        self.output     = []
+        self.output     = StringIO.StringIO()
         self.exit_code  = None
         self.started    = time.time()
         self.finished   = None
@@ -1428,12 +1450,11 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
             script_path = os.path.join(Config.script_path, self.script)
 
             if self.run_inline:
-                exit_code, output = self._run_inline(script_path)
+                exit_code = self._run_inline(script_path)
             else:
-                exit_code, output = self._run_external(script_path)
+                exit_code = self._run_external(script_path)
 
             self.exit_code = exit_code
-            self.output    = output
             self.finished  = time.time()
 
             self.logger.info("Finished (Exit-Code: %d)." % self.exit_code)
@@ -1450,15 +1471,14 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
                                    cwd="/", env=env, stdout=subprocess.PIPE,
                                    stderr=subprocess.STDOUT)
 
-        output = []
         while True:
             nextline = self._p.stdout.readline().decode("utf-8")
             if nextline == "" and self._p.poll() != None:
                 break
-            output.append(nextline)
+            self.output.write(nextline)
         exit_code = self._p.poll()
 
-        return exit_code, output
+        return exit_code
 
 
     def _run_inline(self, script_path):
@@ -1472,21 +1492,26 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
 
             # Catch stdout and stderr of the executed python script and write
             # it to the same StringIO() object.
-            with catch_stdout_and_stderr() as out:
+            with catch_stdout_and_stderr(self.output) as out:
                 script_globals = {}
                 execfile(script_path, script_globals)
-
-            output = out.getvalue()
         except SystemExit as e:
             exit_code = e.code
+        except Exception as e:
+            self.logger.debug("Exception in inline script %s", script_path, exc_info=e)
+            self.output.write("%s" % e)
+            exit_code = 1
 
-        return exit_code, output
+        return exit_code
+
+
+    @property
+    def abortable(self):
+        return not self.run_inline
 
 
     def abort(self):
-        if self.run_inline:
-            self._abort_inline()
-        else:
+        if self.abortable:
             self._abort_external()
 
 
@@ -1628,6 +1653,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
 
     def register_for_ccu_events(self):
+<<<<<<< HEAD
         if not Config.ccu_enabled:
             return
 
@@ -1635,6 +1661,12 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         thread.daemon = True
         thread.start()
         #pass
+=======
+        #thread = threading.Thread(target=self._do_register_for_ccu_events)
+        #thread.daemon = True
+        #thread.start()
+        pass
+>>>>>>> Inline-Scripts can not be aborted; Made schedules abortable (if not executed inline)
 
 
     def _do_register_for_ccu_events(self):

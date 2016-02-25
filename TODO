@@ -7,6 +7,7 @@ Ideas:
 * Manager:
   * Make it possible to disable the CCU connection by config
   * Configurable scheduling of scripts
+  * Implement "keep running" option of schedules
   * Add confirm dialog for script deletion
   * Add confirm dialog for schedule deletion
   * Tests for the manager
