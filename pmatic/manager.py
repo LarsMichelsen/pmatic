@@ -40,8 +40,10 @@ import json
 import socket
 import signal
 import inspect
+import StringIO
 import traceback
 import threading
+import contextlib
 import subprocess
 from wsgiref.handlers import SimpleHandler
 import wsgiref.simple_server
@@ -1385,6 +1387,22 @@ class Page404(PageHandler, Html, utils.LogMixin):
 
 
 
+@contextlib.contextmanager
+def catch_stdout_and_stderr(out=None):
+    old_out, old_err = sys.stdout, sys.stderr
+
+    if out is None:
+        out = StringIO.StringIO()
+
+    sys.stdout = out
+    sys.stderr = out
+
+    yield out
+
+    sys.stdout, sys.stderr = old_out, old_err
+
+
+
 class ScriptRunner(threading.Thread, utils.LogMixin):
     def __init__(self, manager, script, run_inline=False):
         threading.Thread.__init__(self)
@@ -1452,12 +1470,13 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
             import __builtin__
             __builtin__.manager_ccu = self._manager.ccu
 
-            # FIXME: Catch stdout
-            # FIXME: What about stderr?
+            # Catch stdout and stderr of the executed python script and write
+            # it to the same StringIO() object.
+            with catch_stdout_and_stderr() as out:
+                script_globals = {}
+                execfile(script_path, script_globals)
 
-            script_globals = {}
-            execfile(script_path, script_globals)
-            output = ""
+            output = out.getvalue()
         except SystemExit as e:
             exit_code = e.code
 
@@ -1615,6 +1634,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         thread = threading.Thread(target=self._do_register_for_ccu_events)
         thread.daemon = True
         thread.start()
+        #pass
 
 
     def _do_register_for_ccu_events(self):
