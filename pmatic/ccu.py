@@ -64,7 +64,7 @@ class CCU(object):
         """__init__([address[, credentials[, connect_timeout=10]]])
         """
         if hasattr(self, "api"):
-            return # Skip second __init__ of pmatic manager CCU intances (see __new__ below)
+            return # Skip second __init__ of pmatic manager CCU instances (see __new__ below)
 
         super(CCU, self).__init__()
         self.api = pmatic.api.init(**kwargs)

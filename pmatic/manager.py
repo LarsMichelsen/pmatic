@@ -361,6 +361,7 @@ class PageHandler(object):
 
 
     def __init__(self, manager, environ, start_response):
+        super(PageHandler, self).__init__()
         self._manager = manager
         self._env = environ
         self._start_response = start_response
@@ -572,6 +573,82 @@ class AbstractScriptPage(object):
                         yield filename
 
 
+class AbstractScriptProgressPage(Html):
+    def __init__(self):
+        self._runner = None
+
+
+    def _progress(self):
+        self.h2("Progress")
+        if not self._is_started():
+            self.p("There is no script running.")
+            return
+
+        runner = self._runner
+
+        self.write("<table>")
+        self.write("<tr><th>Script</th>"
+                   "<td>%s</td></tr>" % self._runner.script)
+        self.write("<tr><th>Started at</th>"
+                   "<td>%s</td></tr>" % time.strftime("%Y-%m-%d %H:%M:%S",
+                                                      time.localtime(runner.started)))
+
+        self.write("<tr><th>Finished at</th>"
+                   "<td>")
+        if not self._is_running() and runner.finished != None:
+            self.write(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(runner.finished)))
+        else:
+            self.write("-")
+        self.write("</td></tr>")
+
+        self.write("<tr><th>Current state</th>"
+                   "<td>")
+        if self._is_running():
+            self.icon("spinner", "The script is running...", cls="fa-pulse")
+            self.write(" Running... ")
+            self.icon_button("close", "/run?action=abort", "Stop this script.")
+        elif runner.exit_code != None:
+            if runner.exit_code == 0:
+                self.icon("check", "Successfully finished")
+            else:
+                self.icon("times", "An error occured")
+            self.write(" Finished (Exit code: <tt>%d</tt>)" % runner.exit_code)
+        else:
+            self.icon("times", "Not running")
+            self.write(" Started but not running - something went wrong.")
+        self.write("</td></tr>")
+
+        self.write("<tr><th class=\"toplabel\">Output</th>")
+        self.write("<td>")
+        output = self.escape(self._output()) or "<i>(no output)</i>"
+        self.write("<pre id=\"output\">%s</pre>" % output)
+        self.write("</td></tr>")
+        self.write("</table>")
+
+        if self._is_running():
+            self.js_file("js/update_output.js")
+
+
+    def _set_runner(self, runner):
+        self._runner = runner
+
+
+    def _is_started(self):
+        return self._runner != None
+
+
+    def _is_running(self):
+        return self._runner and self._runner.is_alive()
+
+
+    def _exit_code(self):
+        return self._runner.exit_code
+
+
+    def _output(self):
+        return "".join(self._runner.output)
+
+
 
 class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
     url = ""
@@ -681,7 +758,7 @@ class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
 
 
 
-class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
+class PageRun(PageHandler, AbstractScriptProgressPage, AbstractScriptPage, utils.LogMixin):
     url = "run"
 
     def title(self):
@@ -724,6 +801,8 @@ class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
     def process(self):
         self.ensure_password_is_set()
         self._start_form()
+
+        self._set_runner(g_runner)
         self._progress()
 
 
@@ -741,71 +820,6 @@ class PageRun(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
         self.submit("Run script", "run")
         self.end_form()
         self.write("</div>\n")
-
-
-    def _progress(self):
-        self.h2("Progress")
-        if not self._is_started():
-            self.p("There is no script running.")
-            return
-
-        self.write("<table>")
-        self.write("<tr><th>Script</th>"
-                   "<td>%s</td></tr>" % g_runner.script)
-        self.write("<tr><th>Started at</th>"
-                   "<td>%s</td></tr>" % time.strftime("%Y-%m-%d %H:%M:%S",
-                                                      time.localtime(g_runner.started)))
-
-        self.write("<tr><th>Finished at</th>"
-                   "<td>")
-        if not self._is_running() and g_runner.finished != None:
-            self.write(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(g_runner.finished)))
-        else:
-            self.write("-")
-        self.write("</td></tr>")
-
-        self.write("<tr><th>Current state</th>"
-                   "<td>")
-        if self._is_running():
-            self.icon("spinner", "The script is running...", cls="fa-pulse")
-            self.write(" Running... ")
-            self.icon_button("close", "/run?action=abort", "Stop this script.")
-        elif g_runner.exit_code != None:
-            if g_runner.exit_code == 0:
-                self.icon("check", "Successfully finished")
-            else:
-                self.icon("times", "An error occured")
-            self.write(" Finished (Exit code: <tt>%d</tt>)" % g_runner.exit_code)
-        else:
-            self.icon("times", "Not running")
-            self.write(" Started but not running - something went wrong.")
-        self.write("</td></tr>")
-
-        self.write("<tr><th class=\"toplabel\">Output</th>")
-        self.write("<td>")
-        output = self.escape(self._output()) or "<i>(no output)</i>"
-        self.write("<pre id=\"output\">%s</pre>" % output)
-        self.write("</td></tr>")
-        self.write("</table>")
-
-        if self._is_running():
-            self.js_file("js/update_output.js")
-
-
-    def _is_started(self):
-        return g_runner != None
-
-
-    def _is_running(self):
-        return g_runner and g_runner.is_alive()
-
-
-    def _exit_code(self):
-        return g_runner.exit_code
-
-
-    def _output(self):
-        return "".join(g_runner.output)
 
 
     def _execute_script(self, script):
@@ -1141,6 +1155,10 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
                               "Edit this schedule")
             self.icon_button("trash", "?action=delete&schedule_id=%d" % schedule.id,
                               "Delete this schedule")
+            if schedule.last_triggered:
+                self.icon_button("file-text-o",
+                        "/schedule_result?schedule_id=%d" % schedule.id,
+                        "Show the last schedule run result")
             self.write("</td>")
             self.write("<td>%s</td>" % schedule.name)
             self.write("<td>")
@@ -1319,6 +1337,34 @@ class PageAddSchedule(PageEditSchedule, PageHandler):
 
     def title(self):
         return "Add Script Schedule"
+
+
+
+class PageScheduleResult(PageHandler, AbstractScriptProgressPage, utils.LogMixin):
+    url = "schedule_result"
+
+    def title(self):
+        return "Scheduled Script Result"
+
+
+    def _get_schedule(self):
+        schedule_id = self._vars.getvalue("schedule_id")
+        if schedule_id == None:
+            raise PMUserError("You need to provide a <tt>schedule_id</tt>.")
+        schedule_id = int(schedule_id)
+
+        if not self._manager.scheduler.exists(schedule_id):
+            raise PMUserError("The schedule you are trying to edit does not exist.")
+
+        return self._manager.scheduler.get(schedule_id)
+
+
+    def process(self):
+        self.ensure_password_is_set()
+
+        schedule = self._get_schedule()
+        self._set_runner(schedule.runner)
+        self._progress()
 
 
 
@@ -1746,7 +1792,7 @@ class Scheduler(threading.Thread, utils.LogMixin):
                 self.add(schedule)
 
         except Exception as e:
-            self.logger.error("Failed to load schedules: %s. Terminating." % e)
+            self.logger.error("Failed to load schedules. Terminating.", exc_info=e)
             sys.exit(1)
 
 
@@ -1787,8 +1833,9 @@ class Schedule(object):
         self._runner.start()
 
 
-    def add_runner(self, runner):
-        self._runner = runner
+    @property
+    def runner(self):
+        return self._runner
 
 
     def add_condition(self, condition):
