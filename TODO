@@ -22,3 +22,9 @@ Ideas:
   have an API equal to getting a device from devices or param from channel.
 * FIX: CCU object: After ccu.events has initialized all objects, mark the devices
   of the CCU object as already initialized. listAllDevices is not needed anymore then.
+
+daily
+weekly: day of week
+monthly: day of month
+
++ time of day

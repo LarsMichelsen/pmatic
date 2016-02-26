@@ -92,6 +92,7 @@ a.button:hover {
 div.message {
     padding: 8px 15px;
     border-radius: 10px;
+    margin-bottom: 10px;
 }
 
 div.message i {
@@ -161,6 +162,20 @@ table tr:nth-child(2n+1)  {
     background-color: #eaeaea;
 }
 
+table table tr th,
+table table tr td {
+    padding: 5px;
+}
+
+table table tr:nth-child(2n)  {
+    background-color: transparent;
+}
+
+table table tr:nth-child(2n+1)  {
+    background-color: transparent;
+}
+
+
 /* FORMS */
 
 form table th {
@@ -195,4 +210,12 @@ pre#output {
 
     overflow-y: scroll;
     max-height: 600px;
+}
+
+/* SCHEDULER CONFIG */
+
+form table input.day_of_week,
+form table input.day_of_month,
+form table input.time_of_day {
+    width: 30px;
 }

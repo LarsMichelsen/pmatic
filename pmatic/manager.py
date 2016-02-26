@@ -196,9 +196,11 @@ class Html(object):
                    "value=\"%s\">%s</button>\n" % (value, label))
 
 
-    def input(self, name, deflt=None):
+    def input(self, name, deflt=None, cls=None):
         value = deflt if deflt != None else ""
-        self.write("<input type=\"text\" name=\"%s\" value=\"%s\">\n" % (name, value))
+        css = (" class=\"%s\"" % cls) if cls else ""
+        self.write("<input type=\"text\" name=\"%s\" value=\"%s\"%s>\n" %
+                                    (name, value, css))
 
 
     def checkbox(self, name, deflt=False):
@@ -1269,6 +1271,7 @@ class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
 
             num_conditions = int(self._vars.getvalue("num_conditions"))
             schedule.clear_conditions()
+            has_error = False
             for condition_id in range(num_conditions):
                 condition_type = self._vars.getvalue("cond_%d_type" % condition_id)
                 if condition_type:
@@ -1280,8 +1283,14 @@ class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
                     try:
                         condition.set_submitted_vars(self, "cond_%d_" % condition_id)
                     except PMUserError as e:
-                        self.error(e)
+                        if submit:
+                            self.error(e)
+                        has_error = True
+
                     schedule.add_condition(condition)
+
+            if submit and has_error:
+                raise PMUserError("An error occured, please correct this.")
 
 
     def action(self):
@@ -1779,12 +1788,27 @@ class Scheduler(threading.Thread, utils.LogMixin):
                         self.execute(schedule)
                     self._on_ccu_init_executed = True
 
-                # FIXME: Check for timing conditions
+                self._execute_timed_schedules()
+
+                # FIXME: Optimization: Don't wake up every second. Sleep till next scheduled event.
+                time.sleep(1)
 
             except Exception as e:
                 self.logger.error("Exception in Scheduler: %s" % e)
                 self.logger.debug(traceback.format_exc())
         self.logger.debug("Stopped Scheduler")
+
+
+    def _execute_timed_schedules(self):
+        for schedule in self._schedules:
+            for condition in schedule.conditions:
+                if isinstance(condition, ConditionOnTime):
+                    # FIXME:
+                    # - if next time not calculated yet, calculate it
+                    # - check whether or not next time is now or in past
+                    #   -> execute
+                    #   -> calculate next time
+                    pass
 
 
     def _schedules_with_condition_type(self, cls):
@@ -2151,3 +2175,155 @@ class ConditionOnDeviceEvent(Condition):
 class ConditionOnTime(Condition):
     type_name = "on_time"
     type_title = "based on time"
+
+    _interval_choices = [
+        ("daily",   "Daily"),
+        ("weekly",  "Weekly"),
+        ("monthly", "Monthly"),
+    ]
+
+    def __init__(self, manager):
+        super(ConditionOnTime, self).__init__(manager)
+        self.interval_type = None
+        self.day_of_week   = 1
+        self.day_of_month  = 1
+        self.time_of_day   = (13, 00)
+
+
+    def display(self):
+        txt = super(ConditionOnTime, self).display()
+        txt += ": %s" % self.interval_type
+        if self.interval_type == "weekly":
+            txt += " on day %d of week" % self.day_of_week
+        elif self.interval_type == "monthly":
+            txt += " on day %d of month" % self.day_of_month
+
+        txt += ", at %02d:%02d o'clock" % self.time_of_day
+
+        return txt
+
+
+    def from_config(self, cfg):
+        super(ConditionOnTime, self).from_config(cfg)
+        self.time_of_day = tuple(self.time_of_day)
+
+
+    def to_config(self):
+        cfg = super(ConditionOnTime, self).to_config()
+        cfg.update({
+            "interval_type" : self.interval_type,
+            "time_of_day"   : self.time_of_day,
+        })
+
+        if self.interval_type == "weekly":
+            cfg["day_of_week"] = self.day_of_week
+        elif self.interval_type == "monthly":
+            cfg["day_of_month"] = self.day_of_month
+
+        return cfg
+
+
+    def input_parameters(self, page, varprefix):
+        page.write("<table><tr><td>")
+        page.write("Interval: ")
+        page.write("</td><td>")
+        page.select(varprefix+"interval_type", self._interval_choices,
+                    self.interval_type, onchange="this.form.submit()")
+
+        if self.interval_type == "weekly":
+            page.write("Day of week: ")
+            page.input(varprefix+"day_of_week", "%d" % self.day_of_week, cls="day_of_week")
+
+        elif self.interval_type == "monthly":
+            page.write("Day of month: ")
+            page.input(varprefix+"day_of_month", "%d" % self.day_of_month, cls="day_of_month")
+        page.write("</td></tr>")
+
+        page.write("<tr><td>")
+        page.write("Time (24h format): ")
+        page.write("</td><td>")
+        page.input(varprefix+"time_of_day", "%02d:%02d" % self.time_of_day, cls="time_of_day")
+        page.write("</td></tr>")
+        page.write("</table>")
+
+
+    def set_submitted_vars(self, page, varprefix):
+        interval_type = page._vars.getvalue(varprefix+"interval_type")
+
+        if page.is_action() and not interval_type:
+            raise PMUserError("You need to configure an interval.")
+
+        if interval_type:
+            if interval_type not in dict(self._interval_choices):
+                raise PMUserError("Invalid interval given.")
+            self.interval_type = interval_type
+
+        self._set_time_of_day(page, varprefix)
+
+        if self.interval_type == "weekly":
+            self._set_weekly_vars(page, varprefix)
+        elif self.interval_type == "monthly":
+            self._set_monthly_vars(page, varprefix)
+
+
+    def _set_time_of_day(self, page, varprefix):
+        time_of_day = page._vars.getvalue(varprefix+"time_of_day")
+        if not time_of_day:
+            raise PMUserError("You need to provide a time.")
+
+        time_parts = time_of_day.split(":")
+        if len(time_parts) != 2:
+            raise PMUserError("The time has to be given in <tt>HH:MM</tt> format.")
+
+        try:
+            time_parts = tuple(map(int, time_parts))
+        except ValueError:
+            raise PMUserError("The time has to be given in <tt>HH:MM</tt> format.")
+
+        hours, minutes = time_parts
+
+        if hours < 0 or hours > 23:
+            raise PMUserError("The hours need to be between 00 and 23.")
+
+        if minutes < 0 or minutes > 59:
+            raise PMUserError("The minutes need to be between 00 and 59.")
+
+        self.time_of_day = time_parts
+
+
+    def _set_weekly_vars(self, page, varprefix):
+        day_of_week = page._vars.getvalue(varprefix+"day_of_week")
+
+        if page.is_action() and not day_of_week:
+            raise PMUserError("You need to configure the day of the week.")
+
+        if day_of_week:
+            try:
+                day_of_week = int(day_of_week)
+            except ValueError:
+                raise PMUserError("Invalid day of week given.")
+
+            if day_of_week < 1 or day_of_week > 7:
+                raise PMUserError("Invalid day of week given. It needs to be given as number "
+                                  "between 1 and 7.")
+
+            self.day_of_week = day_of_week
+
+
+    def _set_monthly_vars(self, page, varprefix):
+        day_of_month = page._vars.getvalue(varprefix+"day_of_month")
+
+        if page.is_action() and not day_of_month:
+            raise PMUserError("You need to configure the day of the month.")
+
+        if day_of_month:
+            try:
+                day_of_month = int(day_of_month)
+            except ValueError:
+                raise PMUserError("Invalid day of month given.")
+
+            if day_of_month < 1 or day_of_month > 31:
+                raise PMUserError("Invalid day of month given. It needs to be given as number "
+                                  "between 1 and 31.")
+
+            self.day_of_month = day_of_month
