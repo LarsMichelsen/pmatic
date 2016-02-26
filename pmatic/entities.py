@@ -36,7 +36,6 @@ try:
 except ImportError:
     pass
 
-import pmatic.api
 import pmatic.params
 import pmatic.utils as utils
 from pmatic.exceptions import PMException, PMDeviceOffline
