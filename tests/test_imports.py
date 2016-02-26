@@ -51,7 +51,7 @@ def populate_tmp_dir(path, repo_dir):
 
 
 def find_imports():
-    p = subprocess.Popen("python -c \"from snakefood.checker import main ; main()\" "
+    p = subprocess.Popen("python -c \"from snakefood.list import main ; main()\" "
                          "-u pmatic-manager pmatic/*.py "
                          "examples/*.py examples/*/*.py",
                          shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
