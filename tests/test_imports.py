@@ -31,12 +31,13 @@ import tempfile
 import subprocess
 
 requires_snakefood = pytest.mark.skipif(
-                        os.system("which sfood-checker >/dev/null") >> 8 != 0,
+                        os.system("python -c \"import snakefood\"") >> 8 != 0,
                                 reason="requires snakefood")
 
 @requires_snakefood
 def test_invalid_imports():
-    p = subprocess.Popen("sfood-checker pmatic-manager pmatic/*.py "
+    p = subprocess.Popen("python -c \"from snakefood.checker import main ; main()\" "
+                         "pmatic-manager pmatic/*.py "
                          "tests/*.py examples/*.py examples/*/*.py",
                          shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     stdout = p.communicate()[0]
@@ -50,7 +51,8 @@ def populate_tmp_dir(path, repo_dir):
 
 
 def find_imports():
-    p = subprocess.Popen("sfood-imports -u pmatic-manager pmatic/*.py "
+    p = subprocess.Popen("python -c \"from snakefood.checker import main ; main()\" "
+                         "-u pmatic-manager pmatic/*.py "
                          "examples/*.py examples/*/*.py",
                          shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
