@@ -951,6 +951,8 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         else:
             Config.log_level = log_level_name
 
+        Config.ccu_enabled = self.is_checked("ccu_enabled")
+
         ccu_address = self._vars.getvalue("ccu_address")
         if not ccu_address:
             Config.ccu_address = None
@@ -1045,6 +1047,11 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
                "the pmatic Manager on your CCU, you can leave these options empty.")
 
         self.write("<table>")
+        self.write("<tr><th>Connect with CCU</th>")
+        self.write("<td>")
+        self.checkbox("ccu_enabled", Config.ccu_enabled)
+        self.write("</td>")
+        self.write("</tr>")
         self.write("<tr><th>Address</th>")
         self.write("<td>")
         self.input("ccu_address", Config.ccu_address)
@@ -1052,7 +1059,8 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         self.write("</tr>")
         self.write("<tr><th>Username</th>")
         self.write("<td>")
-        self.input("ccu_username", Config.ccu_credentials[0])
+        self.input("ccu_username", Config.ccu_credentials[0]
+                                    if Config.ccu_credentials else "")
         self.write("</td>")
         self.write("</tr>")
         self.write("<tr><th>Password</th>")
@@ -1096,6 +1104,13 @@ class PageEventLog(PageHandler, Html, utils.LogMixin):
         self.p("This page shows the last %d events received from the CCU. These are events "
                "which you can register your pmatic scripts on to be called once such an event "
                "is received." % Config.event_history_length)
+
+        if not Config.ccu_enabled:
+            self.info("The connection with the CCU is disabled. In this mode the manager "
+                      "can not receive any event from the CCU. To be able to receive "
+                      "events, you need to configure the CCU address, credentials and "
+                      "enable the CCU connection.")
+            return
 
         if not self._manager._events_initialized:
             self.info("The event processing has not been initialized yet. Please come back "
@@ -1674,20 +1689,12 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
 
     def register_for_ccu_events(self):
-<<<<<<< HEAD
         if not Config.ccu_enabled:
             return
 
         thread = threading.Thread(target=self._do_register_for_ccu_events)
         thread.daemon = True
         thread.start()
-        #pass
-=======
-        #thread = threading.Thread(target=self._do_register_for_ccu_events)
-        #thread.daemon = True
-        #thread.start()
-        pass
->>>>>>> Inline-Scripts can not be aborted; Made schedules abortable (if not executed inline)
 
 
     def _do_register_for_ccu_events(self):

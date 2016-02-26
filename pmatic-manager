@@ -106,13 +106,15 @@ parser.add_argument('-u',
     help="When the pmatic manager is executed on another host than the CCU, "
          "you need to configure the username to access the CCU. When executed "
          "on the CCU, these options are ignored.",
-    default=pmatic.manager.Config.ccu_credentials[0] or "")
+    default=pmatic.manager.Config.ccu_credentials[0]
+                if pmatic.manager.Config.ccu_credentials else "")
 parser.add_argument('-s',
     dest="ccu_password",
     help="When the pmatic manager is executed on another host than the CCU, "
          "you need to configure the password of the given username to access "
          "the CCU. When executed on the CCU, these options are ignored.",
-    default=pmatic.manager.Config.ccu_credentials[1] or "")
+    default=pmatic.manager.Config.ccu_credentials[1]
+                if pmatic.manager.Config.ccu_credentials else "")
 parser.add_argument('-n',
     dest="ccu_enabled",
     action="store_false",
