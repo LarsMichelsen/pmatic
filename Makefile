@@ -32,7 +32,7 @@ CCU_PYTHON_FILES = \
     \
     lib/python2.7/subprocess.py \
     lib/python2.7/pickle.py \
-    lib/python2.7/struct.py \
+    lib/python2.7/*struct.py \
     lib/python2.7/json/*.py \
     lib/python2.7/codecs.py \
     lib/python2.7/encodings/*.py \
