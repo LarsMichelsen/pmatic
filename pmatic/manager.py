@@ -1909,9 +1909,14 @@ class Scheduler(threading.Thread, utils.LogMixin):
 
     def remove(self, schedule_id):
         """Removes the schedule with the given *schedule_id* from the Scheduler. Tolerates non
-        existing schedule ids."""
+        existing schedule ids.
+
+        When a schedule is currently running, it is being terminated (if possible)."""
         try:
-            self._schedules.pop(schedule_id)
+            schedule = self._schedules.pop(schedule_id)
+
+            if schedule.is_running:
+                schedule.runner.abort()
         except IndexError:
             pass
 

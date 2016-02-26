@@ -12,7 +12,6 @@ Ideas:
   * Escape user provided texts
   * Events: Close on shutdown when registered?
   * Events: Only register when there is at least one script asking for events
-  * Cleanup: Stop running scripts when schedules are deleted.
   * Make editing of scheules only possible when not currently running?
 * Cleanup: Parameters should use .name just like other objects instead of .title
 * Cleanup: set_submitted_vars() shows: Cleanup access to channel by address to
