@@ -1199,7 +1199,7 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
         self.write("<br>")
 
         self.write("<table>")
-        self.write("<tr><th>Actions</th><th>Name</th><th>Conditions</th>"
+        self.write("<tr><th>Actions</th><th>Name</th><th>On/Off</th><th>Conditions</th>"
                    "<th>Script</th><th>Last triggered</th><th>Currently running</th>")
         self.write("</tr>")
         for schedule in self._manager.scheduler.schedules:
@@ -1215,6 +1215,14 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
                         "Show the last schedule run result")
             self.write("</td>")
             self.write("<td>%s</td>" % schedule.name)
+
+            self.write("<td>")
+            if schedule.disabled:
+                self.icon("close", "The schedule is currently disabled.")
+            else:
+                self.icon("check", "The schedule is currently enabled.")
+            self.write("</td>")
+
             self.write("<td>")
             for condition in schedule.conditions:
                 self.write(condition.display()+"<br>")
@@ -1268,7 +1276,8 @@ class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
                 raise PMUserError("You have to provide a name.")
 
             schedule.keep_running = self.is_checked("keep_running")
-            schedule.run_inline = self.is_checked("run_inline")
+            schedule.run_inline   = self.is_checked("run_inline")
+            schedule.disabled     = self.is_checked("disabled")
 
             script = self._vars.getvalue("script")
             if script and script not in self._get_scripts():
@@ -1336,6 +1345,12 @@ class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
         #           "restarts will be delayed.</p></th><td>")
         #self.checkbox("keep_running", schedule.keep_running)
         #self.write("</td></tr>")
+
+        self.write("<tr><th>Disabled"
+                   "<p>You can use this option to disable future executions of this "
+                   "schedule till you re-enable it.</p></th><td>")
+        self.checkbox("disabled", schedule.disabled)
+        self.write("</td></tr>")
 
         self.write("<tr><th>Run inline"
                    "<p>Execute the script inline the manager process with access to the managers "
@@ -1811,7 +1826,7 @@ class Scheduler(threading.Thread, utils.LogMixin):
         """Checks all configured timed schedules whether or not the next occurance has been
         reached. Then, if reached, the schedule is executed and the next occurance is calculated.
         """
-        for schedule in self._schedules:
+        for schedule in self.enabled_schedules:
             for condition in schedule.conditions:
                 if isinstance(condition, ConditionOnTime):
                     if condition.next_time <= time.time():
@@ -1826,7 +1841,7 @@ class Scheduler(threading.Thread, utils.LogMixin):
 
 
     def _schedules_with_condition_type(self, cls):
-        for schedule in self._schedules:
+        for schedule in self.enabled_schedules:
             matched = False
             for condition in schedule.conditions:
                 if isinstance(condition, cls):
@@ -1856,6 +1871,14 @@ class Scheduler(threading.Thread, utils.LogMixin):
             return
 
         schedule.execute()
+
+
+    @property
+    def enabled_schedules(self):
+        """Return all non disabled schedules."""
+        for schedule in self._schedules:
+            if not schedule.disabled:
+                yield schedule
 
 
     @property
@@ -1931,6 +1954,7 @@ class Schedule(object):
 
         self.id           = None
         self.name         = ""
+        self.disabled     = False
         self.keep_running = False
         self.run_inline   = True
         self.script       = ""
@@ -1985,6 +2009,7 @@ class Schedule(object):
     def to_config(self):
         return {
             "name"         : self.name,
+            "disabled"     : self.disabled,
             "keep_running" : self.keep_running,
             "run_inline"   : self.run_inline,
             "script"       : self.script,

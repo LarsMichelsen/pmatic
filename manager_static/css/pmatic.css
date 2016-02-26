@@ -4,6 +4,14 @@ body {
     padding: 0;
 }
 
+i.fa {
+    cursor: default;
+}
+
+a > i.fa {
+    cursor: pointer;
+}
+
 ul#navigation {
     width: 100%;
     background-color: #212121;
