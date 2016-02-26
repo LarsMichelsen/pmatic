@@ -5,6 +5,7 @@ Ideas:
 * Create Object based access to the system variables of the CCU
 * Ship precompiled *.pyc files for faster startups even on first load?
 * Manager:
+  * Make it possible to disable the CCU connection by config
   * Configurable scheduling of scripts
   * Add confirm dialog for script deletion
   * Tests for the manager

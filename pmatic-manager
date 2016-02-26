@@ -95,6 +95,24 @@ parser.add_argument('-f',
          "then to LOG_FILE.2 and then deleted. The default log file is "
          "\"/var/log/pmatic-manager.log\".",
     default=pmatic.manager.Config.log_file)
+parser.add_argument('-c',
+    dest="ccu_address",
+    help="When the pmatic manager is executed on another host than the CCU, "
+         "you need to configure the address and credentials to access the "
+         "CCU. When executed on the CCU, these options are ignored.",
+    default=pmatic.manager.Config.ccu_address)
+parser.add_argument('-u',
+    dest="ccu_username",
+    help="When the pmatic manager is executed on another host than the CCU, "
+         "you need to configure the username to access the CCU. When executed "
+         "on the CCU, these options are ignored.",
+    default=pmatic.manager.Config.ccu_credentials[0] or "")
+parser.add_argument('-s',
+    dest="ccu_password",
+    help="When the pmatic manager is executed on another host than the CCU, "
+         "you need to configure the password of the given username to access "
+         "the CCU. When executed on the CCU, these options are ignored.",
+    default=pmatic.manager.Config.ccu_credentials[1] or "")
 
 args = parser.parse_args()
 
@@ -109,6 +127,11 @@ file_logger.setLevel(args.log_level)
 file_logger.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
 
 logger.addHandler(file_logger)
+
+# Set CCU address / credentials when provided by user to override the configuration
+pmatic.manager.Config.ccu_address = args.ccu_address
+if args.ccu_username and args.ccu_password:
+    pmatic.manager.Config.ccu_credentials = args.ccu_username, args.ccu_password
 
 try:
     manager = pmatic.manager.Manager((args.address, args.port))

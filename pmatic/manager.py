@@ -62,6 +62,9 @@ class Config(utils.LogMixin):
     script_path = "/etc/config/addons/pmatic/scripts"
     static_path = "/etc/config/addons/pmatic/manager_static"
 
+    ccu_address     = None
+    ccu_credentials = None
+
     log_level = None
     log_file  = "/var/log/pmatic-manager.log"
 
@@ -110,6 +113,9 @@ if not utils.is_ccu():
                          + "/manager_static"
     Config.config_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) \
                          + "/etc"
+    Config.ccu_address = "http://192.168.1.26"
+    Config.ccu_credentials = ("Admin", "EPIC-SECRET-PW")
+
 
 
 class Html(object):
@@ -894,12 +900,26 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         self.redirect(2, "/")
 
 
+    # FIXME: Validations!
     def _handle_save_config(self):
         log_level_name = self._vars.getvalue("log_level")
         if not log_level_name:
             Config.log_level = None
         else:
             Config.log_level = log_level_name
+
+        ccu_address = self._vars.getvalue("ccu_address")
+        if not ccu_address:
+            Config.ccu_address = None
+        else:
+            Config.ccu_address = ccu_address
+
+        ccu_username = self._vars.getvalue("ccu_username").strip()
+        ccu_password = self._vars.getvalue("ccu_password")
+        if not ccu_username or not ccu_password:
+            Config.ccu_credentials = None
+        else:
+            Config.ccu_credentials = ccu_username, ccu_password
 
         pushover_api_token = self._vars.getvalue("pushover_api_token")
         if not pushover_api_token:
@@ -940,7 +960,6 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         self.write("<div class=\"config_form\">\n")
         self.begin_form()
         self.write("<table>")
-
         self.write("<tr><th>Log level</th>")
         self.write("<td>")
         self.select("log_level", [ (l, l) for l in pmatic.log_level_names ], Config.log_level)
@@ -949,6 +968,29 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
                    " the file <tt>%s</tt> by default.</td>" % Config.log_file)
         self.write("</tr>")
 
+        self.write("</table>")
+
+        self.h3("Connect to remote CCU")
+        self.p("You can start the pmatic Manager on another device than the CCU. In this case you "
+               "have to configure the address and credentials to log into the CCU. If you start "
+               "the pmatic Manager on your CCU, you can leave these options empty.")
+
+        self.write("<table>")
+        self.write("<tr><th>Address</th>")
+        self.write("<td>")
+        self.input("ccu_address", Config.ccu_address)
+        self.write("</td>")
+        self.write("</tr>")
+        self.write("<tr><th>Username</th>")
+        self.write("<td>")
+        self.input("ccu_username", Config.ccu_credentials[0])
+        self.write("</td>")
+        self.write("</tr>")
+        self.write("<tr><th>Password</th>")
+        self.write("<td>")
+        self.password("ccu_password")
+        self.write("</td>")
+        self.write("</tr>")
         self.write("</table>")
 
         self.h3("Pushover Notifications")
@@ -1110,10 +1152,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
         self._events_initialized = False
 
-        # FIXME: Configurable for remote usage
-        self.ccu = pmatic.CCU(address="http://192.168.1.26",
-                              credentials=("Admin", "EPIC-SECRET-PW"))
-
+        self.ccu = pmatic.CCU(address=Config.ccu_address, credentials=Config.ccu_credentials)
         self.events = Events()
 
 
@@ -1129,7 +1168,8 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
             super(Manager, self).process_request(request, client_address)
         except socket.error as e:
             if e.errno == 32:
-                self.logger.debug("%s: Client disconnected while answering it's request.")
+                self.logger.debug("%s: Client disconnected while answering it's request.",
+                                                client_address, exc_info=True)
             else:
                 raise
 
