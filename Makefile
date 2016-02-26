@@ -92,11 +92,15 @@ CCU_PYTHON_FILES = \
     lib/python2.7/token.py
 
 # These files are not really optional, but have different paths on different platforms
-# ignore missing files during rsync
+# ignore missing files during rsync.
+# _sysconfigdata_nd: Difference between paths
+# _struct.so, _binascii.so, ...: Travis has not built it into python
 CCU_PYTHON_FILES_OPTIONAL = \
     lib/python2.7/_sysconfigdata_nd.py \
     lib/python2.7/plat-x86_64-linux-gnu/_sysconfigdata_nd.py \
-    lib/python2.7/lib-dynload/_struct.so
+    lib/python2.7/lib-dynload/_struct.so \
+    lib/python2.7/lib-dynload/_binascii.so
+    
 
 help:
 	@echo
