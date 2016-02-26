@@ -165,15 +165,14 @@ dist-ccu-step1:
 	    2>/dev/null || true
 
 copy-ccu-python-modules-for-test:
-	@env
 	@if [ -z "$(TARGET_DIR)" ] || [ ! -d $(TARGET_DIR) ]; then \
 	    echo "ERROR: Target directory \"$(TARGET_DIR)\" not existing." ; \
 	    exit 1 ; \
 	fi ; \
 	TARGET_DIR=$$(realpath $(TARGET_DIR)) ; \
-	if [ -n "$$TRAVIS" ]; then
+	if [ -n "$$TRAVIS" ]; then \
 	    cd /opt/python/2.7.* ; \
-	else ; \
+	else \
 	    cd /usr ; \
 	fi ; \
 	rsync -aR --no-g $(CCU_PYTHON_FILES) $$TARGET_DIR/ ; \
