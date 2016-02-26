@@ -14,7 +14,7 @@ install:
     # install for doc build / publish
     - pip install sphinx
     # install for for import tests
-    - [ $TRAVIS_PYTHON_VERSION = '2.7' ] && pip install snakefood || true
+    - if [ $TRAVIS_PYTHON_VERSION = '2.7' ]; then pip install snakefood; fi
 
 # Run tests with coverage checking
 script:
