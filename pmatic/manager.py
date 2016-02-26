@@ -1020,7 +1020,7 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         self.password("password")
         self.write("</td></tr>")
         self.write("</table>")
-        self.submit("Set Password", "set_password")
+        self.submit("Set password", "set_password")
         self.end_form()
         self.write("</div>\n")
 
@@ -1031,7 +1031,7 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         self.begin_form()
         self.write("<table>")
 
-        self.write("<tr><th>Log level"
+        self.write("<tr><th>Log Level"
                    "<p>Log entries having the configured log level (or a worse one) are logged to"
                    " the file <tt>%s</tt> by default.</p>"
                    "</th>" % Config.log_file)
@@ -1193,7 +1193,7 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
         self.p("This page shows you all currently existing script schedules. A schedule controls "
                "in which situations a script is being executed.")
 
-        self.button("tasks", "Add Schedule", "/add_schedule")
+        self.button("tasks", "Add schedule", "/add_schedule")
         self.write("<br>")
         self.write("<br>")
 
