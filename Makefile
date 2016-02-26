@@ -32,6 +32,7 @@ CCU_PYTHON_FILES = \
     \
     lib/python2.7/subprocess.py \
     lib/python2.7/pickle.py \
+    lib/python2.7/pickle.py \
     lib/python2.7/*struct.py \
     lib/python2.7/json/*.py \
     lib/python2.7/codecs.py \
@@ -94,12 +95,12 @@ CCU_PYTHON_FILES = \
 # These files are not really optional, but have different paths on different platforms
 # ignore missing files during rsync.
 # _sysconfigdata_nd: Difference between paths
-# _struct.so, _binascii.so, ...: Travis has not built it into python
+# _struct.so, binascii.so, ...: Travis has not built it into python
 CCU_PYTHON_FILES_OPTIONAL = \
     lib/python2.7/_sysconfigdata_nd.py \
     lib/python2.7/plat-x86_64-linux-gnu/_sysconfigdata_nd.py \
     lib/python2.7/lib-dynload/_struct.so \
-    lib/python2.7/lib-dynload/_binascii.so
+    lib/python2.7/lib-dynload/binascii.so
     
 
 help:
