@@ -1095,7 +1095,6 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         self.write("</td>")
         self.write("</tr>")
         self.write("</table>")
-        self.write("<br>")
         self.submit("Save configuration", "save_config")
         self.end_form()
         self.write("</div>\n")
@@ -1395,7 +1394,6 @@ class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
             self.write("</tr>")
 
         self.write("</table>")
-        self.write("<br>")
         self.submit("Save", "save")
         self.end_form()
 

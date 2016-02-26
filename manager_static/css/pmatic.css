@@ -201,6 +201,10 @@ form table select {
     width: 300px;
 }
 
+button[type="submit"] {
+    margin-top: 15px;
+}
+
 /* SCRIPT EXECUTION */
 
 table tr th.toplabel {
