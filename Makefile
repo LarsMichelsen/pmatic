@@ -170,7 +170,7 @@ copy-ccu-python-modules-for-test:
 	    exit 1 ; \
 	fi ; \
 	TARGET_DIR=$$(realpath $(TARGET_DIR)) ; \
-	cd /usr ; \
+	cd $(shell python -c "import sys ; print(sys.prefix)") ; \
 	rsync -aR --no-g $(CCU_PYTHON_FILES) $$TARGET_DIR/ ; \
 	rsync -aR --no-g $(CCU_PYTHON_FILES_OPTIONAL) $$TARGET_DIR/ 2>/dev/null || true
 
