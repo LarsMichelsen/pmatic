@@ -1312,12 +1312,13 @@ class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
         self.input("name", schedule.name)
         self.write("</td></tr>")
 
-        self.write("<tr><th>Keep running"
-                   "<p>Keep the script running and restart it automatically after it has been "
-                   "started once. <i>Note:</i> If the script is respawning too often, it's "
-                   "restarts will be delayed.</p></th><td>")
-        self.checkbox("keep_running", schedule.keep_running)
-        self.write("</td></tr>")
+        # FIXME: Implement this
+        #self.write("<tr><th>Keep running"
+        #           "<p>Keep the script running and restart it automatically after it has been "
+        #           "started once. <i>Note:</i> If the script is respawning too often, it's "
+        #           "restarts will be delayed.</p></th><td>")
+        #self.checkbox("keep_running", schedule.keep_running)
+        #self.write("</td></tr>")
 
         self.write("<tr><th>Run inline"
                    "<p>Execute the script inline the manager process with access to the managers "
