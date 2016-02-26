@@ -13,6 +13,8 @@ install:
     - pip install coveralls
     # install for doc build / publish
     - pip install sphinx
+    # install for for import tests
+    - apt-get install snakefood
 
 # Run tests with coverage checking
 script:
