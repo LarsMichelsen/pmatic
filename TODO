@@ -1,4 +1,6 @@
 Fixes:
+* CCU object: After ccu.events has initialized all objects, mark the devices
+  of the CCU object as already initialized. listAllDevices is not needed anymore then.
 
 Todos:
 * Manager:
@@ -13,12 +15,11 @@ Todos:
 * Cleanup: set_submitted_vars() shows: Cleanup access to channel by address to
   have an API equal to getting a device from devices or param from channel.
 
-Ideas:
+Optimizations:
+* Ship precompiled *.pyc files for faster startups even on first load?
+* Events: Only register when there is at least one script asking for events
 
+Ideas:
 * Talk directly with Rega (8181)
 * Provide standard way to store data on the local system
 * Create Object based access to the system variables of the CCU
-* Ship precompiled *.pyc files for faster startups even on first load?
-  * Events: Only register when there is at least one script asking for events
-* FIX: CCU object: After ccu.events has initialized all objects, mark the devices
-  of the CCU object as already initialized. listAllDevices is not needed anymore then.
