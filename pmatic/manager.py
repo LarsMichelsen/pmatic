@@ -62,6 +62,7 @@ class Config(utils.LogMixin):
     script_path = "/etc/config/addons/pmatic/scripts"
     static_path = "/etc/config/addons/pmatic/manager_static"
 
+    ccu_enabled     = True
     ccu_address     = None
     ccu_credentials = None
 
@@ -1150,10 +1151,21 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
             self, address, RequestHandler)
         self.set_app(self._request_handler)
 
+        self.ccu = None
         self._events_initialized = False
 
-        self.ccu = pmatic.CCU(address=Config.ccu_address, credentials=Config.ccu_credentials)
+        self._init_ccu()
         self.events = Events()
+
+
+    def _init_ccu(self):
+        if Config.ccu_enabled:
+            self.logger.info("Initializing connection with CCU")
+            self.ccu = pmatic.CCU(address=Config.ccu_address,
+                                  credentials=Config.ccu_credentials)
+        else:
+            self.logger.info("Connection with CCU is disabled")
+            self.ccu = None
 
 
     def _request_handler(self, environ, start_response):
@@ -1233,6 +1245,9 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
 
     def register_for_ccu_events(self):
+        if not Config.ccu_enabled:
+            return
+
         thread = threading.Thread(target=self._do_register_for_ccu_events)
         thread.daemon = True
         thread.start()
