@@ -77,6 +77,9 @@ def find_imports():
             "xmlrpc.server",
             # Skip aliases resulting from "import logging as _logging"
             "_logging",
+            # This module is not available in travis tests
+            # (for unknown reasons, but it is ok. No need to verify this)
+            "_struct",
         ]
 
         skip = False
