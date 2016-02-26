@@ -40,17 +40,25 @@ import json
 import socket
 import signal
 import inspect
-import StringIO
 import traceback
 import threading
 import contextlib
 import subprocess
 from wsgiref.handlers import SimpleHandler
 import wsgiref.simple_server
-from Cookie import SimpleCookie
 from hashlib import sha256
 from grp import getgrnam
 from pwd import getpwnam
+
+try:
+    from Cookie import SimpleCookie
+except ImportError:
+    from http.cookies import SimpleCookie
+
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 import pmatic
 import pmatic.utils as utils
@@ -1460,7 +1468,7 @@ def catch_stdout_and_stderr(out=None):
     old_out, old_err = sys.stdout, sys.stderr
 
     if out is None:
-        out = StringIO.StringIO()
+        out = StringIO()
 
     sys.stdout = out
     sys.stderr = out
@@ -1481,7 +1489,7 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
         self.script     = script
         self.run_inline = run_inline
 
-        self.output     = StringIO.StringIO()
+        self.output     = StringIO()
         self.exit_code  = None
         self.started    = time.time()
         self.finished   = None
@@ -1538,7 +1546,7 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
 
             # Catch stdout and stderr of the executed python script and write
             # it to the same StringIO() object.
-            with catch_stdout_and_stderr(self.output) as out:
+            with catch_stdout_and_stderr(self.output):
                 script_globals = {}
                 execfile(script_path, script_globals)
         except SystemExit as e:
@@ -1789,26 +1797,32 @@ class Scheduler(threading.Thread, utils.LogMixin):
                     self._on_ccu_init_executed = True
 
                 self._execute_timed_schedules()
-
-                # FIXME: Optimization: Don't wake up every second. Sleep till next scheduled event.
-                time.sleep(1)
-
             except Exception as e:
                 self.logger.error("Exception in Scheduler: %s" % e)
                 self.logger.debug(traceback.format_exc())
+
+            # FIXME: Optimization: Don't wake up every second. Sleep till next scheduled event.
+            time.sleep(1)
+
         self.logger.debug("Stopped Scheduler")
 
 
     def _execute_timed_schedules(self):
+        """Checks all configured timed schedules whether or not the next occurance has been
+        reached. Then, if reached, the schedule is executed and the next occurance is calculated.
+        """
         for schedule in self._schedules:
             for condition in schedule.conditions:
                 if isinstance(condition, ConditionOnTime):
-                    # FIXME:
-                    # - if next time not calculated yet, calculate it
-                    # - check whether or not next time is now or in past
-                    #   -> execute
-                    #   -> calculate next time
-                    pass
+                    if condition.next_time <= time.time():
+                        this_time = condition.next_time
+                        condition.calculate_next_time()
+                        self.logger.debug("Timed condition matched: %d. Next will be: %d.",
+                                                            this_time, condition.next_time)
+                        self.execute(schedule)
+                    #else:
+                    #    self.logger.debug("Timed condition is not due yet (%d <= %d)",
+                    #                                    condition.next_time, time.time())
 
 
     def _schedules_with_condition_type(self, cls):
@@ -2188,6 +2202,71 @@ class ConditionOnTime(Condition):
         self.day_of_week   = 1
         self.day_of_month  = 1
         self.time_of_day   = (13, 00)
+
+        self._next_time = None
+
+
+    @property
+    def next_time(self):
+        if self._next_time is None:
+            self.calculate_next_time()
+        return self._next_time
+
+
+    def calculate_next_time(self):
+        """From now, calculate the next unix timestamp matching this condition."""
+
+        # Initialize vars to be used as indices for timeparts
+        year, month, mday, hour, minute, second, wday = range(7)
+
+        now = time.time()
+
+        # Construct list of time parts for today, using the configured time
+        ref_parts = list(time.localtime(now))
+        ref_parts[hour]   = self.time_of_day[0]
+        ref_parts[minute] = self.time_of_day[1]
+        ref_parts[second] = 0
+
+        if self.interval_type == "daily":
+            # When todays time is less than the configured time of day, the next
+            # occurance is today at the given time. Otherwise it is tomorrow.
+            ref_ts = time.mktime(tuple(ref_parts))
+            if now >= ref_ts:
+                ref_ts += 24 * 60 * 60 # tomorrow
+
+        elif self.interval_type == "weekly":
+            # When current weekday is less than the configured weekday, the next
+            # occurance is in this week, otherwise it is next week.
+            ref_ts = time.mktime(tuple(ref_parts))
+            days_difference = (self.day_of_week-1) - ref_parts[wday]
+            ref_ts += days_difference * 24 * 60 * 60
+            if now >= ref_ts:
+                ref_ts += 7 * 24 * 60 * 60 # next week
+
+        elif self.interval_type == "monthly":
+            # When current day of month is less than the configured day, the next
+            # occurance is in this month, otherwise it is next month.
+            ref_parts[mday] = self.day_of_month
+            ref_ts = time.mktime(tuple(ref_parts))
+            if now >= ref_ts:
+                # next month
+                if ref_parts[month] == 12:
+                    ref_parts[month] = 1
+                    ref_parts[year] += 1
+                else:
+                    ref_parts[month] += 1
+                ref_ts = time.mktime(tuple(ref_parts))
+        else:
+            raise NotImplemented()
+
+        # Fix eventual timezone changes
+        ref_parts = list(time.localtime(ref_ts))
+        ref_parts[hour]   = self.time_of_day[0]
+        ref_parts[minute] = self.time_of_day[1]
+        ref_parts[second] = 0
+        ref_ts = time.mktime(tuple(ref_parts))
+
+        self._next_time = ref_ts
 
 
     def display(self):

@@ -5,7 +5,6 @@ Ideas:
 * Create Object based access to the system variables of the CCU
 * Ship precompiled *.pyc files for faster startups even on first load?
 * Manager:
-  * Configurable scheduling of scripts
   * Add option "disabled" to schedules to temporarly disable specific schedules
   * Implement "keep running" option of schedules
   * Add confirm dialog for script deletion
