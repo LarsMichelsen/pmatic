@@ -100,7 +100,8 @@ CCU_PYTHON_FILES_OPTIONAL = \
     lib/python2.7/_sysconfigdata_nd.py \
     lib/python2.7/plat-x86_64-linux-gnu/_sysconfigdata_nd.py \
     lib/python2.7/lib-dynload/_struct.so \
-    lib/python2.7/lib-dynload/binascii.so
+    lib/python2.7/lib-dynload/binascii.so \
+    lib/python2.7/lib-dynload/time.so
     
 
 help:
@@ -178,6 +179,7 @@ copy-ccu-python-modules-for-test:
 	TARGET_DIR=$$(realpath $(TARGET_DIR)) ; \
 	if [ -n "$$TRAVIS" ]; then \
 	    cd /opt/python/2.7.* ; \
+	    find ; \
 	else \
 	    cd /usr ; \
 	fi ; \
