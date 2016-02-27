@@ -176,7 +176,6 @@ copy-ccu-python-modules-for-test:
 	TARGET_DIR=$$(realpath $(TARGET_DIR)) ; \
 	if [ -n "$$TRAVIS" ]; then \
 	    cd /opt/python/2.7.* ; \
-	    find ; \
 	else \
 	    cd /usr ; \
 	fi ; \
