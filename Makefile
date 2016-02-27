@@ -102,7 +102,8 @@ CCU_PYTHON_FILES_OPTIONAL = \
     lib/python2.7/lib-dynload/_struct.so \
     lib/python2.7/lib-dynload/binascii.so \
     lib/python2.7/lib-dynload/time.so \
-    lib/python2.7/lib-dynload/operator.so
+    lib/python2.7/lib-dynload/operator.so \
+    lib/python2.7/lib-dynload/_socket.so
     
 
 help:
