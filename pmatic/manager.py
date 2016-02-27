@@ -140,6 +140,11 @@ class Html(object):
         "<": "&lt;",
     }
 
+    def __init__(self):
+        super(Html, self).__init__()
+        self._form_vars = []
+
+
     def page_header(self):
         self.write('<!DOCTYPE HTML>\n'
                    '<html><head>\n')
@@ -177,6 +182,7 @@ class Html(object):
 
 
     def begin_form(self, multipart=None):
+        self._form_vars = []
         enctype = " enctype=\"multipart/form-data\"" if multipart else ""
         target_url = self.url or "/"
         self.write("<form method=\"post\" action=\"%s\" %s>\n" % (target_url, enctype))
@@ -186,25 +192,38 @@ class Html(object):
         self.write("</form>\n")
 
 
+    def add_missing_vars(self):
+        """Adds the vars which have been used to call this page but are yet missing in the
+        current form as hidden vars to the form."""
+        for key in self._vars.keys():
+            if key not in self._form_vars:
+                self.hidden(key, self._vars[key].value)
+
+
     def file_upload(self, name, accept="text/*"):
+        self._form_vars.append(name)
         self.write("<input name=\"%s\" type=\"file\" accept=\"%s\">" %
                         (name, accept))
 
 
     def hidden(self, name, value):
+        self._form_vars.append(name)
         self.write("<input type=\"hidden\" name=\"%s\" value=\"%s\">\n" % (name, value))
 
 
     def password(self, name):
+        self._form_vars.append(name)
         self.write("<input type=\"password\" name=\"%s\">\n" % name)
 
 
-    def submit(self, label, value="1"):
-        self.write("<button type=\"submit\" name=\"action\" "
-                   "value=\"%s\">%s</button>\n" % (value, label))
+    def submit(self, label, value="1", name="action"):
+        self._form_vars.append(name)
+        self.write("<button type=\"submit\" name=\"%s\" "
+                   "value=\"%s\">%s</button>\n" % (name, value, label))
 
 
     def input(self, name, deflt=None, cls=None):
+        self._form_vars.append(name)
         value = deflt if deflt is not None else ""
         css = (" class=\"%s\"" % cls) if cls else ""
         self.write("<input type=\"text\" name=\"%s\" value=\"%s\"%s>\n" %
@@ -212,6 +231,7 @@ class Html(object):
 
 
     def checkbox(self, name, deflt=False):
+        self._form_vars.append(name)
         checked = " checked" if deflt else ""
         self.write("<input type=\"checkbox\" name=\"%s\"%s>\n" % (name, checked))
 
@@ -221,6 +241,7 @@ class Html(object):
 
 
     def select(self, name, choices, deflt=None, onchange=None):
+        self._form_vars.append(name)
         onchange = " onchange=\"%s\"" % onchange if onchange else ""
         self.write("<select name=\"%s\"%s>\n" % (name, onchange))
         self.write("<option value=\"\"></option>\n")
@@ -247,9 +268,10 @@ class Html(object):
 
     def button(self, icon_name, label, url):
         self.write("<a class=\"button\" href=\"%s\">" % url)
-        self.icon(icon_name, "")
+        if icon_name is not None:
+            self.icon(icon_name, "")
         self.write(label)
-        self.write("</a>")
+        self.write("</a>\n")
 
 
     def error(self, text):
@@ -267,6 +289,21 @@ class Html(object):
     def message(self, text, cls, icon):
         self.write("<div class=\"message %s\"><i class=\"fa fa-2x fa-%s\"></i> "
                    "%s</div>\n" % (cls, icon, text))
+
+
+    def confirm(self, text):
+        confirm = self._vars.getvalue("_confirm")
+
+        if not confirm:
+            self.begin_form()
+            self.message(text, "confirm", "question-circle")
+            self.submit("Yes", "yes", name="_confirm")
+            self.button(None, "No", "javascript:window.history.back()")
+            self.add_missing_vars()
+            self.end_form()
+            return False
+        elif confirm == "yes":
+            return True
 
 
     def h2(self, title):
@@ -428,20 +465,24 @@ class PageHandler(object):
         self.navigation()
         self.write("<div id=\"content\">\n")
 
+        action_result = None
         if self.is_action():
             try:
-                self.action()
+                action_result = self.action()
             except PMUserError as e:
                 self.error(e)
             except Exception as e:
                 self.error("Unhandled exception: %s" % e)
 
-        try:
-            self.process()
-        except PMUserError as e:
-            self.error(e)
-        except Exception as e:
-            self.error("Unhandled exception: %s" % e)
+        # The action code can disable regular rendering of the page,
+        # e.g. to only show a confirmation dialog.
+        if action_result != False:
+            try:
+                self.process()
+            except PMUserError as e:
+                self.error(e)
+            except Exception as e:
+                self.error("Unhandled exception: %s" % e)
 
         self.write("\n</div>")
         self.page_footer()
@@ -704,7 +745,7 @@ class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
         if action == "upload":
             self._handle_upload()
         elif action == "delete":
-            self._handle_delete()
+            return self._handle_delete()
 
 
     def _handle_upload(self):
@@ -728,6 +769,9 @@ class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
 
     def _handle_delete(self):
         filename = self._vars.getvalue("script")
+
+        if not self.confirm("Do you really want to delete the script %s?" % filename):
+            return False
 
         if not filename:
             raise PMUserError("You need to provide a script name to delete.")
@@ -1176,7 +1220,7 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
         self.ensure_password_is_set()
         action = self._vars.getvalue("action")
         if action == "delete":
-            self._handle_delete()
+            return self._handle_delete()
 
 
     def _handle_delete(self):
@@ -1187,6 +1231,9 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
 
         if not self._manager.scheduler.exists(schedule_id):
             raise PMUserError("This schedule does not exist.")
+
+        if not self.confirm("Do you really want to delete this schedule?"):
+            return False
 
         self._manager.scheduler.remove(schedule_id)
         self._manager.scheduler.save()
@@ -1898,7 +1945,7 @@ class Scheduler(threading.Thread, utils.LogMixin):
 
 
     def exists(self, schedule_id):
-        return schedule_id in self._schedules
+        return schedule_id < len(self._schedules)
 
 
     def get(self, schedule_id):

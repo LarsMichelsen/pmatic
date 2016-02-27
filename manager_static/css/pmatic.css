@@ -111,9 +111,15 @@ div.message.error a {
 }
 
 div.message.info {
-    background-color: #66ccff;
-    color: #0066ff;
-    border: 1px solid #0066ff;
+    background-color: #BDE5F8;
+    color: #00529B;
+    border: 1px solid #00529B;
+}
+
+div.message.confirm {
+    background-color: #FDF8EE;
+    color: #9F6000;
+    border: 1px solid #9F6000;
 }
 
 /* TABLES */

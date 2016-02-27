@@ -5,8 +5,6 @@ Fixes:
 Todos:
 * Manager:
   * Implement "keep running" option of schedules
-  * Add confirm dialog for script deletion
-  * Add confirm dialog for schedule deletion
   * Tests for the manager
   * Escape user provided texts
   * Events: Close on shutdown when registered?
