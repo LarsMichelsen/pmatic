@@ -28,7 +28,7 @@ from __future__ import unicode_literals
 
 try:
     # Is recommended for Python 3.x but fails on 2.7, but is not mandatory
-    from builtins import object
+    from builtins import object # pylint:disable=redefined-builtin
 except ImportError:
     pass
 
