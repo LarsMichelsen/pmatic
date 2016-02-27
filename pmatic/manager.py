@@ -96,8 +96,8 @@ class Config(utils.LogMixin):
                     config = {}
                 else:
                     raise
-        except Exception as e:
-            cls.cls_logger().error("Failed to load config. Terminating.", exc_info=e)
+        except Exception:
+            cls.cls_logger().error("Failed to load config. Terminating.", exc_info=True)
             sys.exit(1)
 
         for key, val in config.items():
@@ -1530,7 +1530,7 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
             self.finished  = time.time()
 
             self.logger.info("Finished (Exit-Code: %d).", self.exit_code)
-        except Exception as e:
+        except Exception:
             self.logger.error("Failed to execute %s", self.script, exc_info=True)
             self.logger.debug(traceback.format_exc())
 
@@ -1574,7 +1574,7 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
         except SystemExit as e:
             exit_code = e.code
         except Exception as e:
-            self.logger.debug("Exception in inline script %s", script_path, exc_info=e)
+            self.logger.debug("Exception in inline script %s", script_path, exc_info=True)
             self.output.write("%s" % e)
             exit_code = 1
 
@@ -1898,11 +1898,7 @@ class Scheduler(threading.Thread, utils.LogMixin):
 
 
     def exists(self, schedule_id):
-        try:
-            self._schedules[schedule_id]
-            return True
-        except IndexError:
-            return False
+        return schedule_id in self._schedules
 
 
     def get(self, schedule_id):

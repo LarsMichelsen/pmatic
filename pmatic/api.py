@@ -78,7 +78,7 @@ def init(mode=None, **kwargs):
     contain the base URL to your CCU together with credentials=("[USER]", "PASSWORD")
     which must be valid credentials to authenticate with the CCU.
     """
-    if mode == None:
+    if mode is None:
         mode = utils.is_ccu() and "local" or "remote"
 
     if mode == "local":
@@ -129,7 +129,7 @@ class AbstractAPI(utils.LogMixin):
             raise PMException("Failed to parse response to %s (%s):\n%s\n" %
                                                     (method_name_int, e, body))
 
-        if msg["error"] != None:
+        if msg["error"] is not None:
             if msg["error"]["code"] == 501 and not self.call('rega_is_present'):
                 raise PMConnectionError("The logic layer (ReGa) is not available (yet). When "
                                   "the CCU has just been started, please wait some time "
@@ -189,21 +189,21 @@ class AbstractAPI(utils.LogMixin):
         of these lines is a unicode string.
 
         Has to be implemented by the specific API class."""
-        raise Exception("missing implementation")
+        raise NotImplementedError()
 
 
-    def call(self, method_name, **kwargs):
+    def call(self, method_name, **kwargs): # pylint:disable=unused-argument
         """Realizes the API calls.
 
         Has to be implemented by the specific API class."""
-        raise Exception("missing implementation")
+        raise NotImplementedError()
 
 
     def close(self):
         """Teardown methods after use of pmatic.
 
         Has to be implemented by the specific API class."""
-        raise Exception("missing implementation")
+        raise NotImplementedError()
 
 
     def print_methods(self):
@@ -341,7 +341,7 @@ class RemoteAPI(AbstractAPI):
 
         response = self.call("session_login", username=self._credentials[0],
                                               password=self._credentials[1])
-        if response == None:
+        if response is None:
             raise PMException("Login failed: Got no session id.")
         self._session_id = response
 
@@ -403,7 +403,7 @@ class RemoteAPI(AbstractAPI):
         method = self._get_method(method_name_int)
         args   = self.get_arguments(method, kwargs)
 
-        self.logger.debug("CALL: %s ARGS: %r" % (method["NAME"], args))
+        self.logger.debug("CALL: %s ARGS: %r", method["NAME"], args)
         #import traceback
         #stack = "" #("".join(traceback.format_stack()[:-1])).encode("utf-8")
         #print(b"".join(traceback.format_stack()[:-1]))
@@ -416,7 +416,7 @@ class RemoteAPI(AbstractAPI):
         url = "%s/api/homematic.cgi" % self._address
 
         try:
-            self.logger.debug("  URL: %s DATA: %s" % (url, json_data))
+            self.logger.debug("  URL: %s DATA: %s", url, json_data)
             handle = urlopen(url, data=json_data.encode("utf-8"),
                              timeout=self._connect_timeout)
         except Exception as e:
@@ -434,12 +434,12 @@ class RemoteAPI(AbstractAPI):
 
         http_status = handle.getcode()
 
-        self.logger.debug("  HTTP-STATUS: %d" % http_status)
+        self.logger.debug("  HTTP-STATUS: %d", http_status)
         if http_status != 200:
             raise PMException("Error %d opening \"%s\" occured: %s" %
                                     (http_status, url, response_txt))
 
-        self.logger.debug("  RESPONSE: %s" % response_txt)
+        self.logger.debug("  RESPONSE: %s", response_txt)
         return self._parse_api_response(method_name_int, response_txt)
 
 
@@ -501,7 +501,7 @@ class LocalAPI(AbstractAPI):
                     val = "\"\"" # Fake default session id. Not needed for local API
                 else:
                     val = args[arg_name]
-                    if val == None:
+                    if val is None:
                         val = "\"\""
 
                 args_parsed += arg_name + " " + val + " "
@@ -520,7 +520,7 @@ class LocalAPI(AbstractAPI):
         parsed_args = self._get_args(method, kwargs)
         file_path = "/www/api/methods/%s" % method["SCRIPT_FILE"]
 
-        self.logger.debug("CALL: %s ARGS: %r" % (method["SCRIPT_FILE"], parsed_args))
+        self.logger.debug("CALL: %s ARGS: %r", method["SCRIPT_FILE"], parsed_args)
 
         tcl = ""
 
@@ -539,7 +539,7 @@ class LocalAPI(AbstractAPI):
             "source %s\n" \
             "puts \0\n" % (method["NAME"], parsed_args, file_path)
 
-        self.logger.debug("  TCL: %r" % (tcl))
+        self.logger.debug("  TCL: %r", tcl)
 
         self._tclsh.stdin.write(tcl)
 
@@ -552,7 +552,7 @@ class LocalAPI(AbstractAPI):
             else:
                 response_txt += line
 
-        self.logger.debug("  RESPONSE: %r" % response_txt)
+        self.logger.debug("  RESPONSE: %r", response_txt)
         # index 0 would be the header, but we don't need it
         body = response_txt.split("\n\n", 1)[1]
 
@@ -580,7 +580,7 @@ class CachedAPICall(dict):
 
     def _update_data(self):
         self._lock.acquire()
-        if self._last_update == None \
+        if self._last_update is None \
            or self._last_update + self._max_cache_age < time.time():
             self.clear()
             self._update()
@@ -612,7 +612,7 @@ class CachedAPICall(dict):
         raise PMException("Can not be changed.")
 
 
-    def update(self, *args, **kwargs):
+    def update(self, *args, **kwargs): # pylint:disable=unused-argument
         raise PMException("Can not be changed.")
 
 
