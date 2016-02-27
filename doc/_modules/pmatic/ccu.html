@@ -113,12 +113,42 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;__init__([address[, credentials[, connect_timeout=10]]])</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;api&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="c1"># Skip second __init__ of pmatic manager CCU instances (see __new__ below)</span>
+
         <span class="nb">super</span><span class="p">(</span><span class="n">CCU</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rssi</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This special method is used to prevent creation of a new CCU object by scripts which are</span>
+<span class="sd">        executed with the option &quot;run inline&quot; by the pmatic manager.</span>
+
+<span class="sd">        In this mode the scripts are not executed as separate process, but in the context of the</span>
+<span class="sd">        pmatic manager. This mode has been implemented to provide direct access to the already</span>
+<span class="sd">        fully initialized CCU() object off the pmatic manager. So scripts can access all devices,</span>
+<span class="sd">        channels, values etc. without the need to fetch them on their own from the CCU. This makes</span>
+<span class="sd">        running scripts running a lot faster while producing a very small load.</span>
+
+<span class="sd">        This method makes it possible to use regular pmatic scripts which create their own</span>
+<span class="sd">        CCU object and connect to the CCU on their own when run as dedicated programs within the</span>
+<span class="sd">        contxt of the pmatic manager and use the CCU object of the manager when executed in</span>
+<span class="sd">        &quot;run inline&quot; mode.</span>
+
+<span class="sd">        But this only works as intended after the connection of the manager with the CCU has been</span>
+<span class="sd">        initialized. So better not use the &quot;on startup of manager&quot; condition for this.</span>
+
+<span class="sd">        We need to override the __new__ instead of e.g. use a factory to keep the API of the</span>
+<span class="sd">        pmatic scripts equal in all pmatic script use cases.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s2">&quot;manager_ccu&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()[</span><span class="s2">&quot;__builtins__&quot;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="nb">globals</span><span class="p">()[</span><span class="s2">&quot;__builtins__&quot;</span><span class="p">][</span><span class="s2">&quot;manager_ccu&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">CCU</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 
     <span class="nd">@property</span>
