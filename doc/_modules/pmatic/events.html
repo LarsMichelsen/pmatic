@@ -81,7 +81,7 @@
 
 <span class="k">try</span><span class="p">:</span>
     <span class="c1"># Is recommended for Python 3.x but fails on 2.7, but is not mandatory</span>
-    <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">object</span>
+    <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">object</span> <span class="c1"># pylint:disable=redefined-builtin</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="k">pass</span>
 
@@ -117,7 +117,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="bp">True</span>
 
 
-    <span class="k">def</span> <span class="nf">system_listMethods</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">system_listMethods</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">):</span> <span class="c1"># pylint:disable=unused-argument</span>
         <span class="sd">&quot;&quot;&quot;Wrap the standard system_listMethods of SimpleXMLRPCDispatcher. This is needed</span>
 <span class="sd">        because the CCU sends an argument (the interface_id) which is not handled by the</span>
 <span class="sd">        default system_listMethods() method.&quot;&quot;&quot;</span>
@@ -369,7 +369,7 @@
     <span class="c1"># Der Parameter value gibt den neuen Wert bzw. den dem Event zugeordneten Wert an.</span>
     <span class="c1"># Der  Datentyp  von value ergibt  sich  aus  der  ParamsetDescription  des</span>
     <span class="c1"># Values-Parameter-Sets des entsprechenden logischen Gerätes.</span>
-    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">value_key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">value_key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span> <span class="c1"># pylint:disable=redefined-builtin</span>
         <span class="sd">&quot;&quot;&quot;Receives an event from the CCU and applies the update.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[EVENT] </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">value_key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">get_device_or_channel_by_address</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
@@ -383,7 +383,7 @@
     <span class="c1"># vornehmen. Damit  das  funktioniert,  muss  sich  die  Logikschicht diese  Informationen</span>
     <span class="c1"># zumindest teilweise merken. Es ist dabei ausreichend, wenn je weils die Member ADDRESS</span>
     <span class="c1"># und VERSION einer DeviceDescription gesetzt sind.</span>
-    <span class="k">def</span> <span class="nf">listDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">listDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">):</span> <span class="c1"># pylint:disable=redefined-builtin</span>
         <span class="sd">&quot;&quot;&quot;The CCU asks for all already known devices. Send back the address and description</span>
 <span class="sd">        version.&quot;&quot;&quot;</span>
         <span class="n">devices</span> <span class="o">=</span> <span class="p">[]</span>
@@ -408,7 +408,7 @@
     <span class="c1"># des Gerätes geändert hat. Die Basisplatform muß dann einen Abgleich mit der neuen</span>
     <span class="c1"># Beschreibung  durchführen.  Dabei  sollte  die  Konfiguration  des  Gerätes  innerhalb  der</span>
     <span class="c1"># Logikschicht so weit wie möglich erhalten bleiben.</span>
-    <span class="k">def</span> <span class="nf">newDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">dev_descriptions</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">newDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">dev_descriptions</span><span class="p">):</span> <span class="c1"># pylint:disable=redefined-builtin</span>
         <span class="sd">&quot;&quot;&quot;The CCU informs about new devices. Creates objects known for them.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[NEW DEVICES] Got </span><span class="si">%d</span><span class="s2"> new devices/channels&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dev_descriptions</span><span class="p">))</span>
 
@@ -443,7 +443,7 @@
     <span class="c1"># Der  Parameter addresses ist  ein  Array,  das  die  Adressen  der</span>
     <span class="c1"># gelöschten  Geräte enthält.</span>
     <span class="c1"># FIXME: Only handling device addresses. Can we get channels here?</span>
-    <span class="k">def</span> <span class="nf">deleteDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">addresses</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">deleteDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">addresses</span><span class="p">):</span> <span class="c1"># pylint:disable=redefined-builtin</span>
         <span class="sd">&quot;&quot;&quot;A device has been removed from the CCU. Reflect that change.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[DELETE DEVICES] Delete </span><span class="si">%d</span><span class="s2"> devices/channels&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">addresses</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="n">addresses</span><span class="p">:</span>
@@ -466,7 +466,7 @@
     <span class="c1"># Derzeit  werden  nur  Änderungen  an  den  Verknüpfungspa rtnern  auf  diesem  Weg</span>
     <span class="c1"># mitgeteilt.</span>
     <span class="c1"># FIXME: To be implemented.</span>
-    <span class="k">def</span> <span class="nf">updateDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">hint</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">updateDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">hint</span><span class="p">):</span> <span class="c1"># pylint:disable=redefined-builtin</span>
         <span class="sd">&quot;&quot;&quot;The CCU wants to update the parameters of a device.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[UPDATE DEVICES] Update for device </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">hint</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">True</span>
