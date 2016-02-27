@@ -12,7 +12,7 @@ a > i.fa {
     cursor: pointer;
 }
 
-ul#navigation {
+#navigation {
     width: 100%;
     background-color: #212121;
     list-style: none;
@@ -21,15 +21,15 @@ ul#navigation {
     padding: 0;
 }
 
-ul#navigation li {
+#navigation li {
     float: left;
 }
 
-ul#navigation li.right {
+#navigation li.right {
     float: right;
 }
 
-ul#navigation li a {
+#navigation li a {
     display: block;
     height: 30px;
     color: #989A97;
@@ -39,20 +39,20 @@ ul#navigation li a {
     text-decoration: none;
 }
 
-ul#navigation li a i {
+#navigation li a i {
     padding-right: 8px;
 }
 
-ul#navigation li a:hover {
+#navigation li a:hover {
     background-color: #111;
     color: #fff;
 }
 
-div#content {
+#content {
     padding: 20px;
 }
 
-div#content h2:first-child {
+#content h2:first-child {
     margin-top: 0;
 }
 
@@ -214,7 +214,7 @@ table tr th.toplabel {
     vertical-align: top;
 }
 
-pre#output {
+#output {
     width: 700px;
     margin: 0;
     padding: 10px;
