@@ -6,7 +6,6 @@ Todos:
 * Manager:
   * Implement "keep running" option of schedules
   * Tests for the manager
-  * Escape user provided texts
   * Events: Close on shutdown when registered?
   * Make editing of scheules only possible when not currently running?
 * Cleanup: Parameters should use .name just like other objects instead of .title

@@ -155,7 +155,7 @@ class Html(object):
         self.write("<link rel=\"stylesheet\" href=\"css/font-awesome.min.css\">\n")
         self.write("<link rel=\"stylesheet\" href=\"css/pmatic.css\">\n")
         self.write("<link rel=\"shortcut icon\" href=\"favicon.ico\" type=\"image/ico\">\n")
-        self.write('<title>%s</title>\n' % self.title())
+        self.write('<title>%s</title>\n' % self.escape(self.title()))
         self.write('</head>\n')
         self.write("<body>\n")
 
@@ -173,7 +173,7 @@ class Html(object):
         self.write("<li><a href=\"/event_log\"><i class=\"fa fa-list\"></i>Event Log</a></li>\n")
         self.write("<li><a href=\"/config\"><i class=\"fa fa-gear\"></i>Configuration</a></li>\n")
         self.write("<li class=\"right\"><a href=\"https://larsmichelsen.github.io/pmatic/\" "
-                   "target=\"_blank\">pmatic %s</a></li>\n" % pmatic.__version__)
+                   "target=\"_blank\">pmatic %s</a></li>\n" % self.escape(pmatic.__version__))
         self.write("</ul>\n")
 
 
@@ -185,7 +185,8 @@ class Html(object):
         self._form_vars = []
         enctype = " enctype=\"multipart/form-data\"" if multipart else ""
         target_url = self.url or "/"
-        self.write("<form method=\"post\" action=\"%s\" %s>\n" % (target_url, enctype))
+        self.write("<form method=\"post\" action=\"%s\" %s>\n" %
+                            (self.escape(target_url), enctype))
 
 
     def end_form(self):
@@ -203,37 +204,40 @@ class Html(object):
     def file_upload(self, name, accept="text/*"):
         self._form_vars.append(name)
         self.write("<input name=\"%s\" type=\"file\" accept=\"%s\">" %
-                        (name, accept))
+                        (self.escape(name), self.escape(accept)))
 
 
     def hidden(self, name, value):
         self._form_vars.append(name)
-        self.write("<input type=\"hidden\" name=\"%s\" value=\"%s\">\n" % (name, value))
+        self.write("<input type=\"hidden\" name=\"%s\" value=\"%s\">\n" %
+            (self.escape(name), self.escape(value)))
 
 
     def password(self, name):
         self._form_vars.append(name)
-        self.write("<input type=\"password\" name=\"%s\">\n" % name)
+        self.write("<input type=\"password\" name=\"%s\">\n" % self.escape(name))
 
 
     def submit(self, label, value="1", name="action"):
         self._form_vars.append(name)
         self.write("<button type=\"submit\" name=\"%s\" "
-                   "value=\"%s\">%s</button>\n" % (name, value, label))
+                   "value=\"%s\">%s</button>\n" %
+                    (self.escape(name), self.escape(value), self.escape(label)))
 
 
     def input(self, name, deflt=None, cls=None):
         self._form_vars.append(name)
         value = deflt if deflt is not None else ""
-        css = (" class=\"%s\"" % cls) if cls else ""
+        css = (" class=\"%s\"" % self.escape(cls)) if cls else ""
         self.write("<input type=\"text\" name=\"%s\" value=\"%s\"%s>\n" %
-                                    (name, value, css))
+                                    (self.escape(name), self.escape(value), css))
 
 
     def checkbox(self, name, deflt=False):
         self._form_vars.append(name)
         checked = " checked" if deflt else ""
-        self.write("<input type=\"checkbox\" name=\"%s\"%s>\n" % (name, checked))
+        self.write("<input type=\"checkbox\" name=\"%s\"%s>\n" %
+                                        (self.escape(name), self.escape(checked)))
 
 
     def is_checked(self, name):
@@ -242,35 +246,36 @@ class Html(object):
 
     def select(self, name, choices, deflt=None, onchange=None):
         self._form_vars.append(name)
-        onchange = " onchange=\"%s\"" % onchange if onchange else ""
-        self.write("<select name=\"%s\"%s>\n" % (name, onchange))
+        onchange = " onchange=\"%s\"" % self.escape(onchange) if onchange else ""
+        self.write("<select name=\"%s\"%s>\n" % (self.escape(name), onchange))
         self.write("<option value=\"\"></option>\n")
         for choice in choices:
             if deflt == choice[0]:
                 selected = " selected"
             else:
                 selected = ""
-            self.write("<option value=\"%s\"%s>%s</option>\n" % (choice[0], selected, choice[1]))
+            self.write("<option value=\"%s\"%s>%s</option>\n" %
+                    (self.escape(choice[0]), selected, self.escape(choice[1])))
         self.write("</select>\n")
 
 
     def icon(self, icon_name, title, cls=None):
         css = " " + cls if cls else ""
         self.write("<i class=\"fa fa-%s%s\" title=\"%s\"></i>" %
-                            (icon_name, css, self.escape(title)))
+                 (self.escape(icon_name), self.escape(css), self.escape(title)))
 
 
     def icon_button(self, icon_name, url, title):
-        self.write("<a class=\"icon_button\" href=\"%s\">" % url)
+        self.write("<a class=\"icon_button\" href=\"%s\">" % self.escape(url))
         self.icon(icon_name, title)
         self.write("</a>")
 
 
     def button(self, icon_name, label, url):
-        self.write("<a class=\"button\" href=\"%s\">" % url)
+        self.write("<a class=\"button\" href=\"%s\">" % self.escape(url))
         if icon_name is not None:
             self.icon(icon_name, "")
-        self.write(label)
+        self.write(self.escape(label))
         self.write("</a>\n")
 
 
@@ -288,7 +293,7 @@ class Html(object):
 
     def message(self, text, cls, icon):
         self.write("<div class=\"message %s\"><i class=\"fa fa-2x fa-%s\"></i> "
-                   "%s</div>\n" % (cls, icon, text))
+                   "%s</div>\n" % (self.escape(cls), self.escape(icon), text))
 
 
     def confirm(self, text):
@@ -314,16 +319,19 @@ class Html(object):
         self.write("<h3>%s</h3>\n" % self.escape(title))
 
 
+    # FIXME: Escaping - Needs to be escaped here or at all callers
     def p(self, content):
         self.write("<p>%s</p>\n" % content)
 
 
     def js_file(self, url):
-        self.write("<script type=\"text/javascript\" src=\"%s\"></script>\n" % url)
+        self.write("<script type=\"text/javascript\" src=\"%s\"></script>\n" %
+                                                        self.escape(url))
 
 
     def js(self, script):
-        self.write("<script type=\"text/javascript\">%s</script>\n" % script)
+        self.write("<script type=\"text/javascript\">%s</script>\n" %
+                                                        self.escape(script))
 
 
     def redirect(self, delay, url):
@@ -502,11 +510,11 @@ class PageHandler(object):
 
 
     def action(self):
-        self.write("Not implemented yet.")
+        self.write_text("Not implemented yet.")
 
 
     def process(self):
-        self.write("Not implemented yet.")
+        self.write_text("Not implemented yet.")
 
 
     def write(self, code):
@@ -660,7 +668,7 @@ class AbstractScriptProgressPage(Html):
 
         self.write("<table>")
         self.write("<tr><th>Script</th>"
-                   "<td>%s</td></tr>" % self._runner.script)
+                   "<td>%s</td></tr>" % self.escape(self._runner.script))
         self.write("<tr><th>Started at</th>"
                    "<td>%s</td></tr>" % time.strftime("%Y-%m-%d %H:%M:%S",
                                                       time.localtime(runner.started)))
@@ -668,16 +676,16 @@ class AbstractScriptProgressPage(Html):
         self.write("<tr><th>Finished at</th>"
                    "<td>")
         if not self._is_running() and runner.finished is not None:
-            self.write(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(runner.finished)))
+            self.write_text(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(runner.finished)))
         else:
-            self.write("-")
+            self.write_text("-")
         self.write("</td></tr>")
 
         self.write("<tr><th>Current state</th>"
                    "<td>")
         if self._is_running():
             self.icon("spinner", "The script is running...", cls="fa-pulse")
-            self.write(" Running... ")
+            self.write_text(" Running... ")
             if runner.abortable:
                 self.icon_button("close", self._abort_url(), "Stop this script.")
         elif runner.exit_code is not None:
@@ -688,7 +696,7 @@ class AbstractScriptProgressPage(Html):
             self.write(" Finished (Exit code: <tt>%d</tt>)" % runner.exit_code)
         else:
             self.icon("times", "Not running")
-            self.write(" Started but not running - something went wrong.")
+            self.write_text(" Started but not running - something went wrong.")
         self.write("</td></tr>")
 
         self.write("<tr><th class=\"toplabel\">Output</th>")
@@ -794,7 +802,7 @@ class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
         self.h2("Upload Script")
         self.p("You can either upload your scripts using this form or "
                "copy the files on your own, e.g. using SFTP or SCP, directly "
-               "to <tt>%s</tt>." % Config.script_path)
+               "to <tt>%s</tt>." % self.escape(Config.script_path))
         self.p("Please note that existing scripts with equal names will be overwritten "
                "without warning.")
         self.write("<div class=\"upload_form\">\n")
@@ -825,7 +833,7 @@ class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
             self.icon_button("download", "/scripts/%s" % filename,
                               "Download this script")
             self.write("</td>")
-            self.write("<td>%s</td>" % filename)
+            self.write("<td>%s</td>" % self.escape(filename))
             self.write("<td>%s</td>" % time.strftime("%Y-%m-%d %H:%M:%S",
                                                      time.localtime(last_mod_ts)))
             self.write("</tr>")
@@ -888,7 +896,7 @@ class PageRun(PageHandler, AbstractScriptProgressPage, AbstractScriptPage, utils
                "free to execute your scripts on the command line or however you like.")
         self.write("<div class=\"execute_form\">\n")
         self.begin_form()
-        self.write("Select the script: ")
+        self.write_text("Select the script: ")
         self.select("script", sorted([ (s, s) for s in self._get_scripts() ]))
         self.submit("Run script", "run")
         self.end_form()
@@ -1198,12 +1206,12 @@ class PageEventLog(PageHandler, Html, utils.LogMixin):
             self.write("<tr>")
             self.write("<td>%s</td>" % time.strftime("%Y-%m-%d %H:%M:%S",
                                                      time.localtime(event["time"])))
-            self.write("<td>%s</td>" % param.channel.name)
-            self.write("<td>%s</td>" % param.channel.device.name)
-            self.write("<td>%s</td>" % param.title)
-            self.write("<td>%s</td>" % ty)
+            self.write("<td>%s</td>" % self.escape(param.channel.name))
+            self.write("<td>%s</td>" % self.escape(param.channel.device.name))
+            self.write("<td>%s</td>" % self.escape(param.title))
+            self.write("<td>%s</td>" % self.escape(ty))
             self.write("<td>%s (Raw value: %s)</td>" %
-                            (event["formated_value"], event["value"]))
+                 (self.escape(event["formated_value"]), self.escape(event["value"])))
             self.write("</tr>")
         self.write("</table>")
 
@@ -1265,7 +1273,7 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
                         "/schedule_result?schedule_id=%d" % schedule.id,
                         "Show the last schedule run result")
             self.write("</td>")
-            self.write("<td>%s</td>" % schedule.name)
+            self.write("<td>%s</td>" % self.escape(schedule.name))
 
             self.write("<td>")
             if schedule.disabled:
@@ -1278,7 +1286,7 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
             for condition in schedule.conditions:
                 self.write(condition.display()+"<br>")
             self.write("</td>")
-            self.write("<td>%s</td>" % schedule.script)
+            self.write("<td>%s</td>" % self.escape(schedule.script))
             last_triggered = schedule.last_triggered
             if last_triggered:
                 last_triggered = time.strftime("%Y-%m-%d %H:%M:%S",
@@ -1524,7 +1532,7 @@ class Page404(PageHandler, Html, utils.LogMixin):
 
 
     def process(self):
-        self.write("The requested page could not be found.")
+        self.p("The requested page could not be found.")
 
 
 
