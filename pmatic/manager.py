@@ -97,7 +97,7 @@ class Config(utils.LogMixin):
                 else:
                     raise
         except Exception as e:
-            cls.cls_logger().error("Failed to load config: %s. Terminating." % e)
+            cls.cls_logger().error("Failed to load config. Terminating.", exc_info=e)
             sys.exit(1)
 
         for key, val in config.items():
@@ -205,7 +205,7 @@ class Html(object):
 
 
     def input(self, name, deflt=None, cls=None):
-        value = deflt if deflt != None else ""
+        value = deflt if deflt is not None else ""
         css = (" class=\"%s\"" % cls) if cls else ""
         self.write("<input type=\"text\" name=\"%s\" value=\"%s\"%s>\n" %
                                     (name, value, css))
@@ -217,7 +217,7 @@ class Html(object):
 
 
     def is_checked(self, name):
-        return self._vars.getvalue(name) != None
+        return self._vars.getvalue(name) is not None
 
 
     def select(self, name, choices, deflt=None, onchange=None):
@@ -402,6 +402,11 @@ class PageHandler(object):
         self._http_headers.append((b"Set-Cookie", cookie[name.encode("utf-8")].OutputString()))
 
 
+    @property
+    def vars(self):
+        return self._vars
+
+
     def _read_vars(self):
         wsgi_input = self._env["wsgi.input"]
         if not wsgi_input:
@@ -572,7 +577,7 @@ class AbstractScriptPage(object):
             raise PMUserError("The script directory %s does not exist." %
                                                     Config.script_path)
 
-        for dirpath, dirnames, filenames in os.walk(Config.script_path):
+        for dirpath, _unused_dirnames, filenames in os.walk(Config.script_path):
             if dirpath == Config.script_path:
                 relpath = ""
             else:
@@ -593,7 +598,7 @@ class AbstractScriptProgressPage(Html):
 
 
     def _abort_url(self):
-        raise NotImplemented()
+        raise NotImplementedError()
 
 
     def _handle_abort(self):
@@ -621,7 +626,7 @@ class AbstractScriptProgressPage(Html):
 
         self.write("<tr><th>Finished at</th>"
                    "<td>")
-        if not self._is_running() and runner.finished != None:
+        if not self._is_running() and runner.finished is not None:
             self.write(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(runner.finished)))
         else:
             self.write("-")
@@ -634,7 +639,7 @@ class AbstractScriptProgressPage(Html):
             self.write(" Running... ")
             if runner.abortable:
                 self.icon_button("close", self._abort_url(), "Stop this script.")
-        elif runner.exit_code != None:
+        elif runner.exit_code is not None:
             if runner.exit_code == 0:
                 self.icon("check", "Successfully finished")
             else:
@@ -661,7 +666,7 @@ class AbstractScriptProgressPage(Html):
 
 
     def _is_started(self):
-        return self._runner != None
+        return self._runner is not None
 
 
     def _is_running(self):
@@ -1121,7 +1126,7 @@ class PageEventLog(PageHandler, Html, utils.LogMixin):
                       "enable the CCU connection.")
             return
 
-        if not self._manager._events_initialized:
+        if not self._manager.events_initialized:
             self.info("The event processing has not been initialized yet. Please come back "
                       "in one or two minutes.")
             return
@@ -1249,7 +1254,7 @@ class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
 
     def _get_schedule(self):
         schedule_id = self._vars.getvalue("schedule_id")
-        if schedule_id == None:
+        if schedule_id is None:
             raise PMUserError("You need to provide a <tt>schedule_id</tt>.")
         schedule_id = int(schedule_id)
 
@@ -1424,7 +1429,7 @@ class PageScheduleResult(PageHandler, AbstractScriptProgressPage, utils.LogMixin
 
     def _get_schedule(self):
         schedule_id = self._vars.getvalue("schedule_id")
-        if schedule_id == None:
+        if schedule_id is None:
             raise PMUserError("You need to provide a <tt>schedule_id</tt>.")
         schedule_id = int(schedule_id)
 
@@ -1512,8 +1517,8 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
 
     def run(self):
         try:
-            self.logger.info("Starting script (%s): %s" %
-                    ("inline" if self.run_inline else "external", self.script))
+            self.logger.info("Starting script (%s): %s",
+                    "inline" if self.run_inline else "external", self.script)
             script_path = os.path.join(Config.script_path, self.script)
 
             if self.run_inline:
@@ -1524,9 +1529,9 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
             self.exit_code = exit_code
             self.finished  = time.time()
 
-            self.logger.info("Finished (Exit-Code: %d)." % self.exit_code)
+            self.logger.info("Finished (Exit-Code: %d).", self.exit_code)
         except Exception as e:
-            self.logger.error("Failed to execute %s: %s" % (self.script, e))
+            self.logger.error("Failed to execute %s", self.script, exc_info=True)
             self.logger.debug(traceback.format_exc())
 
 
@@ -1540,7 +1545,7 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
 
         while True:
             nextline = self._p.stdout.readline().decode("utf-8")
-            if nextline == "" and self._p.poll() != None:
+            if nextline == "" and self._p.poll() is not None:
                 break
             self.output.write(nextline)
         exit_code = self._p.poll()
@@ -1561,7 +1566,11 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
             # it to the same StringIO() object.
             with catch_stdout_and_stderr(self.output):
                 script_globals = {}
-                execfile(script_path, script_globals)
+                if utils.is_py2():
+                    execfile(script_path, script_globals)
+                else:
+                    exec(compile(open(script_path, "rb").read(),
+                                 script_path, 'exec'), script_globals)
         except SystemExit as e:
             exit_code = e.code
         except Exception as e:
@@ -1590,7 +1599,7 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
         self._p.terminate()
         # And wait for the termination (at least shortly)
         timer = 10
-        while timer > 0 and self._p.poll() == None:
+        while timer > 0 and self._p.poll() is None:
             timer -= 1
             time.sleep(0.1)
 
@@ -1641,6 +1650,11 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         else:
             self.logger.info("Connection with CCU is disabled")
             self.ccu = None
+
+
+    @property
+    def events_initialized(self):
+        return self._events_initialized
 
 
     def _request_handler(self, environ, start_response):
@@ -1706,7 +1720,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         os.close(si)
         os.close(so)
 
-        self.logger.debug("Daemonized with PID %d." % os.getpid())
+        self.logger.debug("Daemonized with PID %d.", os.getpid())
 
 
     def register_signal_handlers(self):
@@ -1715,7 +1729,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         signal.signal(15, self.signal_handler) # TERM
 
 
-    def signal_handler(self, signum, stack_frame):
+    def signal_handler(self, signum, _unused_stack_frame):
         raise SignalReceived(signum)
 
 
@@ -1747,11 +1761,11 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
 class RequestHandler(wsgiref.simple_server.WSGIRequestHandler, utils.LogMixin):
     def log_message(self, fmt, *args):
-        self.logger.debug("%s %s" % (self.client_address[0], fmt%args))
+        self.logger.debug("%s %s", self.client_address[0], fmt%args)
 
 
     def log_exception(self, exc_info):
-        self.logger.error("Unhandled exception: %s" % traceback.format_exc())
+        self.logger.error("Unhandled exception", exc_info=True)
 
 
 
@@ -1803,16 +1817,15 @@ class Scheduler(threading.Thread, utils.LogMixin):
                         self.execute(schedule)
                     self._on_startup_executed = True
 
-                if not self._on_ccu_init_executed and self._manager._events_initialized:
+                if not self._on_ccu_init_executed and self._manager.events_initialized:
                     # Run on ccu init scripts
                     for schedule in self._schedules_with_condition_type(ConditionOnCCUInitialized):
                         self.execute(schedule)
                     self._on_ccu_init_executed = True
 
                 self._execute_timed_schedules()
-            except Exception as e:
-                self.logger.error("Exception in Scheduler: %s" % e)
-                self.logger.debug(traceback.format_exc())
+            except Exception:
+                self.logger.error("Exception in Scheduler", exc_info=True)
 
             # FIXME: Optimization: Don't wake up every second. Sleep till next scheduled event.
             time.sleep(1)
@@ -1864,7 +1877,7 @@ class Scheduler(threading.Thread, utils.LogMixin):
         """
         self.logger.info("[%s] Executing script..." % schedule.name)
         if schedule.is_running:
-            self.logger.info("[%s] Conditions matched, but script was already running." %
+            self.logger.info("[%s] Conditions matched, but script was already running.",
                                                                             schedule.name)
             return
 
@@ -1897,7 +1910,7 @@ class Scheduler(threading.Thread, utils.LogMixin):
 
 
     def add(self, schedule):
-        if schedule.id == None:
+        if schedule.id is None:
             num = len(self._schedules)
             schedule.id = num
             self._schedules.append(schedule)
@@ -1936,8 +1949,8 @@ class Scheduler(threading.Thread, utils.LogMixin):
                 schedule.from_config(schedule_cfg)
                 self.add(schedule)
 
-        except Exception as e:
-            self.logger.error("Failed to load schedules. Terminating.", exc_info=e)
+        except Exception:
+            self.logger.error("Failed to load schedules. Terminating.", exc_info=True)
             sys.exit(1)
 
 
@@ -2141,12 +2154,12 @@ class ConditionOnDeviceEvent(Condition):
         return txt
 
 
-    def _device_choices(self, page):
+    def _device_choices(self):
         for device in self._manager.ccu.devices:
             yield device.address, "%s (%s)" % (device.name, device.address)
 
 
-    def _channel_choices(self, page):
+    def _channel_choices(self):
         if not self.device:
             return
 
@@ -2154,7 +2167,7 @@ class ConditionOnDeviceEvent(Condition):
             yield channel.address, "%s (%s)" % (channel.name, channel.address)
 
 
-    def _param_choices(self, page):
+    def _param_choices(self):
         if not self.channel:
             return
 
@@ -2165,22 +2178,22 @@ class ConditionOnDeviceEvent(Condition):
     def input_parameters(self, page, varprefix):
         page.write("Device: ")
         page.select(varprefix+"device_address",
-                    sorted(self._device_choices(page), key=lambda x: x[1]),
+                    sorted(self._device_choices(), key=lambda x: x[1]),
                     self.device and self.device.address, onchange="this.form.submit()")
         page.write("Channel: ")
         page.select(varprefix+"channel_address",
-                    sorted(self._channel_choices(page), key=lambda x: x[1]),
+                    sorted(self._channel_choices(), key=lambda x: x[1]),
                     self.channel and self.channel.address, onchange="this.form.submit()")
         page.write("Parameter: ")
         page.select(varprefix+"param_id",
-                    sorted(self._param_choices(page), key=lambda x: x[1]),
+                    sorted(self._param_choices(), key=lambda x: x[1]),
                     self.param and self.param.id, onchange="this.form.submit()")
         page.write("Type: ")
         page.select(varprefix+"event_type", self._event_types, self.event_type)
 
 
     def set_submitted_vars(self, page, varprefix):
-        device_address = page._vars.getvalue(varprefix+"device_address")
+        device_address = page.vars.getvalue(varprefix+"device_address")
         if device_address:
             self.device = self._manager.ccu.devices.query(
                                 device_address=device_address).get(device_address)
@@ -2189,7 +2202,7 @@ class ConditionOnDeviceEvent(Condition):
         else:
             return
 
-        channel_address = page._vars.getvalue(varprefix+"channel_address")
+        channel_address = page.vars.getvalue(varprefix+"channel_address")
         if channel_address:
             try:
                 self.channel = self.device.channel_by_address(channel_address)
@@ -2198,7 +2211,7 @@ class ConditionOnDeviceEvent(Condition):
         else:
             return
 
-        param_id = page._vars.getvalue(varprefix+"param_id")
+        param_id = page.vars.getvalue(varprefix+"param_id")
         if param_id:
             self.param = self.channel.values.get(param_id)
             if not self.param:
@@ -2206,7 +2219,7 @@ class ConditionOnDeviceEvent(Condition):
         else:
             return
 
-        event_type = page._vars.getvalue(varprefix+"event_type")
+        event_type = page.vars.getvalue(varprefix+"event_type")
         if event_type:
             if event_type not in dict(self._event_types):
                 raise PMUserError("Invalid event type given.")
@@ -2285,7 +2298,7 @@ class ConditionOnTime(Condition):
                     ref_parts[month] += 1
                 ref_ts = time.mktime(tuple(ref_parts))
         else:
-            raise NotImplemented()
+            raise NotImplementedError()
 
         # Fix eventual timezone changes
         ref_parts = list(time.localtime(ref_ts))
@@ -2355,7 +2368,7 @@ class ConditionOnTime(Condition):
 
 
     def set_submitted_vars(self, page, varprefix):
-        interval_type = page._vars.getvalue(varprefix+"interval_type")
+        interval_type = page.vars.getvalue(varprefix+"interval_type")
 
         if page.is_action() and not interval_type:
             raise PMUserError("You need to configure an interval.")
@@ -2374,7 +2387,7 @@ class ConditionOnTime(Condition):
 
 
     def _set_time_of_day(self, page, varprefix):
-        time_of_day = page._vars.getvalue(varprefix+"time_of_day")
+        time_of_day = page.vars.getvalue(varprefix+"time_of_day")
         if not time_of_day:
             raise PMUserError("You need to provide a time.")
 
@@ -2399,7 +2412,7 @@ class ConditionOnTime(Condition):
 
 
     def _set_weekly_vars(self, page, varprefix):
-        day_of_week = page._vars.getvalue(varprefix+"day_of_week")
+        day_of_week = page.vars.getvalue(varprefix+"day_of_week")
 
         if page.is_action() and not day_of_week:
             raise PMUserError("You need to configure the day of the week.")
@@ -2418,7 +2431,7 @@ class ConditionOnTime(Condition):
 
 
     def _set_monthly_vars(self, page, varprefix):
-        day_of_month = page._vars.getvalue(varprefix+"day_of_month")
+        day_of_month = page.vars.getvalue(varprefix+"day_of_month")
 
         if page.is_action() and not day_of_month:
             raise PMUserError("You need to configure the day of the month.")
