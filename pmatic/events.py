@@ -31,7 +31,7 @@ from __future__ import unicode_literals
 
 try:
     # Is recommended for Python 3.x but fails on 2.7, but is not mandatory
-    from builtins import object
+    from builtins import object # pylint:disable=redefined-builtin
 except ImportError:
     pass
 
@@ -67,7 +67,7 @@ class EventXMLRPCServer(SimpleXMLRPCServer, threading.Thread):
         self.daemon = True
 
 
-    def system_listMethods(self, interface_id):
+    def system_listMethods(self, interface_id): # pylint:disable=unused-argument
         """Wrap the standard system_listMethods of SimpleXMLRPCDispatcher. This is needed
         because the CCU sends an argument (the interface_id) which is not handled by the
         default system_listMethods() method."""
@@ -319,7 +319,7 @@ class EventHandler(utils.LogMixin, object):
     # Der Parameter value gibt den neuen Wert bzw. den dem Event zugeordneten Wert an.
     # Der  Datentyp  von value ergibt  sich  aus  der  ParamsetDescription  des
     # Values-Parameter-Sets des entsprechenden logischen Gerätes.
-    def event(self, interface_id, address, value_key, value):
+    def event(self, interface_id, address, value_key, value): # pylint:disable=redefined-builtin
         """Receives an event from the CCU and applies the update."""
         self.logger.debug("[EVENT] %s %s = %r", address, value_key, value)
         obj = self._ccu.devices.get_device_or_channel_by_address(address)
@@ -333,7 +333,7 @@ class EventHandler(utils.LogMixin, object):
     # vornehmen. Damit  das  funktioniert,  muss  sich  die  Logikschicht diese  Informationen
     # zumindest teilweise merken. Es ist dabei ausreichend, wenn je weils die Member ADDRESS
     # und VERSION einer DeviceDescription gesetzt sind.
-    def listDevices(self, interface_id):
+    def listDevices(self, interface_id): # pylint:disable=redefined-builtin
         """The CCU asks for all already known devices. Send back the address and description
         version."""
         devices = []
@@ -358,7 +358,7 @@ class EventHandler(utils.LogMixin, object):
     # des Gerätes geändert hat. Die Basisplatform muß dann einen Abgleich mit der neuen
     # Beschreibung  durchführen.  Dabei  sollte  die  Konfiguration  des  Gerätes  innerhalb  der
     # Logikschicht so weit wie möglich erhalten bleiben.
-    def newDevices(self, interface_id, dev_descriptions):
+    def newDevices(self, interface_id, dev_descriptions): # pylint:disable=redefined-builtin
         """The CCU informs about new devices. Creates objects known for them."""
         self.logger.debug("[NEW DEVICES] Got %d new devices/channels", len(dev_descriptions))
 
@@ -393,7 +393,7 @@ class EventHandler(utils.LogMixin, object):
     # Der  Parameter addresses ist  ein  Array,  das  die  Adressen  der
     # gelöschten  Geräte enthält.
     # FIXME: Only handling device addresses. Can we get channels here?
-    def deleteDevices(self, interface_id, addresses):
+    def deleteDevices(self, interface_id, addresses): # pylint:disable=redefined-builtin
         """A device has been removed from the CCU. Reflect that change."""
         self.logger.debug("[DELETE DEVICES] Delete %d devices/channels", len(addresses))
         for address in addresses:
@@ -416,7 +416,7 @@ class EventHandler(utils.LogMixin, object):
     # Derzeit  werden  nur  Änderungen  an  den  Verknüpfungspa rtnern  auf  diesem  Weg
     # mitgeteilt.
     # FIXME: To be implemented.
-    def updateDevices(self, interface_id, address, hint):
+    def updateDevices(self, interface_id, address, hint): # pylint:disable=redefined-builtin
         """The CCU wants to update the parameters of a device."""
         self.logger.debug("[UPDATE DEVICES] Update for device %s (%d)", address, hint)
         return True
