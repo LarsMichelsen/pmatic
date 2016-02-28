@@ -1029,6 +1029,9 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         ccu_username = self._vars.getvalue("ccu_username").strip()
         ccu_password = self._vars.getvalue("ccu_password")
         if not ccu_username or not ccu_password:
+            if Config.ccu_enabled and not utils.is_ccu():
+                raise PMUserError("You need to configure the CCU credentials to be able to "
+                                  "communicate with your CCU.")
             Config.ccu_credentials = None
         else:
             Config.ccu_credentials = ccu_username, ccu_password
