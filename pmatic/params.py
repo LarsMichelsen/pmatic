@@ -78,6 +78,10 @@ class Parameter(object):
             if trans_func:
                 val = trans_func(val)
 
+            # Change the CCU internal "name" to internal_name
+            if key.lower() == "name":
+                key = "internal_name"
+
             setattr(self, key.lower(), val)
 
 
@@ -114,9 +118,12 @@ class Parameter(object):
 
 
     @property
-    def title(self):
-        """Returns the title of this parameter."""
-        return self.name.title().replace("_", " ")
+    def name(self):
+        """Returns the formated name of this parameter. This name is generated from the *name*
+        attribute provided by the CCU, but slightly adapted to look better for humans in texts.
+
+        All underscores are replaced with spaces and the name is formated as title."""
+        return self.internal_name.title().replace("_", " ")
 
 
     @property

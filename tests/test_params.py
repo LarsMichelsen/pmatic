@@ -93,7 +93,8 @@ class TestParameter(lib.TestCCU):
         assert p.control == "SWITCH.STATE"
         assert isinstance(p.operations, int)
         assert p.operations == 7
-        assert p.name == "STATE"
+        assert p.internal_name == "STATE"
+        assert p.name == "State"
         assert p._value == "0"
         assert isinstance(p.tab_order, int)
         assert isinstance(p.flags, int)
@@ -155,11 +156,12 @@ class TestParameter(lib.TestCCU):
         p.operations = 7
 
 
-    def test_title(self, p):
-        assert p.title == "State"
+    def test_name(self, p):
+        assert p.name == "State"
 
-        p.name = "X_XABC"
-        assert p.title == "X Xabc"
+        p.internal_name = "X_XABC"
+        assert p.internal_name == "X_XABC"
+        assert p.name == "X Xabc"
 
 
     def test_value(self, p):
@@ -325,7 +327,8 @@ class TestParameterFLOAT(lib.TestCCU):
         assert isinstance(p, ParameterFLOAT)
         assert p.type == "FLOAT"
         assert p.unit == u"°C"
-        assert p.name == "SETPOINT"
+        assert p.internal_name == "SETPOINT"
+        assert p.name == "Setpoint"
         assert isinstance(p.value, float)
         assert isinstance(p.min, float)
         assert isinstance(p.max, float)
@@ -376,7 +379,8 @@ class TestParameterBOOL(lib.TestCCU):
         assert isinstance(p, ParameterBOOL)
         assert p.type == "BOOL"
         assert p.unit == ""
-        assert p.name == "STATE"
+        assert p.internal_name == "STATE"
+        assert p.name == "State"
         assert isinstance(p.value, bool)
 
 
@@ -410,7 +414,8 @@ class TestParameterACTION(TestParameterBOOL):
         assert isinstance(p, ParameterACTION)
         assert p.type == "ACTION"
         assert p.unit == ""
-        assert p.name == "PRESS_SHORT"
+        assert p.internal_name == "PRESS_SHORT"
+        assert p.name == "Press Short"
 
 
     def test_readable(self, p):
@@ -446,7 +451,8 @@ class TestParameterINTEGER(lib.TestCCU):
         assert isinstance(p, ParameterINTEGER)
         assert p.type == "INTEGER"
         assert p.unit == "%"
-        assert p.name == "VALVE_STATE"
+        assert p.internal_name == "VALVE_STATE"
+        assert p.name == "Valve State"
         assert isinstance(p.value, int)
         assert isinstance(p.min, int)
         assert isinstance(p.max, int)
@@ -501,7 +507,8 @@ class TestParameterENUM(lib.TestCCU):
         assert isinstance(p, ParameterENUM)
         assert p.type == "ENUM"
         assert p.unit == ""
-        assert p.name == "ERROR"
+        assert p.internal_name == "ERROR"
+        assert p.name == "Error"
         assert isinstance(p.value, int)
         assert isinstance(p.min, int)
         assert isinstance(p.max, int)
@@ -529,7 +536,8 @@ class TestParameterSTRING(lib.TestCCU):
         assert isinstance(p, ParameterSTRING)
         assert p.type == "STRING"
         assert p.unit == ""
-        assert p.name == "PARTY_MODE_SUBMIT"
+        assert p.internal_name == "PARTY_MODE_SUBMIT"
+        assert p.name == "Party Mode Submit"
         assert utils.is_text(p.min)
         assert utils.is_text(p.max)
         assert utils.is_text(p.default)
