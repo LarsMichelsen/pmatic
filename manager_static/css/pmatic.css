@@ -13,10 +13,10 @@ a > i.fa {
 }
 
 #navigation {
+    display: inline-block;
     width: 100%;
     background-color: #212121;
     list-style: none;
-    height: 40px;
     margin: 0;
     padding: 0;
 }
@@ -50,6 +50,7 @@ a > i.fa {
 
 #content {
     padding: 20px;
+    clear: both;
 }
 
 #content h2:first-child {
