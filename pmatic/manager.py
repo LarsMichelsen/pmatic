@@ -340,6 +340,8 @@ class Html(object):
 
     def escape(self, text):
         """Escape text for embedding into HTML code."""
+        if not utils.is_string(text):
+            text = "%s" % text
         return "".join(self.html_escape_table.get(c, c) for c in text)
 
 
@@ -481,6 +483,7 @@ class PageHandler(object):
                 self.error(e)
             except Exception as e:
                 self.error("Unhandled exception: %s" % e)
+                self.logger.debug("Unhandled exception (action)", exc_info=True)
 
         # The action code can disable regular rendering of the page,
         # e.g. to only show a confirmation dialog.
@@ -491,6 +494,7 @@ class PageHandler(object):
                 self.error(e)
             except Exception as e:
                 self.error("Unhandled exception: %s" % e)
+                self.logger.debug("Unhandled exception (process)", exc_info=True)
 
         self.write("\n</div>")
         self.page_footer()
