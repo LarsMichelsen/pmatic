@@ -177,9 +177,10 @@ class AbstractAPI(utils.LogMixin):
 
         e.g. Interface.activateLinkParamset is changed to API.interface_activate_link_paramset
         """
-        return utils.decamel(method_name_api.replace(".", "_") \
-                                            .replace("BidCoS", "bidcos") \
-                                            .replace("ReGa", "rega"))
+        return utils.decamel(method_name_api.replace(".", "_")) \
+                                            .replace("bid_co_s", "bidcos") \
+                                            .replace("re_ga", "rega") \
+                                            .replace("__", "_")
 
 
     def _get_methods_config(self):
