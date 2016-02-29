@@ -138,7 +138,8 @@ help:
 setup:
 	sudo apt-get install debootstrap qemu-user-static rsync dialog python-pytest python-pip \
 			python3-pip python-sphinx snakefood
-	sudo pip install pytest_flakes pytest_runner
+	sudo pip install pytest_flakes pytest_runner coverage
+	sudo pip3 install pytest_flakes pytest_runner coverage
 
 dist: dist-os dist-ccu
 
@@ -201,6 +202,8 @@ dist-ccu-step2:
 
 test:
 	coverage run --include='pmatic/*' --source=pmatic setup.py test
+	coverage3 run -a --include='pmatic/*' --source=pmatic setup.py test
+	$(MAKE) coverage coverage-html
 
 test-python3:
 	python3 setup.py test
@@ -213,7 +216,6 @@ coverage:
 
 coverage-html:
 	coverage html
-	firefox htmlcov/index.html
 
 install:
 	sudo python setup.py install
