@@ -24,22 +24,29 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import __builtin__
+try:
+    # Python 2.x
+    import __builtin__ as builtins
+except ImportError:
+    # Python 3+
+    import builtins
 
 import pmatic
+import pmatic.api
 import pmatic.utils as utils
 import lib
 import pmatic.events
 
 class TestCCU(lib.TestCCU):
     def test_manager_ccu_init(self, ccu):
-        __builtin__.manager_ccu = ccu
+        builtins.manager_ccu = ccu
 
         new_ccu = pmatic.CCU()
         assert new_ccu == ccu
         assert new_ccu.api == ccu.api
+        assert isinstance(new_ccu.api, pmatic.api.AbstractAPI)
 
-        delattr(__builtin__, "manager_ccu")
+        delattr(builtins, "manager_ccu")
 
         new_ccu = pmatic.CCU()
         assert new_ccu != ccu

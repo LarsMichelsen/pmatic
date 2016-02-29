@@ -97,7 +97,7 @@ class CCU(object):
         if "manager_ccu" in globals()["__builtins__"]:
             return globals()["__builtins__"]["manager_ccu"]
         else:
-            return super(CCU, cls).__new__(cls, **kwargs)
+            return super(CCU, cls).__new__(cls)
 
 
     @property

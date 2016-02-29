@@ -91,11 +91,17 @@ class TestAbstractAPI(object):
               "{\"error\": {\"code\": 501, \"name\": \"xxx\", \"message\": \"asd\"}}")
         assert "the CCU has just been started" in str(e)
 
+        # Prevent exception on API destruction
+        API.close = lambda: None
+
 
     def test_invalid_api_call(self, API):
         with pytest.raises(AttributeError) as e:
             API.dingdong_piff()
         assert "Invalid API call" in str(e)
+
+        # Prevent exception on API destruction
+        API.close = lambda: None
 
 
     def test_del(self, API, monkeypatch):
@@ -105,7 +111,9 @@ class TestAbstractAPI(object):
         monkeypatch.setattr(API, "close", fake_close)
         with pytest.raises(NotImplementedError):
             API.__del__()
-        monkeypatch.setattr(API, "close", lambda: None)
+
+        # Prevent exception on API destruction
+        API.close = lambda: None
 
 
     def test_to_internal_name(self, API):
@@ -120,6 +128,9 @@ class TestAbstractAPI(object):
         assert API._to_internal_name("Interface.setBidCoSInterface") \
                 == "interface_set_bidcos_interface"
 
+        # Prevent exception on API destruction
+        API.close = lambda: None
+
 
     def test_abstract_methods(self, API):
         with pytest.raises(NotImplementedError):
@@ -130,3 +141,6 @@ class TestAbstractAPI(object):
 
         with pytest.raises(NotImplementedError):
             API.close()
+
+        # Prevent exception on API destruction
+        API.close = lambda: None
