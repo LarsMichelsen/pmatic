@@ -161,6 +161,12 @@ class TestChannel(lib.TestCCU):
     #    })
 
 
+    def test_channel_invalid_device(self, ccu):
+        with pytest.raises(PMException) as e:
+           Channel(None, {})
+        assert "not a Device derived" in str(e)
+
+
     def test_channel_unknown_type(self, capfd, ccu):
         pmatic.logging(pmatic.DEBUG)
 
