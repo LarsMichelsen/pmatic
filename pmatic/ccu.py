@@ -36,7 +36,6 @@ import pmatic.api
 import pmatic.events
 import pmatic.utils as utils
 from pmatic.entities import Devices, Device, Rooms, Room
-from pmatic.exceptions import PMException
 
 
 class CCU(object):
