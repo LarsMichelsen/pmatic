@@ -24,10 +24,13 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import os
 import time
 import pytest
+import signal
 
 import pmatic.manager
+from pmatic.exceptions import SignalReceived
 
 class TestConditionOnTime(object):
     @pytest.fixture(scope="class")
@@ -123,3 +126,26 @@ class TestConditionOnTime(object):
         self._fake_time(monkeypatch, "2016-02-29 11:11:11")
         c.calculate_next_time()
         assert c.next_time == self._time("2016-03-01 00:00:00")
+
+
+
+class TestManager(object):
+    @pytest.fixture(scope="function")
+    def manager(self, monkeypatch):
+        monkeypatch.setattr(pmatic.api, 'init', lambda **kwargs: None)
+        return pmatic.manager.Manager(("127.0.0.1", 1337))
+
+
+
+    # FIXME: Also test SIGINT, SIGQUIT
+    def test_signal_handler(self, manager):
+        manager.register_signal_handlers()
+
+        with pytest.raises(SignalReceived) as e:
+            c = 10
+            os.system("kill -TERM %d" % os.getpid())
+            while c > 0:
+                time.sleep(1)
+                c -= 1
+
+        assert e.value._signum == signal.SIGTERM

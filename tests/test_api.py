@@ -58,3 +58,75 @@ def test_explicit_local_enforce():
 def test_explicit_wrong_init():
     with pytest.raises(PMException):
         pmatic.api.init("WTF?!")
+
+
+class TestAbstractAPI(object):
+    @pytest.fixture(scope="function")
+    def API(self):
+        return pmatic.api.AbstractAPI()
+
+
+    def test_invalid_response_handling(self, API, monkeypatch):
+        with pytest.raises(PMException) as e:
+            API._parse_api_response("ding", "{]")
+        assert "Failed to parse response"
+
+        def call_rega_present(method_name_int, **kwargs):
+            if method_name_int == "rega_is_present":
+                return True
+
+        monkeypatch.setattr(API, "call", call_rega_present)
+        with pytest.raises(PMException) as e:
+           API._parse_api_response("dingdong",
+              "{\"error\": {\"code\": 501, \"name\": \"xxx\", \"message\": \"asd\"}}")
+        assert "[dingdong] xxx: asd" in str(e)
+
+        def call_rega_not_present(method_name_int, **kwargs):
+            if method_name_int == "rega_is_present":
+                return False
+
+        monkeypatch.setattr(API, "call", call_rega_not_present)
+        with pytest.raises(PMException) as e:
+           API._parse_api_response("dingdong",
+              "{\"error\": {\"code\": 501, \"name\": \"xxx\", \"message\": \"asd\"}}")
+        assert "the CCU has just been started" in str(e)
+
+
+    def test_invalid_api_call(self, API):
+        with pytest.raises(AttributeError) as e:
+            API.dingdong_piff()
+        assert "Invalid API call" in str(e)
+
+
+    def test_del(self, API, monkeypatch):
+        def fake_close():
+            raise NotImplementedError()
+
+        monkeypatch.setattr(API, "close", fake_close)
+        with pytest.raises(NotImplementedError):
+            API.__del__()
+        monkeypatch.setattr(API, "close", lambda: None)
+
+
+    def test_to_internal_name(self, API):
+        assert API._to_internal_name("Interface.activateLinkParamset") \
+                == "interface_activate_link_paramset"
+        assert API._to_internal_name("DingReGaDong") \
+                == "ding_rega_dong"
+        assert API._to_internal_name("dingBidCoSDong") \
+                == "ding_bidcos_dong"
+        assert API._to_internal_name("ding.BidCoSDong") \
+                == "ding_bidcos_dong"
+        assert API._to_internal_name("Interface.setBidCoSInterface") \
+                == "interface_set_bidcos_interface"
+
+
+    def test_abstract_methods(self, API):
+        with pytest.raises(NotImplementedError):
+            API._get_methods_config()
+
+        with pytest.raises(NotImplementedError):
+            API.call("bla")
+
+        with pytest.raises(NotImplementedError):
+            API.close()
