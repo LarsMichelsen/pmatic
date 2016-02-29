@@ -66,6 +66,11 @@ class EventXMLRPCServer(SimpleXMLRPCServer, threading.Thread):
         threading.Thread.__init__(self)
         self.daemon = True
 
+        # Register system.listMethods, system.methodHelp and system.methodSignature
+        self.register_introspection_functions()
+        # Allow multicalls
+        self.register_multicall_functions()
+
 
     def system_listMethods(self, interface_id): # pylint:disable=unused-argument
         """Wrap the standard system_listMethods of SimpleXMLRPCDispatcher. This is needed
@@ -197,10 +202,6 @@ class EventListener(object):
         self._server = EventXMLRPCServer(self._listen_address,
                                          requestHandler=EventXMLRPCRequestHandler)
 
-        # Register system.listMethods, system.methodHelp and system.methodSignature
-        self._server.register_introspection_functions()
-        # Allow multicalls
-        self._server.register_multicall_functions()
         self._server.register_instance(EventHandler(self._ccu, self))
         self._server.start()
 
