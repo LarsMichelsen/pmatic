@@ -1211,7 +1211,7 @@ class PageEventLog(PageHandler, Html, utils.LogMixin):
                                                      time.localtime(event["time"])))
             self.write("<td>%s</td>" % self.escape(param.channel.name))
             self.write("<td>%s</td>" % self.escape(param.channel.device.name))
-            self.write("<td>%s</td>" % self.escape(param.title))
+            self.write("<td>%s</td>" % self.escape(param.name))
             self.write("<td>%s</td>" % self.escape(ty))
             self.write("<td>%s (Raw value: %s)</td>" %
                  (self.escape(event["formated_value"]), self.escape(event["value"])))
@@ -2204,7 +2204,7 @@ class ConditionOnDeviceEvent(Condition):
     def display(self):
         txt = super(ConditionOnDeviceEvent, self).display()
         txt += ": %s, %s, %s, %s" % (self.device.name, self.channel.name,
-                                     self.param.title, dict(self._event_types)[self.event_type])
+                                     self.param.name, dict(self._event_types)[self.event_type])
         return txt
 
 
@@ -2226,7 +2226,7 @@ class ConditionOnDeviceEvent(Condition):
             return
 
         for param_id, param in self.channel.values.items():
-            yield param_id, "%s (%s)" % (param.title, param_id)
+            yield param_id, "%s (%s)" % (param.name, param_id)
 
 
     def input_parameters(self, page, varprefix):
