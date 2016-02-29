@@ -163,7 +163,7 @@ class TestChannel(lib.TestCCU):
 
     def test_channel_invalid_device(self, ccu):
         with pytest.raises(PMException) as e:
-           Channel(None, {})
+            Channel(None, {})
         assert "not a Device derived" in str(e)
 
 
