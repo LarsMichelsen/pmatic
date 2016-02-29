@@ -30,8 +30,8 @@ import pmatic.api
 import pmatic.utils as utils
 import lib
 from pmatic.entities import Entity, Channel, Device, Devices, HMESPMSw1Pl, ChannelClimaRegulator, \
-                            Rooms, Room, device_classes_by_type_name, channel_classes_by_type_name
-from pmatic.ccu import CCUDevices, CCURooms
+                            device_classes_by_type_name, channel_classes_by_type_name
+from pmatic.ccu import CCUDevices
 from pmatic.exceptions import PMException
 
 class TestEntity(lib.TestCCU):
@@ -451,57 +451,6 @@ class TestCCUDevices(TestDevices):
         assert len(result1) > 0
 
         assert len(ccu.devices.already_initialized_devices) == len(result1)
-
-
-
-class TestCCURooms(TestDevices):
-    @pytest.fixture(scope="function")
-    def rooms(self, ccu):
-        return CCURooms(ccu)
-
-
-    def test_ccu_devices_wrong_init(self):
-        with pytest.raises(PMException):
-            return CCURooms(None)
-
-
-    def test_get_all(self, ccu, rooms):
-        assert len(rooms._room_dict) == 0
-        assert list(rooms) != []
-        all_len = len(rooms)
-        assert all_len > 0
-        assert isinstance(rooms._room_dict, dict)
-        assert len(rooms._room_dict) > 0
-
-        result1 = ccu.rooms.query(room_name="Balkon")
-        room = list(result1)[0]
-        assert isinstance(room, Room)
-
-        rooms.add(room)
-        assert len(rooms) == all_len
-
-
-    def test_query(self, ccu):
-        rooms1 = ccu.rooms.query(room_name="Balkon")
-        assert isinstance(rooms1, Rooms)
-        assert len(list(rooms1)) == 1
-
-        rooms2 = ccu.rooms.query(room_name="xxx")
-        assert len(list(rooms2)) == 0
-
-        rooms3 = ccu.rooms.query(room_name_regex="^Balkon$")
-        assert len(list(rooms3)) == 1
-
-        rooms4 = ccu.rooms.query(room_name_regex="^.*$")
-        assert len(list(rooms4)) > 2
-
-
-    def test_clear(self, ccu, rooms):
-        assert len(rooms._room_dict) == 0
-        assert len(rooms) > 0
-        rooms.clear()
-        assert len(rooms._room_dict) == 0
-
 
 
 

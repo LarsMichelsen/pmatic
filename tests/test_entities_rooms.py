@@ -27,8 +27,9 @@ from __future__ import unicode_literals
 import pytest
 
 import pmatic.utils as utils
-from pmatic.entities import Room
+from pmatic.entities import Room, Rooms
 from pmatic.ccu import CCURooms
+from pmatic.exceptions import PMException
 
 import lib
 
@@ -72,3 +73,55 @@ class TestRoom(lib.TestCCU):
 
         for channel in channels:
             assert channel.id in room.channel_ids
+
+
+
+class TestCCURooms(lib.TestCCU):
+    @pytest.fixture(scope="function")
+    def rooms(self, ccu):
+        return CCURooms(ccu)
+
+
+    def test_ccu_devices_wrong_init(self):
+        with pytest.raises(PMException):
+            return CCURooms(None)
+
+
+    def test_get_all(self, ccu, rooms):
+        assert len(rooms._room_dict) == 0
+        assert list(rooms) != []
+        all_len = len(rooms)
+        assert all_len > 0
+        assert isinstance(rooms._room_dict, dict)
+        assert len(rooms._room_dict) > 0
+
+        result1 = ccu.rooms.query(room_name="Balkon")
+        room = list(result1)[0]
+        assert isinstance(room, Room)
+
+        rooms.add(room)
+        assert len(rooms) == all_len
+
+
+    def test_query(self, ccu):
+        rooms1 = ccu.rooms.query(room_name="Balkon")
+        assert isinstance(rooms1, Rooms)
+        assert len(list(rooms1)) == 1
+
+        rooms2 = ccu.rooms.query(room_name="xxx")
+        assert len(list(rooms2)) == 0
+
+        rooms3 = ccu.rooms.query(room_name_regex="^Balkon$")
+        assert len(list(rooms3)) == 1
+
+        rooms4 = ccu.rooms.query(room_name_regex="^.*$")
+        assert len(list(rooms4)) > 2
+
+
+    def test_clear(self, ccu, rooms):
+        assert len(rooms._room_dict) == 0
+        assert len(rooms) > 0
+        rooms.clear()
+        assert len(rooms._room_dict) == 0
+
+
