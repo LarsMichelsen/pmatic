@@ -116,6 +116,11 @@
         <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="bp">True</span>
 
+        <span class="c1"># Register system.listMethods, system.methodHelp and system.methodSignature</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_introspection_functions</span><span class="p">()</span>
+        <span class="c1"># Allow multicalls</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">register_multicall_functions</span><span class="p">()</span>
+
 
     <span class="k">def</span> <span class="nf">system_listMethods</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">):</span> <span class="c1"># pylint:disable=unused-argument</span>
         <span class="sd">&quot;&quot;&quot;Wrap the standard system_listMethods of SimpleXMLRPCDispatcher. This is needed</span>
@@ -247,10 +252,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">EventXMLRPCServer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listen_address</span><span class="p">,</span>
                                          <span class="n">requestHandler</span><span class="o">=</span><span class="n">EventXMLRPCRequestHandler</span><span class="p">)</span>
 
-        <span class="c1"># Register system.listMethods, system.methodHelp and system.methodSignature</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">register_introspection_functions</span><span class="p">()</span>
-        <span class="c1"># Allow multicalls</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">register_multicall_functions</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">register_instance</span><span class="p">(</span><span class="n">EventHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
@@ -390,7 +391,7 @@
 
         <span class="c1"># Don&#39;t fetch new new devices here. Use the already known ones. The CCU will inform</span>
         <span class="c1"># us about the ones we don&#39;t know yet.</span>
-        <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">_already_initialized_devices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">already_initialized_devices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="n">devices</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;ADDRESS&quot;</span><span class="p">:</span> <span class="n">device</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;VERSION&quot;</span><span class="p">:</span> <span class="n">device</span><span class="o">.</span><span class="n">version</span><span class="p">})</span>
             <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="n">device</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
                 <span class="n">devices</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;ADDRESS&quot;</span><span class="p">:</span> <span class="n">channel</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="s2">&quot;VERSION&quot;</span><span class="p">:</span> <span class="n">channel</span><span class="o">.</span><span class="n">version</span><span class="p">})</span>
@@ -510,7 +511,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2016, Lars Michelsen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
     </div>
   </body>
 </html>

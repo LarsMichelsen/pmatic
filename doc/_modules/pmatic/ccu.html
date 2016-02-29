@@ -86,7 +86,6 @@
 <span class="kn">import</span> <span class="nn">pmatic.events</span>
 <span class="kn">import</span> <span class="nn">pmatic.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
 <span class="kn">from</span> <span class="nn">pmatic.entities</span> <span class="kn">import</span> <span class="n">Devices</span><span class="p">,</span> <span class="n">Device</span><span class="p">,</span> <span class="n">Rooms</span><span class="p">,</span> <span class="n">Room</span>
-<span class="kn">from</span> <span class="nn">pmatic.exceptions</span> <span class="kn">import</span> <span class="n">PMException</span>
 
 
 <div class="viewcode-block" id="CCU"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCU">[docs]</a><span class="k">class</span> <span class="nc">CCU</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -148,7 +147,7 @@
         <span class="k">if</span> <span class="s2">&quot;manager_ccu&quot;</span> <span class="ow">in</span> <span class="nb">globals</span><span class="p">()[</span><span class="s2">&quot;__builtins__&quot;</span><span class="p">]:</span>
             <span class="k">return</span> <span class="nb">globals</span><span class="p">()[</span><span class="s2">&quot;__builtins__&quot;</span><span class="p">][</span><span class="s2">&quot;manager_ccu&quot;</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">CCU</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">CCU</span><span class="p">,</span> <span class="n">cls</span><span class="p">)</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
 
 
     <span class="nd">@property</span>
@@ -183,8 +182,9 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span>
 
 
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">interfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns a list of available CCU communication interfaces.</span>
+        <span class="sd">&quot;&quot;&quot;Provides a list of available CCU communication interfaces.</span>
 
 <span class="sd">        Example output:</span>
 <span class="sd">            [ {u&#39;info&#39;: u&#39;BidCos-RF&#39;, u&#39;name&#39;: u&#39;BidCos-RF&#39;, u&#39;port&#39;: 2001},</span>
@@ -193,17 +193,28 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">interface_list_interfaces</span><span class="p">()</span>
 
 
+    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">bidcos_interfaces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns a list of all BidCos interfaces of the CCU.</span>
+        <span class="sd">&quot;&quot;&quot;Provides a list of all BidCos interfaces of the CCU.</span>
 
 <span class="sd">        Example output:</span>
 <span class="sd">          [{u&#39;address&#39;: u&#39;KEQ0714972&#39;,</span>
 <span class="sd">            u&#39;description&#39;: u&#39;&#39;,</span>
-<span class="sd">            u&#39;dutyCycle&#39;: u&#39;0&#39;,</span>
-<span class="sd">            u&#39;isConnected&#39;: True,</span>
-<span class="sd">            u&#39;isDefault&#39;: True}]</span>
+<span class="sd">            u&#39;duty_cycle&#39;: 0,</span>
+<span class="sd">            u&#39;is_connected&#39;: True,</span>
+<span class="sd">            u&#39;is_default&#39;: True}]</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">interface_list_bidcos_interfaces</span><span class="p">(</span><span class="n">interface</span><span class="o">=</span><span class="s2">&quot;BidCos-RF&quot;</span><span class="p">)</span>
+        <span class="n">interfaces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">interface</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">interface_list_bidcos_interfaces</span><span class="p">(</span>
+                                                    <span class="n">interface</span><span class="o">=</span><span class="s2">&quot;BidCos-RF&quot;</span><span class="p">):</span>
+            <span class="n">new</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">interface</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;dutyCycle&quot;</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+                <span class="n">new</span><span class="p">[</span><span class="n">utils</span><span class="o">.</span><span class="n">decamel</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span> <span class="o">=</span> <span class="n">val</span>
+            <span class="n">interfaces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">interfaces</span>
 
 
     <span class="c1"># FIXME: Consolidate API with self.devices.(...)</span>
@@ -240,17 +251,10 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span>
 
 
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_already_initialized_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Provides access to the already known devices without fetching new ones.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span>
-
-
     <span class="k">def</span> <span class="nf">_add_without_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span><span class="p">[</span><span class="n">device</span><span class="o">.</span><span class="n">address</span><span class="p">]</span> <span class="o">=</span> <span class="n">device</span>
 
 
-    <span class="c1"># FIXME: Add more filter options</span>
 <div class="viewcode-block" id="CCUDevices.query"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCUDevices.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;query([device_type=None[, device_name=None[, device_name_regex=None[, device_address=None ]]]])</span>
 <span class="sd">        Use this function to query the CCU for a collection of devices.</span>
@@ -364,7 +368,16 @@
 <div class="viewcode-block" id="CCUDevices.clear"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCUDevices.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove all objects from this devices collection.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">already_initialized_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides access to the already known devices without fetching new ones.</span>
+
+<span class="sd">        Directly provices access to the device dictionary where the address of the devices</span>
+<span class="sd">        is used as key and the device objects are the values.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span></div>
 
 
 
@@ -379,11 +392,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CCURooms</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ccu</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ccu</span><span class="p">,</span> <span class="n">CCU</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Invalid ccu object provided: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ccu</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span> <span class="o">=</span> <span class="n">ccu</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span>
-
 
 
     <span class="nd">@property</span>
@@ -400,7 +409,6 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_room_dict</span><span class="p">[</span><span class="n">room</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">room</span>
 
 
-    <span class="c1"># FIXME: Add filter options</span>
 <div class="viewcode-block" id="CCURooms.query"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCURooms.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">filters</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;query([room_name=None[, room_name_regex=None]])</span>
 <span class="sd">        Use this function to query the CCU for a collection of rooms.</span>
@@ -519,7 +527,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2016, Lars Michelsen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.5.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
     </div>
   </body>
 </html>
