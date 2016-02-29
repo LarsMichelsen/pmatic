@@ -41,8 +41,10 @@ from pmatic.notify import Pushover
 
 ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
-for room in ccu.rooms.query(room_name_regex="^Ba"):
-    print(room.name)
+print(ccu.signal_strengths)
+
+#for room in ccu.rooms.query(room_name_regex="^Ba"):
+#    print(room.name)
 
 sys.exit(1)
 

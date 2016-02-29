@@ -133,8 +133,9 @@ class CCU(object):
         return self._rooms
 
 
+    @property
     def interfaces(self):
-        """Returns a list of available CCU communication interfaces.
+        """Provides a list of available CCU communication interfaces.
 
         Example output:
             [ {u'info': u'BidCos-RF', u'name': u'BidCos-RF', u'port': 2001},
@@ -143,17 +144,28 @@ class CCU(object):
         return self.api.interface_list_interfaces()
 
 
+    @property
     def bidcos_interfaces(self):
-        """Returns a list of all BidCos interfaces of the CCU.
+        """Provides a list of all BidCos interfaces of the CCU.
 
         Example output:
           [{u'address': u'KEQ0714972',
             u'description': u'',
-            u'dutyCycle': u'0',
-            u'isConnected': True,
-            u'isDefault': True}]
+            u'duty_cycle': 0,
+            u'is_connected': True,
+            u'is_default': True}]
         """
-        return self.api.interface_list_bidcos_interfaces(interface="BidCos-RF")
+        interfaces = []
+        for interface in self.api.interface_list_bidcos_interfaces(
+                                                    interface="BidCos-RF"):
+            new = {}
+            for key, val in interface.items():
+                if key == "dutyCycle":
+                    val = int(val)
+                new[utils.decamel(key)] = val
+            interfaces.append(new)
+
+        return interfaces
 
 
     # FIXME: Consolidate API with self.devices.(...)
@@ -190,17 +202,10 @@ class CCUDevices(Devices):
         return self._device_dict
 
 
-    @property
-    def _already_initialized_devices(self):
-        """Provides access to the already known devices without fetching new ones."""
-        return self._device_dict
-
-
     def _add_without_init(self, device):
         self._device_dict[device.address] = device
 
 
-    # FIXME: Add more filter options
     def query(self, **filters):
         """query([device_type=None[, device_name=None[, device_name_regex=None[, device_address=None ]]]])
         Use this function to query the CCU for a collection of devices.
@@ -317,6 +322,15 @@ class CCUDevices(Devices):
         self._initialized = False
 
 
+    @property
+    def already_initialized_devices(self):
+        """Provides access to the already known devices without fetching new ones.
+
+        Directly provices access to the device dictionary where the address of the devices
+        is used as key and the device objects are the values."""
+        return self._device_dict
+
+
 
 class CCURooms(Rooms):
     """The central room management class.
@@ -329,11 +343,7 @@ class CCURooms(Rooms):
 
     def __init__(self, ccu):
         super(CCURooms, self).__init__(ccu)
-        if not isinstance(ccu, CCU):
-            raise PMException("Invalid ccu object provided: %r" % ccu)
-        self._ccu = ccu
         self._initialized = False
-
 
 
     @property
@@ -350,7 +360,6 @@ class CCURooms(Rooms):
         self._room_dict[room.id] = room
 
 
-    # FIXME: Add filter options
     def query(self, **filters):
         """query([room_name=None[, room_name_regex=None]])
         Use this function to query the CCU for a collection of rooms.

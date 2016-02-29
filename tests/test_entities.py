@@ -30,8 +30,8 @@ import pmatic.api
 import pmatic.utils as utils
 import lib
 from pmatic.entities import Entity, Channel, Device, Devices, HMESPMSw1Pl, ChannelClimaRegulator, \
-                            device_classes_by_type_name, channel_classes_by_type_name
-from pmatic.ccu import CCUDevices
+                            Rooms, Room, device_classes_by_type_name, channel_classes_by_type_name
+from pmatic.ccu import CCUDevices, CCURooms
 from pmatic.exceptions import PMException
 
 class TestEntity(lib.TestCCU):
@@ -213,35 +213,16 @@ class TestDevices(lib.TestCCU):
             Devices(None)
 
 
-    def test_get_all(self, ccu):
-        assert list(ccu.devices) != []
-        ccu.devices.clear()
-        assert len(ccu.devices) > 0
-
-
-    def test_get_multiple(self, ccu):
-        assert len(ccu.devices._device_dict) == 0
+    def test_get_all(self, ccu, devices):
+        assert list(devices) == []
+        assert len(devices) == 0
+        assert isinstance(devices._device_dict, dict)
+        assert len(devices._device_dict) == 0
 
         result1 = ccu.devices.query(device_type="HM-ES-PMSw1-Pl")
-        assert len(result1) > 0
-
-        assert len(ccu.devices._device_dict) == len(result1)
-
-        result2 = ccu.devices.query(device_type="xxx")
-        assert len(result2) == 0
-
-        result3 = ccu.devices.query(device_type="HM-CC-RT-DN")
-        assert len(result3) > 0
-
-        result4 = ccu.devices.query(device_name_regex="^%$")
-        assert len(result4) == 0
-
-        result5 = ccu.devices.query(device_name_regex="^Schlafzimmer.*$")
-        assert len(result5) > 0
-
-        all_returned = list(set(list(result1) + list(result3) + list(result5)))
-
-        assert len(ccu.devices._device_dict) == len(all_returned)
+        devices.add(list(result1)[0])
+        assert len(devices) == 1
+        assert len(devices._device_dict) == 1
 
 
     def test_add(self, ccu, devices):
@@ -260,7 +241,6 @@ class TestDevices(lib.TestCCU):
             devices.add(None)
 
         assert len(devices) == expected_len
-
 
 
     def test_exists(self, ccu, devices):
@@ -330,10 +310,60 @@ class TestDevices(lib.TestCCU):
             devices.get_device_or_channel_by_address("xxxxxxx")
 
 
+
 class TestCCUDevices(TestDevices):
     @pytest.fixture(scope="function")
     def devices(self, ccu):
         return CCUDevices(ccu)
+
+
+    def test_ccu_devices_wrong_init(self):
+        with pytest.raises(PMException):
+            return CCUDevices(None)
+
+
+    def test_get_all(self, ccu, devices):
+        assert len(devices._device_dict) == 0
+        assert list(devices) != []
+        all_len = len(devices)
+        assert all_len > 0
+        assert isinstance(devices._device_dict, dict)
+        assert len(devices._device_dict) > 0
+
+        result1 = ccu.devices.query(device_type="HM-ES-PMSw1-Pl")
+        devices.add(list(result1)[0])
+        assert len(devices) == all_len
+
+
+    def test_query(self, ccu):
+        assert len(ccu.devices._device_dict) == 0
+
+        result1 = ccu.devices.query(device_type="HM-ES-PMSw1-Pl")
+        assert len(result1) > 0
+
+        assert len(ccu.devices._device_dict) == len(result1)
+
+        result2 = ccu.devices.query(device_type="xxx")
+        assert len(result2) == 0
+
+        result3 = ccu.devices.query(device_type="HM-CC-RT-DN")
+        assert len(result3) > 0
+
+        result4 = ccu.devices.query(device_name_regex="^%$")
+        assert len(result4) == 0
+
+        result5 = ccu.devices.query(device_name_regex="^Schlafzimmer.*$")
+        assert len(result5) > 0
+
+        result6 = ccu.devices.query(device_address="")
+        assert len(result6) == 0
+
+        result7 = ccu.devices.query(device_address="KEQ0970393")
+        assert len(result7) > 0
+
+        all_returned = list(set(list(result1) + list(result3) + list(result5) + list(result7)))
+
+        assert len(ccu.devices._device_dict) == len(all_returned)
 
 
     def test_create_from_low_level_dict(self, API, devices):
@@ -354,23 +384,6 @@ class TestCCUDevices(TestDevices):
         assert len(devices) == expected_len-1
 
         devices.add_from_low_level_dict(device1_dict)
-        assert len(devices) == expected_len
-
-
-    def test_add(self, ccu, devices):
-        device1 = list(ccu.devices)[0]
-
-        assert len(devices) > 0
-
-        ccu.devices.delete(device1.address)
-        expected_len = len(ccu.devices)+1
-
-        devices.add(device1)
-        assert len(devices) == expected_len
-
-        with pytest.raises(PMException):
-            devices.add(None)
-
         assert len(devices) == expected_len
 
 
@@ -429,6 +442,68 @@ class TestCCUDevices(TestDevices):
 
         with pytest.raises(KeyError):
             devices.get_device_or_channel_by_address("xxxxxxx")
+
+
+    def test_already_initialized_devices(self, ccu):
+        assert len(ccu.devices.already_initialized_devices) == 0
+
+        result1 = ccu.devices.query(device_type="HM-ES-PMSw1-Pl")
+        assert len(result1) > 0
+
+        assert len(ccu.devices.already_initialized_devices) == len(result1)
+
+
+
+class TestCCURooms(TestDevices):
+    @pytest.fixture(scope="function")
+    def rooms(self, ccu):
+        return CCURooms(ccu)
+
+
+    def test_ccu_devices_wrong_init(self):
+        with pytest.raises(PMException):
+            return CCURooms(None)
+
+
+    def test_get_all(self, ccu, rooms):
+        assert len(rooms._room_dict) == 0
+        assert list(rooms) != []
+        all_len = len(rooms)
+        assert all_len > 0
+        assert isinstance(rooms._room_dict, dict)
+        assert len(rooms._room_dict) > 0
+
+        result1 = ccu.rooms.query(room_name="Balkon")
+        room = list(result1)[0]
+        assert isinstance(room, Room)
+
+        rooms.add(room)
+        assert len(rooms) == all_len
+
+
+    def test_query(self, ccu):
+        rooms1 = ccu.rooms.query(room_name="Balkon")
+        assert isinstance(rooms1, Rooms)
+        assert len(list(rooms1)) == 1
+
+        rooms2 = ccu.rooms.query(room_name="xxx")
+        assert len(list(rooms2)) == 0
+
+        rooms3 = ccu.rooms.query(room_name_regex="^Balkon$")
+        assert len(list(rooms3)) == 1
+
+        rooms4 = ccu.rooms.query(room_name_regex="^.*$")
+        assert len(list(rooms4)) > 2
+
+
+    def test_clear(self, ccu, rooms):
+        assert len(rooms._room_dict) == 0
+        assert len(rooms) > 0
+        rooms.clear()
+        assert len(rooms._room_dict) == 0
+
+
+
 
 def test_device_class_list():
     assert len(device_classes_by_type_name) > 0

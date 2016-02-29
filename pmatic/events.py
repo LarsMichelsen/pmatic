@@ -340,7 +340,7 @@ class EventHandler(utils.LogMixin, object):
 
         # Don't fetch new new devices here. Use the already known ones. The CCU will inform
         # us about the ones we don't know yet.
-        for device in self._ccu.devices._already_initialized_devices.values():
+        for device in self._ccu.devices.already_initialized_devices.values():
             devices.append({"ADDRESS": device.address, "VERSION": device.version})
             for channel in device.channels:
                 devices.append({"ADDRESS": channel.address, "VERSION": channel.version})
