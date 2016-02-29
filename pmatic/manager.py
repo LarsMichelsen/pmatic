@@ -1782,9 +1782,9 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
 
     def register_signal_handlers(self):
-        signal.signal(2,  self.signal_handler) # INT
-        signal.signal(3,  self.signal_handler) # QUIT
-        signal.signal(15, self.signal_handler) # TERM
+        signal.signal(signal.SIGINT,   self.signal_handler)
+        signal.signal(signal.SIGQUIT, self.signal_handler)
+        signal.signal(signal.SIGTERM,  self.signal_handler)
 
 
     def signal_handler(self, signum, _unused_stack_frame):
