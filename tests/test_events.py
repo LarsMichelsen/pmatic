@@ -40,7 +40,7 @@ import pmatic.events
 class TestEventXMLRPCServer(object):
     @pytest.fixture(scope="class")
     def server(self):
-        return pmatic.events.EventXMLRPCServer(("127.0.0.1", 9123))
+        return pmatic.events.EventXMLRPCServer(("127.0.0.1", 9124))
 
     def test_system_list_methods(self, server):
         methods = server.system_listMethods("xxx")
@@ -54,7 +54,7 @@ class TestEventXMLRPCServer(object):
         server.start()
 
         try:
-            urlopen("http://127.0.0.1:9123")
+            urlopen("http://127.0.0.1:9124")
         except HTTPError as e:
             assert "Unsupported method" in e.reason
             assert e.code == 501
@@ -63,5 +63,4 @@ class TestEventXMLRPCServer(object):
 
         socket.setdefaulttimeout(1)
         with pytest.raises(socket.timeout):
-            urlopen("http://127.0.0.1:9123")
-
+            urlopen("http://127.0.0.1:9124")
