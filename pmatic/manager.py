@@ -1628,11 +1628,9 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
             # it to the same StringIO() object.
             with catch_stdout_and_stderr(self.output):
                 script_globals = {}
-                if utils.is_py2():
-                    execfile(script_path, script_globals)
-                else:
-                    exec(compile(open(script_path, "rb").read(),
-                                 script_path, 'exec'), script_globals)
+                # would use execfile() but it's not available in Python 3.x
+                exec(compile(open(script_path, "rb").read(),
+                             script_path, 'exec'), script_globals)
         except SystemExit as e:
             exit_code = e.code
         except Exception as e:
