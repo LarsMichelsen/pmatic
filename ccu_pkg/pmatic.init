@@ -45,7 +45,7 @@ info)
   echo "Info: <center><a href='/' onclick='javascript:event.target.port=9120' target='_blank'>pmatic Manager</a><center>"
   echo "Version: $VERSION"
   echo "Name: pmatic"
-  echo "Operations: uninstall"
+  echo "Operations: uninstall restart"
   #echo "Config-Url: $CONFIG_URL"
   #echo "Update: $CONFIG_URL/update-check.cgi"
   ;;
@@ -65,5 +65,9 @@ uninstall)
       rm -f $INIT_TARGET
       mount -o remount,ro /
   fi
+  ;;
+*)
+  echo "Usage: $0 {start|stop|restart|uninstall}" >&2
+  exit 1
   ;;
 esac
