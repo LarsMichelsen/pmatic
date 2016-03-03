@@ -1815,6 +1815,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
     def _do_register_for_ccu_events(self):
         self.ccu.events.init()
         self.ccu.devices.on_value_updated(self._on_value_updated)
+        self.logger.info("Event processing initialized.")
         self._events_initialized = True
 
 

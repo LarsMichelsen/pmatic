@@ -19,9 +19,25 @@ case "$1" in
   fi
   
   if [ -z "$PID" ]; then
+      echo -n "Starting pmatic manager..."
       /usr/local/bin/python /usr/local/bin/pmatic-manager 2>&1 | logger -t homematic -p user.info
       logger -t homematic -p user.info "started pmatic manger"
+      echo "OK"
   fi
+  ;;
+stop)
+  echo -n "Stopping pmatic manager..."
+  if [ -n "$PID" ]; then
+      kill $PID
+      echo "OK"
+      logger -t homematic -p user.info "stopped pmatic manger"
+  else
+      echo "(already stopped) OK"
+  fi
+  ;;
+restart)
+  $0 stop
+  $0 start
   ;;
 info)
   echo "Info: <center><b>pmatic CCU Addon</b><center>"
