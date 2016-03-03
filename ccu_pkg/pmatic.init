@@ -10,8 +10,7 @@ PID=$(ps -o pid,args | awk '{if($3=="/usr/local/bin/pmatic-manager"){print $1}}'
 # Seems to be missing during startup
 export PATH=$PATH:/usr/local/bin
 
-case "$1" in
-""|start)
+start() {
   if [ ! -h $INIT_TARGET ]; then
       mount -o remount,rw /
       ln -sf $CONFIG_DIR/rc.d/pmatic $INIT_TARGET
@@ -24,8 +23,9 @@ case "$1" in
       logger -t homematic -p user.info "started pmatic manger"
       echo "OK"
   fi
-  ;;
-stop)
+}
+
+stop() {
   echo -n "Stopping pmatic manager..."
   if [ -n "$PID" ]; then
       kill $PID
@@ -34,10 +34,18 @@ stop)
   else
       echo "(already stopped) OK"
   fi
+}
+
+case "$1" in
+""|start)
+    start
+  ;;
+stop)
+    stop
   ;;
 restart)
-  $0 stop
-  $0 start
+  stop
+  start
   ;;
 info)
   echo "Info: <center><b>pmatic CCU Addon</b><center>"
