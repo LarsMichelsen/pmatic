@@ -93,7 +93,7 @@ parser.add_argument('-c',
     dest="ccu_address",
     help="When the pmatic manager is executed on another host than the CCU, "
          "you need to configure the address and credentials to access the "
-         "CCU. When executed on the CCU, these options are ignored. If you ",
+         "CCU. When executed on the CCU, these options are ignored.",
     default=pmatic.manager.Config.ccu_address)
 parser.add_argument('-u',
     dest="ccu_username",
@@ -135,6 +135,10 @@ pmatic.manager.Config.ccu_enabled = args.ccu_enabled
 pmatic.manager.Config.ccu_address = args.ccu_address
 if args.ccu_username and args.ccu_password:
     pmatic.manager.Config.ccu_credentials = args.ccu_username, args.ccu_password
+
+logger.info("------------------------------------------")
+logger.info("Starting up (Version %s)" % pmatic.__version__)
+logger.info("------------------------------------------")
 
 try:
     manager = pmatic.manager.Manager((args.address, args.port))

@@ -1713,7 +1713,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
     #       [session_login] JSONRPCError: too many sessions (501)
     def _init_ccu(self):
         if Config.ccu_enabled:
-            self.logger.info("Initializing connection with CCU")
+            self.logger.info("Initializing connection with CCU...")
             self.ccu = pmatic.CCU(address=Config.ccu_address,
                                   credentials=Config.ccu_credentials)
         else:
@@ -1806,6 +1806,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         if not Config.ccu_enabled:
             return
 
+        self.logger.info("Registering for CCU events...")
         thread = threading.Thread(target=self._do_register_for_ccu_events)
         thread.daemon = True
         thread.start()

@@ -243,6 +243,9 @@ install-ccu-pmatic:
 	    --exclude=__pycache__ \
 	    pmatic \
 	    root@$(CCU_HOST):/usr/local/etc/config/addons/pmatic/python/lib/python2.7/
+	rsync -aRv --no-g \
+	    pmatic-manager \
+	    root@$(CCU_HOST):/usr/local/bin/pmatic-manager
 
 version:
 	@newversion=$$(dialog --stdout --inputbox "New Version:" 0 0 "$(VERSION)") ; \
