@@ -1665,19 +1665,28 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
 
 
 
-# Hook into ServerHandler to be able to catch exceptions about disconnected clients
-def _server_handler_write(self, data):
-    try:
-        SimpleHandler.write(self, data)
-    except socket.error as e:
-        # Client disconnected while answering it's request.
-        if e.errno != 32:
-            raise
+class PMServerHandler(wsgiref.simple_server.ServerHandler, utils.LogMixin):
+    server_software = 'pmatic-manager'
+
+    # Hook into ServerHandler to be able to catch exceptions about disconnected clients
+    def _server_handler_write(self, data):
+        try:
+            SimpleHandler.write(self, data)
+        except socket.error as e:
+            # Client disconnected while answering it's request.
+            if e.errno != 32:
+                raise
 
 
-wsgiref.simple_server.ServerHandler.server_software = 'pmatic-manager'
+    def log_exception(self, exc_info):
+        self.logger.error("Unhandled exception", exc_info=True)
+
+
+
 # Found no elegant way to patch it. Sorry.
-wsgiref.simple_server.ServerHandler.write = _server_handler_write
+wsgiref.simple_server._ServerHandler = wsgiref.simple_server.ServerHandler
+wsgiref.simple_server.ServerHandler = PMServerHandler
+
 
 
 class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
@@ -1822,10 +1831,6 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 class RequestHandler(wsgiref.simple_server.WSGIRequestHandler, utils.LogMixin):
     def log_message(self, fmt, *args):
         self.logger.debug("%s %s", self.client_address[0], fmt%args)
-
-
-    def log_exception(self, exc_info):
-        self.logger.error("Unhandled exception", exc_info=True)
 
 
 
