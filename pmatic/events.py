@@ -100,7 +100,7 @@ class EventXMLRPCRequestHandler(SimpleXMLRPCRequestHandler, utils.LogMixin):
 
 
 
-class EventListener(object):
+class EventListener(utils.LogMixin):
     """Manages events received from the CCU XML-RPC API.
 
     This class can tell the CCU to send status update events to pmatic
@@ -199,9 +199,10 @@ class EventListener(object):
 
     def _start_rpc_server(self):
         """Starts listening for incoming XML-RPC messages from CCU."""
+        self.logger.debug("Start listening for events on %s TCP %s" %
+                            (self._listen_address[0] or "*", self._listen_address[1]))
         self._server = EventXMLRPCServer(self._listen_address,
                                          requestHandler=EventXMLRPCRequestHandler)
-
         self._server.register_instance(EventHandler(self._ccu, self))
         self._server.start()
 
@@ -216,6 +217,8 @@ class EventListener(object):
             url=self.rpc_server_url, interfaceId=self._interface_id)
         if not result:
             raise PMConnectionError("Failed to register with the XML-RPC API of the CCU.")
+        elif result == True:
+            self.logger.debug("Successfully registered event listener with CCU")
 
 
     def _find_listen_address_to_reach_ccu(self):
