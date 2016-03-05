@@ -457,7 +457,7 @@ class LocalAPI(AbstractAPI):
     def __init__(self):
         super(LocalAPI, self).__init__()
         self._tclsh = None
-        self._tclsh_lock = threading.Lock()
+        self._tclsh_lock = threading.RLock()
 
         self._init_tclsh()
         self._init_methods()
@@ -522,6 +522,22 @@ class LocalAPI(AbstractAPI):
 
         The API method needs to be one of the methods which are available
         on the device (with the given arguments)."""
+        try:
+            self._tclsh_lock.acquire()
+            response = self._do_call(method_name_int, **kwargs)
+            return response
+        except IOError as e:
+            # Try to restart in case of issues with the tclsh process
+            self.logger.warning("Exception in API call. Restarting tclsh "
+                                "and retrying this API call.", exc_info=True)
+            self._init_tclsh()
+            response = self._do_call(method_name_int, **kwargs)
+            return response
+        finally:
+            self._tclsh_lock.release()
+
+
+    def _do_call(self, method_name_int, **kwargs):
         method = self._get_method(method_name_int)
         parsed_args = self._get_args(method, kwargs)
         file_path = "/www/api/methods/%s" % method["SCRIPT_FILE"]
@@ -547,13 +563,6 @@ class LocalAPI(AbstractAPI):
 
         self.logger.debug("  TCL: %r", tcl)
 
-        # Check whether or not tclsh is still alive.
-        if self._tclsh.poll() != None:
-            self.logger.warning("tclsh terminated (Exit-Code: %d. Starting a new one..." %
-                                                                        self._tclsh.poll())
-            self._init_tclsh()
-
-        self._tclsh_lock.acquire()
         self._tclsh.stdin.write(tcl)
 
         response_txt = ""
@@ -564,13 +573,18 @@ class LocalAPI(AbstractAPI):
                 break # found our terminator (see above)
             else:
                 response_txt += line
-        self._tclsh_lock.release()
 
         self.logger.debug("  RESPONSE: %r", response_txt)
         # index 0 would be the header, but we don't need it
         body = response_txt.split("\n\n", 1)[1]
 
-        return self._parse_api_response(method_name_int, body)
+        try:
+            return self._parse_api_response(method_name_int, body)
+        except PMException:
+            self.logger.warning("Exception in API call.")
+            self.logger.warning("  TCL: %r", tcl)
+            self.logger.warning("  BODY: %r", body)
+            raise
 
 
     def close(self):
