@@ -40,14 +40,20 @@ class LogMixin(object):
 
     Makes a logger available via self.logger
     """
+    _cls_logger = None
+
     @property
     def logger(self):
-        return logging.getLogger('.'.join([__name__, self.__class__.__name__]))
+        if not hasattr(self, "_logger"):
+            self._logger = logging.getLogger('.'.join([__name__, self.__class__.__name__]))
+        return self._logger
 
 
     @classmethod
     def cls_logger(cls):
-        return logging.getLogger('.'.join([__name__, cls.__name__]))
+        if not cls._cls_logger:
+            cls._cls_logger = logging.getLogger('.'.join([__name__, cls.__name__]))
+        return cls._cls_logger
 
 
 
