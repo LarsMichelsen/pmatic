@@ -150,7 +150,7 @@
 
 
 
-<div class="viewcode-block" id="EventListener"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.events.EventListener">[docs]</a><span class="k">class</span> <span class="nc">EventListener</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="EventListener"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.events.EventListener">[docs]</a><span class="k">class</span> <span class="nc">EventListener</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">LogMixin</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Manages events received from the CCU XML-RPC API.</span>
 
 <span class="sd">    This class can tell the CCU to send status update events to pmatic</span>
@@ -249,9 +249,10 @@
 
     <span class="k">def</span> <span class="nf">_start_rpc_server</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Starts listening for incoming XML-RPC messages from CCU.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Start listening for events on </span><span class="si">%s</span><span class="s2"> TCP </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listen_address</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="s2">&quot;*&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_listen_address</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="n">EventXMLRPCServer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_listen_address</span><span class="p">,</span>
                                          <span class="n">requestHandler</span><span class="o">=</span><span class="n">EventXMLRPCRequestHandler</span><span class="p">)</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">register_instance</span><span class="p">(</span><span class="n">EventHandler</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="p">,</span> <span class="bp">self</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
 
@@ -266,6 +267,8 @@
             <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rpc_server_url</span><span class="p">,</span> <span class="n">interfaceId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interface_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">PMConnectionError</span><span class="p">(</span><span class="s2">&quot;Failed to register with the XML-RPC API of the CCU.&quot;</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">result</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Successfully registered event listener with CCU&quot;</span><span class="p">)</span>
 
 
     <span class="k">def</span> <span class="nf">_find_listen_address_to_reach_ccu</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
