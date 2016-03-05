@@ -253,7 +253,7 @@ class Channel(utils.LogMixin, Entity):
                 raise
 
         for param_id, value in values.items():
-            self._values[param_id]._set_from_api(value)
+            self._values[param_id].set_from_api(value)
 
 
     @property

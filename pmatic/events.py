@@ -145,6 +145,11 @@ class EventListener(utils.LogMixin):
         self._init_listen_address(listen_address)
         self._init_interface_id(interface_id)
 
+        self._callbacks = {
+            "value_updated": [],
+            "value_changed": [],
+        }
+
 
     def _init_listen_address(self, listen_address):
         """Parses the listen_address provided by the user."""
@@ -283,6 +288,46 @@ class EventListener(utils.LogMixin):
         return self._server.is_alive()
 
 
+    def on_value_changed(self, func):
+        """Register a function to be called each time any value of a device is changed."""
+        self.register_callback("value_changed", func)
+
+
+    def on_value_updated(self, func):
+        """Register a function to be called each time a value of any device is updated."""
+        self.register_callback("value_updated", func)
+
+
+    def _get_callbacks(self, cb_name):
+        try:
+            return self._callbacks[cb_name]
+        except KeyError:
+            raise PMException("Invalid callback %s specified (Available: %s)" %
+                                    (cb_name, ", ".join(self._callbacks.keys())))
+
+
+    def register_callback(self, cb_name, func):
+        """Register func to be executed as callback."""
+        self._get_callbacks(cb_name).append(func)
+
+
+    def remove_callback(self, cb_name, func):
+        """Remove the specified callback func."""
+        try:
+            self._get_callbacks(cb_name)[func]
+        except KeyError:
+            pass # allow deletion of non registered function
+
+
+    def callback(self, cb_name, *args, **kwargs):
+        """Execute all registered callbacks for this event."""
+        for callback in self._get_callbacks(cb_name):
+            try:
+                callback(*args, **kwargs)
+            except Exception as e:
+                raise PMException("Exception in callback (%s - %s): %s" % (cb_name, callback, e))
+
+
 
 class EventHandler(utils.LogMixin, object):
     """Handles incoming XML-RPC calls."""
@@ -327,7 +372,13 @@ class EventHandler(utils.LogMixin, object):
         """Receives an event from the CCU and applies the update."""
         self.logger.debug("[EVENT] %s %s = %r", address, value_key, value)
         obj = self._ccu.devices.get_device_or_channel_by_address(address)
-        obj.values[value_key]._set_from_api(value)
+
+        value_changed = obj.values[value_key].set_from_api(value)
+
+        self.listener.callback("value_updated", obj.values[value_key])
+        if value_changed:
+            self.listener.callback("value_changed", obj.values[value_key])
+
         return True
 
 

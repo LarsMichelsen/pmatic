@@ -219,15 +219,18 @@ class Parameter(object):
             return False
 
 
-    def _set_from_api(self, value):
+    def set_from_api(self, value):
         """pmatic internal method to set the parameter value.
 
         Users: Don't use this method!
 
         This method is used to set the parameter internally when the current
         value has been fetched from the API or received as event. Setting only
-        the internal value in this object."""
-        self._set_value(self._from_api_value(value))
+        the internal value in this object.
+
+        This method returns *True* when the value has changed compared to the
+        current value and *False* if not."""
+        return self._set_value(self._from_api_value(value))
 
 
     def _set_value(self, value):
@@ -249,6 +252,9 @@ class Parameter(object):
         self._callback("value_updated")
         if value != old_value:
             self._callback("value_changed")
+            return True
+        else:
+            return False
 
 
     def set_to_default(self):
