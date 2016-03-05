@@ -571,7 +571,7 @@ class LocalAPI(AbstractAPI):
 
         response_txt = ""
         while True:
-            line = self._tclsh.stdout.readline().decode("latin-1")
+            line = self._tclsh.stdout.readline().decode("utf-8")
             if not line or (len(line) > 1 and line[-2] == "\0"):
                 response_txt += line[:-2] + "\n"
                 break # found our terminator (see above)
