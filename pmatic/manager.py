@@ -1213,8 +1213,9 @@ class PageEventLog(PageHandler, Html, utils.LogMixin):
             self.write("<tr>")
             self.write("<td>%s</td>" % time.strftime("%Y-%m-%d %H:%M:%S",
                                                      time.localtime(event["time"])))
+            self.write("<td>%s (%s)</td>" % (self.escape(param.channel.device.name),
+                                             self.escape(param.channel.device.address)))
             self.write("<td>%s</td>" % self.escape(param.channel.name))
-            self.write("<td>%s</td>" % self.escape(param.channel.device.name))
             self.write("<td>%s</td>" % self.escape(param.name))
             self.write("<td>%s</td>" % self.escape(ty))
             self.write("<td>%s (Raw value: %s)</td>" %
