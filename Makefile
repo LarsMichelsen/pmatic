@@ -194,6 +194,7 @@ dist-ccu-step2:
 	rsync -av $(CCU_PREDIST_PATH)/python $(CCU_PKG_PATH)/
 	rsync -aRv --no-g \
 	    --exclude=\*.pyc \
+	    --exclude=.\*.swp \
 	    --exclude=__pycache__ \
 	    pmatic examples pmatic-manager manager_static \
 	    $(CCU_PKG_PATH)
@@ -233,6 +234,7 @@ install-ccu-python:
 	@echo TODO
 	rsync -av --no-g \
 	    --exclude=\*.pyc \
+	    --exclude=.\*.swp \
 	    --exclude=__pycache__ \
 	    $(CCU_PREDIST_PATH)/python/* \
 	    root@$(CCU_HOST):/usr/local/etc/config/addons/pmatic/python/
@@ -240,6 +242,7 @@ install-ccu-python:
 install-ccu-pmatic:
 	rsync -aRv --no-g \
 	    --exclude=\*.pyc \
+	    --exclude=.\*.swp \
 	    --exclude=__pycache__ \
 	    pmatic \
 	    root@$(CCU_HOST):/usr/local/etc/config/addons/pmatic/python/lib/python2.7/

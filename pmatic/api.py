@@ -457,6 +457,8 @@ class LocalAPI(AbstractAPI):
     def __init__(self):
         super(LocalAPI, self).__init__()
         self._tclsh = None
+        self._tclsh_lock = threading.Lock()
+
         self._init_tclsh()
         self._init_methods()
         self._register_atexit_handler()
@@ -542,6 +544,7 @@ class LocalAPI(AbstractAPI):
 
         self.logger.debug("  TCL: %r", tcl)
 
+        self._tclsh_lock.acquire()
         self._tclsh.stdin.write(tcl)
 
         response_txt = ""
@@ -552,6 +555,7 @@ class LocalAPI(AbstractAPI):
                 break # found our terminator (see above)
             else:
                 response_txt += line
+        self._tclsh_lock.release()
 
         self.logger.debug("  RESPONSE: %r", response_txt)
         # index 0 would be the header, but we don't need it
