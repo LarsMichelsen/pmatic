@@ -655,6 +655,36 @@ terminates (for some reason) or the timeout happens.</p>
 is still alive or <code class="docutils literal"><span class="pre">False</span></code> when the listener has been terminated.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pmatic.events.EventListener.on_value_changed">
+<code class="descname">on_value_changed</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/events.html#EventListener.on_value_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.events.EventListener.on_value_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a function to be called each time any value of a device is changed.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.events.EventListener.on_value_updated">
+<code class="descname">on_value_updated</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/events.html#EventListener.on_value_updated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.events.EventListener.on_value_updated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a function to be called each time a value of any device is updated.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.events.EventListener.register_callback">
+<code class="descname">register_callback</code><span class="sig-paren">(</span><em>cb_name</em>, <em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/events.html#EventListener.register_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.events.EventListener.register_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register func to be executed as callback.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.events.EventListener.remove_callback">
+<code class="descname">remove_callback</code><span class="sig-paren">(</span><em>cb_name</em>, <em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/events.html#EventListener.remove_callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.events.EventListener.remove_callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove the specified callback func.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.events.EventListener.callback">
+<code class="descname">callback</code><span class="sig-paren">(</span><em>cb_name</em>, <em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/events.html#EventListener.callback"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.events.EventListener.callback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute all registered callbacks for this event.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
