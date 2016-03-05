@@ -465,6 +465,7 @@ class LocalAPI(AbstractAPI):
 
 
     def _init_tclsh(self):
+        self._tclsh_lock.acquire()
         try:
             self._tclsh = subprocess.Popen(["/bin/tclsh"],
                 stdin=subprocess.PIPE,
@@ -472,6 +473,7 @@ class LocalAPI(AbstractAPI):
                 cwd="/www/api",
                 shell=False)
         except OSError as e:
+            self._tclsh_lock.release()
             if e.errno == 2:
                 raise PMException("Could not find /bin/tclsh. Maybe running local API on "
                                   "non CCU device?")
@@ -490,6 +492,7 @@ class LocalAPI(AbstractAPI):
             "array set INTERFACE_LIST [ipc_getInterfaces]\n"
             "array set METHOD_LIST  [file_load %s]\n" % self._methods_file
         )
+        self._tclsh_lock.release()
 
 
     def _get_methods_config(self):
@@ -544,6 +547,12 @@ class LocalAPI(AbstractAPI):
 
         self.logger.debug("  TCL: %r", tcl)
 
+        # Check whether or not tclsh is still alive.
+        if self._tclsh.poll() != None:
+            self.logger.warning("tclsh terminated (Exit-Code: %d. Starting a new one..." %
+                                                                        self._tclsh.poll())
+            self._init_tclsh()
+
         self._tclsh_lock.acquire()
         self._tclsh.stdin.write(tcl)
 
@@ -566,8 +575,10 @@ class LocalAPI(AbstractAPI):
 
     def close(self):
         """Closes the "connection" with the CCU. In fact it terminates the tclsh process."""
+        self._tclsh_lock.acquire()
         if self._tclsh:
             self._tclsh.kill()
+        self._tclsh_lock.release()
 
 
 
