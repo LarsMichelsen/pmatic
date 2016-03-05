@@ -526,10 +526,14 @@ class LocalAPI(AbstractAPI):
             self._tclsh_lock.acquire()
             response = self._do_call(method_name_int, **kwargs)
             return response
+        except PMException:
+            raise
+
         except IOError as e:
-            # Try to restart in case of issues with the tclsh process
-            self.logger.warning("Exception in API call. Restarting tclsh "
-                                "and retrying this API call.", exc_info=True)
+            # Try to restart in case of issues with the tclsh process. This seem to often happen
+            # after 601 (TCL error) responses. Try to deal with it.
+            self.logger.warning("Exception in API call (%s). Restarting tclsh "
+                                "and retrying this API call.", e)
             self._init_tclsh()
             response = self._do_call(method_name_int, **kwargs)
             return response
