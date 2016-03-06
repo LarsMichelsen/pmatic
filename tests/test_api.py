@@ -64,6 +64,10 @@ class SpecificAPI(pmatic.api.AbstractAPI):
     def close(self):
         pass
 
+    def _get_methods_config(self):
+        return []
+
+
 
 class TestAbstractAPI(object):
     @pytest.fixture(scope="function")
@@ -135,4 +139,4 @@ class TestAbstractAPI(object):
             API.call("bla")
 
         with pytest.raises(NotImplementedError):
-            super(SpecificAPI, API).close()
+            AbstractAPI.close(API)
