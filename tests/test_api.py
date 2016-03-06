@@ -76,8 +76,10 @@ class TestAbstractAPI(object):
 
 
     def test_replace_wrong_encoded_json(self):
-        assert utils.is_text(pmatic.api.AbstractAPI._replace_wrong_encoded_json(b"xxxx"))
-        assert pmatic.api.AbstractAPI._replace_wrong_encoded_json("\\{\n \\[\n \\/\n") == "{\n [\n /\n"
+        assert utils.is_text(pmatic.api.AbstractAPI._replace_wrong_encoded_json("xxxx"))
+        assert pmatic.api.AbstractAPI._replace_wrong_encoded_json("xxxx") == "xxxx"
+        assert pmatic.api.AbstractAPI._replace_wrong_encoded_json("\\{\n \\[\n \\/\n") \
+                                                                  == "{\n [\n /\n"
         assert pmatic.api.AbstractAPI._replace_wrong_encoded_json("{\\{") == "{{"
 
 
