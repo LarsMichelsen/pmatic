@@ -65,12 +65,12 @@ Even if you write pmatic in Python, you can also execute custom ReGa
 (Homematic Script) through pmatic and also process the output of these
 scripts, if you like.
 
-I am currently developing the pmatic manager which is a standalone daemon
-process running on the CCU that gives you comfortable access via your web
-browser to your scripts. You can currently list, upload, delete and even
-execute your scripts and get the whole output of them using your browser.
-I plan to integrate a script scheduler and the option to trigger your
-scripts based on events received from the CCU in the next weeks.
+The pmatic manager provides you with a web GUI on your CCU which you can
+use to manage (upload, delete, test) your pmatic scripts with. You can
+also create scheduling plans in which situations your scripts should be
+executed automatically. This can currently be on manager startup, based
+on time or based on device events reported by the CCU. Take a look at
+the documentation for screenshots and more details.
 
 ## Requirements
 
