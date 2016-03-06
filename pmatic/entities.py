@@ -281,7 +281,7 @@ class Channel(utils.LogMixin, Entity):
         all channel values except the maintenance channel.
         The values are sorted by the titles."""
         formated = []
-        for title, value in sorted([ (v.title, v) for v in self.values.values() if v.readable ]):
+        for title, value in sorted([ (v.name, v) for v in self.values.values() if v.readable ]):
             formated.append("%s: %s" % (title, value))
         return ", ".join(formated)
 
@@ -404,7 +404,7 @@ class ChannelSwitch(Channel):
 
     @property
     def summary_state(self):
-        return "%s: %s" % (self.values["STATE"].title, self.is_on and "on" or "off")
+        return "%s: %s" % (self.values["STATE"].name, self.is_on and "on" or "off")
 
 
     def toggle(self):
