@@ -133,10 +133,10 @@ class TestAbstractAPI(object):
 
     def test_abstract_methods(self, API):
         with pytest.raises(NotImplementedError):
-            API._get_methods_config()
+            pmatic.api.AbstractAPI._get_methods_config(API)
 
         with pytest.raises(NotImplementedError):
             API.call("bla")
 
         with pytest.raises(NotImplementedError):
-            AbstractAPI.close(API)
+            pmatic.api.AbstractAPI.close(API)
