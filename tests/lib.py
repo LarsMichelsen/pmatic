@@ -127,7 +127,7 @@ def wrap_urlopen(url, data=None, timeout=None):
     # FIXME: The ccu is performing wrong encoding at least for output of
     # executed rega scripts. But maybe this is a generic problem. Let's see
     # and only fix the known issues for the moment.
-    if b"ReGa.runScript" in data:
+    if b"ReGa.runScript" in data or b"Interface.getParamsetDescription" in data:
         response = pmatic.api.AbstractAPI._replace_wrong_encoded_json(
                                 response.decode("utf-8")).encode("utf-8")
 
