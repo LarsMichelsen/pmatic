@@ -106,6 +106,7 @@ class AbstractAPI(utils.LogMixin):
     def __init__(self):
         super(AbstractAPI, self).__init__()
         self._methods = {}
+        self._fail_exc = None
 
 
     def _register_atexit_handler(self):
@@ -148,7 +149,7 @@ class AbstractAPI(utils.LogMixin):
         self.close()
 
 
-    def __getattr__(self, func_name):
+    def __getattr__(self, method_name_int):
         """Realizes dynamic methods based on the methods supported by the API.
 
         The method names are nearly the same as provided by the CCU
@@ -158,11 +159,15 @@ class AbstractAPI(utils.LogMixin):
         by the _to_internal_name() method. For details take a look at that
         function.
         """
-        method = self._methods.get(func_name)
-        if method:
-            return lambda **kwargs: self.call(func_name, **kwargs)
-        else:
-            raise AttributeError("Invalid API call: %s" % func_name)
+        if not self.initialized:
+            self._fail_exc = None
+            try:
+                self._initialize()
+            except Exception as e:
+                self._fail_exc = e
+                raise
+
+        return lambda **kwargs: self.call(method_name_int, **kwargs)
 
 
     def _to_internal_name(self, method_name_api):
@@ -191,6 +196,30 @@ class AbstractAPI(utils.LogMixin):
 
         Has to be implemented by the specific API class."""
         raise NotImplementedError()
+
+
+    def _initialize(self):
+        """Initializes the connection with the CCU. This may fail and is allowed to
+        be called a second time to retry the initialization.
+
+        Has to be implemented by the specific API class."""
+        return NotImplementedError()
+
+
+    @property
+    def initialized(self):
+        """Tells the caller whether or not the "connection" with the CCU is ready
+        for other API calls.
+
+        Has to be implemented by the specific API class."""
+        return NotImplementedError()
+
+
+    @property
+    def fail_reason(self):
+        """When the API has not been initialized successfully, this provides access to the
+        exception caused the problem. Otherwise it is set to *None*."""
+        return self._fail_exc
 
 
     def call(self, method_name, **kwargs): # pylint:disable=unused-argument
@@ -287,6 +316,8 @@ class RemoteAPI(AbstractAPI):
         self._set_credentials(credentials)
         self._set_connect_timeout(connect_timeout)
 
+
+    def _initialize(self):
         self.login()
         self._init_methods()
         self._register_atexit_handler()
@@ -334,6 +365,13 @@ class RemoteAPI(AbstractAPI):
                    "Write(stdout);\n"
         )
         return response.split("\r\n")
+
+
+    @property
+    def initialized(self):
+        """Tells the caller whether or not the "connection" with the CCU is ready
+        for other API calls."""
+        return self._session_id is not None
 
 
     def login(self):
@@ -459,6 +497,8 @@ class LocalAPI(AbstractAPI):
         self._tclsh = None
         self._tclsh_lock = threading.RLock()
 
+
+    def _initialize(self):
         self._init_tclsh()
         self._init_methods()
         self._register_atexit_handler()
@@ -517,8 +557,15 @@ class LocalAPI(AbstractAPI):
         return args_parsed.rstrip(" ") + "]"
 
 
+    @property
+    def initialized(self):
+        """Tells the caller whether or not the "connection" with the CCU is ready
+        for other API calls."""
+        return self._tclsh is not None
+
+
     def call(self, method_name_int, **kwargs):
-        """Runs the given API method directly on the CCU using a tclsh process
+        """Runs the given API method directly on the CCU using a tclsh process.
 
         The API method needs to be one of the methods which are available
         on the device (with the given arguments)."""
@@ -596,6 +643,7 @@ class LocalAPI(AbstractAPI):
         self._tclsh_lock.acquire()
         if self._tclsh:
             self._tclsh.kill()
+            self._tclsh = None
         self._tclsh_lock.release()
 
 

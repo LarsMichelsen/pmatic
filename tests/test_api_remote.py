@@ -104,6 +104,12 @@ class TestRemoteAPILowLevel(lib.TestRemoteAPI):
 
 
     def test_logged_in(self, API):
+        assert API._session_id is None
+
+        # Making an API call is lazy initializing the session
+        devices = API.device_list_all_detail()
+        assert len(devices) > 10
+
         assert len(API._session_id) == 10
 
 

@@ -87,6 +87,7 @@ class EventXMLRPCServer(SimpleXMLRPCServer, threading.Thread):
     def stop(self):
         """Tells the SimpleXMLRPCServer to stop serving."""
         self.shutdown()
+        self.server_close()
 
 
 
@@ -141,14 +142,16 @@ class EventListener(utils.LogMixin):
 
 
     def __init__(self, ccu, listen_address=None, interface_id=None):
-        self._ccu = ccu
-        self._init_listen_address(listen_address)
-        self._init_interface_id(interface_id)
-
-        self._callbacks = {
+        self._ccu         = ccu
+        self._server      = None
+        self._initialized = False
+        self._callbacks   = {
             "value_updated": [],
             "value_changed": [],
         }
+
+        self._init_listen_address(listen_address)
+        self._init_interface_id(interface_id)
 
 
     def _init_listen_address(self, listen_address):
@@ -198,8 +201,19 @@ class EventListener(utils.LogMixin):
         sends an API call to the CCU to register the just started XML-RPC server.
         The CCU is then sending XLM-RPC messages to this server.
         """
-        self._start_rpc_server()
-        self._register_with_ccu()
+        try:
+            self._start_rpc_server()
+            self._register_with_ccu()
+            self._initialized = True
+        except:
+            self.close()
+            raise
+
+
+    @property
+    def initialized(self):
+        """Is set to true when the XML-RPC have been started and registered with the CCU."""
+        return self._initialized
 
 
     def _start_rpc_server(self):
@@ -260,7 +274,12 @@ class EventListener(utils.LogMixin):
 
     def close(self):
         """Stops listening for XML-RPC messages and terminates the local XML-RPC server."""
-        self._server.stop()
+        if self._server:
+            self.logger.info("Stop listening for events")
+            self._server.stop()
+            self._server.join()
+            self._server = None
+        self._initialized = False
 
 
     def wait(self, timeout=None):

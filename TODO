@@ -12,6 +12,8 @@ Todos:
   * Make editing of scheules only possible when not currently running?
 * Cleanup: set_submitted_vars() shows: Cleanup access to channel by address to
   have an API equal to getting a device from devices or param from channel.
+* Doc: Document the parameter classes and parameter types
+* Renew CCU connection when credentials have changed or connection has been enabled/disabled
 
 Optimizations:
 * Ship precompiled *.pyc files for faster startups even on first load?

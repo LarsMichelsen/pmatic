@@ -49,8 +49,8 @@ def test_explicit_local_enforce():
     orig_is_ccu = utils.is_ccu
     utils.is_ccu = lambda: True
 
-    with pytest.raises(PMException):
-        pmatic.api.init("local")
+    API = pmatic.api.init("local")
+    assert isinstance(API, pmatic.api.LocalAPI)
 
     utils.is_ccu = orig_is_ccu
 
@@ -60,10 +60,15 @@ def test_explicit_wrong_init():
         pmatic.api.init("WTF?!")
 
 
+class SpecificAPI(pmatic.api.AbstractAPI):
+    def close(self):
+        pass
+
+
 class TestAbstractAPI(object):
     @pytest.fixture(scope="function")
     def API(self):
-        return pmatic.api.AbstractAPI()
+        return SpecificAPI()
 
 
     def test_invalid_response_handling(self, API, monkeypatch):
@@ -91,29 +96,22 @@ class TestAbstractAPI(object):
               "{\"error\": {\"code\": 501, \"name\": \"xxx\", \"message\": \"asd\"}}")
         assert "the CCU has just been started" in str(e)
 
-        # Prevent exception on API destruction
-        API.close = lambda: None
 
+    def test_invalid_api_call(self, API, monkeypatch):
+        def call(method_name_int, **kwargs):
+            API._get_method(method_name_int)
 
-    def test_invalid_api_call(self, API):
-        with pytest.raises(AttributeError) as e:
+        monkeypatch.setattr(API, "call", call)
+
+        with pytest.raises(PMException) as e:
             API.dingdong_piff()
-        assert "Invalid API call" in str(e)
-
-        # Prevent exception on API destruction
-        API.close = lambda: None
+        assert "is not a valid method" in str(e)
 
 
     def test_del(self, API, monkeypatch):
-        def fake_close():
-            raise NotImplementedError()
-
-        monkeypatch.setattr(API, "close", fake_close)
+        monkeypatch.setattr(API, "close", lambda: pmatic.api.AbstractAPI.close(API))
         with pytest.raises(NotImplementedError):
             API.__del__()
-
-        # Prevent exception on API destruction
-        API.close = lambda: None
 
 
     def test_to_internal_name(self, API):
@@ -128,9 +126,6 @@ class TestAbstractAPI(object):
         assert API._to_internal_name("Interface.setBidCoSInterface") \
                 == "interface_set_bidcos_interface"
 
-        # Prevent exception on API destruction
-        API.close = lambda: None
-
 
     def test_abstract_methods(self, API):
         with pytest.raises(NotImplementedError):
@@ -140,7 +135,4 @@ class TestAbstractAPI(object):
             API.call("bla")
 
         with pytest.raises(NotImplementedError):
-            API.close()
-
-        # Prevent exception on API destruction
-        API.close = lambda: None
+            super(SpecificAPI, API).close()

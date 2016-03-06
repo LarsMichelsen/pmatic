@@ -174,6 +174,8 @@ class Html(object):
         self.write("<li><a href=\"/config\"><i class=\"fa fa-gear\"></i>Configuration</a></li>\n")
         self.write("<li class=\"right\"><a href=\"https://larsmichelsen.github.io/pmatic/\" "
                    "target=\"_blank\">pmatic %s</a></li>\n" % self.escape(pmatic.__version__))
+        self.write("<li class=\"right\"><a href=\"/state\"><i class=\"fa fa-heart\"></i>"
+                   "State</a></li>\n")
         self.write("</ul>\n")
 
 
@@ -645,8 +647,10 @@ class AbstractScriptPage(object):
                         yield filename
 
 
+
 class AbstractScriptProgressPage(Html):
     def __init__(self):
+        super(AbstractScriptProgressPage, self).__init__()
         self._runner = None
 
 
@@ -1022,6 +1026,24 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         else:
             Config.log_level = log_level_name
 
+        self._save_ccu_config()
+        self._save_pushover_config()
+
+        event_history_length = self._vars.getvalue("event_history_length")
+        try:
+            event_history_length = int(event_history_length)
+            if event_history_length < 1:
+                raise PMUserError("The minimum event history length is 1.")
+            Config.event_history_length = event_history_length
+
+        except ValueError:
+            raise PMUserError("Invalid event history length given.")
+
+        Config.save()
+        self.success("The configuration has been updated.")
+
+
+    def _save_ccu_config(self):
         Config.ccu_enabled = self.is_checked("ccu_enabled")
 
         ccu_address = self._vars.getvalue("ccu_address")
@@ -1040,6 +1062,8 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         else:
             Config.ccu_credentials = ccu_username, ccu_password
 
+
+    def _save_pushover_config(self):
         pushover_api_token = self._vars.getvalue("pushover_api_token")
         if not pushover_api_token:
             Config.pushover_api_token = None
@@ -1051,19 +1075,6 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
             Config.pushover_user_token = None
         else:
             Config.pushover_user_token = pushover_user_token
-
-        event_history_length = self._vars.getvalue("event_history_length")
-        try:
-            event_history_length = int(event_history_length)
-            if event_history_length < 1:
-                raise PMUserError("The minimum event history length is 1.")
-            Config.event_history_length = event_history_length
-
-        except ValueError:
-            raise PMUserError("Invalid event history length given.")
-
-        Config.save()
-        self.success("The configuration has been updated.")
 
 
     def process(self):
@@ -1185,19 +1196,19 @@ class PageEventLog(PageHandler, Html, utils.LogMixin):
                       "enable the CCU connection.")
             return
 
-        if not self._manager.events_initialized:
+        if not self._manager.event_manager.initialized:
             self.info("The event processing has not been initialized yet. Please come back "
                       "in one or two minutes.")
             return
 
         self.p("Received <i>%d</i> events in total since the pmatic manager has been started." %
-                                                    self._manager.events.num_events_total)
+                                                    self._manager.event_history.num_events_total)
 
         self.write("<table>")
         self.write("<tr><th>Time</th><th>Device</th><th>Channel</th><th>Parameter</th>"
                    "<th>Event-Type</th><th>Value</th>")
         self.write("</tr>")
-        for event in reversed(self._manager.events.events):
+        for event in reversed(self._manager.event_history.events):
             #"time"           : updated_param.last_updated,
             #"time_changed"   : updated_param.last_changed,
             #"param"          : updated_param,
@@ -1527,6 +1538,71 @@ class PageScheduleResult(PageHandler, AbstractScriptProgressPage, utils.LogMixin
 
 
 
+class PageState(PageHandler, Html, utils.LogMixin):
+    url = "state"
+
+    def title(self):
+        return "pmatic Manager State"
+
+    def process(self):
+        self.h2(self.title())
+
+        self.p("This page shows you some details about the overall state of the pmatic Manager.")
+
+        self.h3("CCU Connection")
+
+        self.write("<table class=\"info\">")
+        self.write("<tr><th>Current State</th>")
+        if not Config.ccu_enabled:
+            cls  = "state1"
+            text = "Disabled (by command line or configuration)"
+        elif self._manager.ccu.api.initialized:
+            cls  = "state0"
+            text = "Initialized"
+        else:
+            cls  = "state2"
+            text = "Not initialized (%s)" % (self._manager.ccu.api.fail_reason or "No error")
+        self.write("<td class=\"%s\">%s" % (cls, text))
+        self.write("</td></tr>")
+        self.write("</table>")
+
+        self.h3("CCU Event Processing")
+
+        self.write("<table class=\"info\">")
+        self.write("<tr><th>Current State</th>")
+        if not Config.ccu_enabled:
+            cls  = "state0"
+            text = "Disabled (because CCU connection is disabled)"
+        elif self._manager.event_manager.initialized:
+            cls  = "state0"
+            text = "Initialized"
+        else:
+            cls  = "state2"
+            text = "Not initialized (%s)" % (self._manager.event_manager.fail_reason or "No error")
+        self.write("<td class=\"%s\">%s" % (cls, text))
+        self.write("</td></tr>")
+
+        self.write("<tr><th>Number of Events</th>")
+        self.write("<td>%s</td></tr>" % self._manager.event_history.num_events_total)
+
+        self.write("<tr><th>Time of Last Event</th>")
+        self.write("<td>%s</td></tr>" % time.strftime("%Y-%m-%d %H:%M:%S",
+                               time.localtime(self._manager.event_history.last_event_time)))
+
+        self.write("</table>")
+
+        # FIXME: Care about too larget logfiles
+        #self.h2("pmatic Manager Logfile")
+        #self.write("<pre id=\"logfile\">")
+        #for line in open(Config.log_file):
+        #    self.write_text(line.decode("utf-8"))
+        #self.write("</pre>")
+        #self.js("document.getElementById(\"logfile\").scrollTop = "
+        #        "document.getElementById(\"logfile\").scrollHeight;")
+
+
+
+
 class Page404(PageHandler, Html, utils.LogMixin):
     url = "404"
 
@@ -1689,7 +1765,6 @@ wsgiref.simple_server._ServerHandler = wsgiref.simple_server.ServerHandler
 wsgiref.simple_server.ServerHandler = PMServerHandler
 
 
-
 class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
     def __init__(self, address):
         wsgiref.simple_server.WSGIServer.__init__(
@@ -1697,16 +1772,15 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         self.set_app(self._request_handler)
 
         self.ccu = None
-        self._events_initialized = False
 
         self._init_ccu()
-        self.events = Events()
+        self.event_manager = EventManager(self)
+        self.event_history = EventHistory()
         self.scheduler = Scheduler(self)
         self.scheduler.start()
 
 
     # FIXME: When running the manager from remote:
-    # - Make addresse and credentials configurable
     # - Handle pmatic.exceptions.PMConnectionError correctly
     #   The connection should be retried later and all depending
     #   code needs to be able to deal with an unconnected manager.
@@ -1720,11 +1794,6 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         else:
             self.logger.info("Connection with CCU is disabled")
             self.ccu = None
-
-
-    @property
-    def events_initialized(self):
-        return self._events_initialized
 
 
     def _request_handler(self, environ, start_response):
@@ -1794,9 +1863,9 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
 
     def register_signal_handlers(self):
-        signal.signal(signal.SIGINT,   self.signal_handler)
+        signal.signal(signal.SIGINT,  self.signal_handler)
         signal.signal(signal.SIGQUIT, self.signal_handler)
-        signal.signal(signal.SIGTERM,  self.signal_handler)
+        signal.signal(signal.SIGTERM, self.signal_handler)
 
 
     def signal_handler(self, signum, _unused_stack_frame):
@@ -1808,27 +1877,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
             return
 
         self.logger.info("Registering for CCU events...")
-        thread = threading.Thread(target=self._do_register_for_ccu_events)
-        thread.daemon = True
-        thread.start()
-
-
-    def _do_register_for_ccu_events(self):
-        self.ccu.events.init()
-        self.logger.debug("events initialized")
-        self.ccu.events.on_value_updated(self._on_value_updated)
-        self.logger.info("Event processing initialized.")
-        self._events_initialized = True
-
-
-    def _on_value_updated(self, updated_param):
-        self.events.add_event({
-            "time"           : updated_param.last_updated,
-            "time_changed"   : updated_param.last_changed,
-            "param"          : updated_param,
-            "value"          : updated_param.value,
-            "formated_value" : "%s" % updated_param,
-        })
+        self.event_manager.start()
 
 
 
@@ -1838,13 +1887,70 @@ class RequestHandler(wsgiref.simple_server.WSGIRequestHandler, utils.LogMixin):
 
 
 
-class Events(object):
+class EventManager(threading.Thread, utils.LogMixin):
+    """Manages the CCU event handling for the the Manager()."""
+    def __init__(self, manager):
+        threading.Thread.__init__(self)
+        self._manager         = manager
+        self.daemon           = True
+        self._initialized     = False
+        self._fail_exc        = None
+
+
+    def run(self):
+        while True:
+            if not self.initialized:
+                self._fail_exc = None
+                try:
+                    self._do_register_for_ccu_events()
+                except Exception as e:
+                    self._fail_exc = e
+                    self.logger.error("Error in EventManager (%s). Restarting in 10 seconds.", e)
+                    self.logger.debug("Exception:", exc_info=True)
+                    time.sleep(10)
+            else:
+                # FIXME: Replace this polling by some trigger mechanism
+                time.sleep(1)
+
+
+    def _do_register_for_ccu_events(self):
+        self._manager.ccu.events.init()
+        self.logger.debug("events initialized")
+        self._manager.ccu.events.on_value_updated(self._on_value_updated)
+        self.logger.info("Event processing initialized.")
+        self._initialized = True
+
+
+    def _on_value_updated(self, updated_param):
+        self._manager.event_history.add_event({
+            "time"           : updated_param.last_updated,
+            "time_changed"   : updated_param.last_changed,
+            "param"          : updated_param,
+            "value"          : updated_param.value,
+            "formated_value" : "%s" % updated_param,
+        })
+
+
+    @property
+    def initialized(self):
+        return self._initialized
+
+
+    @property
+    def fail_reason(self):
+        return self._fail_exc
+
+
+
+class EventHistory(object):
     def __init__(self):
         self._events = []
         self._num_events_total = 0
+        self._last_event_time = None
 
 
     def add_event(self, event_dict):
+        self._last_event_time = time.time()
         self._num_events_total += 1
         self._events.append(event_dict)
         if len(self._events) > Config.event_history_length:
@@ -1859,6 +1965,11 @@ class Events(object):
     @property
     def num_events_total(self):
         return self._num_events_total
+
+
+    @property
+    def last_event_time(self):
+        return self._last_event_time
 
 
 
@@ -1886,7 +1997,7 @@ class Scheduler(threading.Thread, utils.LogMixin):
                         self.execute(schedule)
                     self._on_startup_executed = True
 
-                if not self._on_ccu_init_executed and self._manager.events_initialized:
+                if not self._on_ccu_init_executed and self._manager.event_manager.initialized:
                     # Run on ccu init scripts
                     for schedule in self._schedules_with_condition_type(ConditionOnCCUInitialized):
                         self.execute(schedule)
