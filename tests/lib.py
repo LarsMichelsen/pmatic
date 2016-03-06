@@ -56,14 +56,11 @@ def request_id(data):
     try:
         req = json.loads(data.decode("utf-8"))
         method = req["method"]
-        # For hashing we need a constant sorted representation of the data
-        fixed_data = json.dumps(req, sort_keys=True).encode("utf-8")
     except ValueError:
         # CCU API has always JSON, but pushover notify has urlencoded data
-        fixed_data = data
         method = "urlopen"
 
-    data_hash = sha256(fixed_data).hexdigest()
+    data_hash = sha256(data).hexdigest()
 
     return "%s_%s" % (method, data_hash)
 
@@ -127,6 +124,13 @@ def wrap_urlopen(url, data=None, timeout=None):
     # to make the recorded data change less frequently.
     fake_data = fake_session_id(data, data)
     fake_response = fake_session_id(data, response)
+
+    # Ensure normalized sorting of keys.
+    # For hashing we need a constant sorted representation of the data
+    fake_data = json.dumps(json.loads(fake_data.decode("utf-8")),
+                                      sort_keys=True).encode("utf-8")
+    fake_response = json.dumps(json.loads(fake_response.decode("utf-8")),
+                                          sort_keys=True).encode("utf-8")
 
     rid = request_id(fake_data)
 
