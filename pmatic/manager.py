@@ -1564,6 +1564,16 @@ class PageState(PageHandler, Html, utils.LogMixin):
 
         self.p("This page shows you some details about the overall state of the pmatic Manager.")
 
+        self.h3("General")
+
+        self.write("<table class=\"info\">")
+        vmsize, vmrss = self._current_memory_usage()
+        self.write("<tr><th>Memory Usage (Virtual)</th>")
+        self.write("<td>%0.2f MB</td></tr>" % (vmsize/1024.0/1024.0))
+        self.write("<tr><th>Memory Usage (Resident)</th>")
+        self.write("<td>%0.2f MB</td></tr>" % (vmrss/1024.0/1024.0))
+        self.write("</table>")
+
         self.h3("CCU Connection")
 
         self.write("<table class=\"info\">")
@@ -1579,6 +1589,15 @@ class PageState(PageHandler, Html, utils.LogMixin):
             text = "Not initialized (%s)" % (self._manager.ccu.api.fail_reason or "No error")
         self.write("<td class=\"%s\">%s" % (cls, text))
         self.write("</td></tr>")
+
+        devices = self._manager.ccu.devices
+        self.write("<tr><th>Number of Devices</th>")
+        self.write("<td>%s</td></tr>" % len(devices))
+
+        num_channels = sum([ len(device.channels) for device in devices ])
+        self.write("<tr><th>Number of Channels</th>")
+        self.write("<td>%s</td></tr>" % num_channels)
+
         self.write("</table>")
 
         self.h3("CCU Event Processing")
@@ -1615,6 +1634,16 @@ class PageState(PageHandler, Html, utils.LogMixin):
         #self.js("document.getElementById(\"logfile\").scrollTop = "
         #        "document.getElementById(\"logfile\").scrollHeight;")
 
+    def _current_memory_usage(self):
+        """Returns the current vm and resizent usage in bytes"""
+        vmsize, vmrss = 0, 0
+        for line in file('/proc/self/status'):
+            if line.startswith("VmSize:"):
+                vmsize = int(line.split()[1])*1024
+            elif line.startswith("VmRSS"):
+                vmrss = int(line.split()[1])*1024
+
+        return vmsize, vmrss
 
 
 
