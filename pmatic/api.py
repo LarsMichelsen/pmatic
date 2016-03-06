@@ -98,6 +98,13 @@ def init(mode=None, **kwargs):
 
 
 class AbstractAPI(utils.LogMixin):
+    @classmethod
+    def _replace_wrong_encoded_json(self, text):
+        return text.replace("\\{", "{")\
+                   .replace("\\[", "[")\
+                   .replace("\\/", "/")
+
+
     """An abstract implementation of the pmatic low level API.
 
     This is the base class for all specific API classes, which are currently
@@ -122,7 +129,7 @@ class AbstractAPI(utils.LogMixin):
         # executed rega scripts. But maybe this is a generic problem. Let's see
         # and only fix the known issues for the moment.
         if method_name_int in [ "rega_run_script", "interface_get_paramset_description" ]:
-            body = body.replace("\\{", "{").replace("\\[", "[")
+            body = AbstractAPI._replace_wrong_encoded_json(body)
 
         try:
             msg = json.loads(body)
