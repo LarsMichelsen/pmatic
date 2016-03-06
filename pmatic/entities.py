@@ -184,6 +184,21 @@ class Channel(utils.LogMixin, Entity):
         return channel_objects
 
 
+    @property
+    def values(self):
+        """Provides access to all value objects of this channel.
+
+        The values are provided as dictionary where the name of the parameter is used as key
+        and some kind of specific :class:`.params.Parameter` instance is the value."""
+        if not self._values:
+            self._init_value_specs()
+
+        if self._value_update_needed():
+            self._fetch_values()
+
+        return self._values
+
+
     def _init_value_specs(self):
         """Initializes the value objects by fetching the specification from the CCU.
 
@@ -254,21 +269,6 @@ class Channel(utils.LogMixin, Entity):
 
         for param_id, value in values.items():
             self._values[param_id].set_from_api(value)
-
-
-    @property
-    def values(self):
-        """Provides access to all value objects of this channel.
-
-        The values are provided as dictionary where the name of the parameter is used as key
-        and some kind of specific :class:`.params.Parameter` instance is the value."""
-        if not self._values:
-            self._init_value_specs()
-
-        if self._value_update_needed():
-            self._fetch_values()
-
-        return self._values
 
 
     @property

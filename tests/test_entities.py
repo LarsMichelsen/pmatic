@@ -25,12 +25,15 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import pytest
+import time
 
 import pmatic.api
 import pmatic.utils as utils
 import lib
 from pmatic.entities import Entity, Channel, Device, Devices, HMESPMSw1Pl, ChannelClimaRegulator, \
+                            ChannelShutterContact, \
                             device_classes_by_type_name, channel_classes_by_type_name
+from pmatic.params import ParameterBOOL, ParameterFLOAT, ParameterACTION
 from pmatic.ccu import CCUDevices
 from pmatic.exceptions import PMException
 
@@ -121,50 +124,123 @@ class TestEntity(lib.TestCCU):
 
 
 class TestChannel(lib.TestCCU):
-    #@pytest.fixture(scope="class")
-    #def channel(self, API):
-    #    device = Device(API, {
-    #        'address': 'KEQ0970393',
-    #        #'children': ['KEQ0970393:0',
-    #        #             'KEQ0970393:1',
-    #        #             'KEQ0970393:2',
-    #        #             'KEQ0970393:3',
-    #        #             'KEQ0970393:4',
-    #        #             'KEQ0970393:5',
-    #        #             'KEQ0970393:6',
-    #        'firmware': '1.4',
-    #        'flags': 1,
-    #        'interface': 'KEQ0714972',
-    #        #'paramsets': ['MASTER'],
-    #        'roaming': False,
-    #        'type': 'HM-ES-PMSw1-Pl',
-    #        'updatable': '1',
-    #        'version': 1,
-    #        'channels': [],
-    #    })
+    @pytest.fixture(scope="function")
+    def channel(self, ccu):
+        device = Device(ccu, {
+            'address': 'KEQ0970393',
+            #'children': ['KEQ0970393:0',
+            #             'KEQ0970393:1',
+            #             'KEQ0970393:2',
+            #             'KEQ0970393:3',
+            #             'KEQ0970393:4',
+            #             'KEQ0970393:5',
+            #             'KEQ0970393:6',
+            'firmware': '1.4',
+            'flags': 1,
+            'interface': 'KEQ0714972',
+            #'paramsets': ['MASTER'],
+            'roaming': False,
+            'type': 'HM-ES-PMSw1-Pl',
+            'updatable': '1',
+            'version': 1,
+            'channels': [],
+        })
 
-    #    return Channel(device, {
-    #        'address': 'KEQ0970393:1',
-    #        'direction': 1,
-    #        'flags': 1,
-    #        'index': 1,
-    #        'link_source_roles': [
-    #            'KEYMATIC',
-    #            'SWITCH',
-    #            'WINDOW_SWITCH_RECEIVER',
-    #            'WINMATIC'
-    #        ],
-    #        'link_target_roles': [],
-    #        'paramsets': ['LINK', 'MASTER', 'VALUES'],
-    #        'type': 'SHUTTER_CONTACT',
-    #        'version': 15,
-    #    })
+        return Channel(device, {
+            'address': 'KEQ0970393:1',
+            'direction': 1,
+            'flags': 1,
+            'index': 1,
+            'link_source_roles': [
+                'KEYMATIC',
+                'SWITCH',
+                'WINDOW_SWITCH_RECEIVER',
+                'WINMATIC'
+            ],
+            'link_target_roles': [],
+            'paramsets': ['LINK', 'MASTER', 'VALUES'],
+            'type': 'SHUTTER_CONTACT',
+            'version': 15,
+        })
 
 
-    def test_channel_invalid_device(self):
+    def test_init(self, channel):
+        assert isinstance(channel.device, Device)
+
+        # Verify mandatory attributes
+        assert hasattr(channel, "address")
+        assert hasattr(channel, "direction")
+        assert hasattr(channel, "flags")
+        assert hasattr(channel, "index")
+        assert hasattr(channel, "link_source_roles")
+        assert hasattr(channel, "link_target_roles")
+        assert hasattr(channel, "paramsets")
+        assert hasattr(channel, "type")
+        assert hasattr(channel, "version")
+
+        # verify not having skip attributes
+        assert not hasattr(channel, "parent")
+        assert not hasattr(channel, "parent_type")
+
+
+    def test_init_with_invalid_device(self):
         with pytest.raises(PMException) as e:
             Channel(None, {})
         assert "not a Device derived" in str(e)
+
+
+    def test_from_channel_dicts(self, ccu):
+        device = Device(ccu, {
+            'address': 'KEQ0970393',
+            'firmware': '1.4',
+            'flags': 1,
+            'interface': 'KEQ0714972',
+            'roaming': False,
+            'type': 'HM-ES-PMSw1-Pl',
+            'updatable': '1',
+            'version': 1,
+            'channels': [],
+        })
+
+        channels = Channel.from_channel_dicts(device, [
+            {
+                'address': 'KEQ0970393:1',
+                'direction': 1,
+                'flags': 1,
+                'index': 1,
+                'link_source_roles': [
+                    'KEYMATIC',
+                    'SWITCH',
+                    'WINDOW_SWITCH_RECEIVER',
+                    'WINMATIC'
+                ],
+                'link_target_roles': [],
+                'paramsets': ['LINK', 'MASTER', 'VALUES'],
+                'type': 'SHUTTER_CONTACT',
+                'version': 15,
+            },
+            {
+                'address': 'KEQ0970393:2',
+                'direction': 1,
+                'flags': 1,
+                'index': 2,
+                'link_source_roles': [
+                    'KEYMATIC',
+                    'SWITCH',
+                    'WINDOW_SWITCH_RECEIVER',
+                    'WINMATIC'
+                ],
+                'link_target_roles': [],
+                'paramsets': ['LINK', 'MASTER', 'VALUES'],
+                'type': 'SHUTTER_CONTACT',
+                'version': 15,
+            }
+        ])
+
+        assert len(channels) == 2
+        assert isinstance(channels[0], ChannelShutterContact)
+        assert isinstance(channels[1], ChannelShutterContact)
+
 
 
     def test_channel_unknown_type(self, capfd, ccu):
@@ -211,10 +287,104 @@ class TestChannel(lib.TestCCU):
         pmatic.logging()
 
 
+    def test_values(self, channel):
+        assert channel._values == {}
+
+        assert len(channel.values) == 5
+
+        assert isinstance(channel.values["INHIBIT"], ParameterBOOL)
+        assert isinstance(channel.values["INSTALL_TEST"], ParameterACTION)
+        assert isinstance(channel.values["ON_TIME"], ParameterFLOAT)
+        assert isinstance(channel.values["WORKING"], ParameterBOOL)
+        assert isinstance(channel.values["STATE"], ParameterBOOL)
+
+        assert len(channel._values) == 5
+
+        # when more than X seconds old, an update is needed. Test this!
+        update_needed_time = time.time() - 60
+        for key, val in channel.values.items():
+            val._value_updated = update_needed_time
+
+        assert len(channel.values)
+
+        for key, val in channel.values.items():
+            if val.readable:
+                assert val.last_updated != update_needed_time
+
+
+    def test_value_update_needed(self, channel):
+        assert channel._values == {}
+        assert len(channel.values) == 5
+
+        p = channel.values["STATE"]
+        assert not channel._value_update_needed()
+
+        p._value_updated = None
+        assert channel._value_update_needed()
+
+        p._value_updated = time.time()
+        assert not channel._value_update_needed()
+
+        p._value_updated = time.time() - 50
+        assert not channel._value_update_needed()
+
+        p._value_updated = time.time() - 60
+        assert channel._value_update_needed()
+
+
+    def test_fetch_values(self, channel):
+        assert channel._values == {}
+        with pytest.raises(PMException) as e:
+            channel._fetch_values()
+        assert "not yet initialized" in str(e)
+
+        assert len(channel.values) == 5
+        channel._fetch_values()
+
+
     def test_summary_state(self, ccu):
         device = list(ccu.devices.query(device_type="HM-ES-PMSw1-Pl"))[0]
         assert device.summary_state != ""
         assert utils.is_text(device.summary_state)
+        assert device.summary_state.count(",") == 6
+        assert device.summary_state.count(":") == 7
+
+
+    # FIXME: Test
+    # - set_logic_attributes
+
+
+    def test_on_value_changed(self, channel):
+        def x(param):
+            raise PMException("DING")
+
+        channel.on_value_changed(x)
+
+        p = channel.values[list(channel.values.keys())[0]]
+        assert x in p._get_callbacks("value_changed")
+        assert x not in p._get_callbacks("value_updated")
+
+        with pytest.raises(PMException) as e:
+            p._callback("value_changed")
+        assert "DING" in str(e)
+
+
+    def test_on_value_updated(self, channel):
+        def x(param):
+            raise PMException("DING")
+
+        channel.on_value_updated(x)
+
+        p = channel.values[list(channel.values.keys())[0]]
+        assert x in p._get_callbacks("value_updated")
+        assert x not in p._get_callbacks("value_changed")
+
+        with pytest.raises(PMException) as e:
+            p._callback("value_updated")
+        assert "DING" in str(e)
+
+
+    # FIXME: Add tests for _save_callback_to_register, _register_saved_callbacks
 
 
 
