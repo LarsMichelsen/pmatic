@@ -92,6 +92,12 @@ for example <code class="docutils literal"><span class="pre">(&quot;admin&quot;,
 <p>The default TCP connect timeout for the HTTP requests to the CCU is set to
 10 seconds. If you like to change the timeout, you need to set the argument
 <em>connect_timeout</em> to a number of seconds of your choice.</p>
+<dl class="method">
+<dt id="pmatic.CCU.close">
+<code class="descname">close</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/ccu.html#CCU.close"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.CCU.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is used to close the connections with the CCU and the eventual open event listener</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pmatic.CCU.devices">
 <code class="descname">devices</code><a class="headerlink" href="#pmatic.CCU.devices" title="Permalink to this definition">¶</a></dt>
@@ -635,6 +641,12 @@ don&#8217;t need to be set.</p>
 <p>This method opens the XML-RPC server on the configured <em>listen_address</em> and
 sends an API call to the CCU to register the just started XML-RPC server.
 The CCU is then sending XLM-RPC messages to this server.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.events.EventListener.initialized">
+<code class="descname">initialized</code><a class="headerlink" href="#pmatic.events.EventListener.initialized" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is set to true when the XML-RPC have been started and registered with the CCU.</p>
 </dd></dl>
 
 <dl class="method">

@@ -137,6 +137,7 @@
     <span class="k">def</span> <span class="nf">stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Tells the SimpleXMLRPCServer to stop serving.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shutdown</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">server_close</span><span class="p">()</span>
 
 
 
@@ -191,14 +192,16 @@
 
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">,</span> <span class="n">listen_address</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">interface_id</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span> <span class="o">=</span> <span class="n">ccu</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_init_listen_address</span><span class="p">(</span><span class="n">listen_address</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_init_interface_id</span><span class="p">(</span><span class="n">interface_id</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span>         <span class="o">=</span> <span class="n">ccu</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_server</span>      <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span>   <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;value_updated&quot;</span><span class="p">:</span> <span class="p">[],</span>
             <span class="s2">&quot;value_changed&quot;</span><span class="p">:</span> <span class="p">[],</span>
         <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_listen_address</span><span class="p">(</span><span class="n">listen_address</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_interface_id</span><span class="p">(</span><span class="n">interface_id</span><span class="p">)</span>
 
 
     <span class="k">def</span> <span class="nf">_init_listen_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen_address</span><span class="p">):</span>
@@ -248,8 +251,19 @@
 <span class="sd">        sends an API call to the CCU to register the just started XML-RPC server.</span>
 <span class="sd">        The CCU is then sending XLM-RPC messages to this server.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_start_rpc_server</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_register_with_ccu</span><span class="p">()</span></div>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_start_rpc_server</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_register_with_ccu</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="k">raise</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Is set to true when the XML-RPC have been started and registered with the CCU.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span>
 
 
     <span class="k">def</span> <span class="nf">_start_rpc_server</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -310,7 +324,17 @@
 
 <div class="viewcode-block" id="EventListener.close"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.events.EventListener.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Stops listening for XML-RPC messages and terminates the local XML-RPC server.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span></div>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Stop listening for events&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span></div>
+
+
+    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;When object is removed, the close() method is called.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
 <div class="viewcode-block" id="EventListener.wait"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.events.EventListener.wait">[docs]</a>    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
