@@ -161,7 +161,7 @@ class TestChannel(lib.TestCCU):
     #    })
 
 
-    def test_channel_invalid_device(self, ccu):
+    def test_channel_invalid_device(self):
         with pytest.raises(PMException) as e:
             Channel(None, {})
         assert "not a Device derived" in str(e)
@@ -205,6 +205,12 @@ class TestChannel(lib.TestCCU):
         assert "Using generic" in err
         assert "XXX_SHUTTER_CONTACT" in err
         assert out == ""
+
+
+    def test_summary_state(self, ccu):
+        device = list(ccu.devices.query(device_type="HM-ES-PMSw1-Pl"))[0]
+        assert device.summary_state != ""
+        assert utils.is_text(device.summary_state)
 
 
 
