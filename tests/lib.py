@@ -47,6 +47,7 @@ except ImportError:
 
 
 import pmatic.api
+import pmatic.utils as utils
 
 
 resources_path = "tests/resources"
@@ -108,6 +109,7 @@ def fake_session_id(data_byte_str, byte_str):
 
 def wrap_urlopen(url, data=None, timeout=None):
     """Wraps urlopen to record the response when communicating with a real CCU."""
+    assert utils.is_byte_string(data)
 
     try:
         obj = urlopen(url, data=data, timeout=timeout)
@@ -117,8 +119,17 @@ def wrap_urlopen(url, data=None, timeout=None):
         response = e.reason.encode("utf-8")
         http_status = e.code
 
+    assert utils.is_byte_string(response)
+
     if not os.path.exists(resources_path):
         os.makedirs(resources_path)
+
+    # FIXME: The ccu is performing wrong encoding at least for output of
+    # executed rega scripts. But maybe this is a generic problem. Let's see
+    # and only fix the known issues for the moment.
+    if b"ReGa.runScript" in data:
+        response = pmatic.api.AbstractAPI._replace_wrong_encoded_json(
+                                response.decode("utf-8")).encode("utf-8")
 
     # Fake the session id to a fixed one for offline testing. This is needed
     # to make the recorded data change less frequently.
