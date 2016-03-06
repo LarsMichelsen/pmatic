@@ -26,9 +26,6 @@ from __future__ import unicode_literals
 
 import pytest
 
-import os
-import glob
-
 import pmatic.utils as utils
 import pmatic.api
 from pmatic.exceptions import PMException
@@ -36,16 +33,21 @@ from pmatic.exceptions import PMException
 import lib
 
 
-def setup_module():
-    """ When executed against a real CCU (recording mode), all existing
-    resource files are deleted."""
-    if lib.is_testing_with_real_ccu():
-        for f in glob.glob("tests/resources/*.data") \
-               + glob.glob("tests/resources/*.status") \
-               + glob.glob("tests/resources/*.response"):
-            # Don't delete the pushover test files when testing with real CCU
-            if "/urlopen_" not in f:
-                os.unlink(f)
+# FIXME: This must be moved to a general place. When there are tests in other
+# test_*.py modules which are recording data, this might delete the files of
+# the other modules when they have been executed before test_api_remote.py.
+#import os
+#import glob
+#def setup_module():
+#    """ When executed against a real CCU (recording mode), all existing
+#    resource files are deleted."""
+#    if lib.is_testing_with_real_ccu():
+#        for f in glob.glob("tests/resources/*.data") \
+#               + glob.glob("tests/resources/*.status") \
+#               + glob.glob("tests/resources/*.response"):
+#            # Don't delete the pushover test files when testing with real CCU
+#            if "/urlopen_" not in f:
+#                os.unlink(f)
 
 
 def test_init_address_invalid():
