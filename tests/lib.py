@@ -87,6 +87,10 @@ def fake_urlopen(url, data=None, timeout=None):
     """
     fake_data = fake_session_id(data, data)
 
+    # Fix the key order to get the correct hash
+    fake_data = json.dumps(json.loads(fake_data.decode("utf-8")),
+                                      sort_keys=True).encode("utf-8")
+
     rid = request_id(fake_data)
     response = open(response_file_path(rid), "rb").read()
     http_status = int(open(status_file_path(rid), "rb").read())
@@ -137,11 +141,18 @@ def wrap_urlopen(url, data=None, timeout=None):
     fake_response = fake_session_id(data, response)
 
     # Ensure normalized sorting of keys.
-    # For hashing we need a constant sorted representation of the data
-    fake_data = json.dumps(json.loads(fake_data.decode("utf-8")),
+    # For hashing we need a constant sorted representation of the data.
+    # CCU API has always JSON, but pushover notify has urlencoded data.
+    if "pushover.net" not in url:
+        fake_data = json.dumps(json.loads(fake_data.decode("utf-8")),
                                       sort_keys=True).encode("utf-8")
-    fake_response = json.dumps(json.loads(fake_response.decode("utf-8")),
+
+    # When json can not be parsed, write the original response to the file
+    try:
+        fake_response = json.dumps(json.loads(fake_response.decode("utf-8")),
                                           sort_keys=True).encode("utf-8")
+    except ValueError:
+        pass
 
     rid = request_id(fake_data)
 
