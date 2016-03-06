@@ -1,1 +1,1 @@
-{"params": {"_session_id_": "xxxxxxxxxx"}, "method": "Room.listAll"}
+{"method": "Room.listAll", "params": {"_session_id_": "xxxxxxxxxx"}}

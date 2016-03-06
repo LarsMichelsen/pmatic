@@ -1,1 +1,1 @@
-{"params": {"_session_id_": "xxxxxxxxxx"}, "method": "CCU.getSerial"}
+{"method": "CCU.getSerial", "params": {"_session_id_": "xxxxxxxxxx"}}

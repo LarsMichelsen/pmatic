@@ -1,1 +1,1 @@
-{"params": {"_session_id_": "xxxxxxxxxx"}, "method": "Interface.listInterfaces"}
+{"method": "Interface.listInterfaces", "params": {"_session_id_": "xxxxxxxxxx"}}

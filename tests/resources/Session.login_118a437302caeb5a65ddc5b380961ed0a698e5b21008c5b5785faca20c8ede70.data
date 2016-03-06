@@ -1,1 +1,1 @@
-{"params": {"username": "Admin", "password": "EPIC-SECRET-PW"}, "method": "Session.login"}
+{"method": "Session.login", "params": {"password": "EPIC-SECRET-PW", "username": "Admin"}}

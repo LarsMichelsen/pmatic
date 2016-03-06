@@ -1,1 +1,1 @@
-{"params": {"_session_id_": "xxxxxxxxxx"}, "method": "Session.logout"}
+{"method": "Session.logout", "params": {"_session_id_": "xxxxxxxxxx"}}
