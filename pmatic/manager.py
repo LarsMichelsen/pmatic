@@ -1044,13 +1044,20 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
 
 
     def _save_ccu_config(self):
-        Config.ccu_enabled = self.is_checked("ccu_enabled")
+        ccu_config_changed = False
+
+        ccu_enabled = self.is_checked("ccu_enabled")
+        if ccu_enabled != Config.ccu_enabled:
+            ccu_config_changed = True
+        Config.ccu_enabled = ccu_enabled
 
         ccu_address = self._vars.getvalue("ccu_address")
         if not ccu_address:
-            Config.ccu_address = None
-        else:
-            Config.ccu_address = ccu_address
+            ccu_address = None
+
+        if ccu_address != Config.ccu_address:
+            ccu_config_changed = True
+        Config.ccu_address = ccu_address
 
         ccu_username = self._vars.getvalue("ccu_username").strip()
         ccu_password = self._vars.getvalue("ccu_password")
@@ -1058,9 +1065,17 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
             if Config.ccu_enabled and not utils.is_ccu():
                 raise PMUserError("You need to configure the CCU credentials to be able to "
                                   "communicate with your CCU.")
-            Config.ccu_credentials = None
+            ccu_credentials = None
         else:
-            Config.ccu_credentials = ccu_username, ccu_password
+            ccu_credentials = ccu_username, ccu_password
+
+        if ccu_credentials != Config.ccu_credentials:
+            ccu_config_changed = True
+        Config.ccu_credentials = ccu_credentials
+
+        if ccu_config_changed:
+            self.logger.info("Reinitializing CCU connection (config changed)")
+            self._manager.init_ccu()
 
 
     def _save_pushover_config(self):
@@ -1771,10 +1786,9 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
             self, address, RequestHandler)
         self.set_app(self._request_handler)
 
-        self.ccu = None
-
-        self._init_ccu()
+        self.ccu           = None
         self.event_manager = EventManager(self)
+
         self.event_history = EventHistory()
         self.scheduler = Scheduler(self)
         self.scheduler.start()
@@ -1786,14 +1800,35 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
     #   code needs to be able to deal with an unconnected manager.
     # - Handle pmatic.exceptions.PMException:
     #       [session_login] JSONRPCError: too many sessions (501)
-    def _init_ccu(self):
+    def init_ccu(self):
+        """This method initializes the manager global CCU object. It is called during startup
+        of the manager, but also when the CCU related configuration changed to apply the changes.
+        """
+        if self.ccu:
+            self.ccu.close()
+            self.ccu = None
+
         if Config.ccu_enabled:
             self.logger.info("Initializing connection with CCU...")
             self.ccu = pmatic.CCU(address=Config.ccu_address,
                                   credentials=Config.ccu_credentials)
         else:
             self.logger.info("Connection with CCU is disabled")
-            self.ccu = None
+
+        self._register_for_ccu_events()
+
+
+    def _register_for_ccu_events(self):
+        if self.event_manager.is_alive():
+            self.event_manager.stop()
+        self.event_manager = None
+
+        if not Config.ccu_enabled:
+            return
+
+        self.event_manager = EventManager(self)
+        self.logger.info("Registering for CCU events...")
+        self.event_manager.start()
 
 
     def _request_handler(self, environ, start_response):
@@ -1872,14 +1907,6 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         raise SignalReceived(signum)
 
 
-    def register_for_ccu_events(self):
-        if not Config.ccu_enabled:
-            return
-
-        self.logger.info("Registering for CCU events...")
-        self.event_manager.start()
-
-
 
 class RequestHandler(wsgiref.simple_server.WSGIRequestHandler, utils.LogMixin):
     def log_message(self, fmt, *args):
@@ -1895,10 +1922,11 @@ class EventManager(threading.Thread, utils.LogMixin):
         self.daemon           = True
         self._initialized     = False
         self._fail_exc        = None
+        self._terminate       = False
 
 
     def run(self):
-        while True:
+        while not self._terminate:
             if not self.initialized:
                 self._fail_exc = None
                 try:
@@ -1939,6 +1967,11 @@ class EventManager(threading.Thread, utils.LogMixin):
     @property
     def fail_reason(self):
         return self._fail_exc
+
+
+    def stop(self):
+        self._terminate = True
+        self.join()
 
 
 

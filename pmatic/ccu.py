@@ -175,6 +175,13 @@ class CCU(object):
         return self._rssi
 
 
+    def close(self):
+        """Is used to close the connections with the CCU and the eventual open event listener"""
+        self.api.close()
+        if self._events:
+            self.events.close()
+
+
 
 class CCUDevices(Devices):
     """The central device management class.

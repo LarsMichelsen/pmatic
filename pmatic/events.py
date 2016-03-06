@@ -282,6 +282,11 @@ class EventListener(utils.LogMixin):
         self._initialized = False
 
 
+    def __del__(self):
+        """When object is removed, the close() method is called."""
+        self.close()
+
+
     def wait(self, timeout=None):
         """Waits for the event listener to terminate.
 
