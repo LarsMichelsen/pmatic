@@ -242,6 +242,9 @@ class AbstractAPI(utils.LogMixin):
         This information has been fetched from the CCU before. This might be useful
         for working with the API to gather infos about the available calls.
         """
+        if not self.initialized:
+            self._initialize()
+
         line_format = "%-60s %s\n"
         sys.stdout.write(line_format % ("Method", "Description"))
 
