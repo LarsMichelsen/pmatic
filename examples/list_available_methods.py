@@ -18,14 +18,11 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-import pmatic.api
-
-# Uncomment to enable debug logging of pmatic messages to stderr
-# pmatic.logging(pmatic.DEBUG)
+import pmatic
 
 # Open up a remote connection via HTTP to the CCU and login as admin. When the connection
 # can not be established within 5 seconds it raises an exception.
-API = pmatic.api.init(
+ccu = pmatic.CCU(
     # TODO: Replace this with the URL to your CCU2.
     address="http://192.168.1.26",
     # TODO: Insert your credentials here.
@@ -33,10 +30,4 @@ API = pmatic.api.init(
     connect_timeout=5
 )
 
-# Open a pmatic API locally on the CCU. You need to install a python environment on your CCU before.
-# Please take a look at the documentation for details.
-#API = pmatic.api.init()
-
-API.print_methods()
-
-API.close()
+ccu.api.print_methods()
