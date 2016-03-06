@@ -30,7 +30,7 @@ from pmatic.entities import Channel, Device, ChannelKey
 from pmatic.params import Parameter, ParameterINTEGER, ParameterFLOAT, \
                           ParameterBOOL, ParameterACTION, ParameterSTRING, \
                           ParameterENUM
-from pmatic import utils, PMException
+from pmatic import utils, PMException, PMActionFailed
 import lib
 
 class TestParameter(lib.TestCCU):
@@ -185,15 +185,28 @@ class TestParameter(lib.TestCCU):
         p.set("false")
 
 
+    def test_value_setter_action_failed(self, p, monkeypatch):
+        def x(**kwargs):
+            return ""
+
+        monkeypatch.setattr(p.channel._ccu.api, "interface_set_value", x)
+
+        with pytest.raises(PMActionFailed) as e:
+            p.value = "false"
+        assert "Failed to set" in str(e)
+
+        assert p.set("false") == False
+
+
     def test_last_updated(self, p):
         p.datatype = "boolean" # fake for setting
         p.value = "true"
 
         last_updated = p.last_updated
-
         p.value = "true"
         assert last_updated < p.last_updated
 
+        last_updated = p.last_updated
         p.value = "false"
         assert last_updated < p.last_updated
 
@@ -315,6 +328,28 @@ class TestParameter(lib.TestCCU):
         assert bytes(p) == b"0"
 
 
+    def test_get_callbacks(self, p):
+        assert p._get_callbacks("value_updated") == []
+
+        with pytest.raises(PMException) as e:
+            assert p._get_callbacks("hauruck")
+        assert "Invalid callback" in str(e)
+
+
+    def test_remove_callback(self, p):
+        test = lambda: None
+
+        # Don't raise when not registered yet
+        p.remove_callback("value_updated", test)
+        assert p._get_callbacks("value_updated") == []
+
+        p.register_callback("value_updated", test)
+        assert test in p._get_callbacks("value_updated")
+
+        p.remove_callback("value_updated", test)
+        assert p._get_callbacks("value_updated") == []
+
+
 
 class TestParameterFLOAT(lib.TestCCU):
     @pytest.fixture(scope="function")
@@ -425,7 +460,19 @@ class TestParameterACTION(TestParameterBOOL):
     def test_get_value(self, p):
         with pytest.raises(PMException) as e:
             assert p.value != None
-        assert "can not be read." in str(e.value)
+        assert "can not be read." in str(e)
+
+
+    def test_last_updated(self, p):
+        with pytest.raises(PMException) as e:
+            assert p.last_updated != None
+        assert "can not be read." in str(e)
+
+
+    def test_last_changed(self, p):
+        with pytest.raises(PMException) as e:
+            assert p.last_changed != None
+        assert "can not be read." in str(e)
 
 
     def test_set(self, p):

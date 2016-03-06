@@ -28,11 +28,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-try:
-    # Is recommended for Python 3.x but fails on 2.7, but is not mandatory
-    from builtins import object
-except ImportError:
-    pass
+from builtins import object
 
 import time
 
@@ -312,8 +308,8 @@ class Parameter(object):
     def remove_callback(self, cb_name, func):
         """Remove the specified callback func."""
         try:
-            self._get_callbacks(cb_name)[func]
-        except KeyError:
+            self._get_callbacks(cb_name).remove(func)
+        except ValueError:
             pass # allow deletion of non registered function
 
 
