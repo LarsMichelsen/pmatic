@@ -168,6 +168,7 @@ class TestChannel(lib.TestCCU):
 
 
     def test_channel_unknown_type(self, capfd, ccu):
+        # Set loglevel so that we get the debug message
         pmatic.logging(pmatic.DEBUG)
 
         device = Device(ccu, {
@@ -205,6 +206,9 @@ class TestChannel(lib.TestCCU):
         assert "Using generic" in err
         assert "XXX_SHUTTER_CONTACT" in err
         assert out == ""
+
+        # revert to default log level
+        pmatic.logging()
 
 
     def test_summary_state(self, ccu):
