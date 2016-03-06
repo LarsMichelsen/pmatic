@@ -1637,7 +1637,7 @@ class PageState(PageHandler, Html, utils.LogMixin):
     def _current_memory_usage(self):
         """Returns the current vm and resizent usage in bytes"""
         vmsize, vmrss = 0, 0
-        for line in file('/proc/self/status'):
+        for line in open('/proc/self/status'):
             if line.startswith("VmSize:"):
                 vmsize = int(line.split()[1])*1024
             elif line.startswith("VmRSS"):

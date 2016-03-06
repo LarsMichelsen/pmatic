@@ -36,7 +36,6 @@ except ImportError:
 
 
 import pmatic.events
-import pmatic.utils as utils
 
 class TestEventXMLRPCServer(object):
     @pytest.fixture(scope="class")
@@ -63,9 +62,6 @@ class TestEventXMLRPCServer(object):
         server.stop()
 
         socket.setdefaulttimeout(1)
-        if utils.is_py2():
+        with pytest.raises(URLError):
             with pytest.raises(socket.timeout):
-                urlopen("http://127.0.0.1:9124")
-        else:
-            with pytest.raises(URLError):
                 urlopen("http://127.0.0.1:9124")
