@@ -31,7 +31,7 @@ import tempfile
 import subprocess
 
 requires_snakefood = pytest.mark.skipif(
-                        os.system("python -c \"import snakefood\"") >> 8 != 0,
+                        os.system("python -c \"import snakefood\" >/dev/null 2>&1") >> 8 != 0,
                                 reason="requires snakefood")
 
 @requires_snakefood
