@@ -43,7 +43,9 @@ def setup_module():
         for f in glob.glob("tests/resources/*.data") \
                + glob.glob("tests/resources/*.status") \
                + glob.glob("tests/resources/*.response"):
-            os.unlink(f)
+            # Don't delete the pushover test files when testing with real CCU
+            if "/urlopen_" not in f:
+                os.unlink(f)
 
 
 def test_init_address_invalid():
