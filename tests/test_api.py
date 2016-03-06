@@ -75,6 +75,12 @@ class TestAbstractAPI(object):
         return SpecificAPI()
 
 
+    def test_replace_wrong_encoded_json(self):
+        assert utils.is_text(pmatic.api.AbstractAPI._replace_wrong_encoded_json(b"xxxx"))
+        assert pmatic.api.AbstractAPI._replace_wrong_encoded_json("\\{\n \\[\n \\/\n") == "{\n [\n /\n"
+        assert pmatic.api.AbstractAPI._replace_wrong_encoded_json("{\\{") == "{{"
+
+
     def test_invalid_response_handling(self, API, monkeypatch):
         with pytest.raises(PMException) as e:
             API._parse_api_response("ding", "{]")
