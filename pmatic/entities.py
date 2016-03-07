@@ -30,7 +30,10 @@ from __future__ import unicode_literals
 
 import time
 
-from builtins import object
+try:
+    from builtins import object # pylint:disable=redefined-builtin
+except ImportError:
+    pass
 
 import pmatic.params
 import pmatic.utils as utils

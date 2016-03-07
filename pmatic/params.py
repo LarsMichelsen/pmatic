@@ -28,7 +28,10 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from builtins import object
+try:
+    from builtins import object # pylint:disable=redefined-builtin
+except ImportError:
+    pass
 
 import time
 
