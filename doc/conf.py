@@ -33,7 +33,14 @@ extensions = [
     'sphinx.ext.coverage',
     'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
+    'sphinxcontrib.images',
 ]
+
+# config for sphinxcontrib.images
+images_config = {
+    "default_image_width" : "auto",
+    "default_show_title"  : True,
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

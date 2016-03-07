@@ -3,6 +3,8 @@ Fixes:
   of the CCU object as already initialized. listAllDevices is not needed anymore then.
 * Schedules on object events: Exception when object not yet existant
   Maybe initially fetch all objects when schedules rely on them.
+* Schedules/Jobs referencing not existing scripts:
+  - Don't execute the schedules (disable them?)
 
 Todos:
 * Manager:
@@ -14,6 +16,7 @@ Todos:
   have an API equal to getting a device from devices or param from channel.
 * Doc: Document the parameter classes and parameter types
 * Renew CCU connection when credentials have changed or connection has been enabled/disabled
+* pmatic-manager.log - Rotation einrichten.
 
 Optimizations:
 * Ship precompiled *.pyc files for faster startups even on first load?

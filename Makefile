@@ -143,7 +143,7 @@ help:
 setup:
 	sudo apt-get install debootstrap qemu-user-static rsync dialog python-pytest python-pip \
 			python3-pip python-sphinx snakefood
-	sudo pip install pytest_flakes pytest_runner coverage
+	sudo pip install pytest_flakes pytest_runner coverage sphinxcontrib-images
 	sudo pip3 install pytest_flakes pytest_runner coverage
 
 dist: dist-os dist-ccu
