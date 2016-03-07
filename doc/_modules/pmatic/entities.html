@@ -10,6 +10,7 @@
     
     <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/sphinxcontrib-images/LightBox2/lightbox2/css/lightbox.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
@@ -23,6 +24,9 @@
     <script type="text/javascript" src="../../_static/jquery.js"></script>
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/sphinxcontrib-images/LightBox2/lightbox2/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/sphinxcontrib-images/LightBox2/lightbox2/js/lightbox.min.js"></script>
+    <script type="text/javascript" src="../../_static/sphinxcontrib-images/LightBox2/lightbox2-customize/jquery-noconflict.js"></script>
     <link rel="top" title="pmatic 0.1 documentation" href="../../index.html" />
     <link rel="up" title="pmatic" href="../pmatic.html" /> 
   </head>
@@ -81,8 +85,7 @@
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="c1"># Is recommended for Python 3.x but fails on 2.7, but is not mandatory</span>
-    <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">object</span>
+    <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">object</span> <span class="c1"># pylint:disable=redefined-builtin</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="k">pass</span>
 
@@ -234,6 +237,21 @@
         <span class="k">return</span> <span class="n">channel_objects</span></div>
 
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides access to all value objects of this channel.</span>
+
+<span class="sd">        The values are provided as dictionary where the name of the parameter is used as key</span>
+<span class="sd">        and some kind of specific :class:`.params.Parameter` instance is the value.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_value_specs</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_update_needed</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_values</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span>
+
+
     <span class="k">def</span> <span class="nf">_init_value_specs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes the value objects by fetching the specification from the CCU.</span>
 
@@ -307,21 +325,6 @@
 
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Provides access to all value objects of this channel.</span>
-
-<span class="sd">        The values are provided as dictionary where the name of the parameter is used as key</span>
-<span class="sd">        and some kind of specific :class:`.params.Parameter` instance is the value.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_init_value_specs</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_update_needed</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_values</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span>
-
-
-    <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Represents a summary state of the channel.</span>
 
@@ -331,7 +334,7 @@
 <span class="sd">        all channel values except the maintenance channel.</span>
 <span class="sd">        The values are sorted by the titles.&quot;&quot;&quot;</span>
         <span class="n">formated</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">title</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">([</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">readable</span> <span class="p">]):</span>
+        <span class="k">for</span> <span class="n">title</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">([</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">readable</span> <span class="p">]):</span>
             <span class="n">formated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
         <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formated</span><span class="p">)</span>
 
@@ -454,7 +457,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;STATE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_on</span> <span class="ow">and</span> <span class="s2">&quot;on&quot;</span> <span class="ow">or</span> <span class="s2">&quot;off&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;STATE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_on</span> <span class="ow">and</span> <span class="s2">&quot;on&quot;</span> <span class="ow">or</span> <span class="s2">&quot;off&quot;</span><span class="p">)</span>
 
 
     <span class="k">def</span> <span class="nf">toggle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

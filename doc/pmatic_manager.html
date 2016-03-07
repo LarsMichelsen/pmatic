@@ -1,0 +1,313 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>The pmatic Manager &mdash; pmatic 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinxcontrib-images/LightBox2/lightbox2/css/lightbox.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinxcontrib-images/LightBox2/lightbox2/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/sphinxcontrib-images/LightBox2/lightbox2/js/lightbox.min.js"></script>
+    <script type="text/javascript" src="_static/sphinxcontrib-images/LightBox2/lightbox2-customize/jquery-noconflict.js"></script>
+    <link rel="top" title="pmatic 0.1 documentation" href="index.html" />
+    <link rel="next" title="Advanced things" href="advanced.html" />
+    <link rel="prev" title="Send Notifications with pmatic" href="pmatic_notify.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced things"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pmatic_notify.html" title="Send Notifications with pmatic"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pmatic 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="the-pmatic-manager">
+<h1>The pmatic Manager<a class="headerlink" href="#the-pmatic-manager" title="Permalink to this headline">¶</a></h1>
+<p>One component of pmatic is the pmatic Manager. It has been created to make the management of your
+pmatic on the CCU easier. It provides a dedicated web GUI to upload and manage your scripts. It
+is possible to execute them manually for testing purposes and you can also create schedules to
+let the manager execute your scripts on startup of the manager, based on time or based on device
+events received from the CCU.</p>
+<a class=""
+               data-lightbox="group-8620cb9a-ccb3-4dbd-a0de-aaf035156dc4"
+               href="_images/manage_scripts.png"
+               title="Manage your pmatic Scripts on the CCU"
+               data-title="Manage your pmatic Scripts on the CCU"
+               ><img src="_images/manage_scripts.png"
+                     class="align-center"
+                     width="auto"
+                     height="auto"
+                     alt=""/>
+                </a><div class="section" id="features-of-the-manager">
+<h2>Features of the Manager<a class="headerlink" href="#features-of-the-manager" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Upload and delete pmatic scripts</li>
+<li>Execute scripts from the web browser</li>
+<li>Schedule automatic script execution<ul>
+<li>On startup of the manager</li>
+<li>After initializing connection with the CCU</li>
+<li>Based on time (daily, weekly, ...)</li>
+<li>Based on events received from the CCU (like a specific parameter was updated or changed)</li>
+</ul>
+</li>
+<li>Also configurable via web GUI</li>
+<li>Password protected access</li>
+<li>Small diagnose tools<ul>
+<li>Last X CCU events can be viewed</li>
+<li>Shows a detailed status information about the connection with the CCU</li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="how-to-access-the-manager">
+<h2>How to access the Manager?<a class="headerlink" href="#how-to-access-the-manager" title="Permalink to this headline">¶</a></h2>
+<p>After installing pmatic on your CCU, you can open your browser and open the URL
+<code class="docutils literal"><span class="pre">http://[CCU_ADDRESS]:9120/</span></code>. Please remember to replace the <code class="docutils literal"><span class="pre">[CCU_ADDRESS]</span></code> by the real
+address of your CCU. For me this is the host name <code class="docutils literal"><span class="pre">ccu</span></code>, but it might be another host name
+for you. You can even use the IP address of your CCU.</p>
+<p>Once inserted, you should see the pmatic Manager GUI. Your first step should be to set
+a login password for the Manager on the <em>Configuration</em> page. Future accesses will be
+protected by this password.</p>
+</div>
+<div class="section" id="script-management">
+<h2>Script Management<a class="headerlink" href="#script-management" title="Permalink to this headline">¶</a></h2>
+<p>The pmatic Manager gives you the option to upload your pmatic scripts from your computer
+to the CCU using the web browser. It is also possible to start the scripts right from
+the script list.</p>
+<a class=""
+               data-lightbox="group-73bc7fc5-5980-44ab-8ebe-2b073faa824c"
+               href="_images/manage_scripts.png"
+               title="Manage your pmatic Scripts on the CCU"
+               data-title="Manage your pmatic Scripts on the CCU"
+               ><img src="_images/manage_scripts.png"
+                     class=""
+                     width="auto"
+                     height="auto"
+                     alt=""/>
+                </a><p>You are totally free to use this feature. If you are more comfortable with the command
+line, you can also copy your scripts manually, e.g. via SSH, to the script path
+<code class="docutils literal"><span class="pre">/etc/config/addons/pmatic/scripts</span></code> on your CCU.</p>
+<p>If you like you can also edit your scripts in place in this directory. All changes are
+reflected immediately on the next execution of the script. You don&#8217;t need to restart
+anything. If you like to rename your scripts, you can also do this on the command line.
+Also no need to restart anything.</p>
+</div>
+<div class="section" id="execute-scripts-manually">
+<h2>Execute Scripts Manually<a class="headerlink" href="#execute-scripts-manually" title="Permalink to this headline">¶</a></h2>
+<p>You can start any script of your choice using the Manager. Simply choose your script
+from the script list and click on the &#8220;bolt&#8221; icon on the left side of the filename.</p>
+<p>You will be redirected to the <em>Execute Scripts</em> page which will immediately display
+you the output produced by the script during execution and the final exit code on
+completion.</p>
+<a class=""
+               data-lightbox="group-059584b7-6963-4787-9d26-c9848dfb6c18"
+               href="_images/manually_execute_scripts.png"
+               title="Execute your scripts manually and see the result. Good for testing."
+               data-title="Execute your scripts manually and see the result. Good for testing."
+               ><img src="_images/manually_execute_scripts.png"
+                     class=""
+                     width="auto"
+                     height="auto"
+                     alt=""/>
+                </a><p>You can also choose a script to be executed directly on the <em>Execute Scripts</em> page.</p>
+</div>
+<div class="section" id="automatically-execute-scripts">
+<h2>Automatically Execute Scripts<a class="headerlink" href="#automatically-execute-scripts" title="Permalink to this headline">¶</a></h2>
+<p>The Manager can be used to trigger your scripts in specific situations.</p>
+<a class=""
+               data-lightbox="group-ae0b59f3-4ab7-4516-9bb7-55161d15f8b9"
+               href="_images/schedule_scripts.png"
+               title="Let the pmatic Manager automatically start your scripts."
+               data-title="Let the pmatic Manager automatically start your scripts."
+               ><img src="_images/schedule_scripts.png"
+                     class=""
+                     width="auto"
+                     height="auto"
+                     alt=""/>
+                </a><p>It is, for example, possible to let the manager execute an endless running script
+which is doing some interesting stuff during it&#8217;s run time, right after startup
+of the manager. Or, if the script depends on the CCU state, after initialization
+of the CCU connection.</p>
+<p>If you want a script to be executed on a regular base, for example daily at a given
+time, you can use the execution <em>based on time</em>. It currently supports the modes
+<em>daily</em>, <em>weekly</em> on a weekday of your choice or <em>monthly</em> on a given day of the month.
+For each of the day choices you can choose the time of the day to execute the script.
+This is not feature complete, it might be extended in the future to make it more flexible.</p>
+<p>Another important option is to listen for events of specific devices and make the
+manager execute scripts when either a value is updated or changed. For this you need
+to choose the device, channel, parameter and the event type.</p>
+</div>
+<div class="section" id="view-device-events">
+<h2>View Device Events<a class="headerlink" href="#view-device-events" title="Permalink to this headline">¶</a></h2>
+<p>The device event log shows the last 1000 events received from the CCU by default. This
+limit can be configured on the <em>Configuration</em> page, if you like it to show more events.
+These are events which you can register your pmatic scripts on to be called once such an
+event is received.</p>
+<a class=""
+               data-lightbox="group-5aad1890-282e-4ab3-9c5c-103802856077"
+               href="_images/view_events.png"
+               title="Have a look at the last events received from the CCU."
+               data-title="Have a look at the last events received from the CCU."
+               ><img src="_images/view_events.png"
+                     class=""
+                     width="auto"
+                     height="auto"
+                     alt=""/>
+                </a></div>
+<div class="section" id="configure-the-manager">
+<h2>Configure the Manager<a class="headerlink" href="#configure-the-manager" title="Permalink to this headline">¶</a></h2>
+<p>All options of the Manager can be configured via the Web GUI.</p>
+<a class=""
+               data-lightbox="group-66729702-b23a-4fb3-a948-44506f528c4f"
+               href="_images/configure_manager.png"
+               title="Configuration of the pmatic Manager"
+               data-title="Configuration of the pmatic Manager"
+               ><img src="_images/configure_manager.png"
+                     class=""
+                     width="auto"
+                     height="auto"
+                     alt=""/>
+                </a></div>
+<div class="section" id="view-the-state-of-the-manager">
+<h2>View the State of the Manager<a class="headerlink" href="#view-the-state-of-the-manager" title="Permalink to this headline">¶</a></h2>
+<p>The overall health of the manager can be viewed on the state page. It shows you whether or
+not the connection with the CCU components is alive, the number of found devices and channels
+together with other useful debugging information.</p>
+<a class=""
+               data-lightbox="group-016492ce-0370-43a3-b1d6-07b6cc58c4ae"
+               href="_images/state.png"
+               title="State of the pmatic Manager"
+               data-title="State of the pmatic Manager"
+               ><img src="_images/state.png"
+                     class=""
+                     width="auto"
+                     height="auto"
+                     alt=""/>
+                </a><p>If there is a connection problem or a configuration issue and the manager can not connect
+to the CCU, this page will show you the error message.</p>
+<p>When the information on this page is not enough, you should take a look at the log file
+Configuration Configuration of the manager which is located at <code class="docutils literal"><span class="pre">/var/log/pmatic-manager.log</span></code>
+on your CCU.</p>
+</div>
+<div class="section" id="starting-stopping-and-restarting-the-manager">
+<h2>Starting, Stopping and Restarting the Manager<a class="headerlink" href="#starting-stopping-and-restarting-the-manager" title="Permalink to this headline">¶</a></h2>
+<p>When installed via the CCU package on the CCU, the Manager comes together with an Init-Script
+which starts the Manager on startup and stopps it when shutting down or restarting the CCU.</p>
+<p>If you like to control the process manually, you can use this script to start, stop or restart
+the Manager process.</p>
+<p>The script is located at <code class="docutils literal"><span class="pre">/etc/init.d/S55pmatic</span></code>. So if you like you can use
+<code class="docutils literal"><span class="pre">/etc/init.d/S55pmatic</span> <span class="pre">restart</span></code> to restart the pmatic Manager process.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">The pmatic Manager</a><ul>
+<li><a class="reference internal" href="#features-of-the-manager">Features of the Manager</a></li>
+<li><a class="reference internal" href="#how-to-access-the-manager">How to access the Manager?</a></li>
+<li><a class="reference internal" href="#script-management">Script Management</a></li>
+<li><a class="reference internal" href="#execute-scripts-manually">Execute Scripts Manually</a></li>
+<li><a class="reference internal" href="#automatically-execute-scripts">Automatically Execute Scripts</a></li>
+<li><a class="reference internal" href="#view-device-events">View Device Events</a></li>
+<li><a class="reference internal" href="#configure-the-manager">Configure the Manager</a></li>
+<li><a class="reference internal" href="#view-the-state-of-the-manager">View the State of the Manager</a></li>
+<li><a class="reference internal" href="#starting-stopping-and-restarting-the-manager">Starting, Stopping and Restarting the Manager</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pmatic_notify.html"
+                        title="previous chapter">Send Notifications with pmatic</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="advanced.html"
+                        title="next chapter">Advanced things</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pmatic_manager.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="advanced.html" title="Advanced things"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pmatic_notify.html" title="Send Notifications with pmatic"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pmatic 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Lars Michelsen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+    </div>
+  </body>
+</html>

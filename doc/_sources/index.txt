@@ -10,6 +10,7 @@ Contents:
    basic_usage.rst
    pmatic_module.rst
    pmatic_notify.rst
+   pmatic_manager.rst
    advanced.rst
    about_and_license.rst
 
