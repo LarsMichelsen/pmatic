@@ -137,17 +137,35 @@ class TestEventListener(lib.TestCCU):
         assert listener.wait(1) == True
 
 
-    def test_rpc_server_url_detect(self, ccu):
+    def test_rpc_server_url_detect(self, ccu, monkeypatch):
         listener = pmatic.events.EventListener(ccu, listen_address=("", 12345))
+
+        class MySocket(socket.socket):
+            def connect(self, (h, p)):
+                return None
+
+            def getsockname(self):
+                return ("127.0.0.1", 9999)
+
+            def close(self):
+                return
 
         # Fake the address
         orig_address = ccu.api._address
         ccu.api._address = "http://127.0.0.1"
+        monkeypatch.setattr(pmatic.events.socket, "socket", MySocket)
 
         assert listener.rpc_server_url == "http://127.0.0.1:12345"
 
         # Wrong - not reachable
+
+        class MySocketConnectFail(socket.socket):
+            def connect(self, (h, p)):
+                raise socket.error("geht nicht")
+
         ccu.api._address = "http://169.254.1.2"
+        socket.socket = MySocketConnectFail
+        monkeypatch.setattr(pmatic.events.socket, "socket", MySocketConnectFail)
         with pytest.raises(PMException) as e:
             assert listener.rpc_server_url == "http://169.254.1.2:12345"
         assert "Unable to detect the address" in str(e)
