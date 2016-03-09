@@ -141,7 +141,7 @@ class TestEventListener(lib.TestCCU):
         listener = pmatic.events.EventListener(ccu, listen_address=("", 12345))
 
         class MySocket(socket.socket):
-            def connect(self, (h, p)):
+            def connect(self, address):
                 return None
 
             def getsockname(self):
@@ -160,7 +160,7 @@ class TestEventListener(lib.TestCCU):
         # Wrong - not reachable
 
         class MySocketConnectFail(socket.socket):
-            def connect(self, (h, p)):
+            def connect(self, address):
                 raise socket.error("geht nicht")
 
         ccu.api._address = "http://169.254.1.2"
