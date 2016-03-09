@@ -164,7 +164,7 @@ class EventListener(utils.LogMixin):
             self._listen_address = listen_address
 
         else:
-            raise PMException("list_address needs to e a tuple of two "
+            raise PMException("listen_address needs to be a tuple of two "
                               "elements (address, port): %r" % (listen_address, ))
 
 
