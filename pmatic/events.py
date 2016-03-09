@@ -266,11 +266,11 @@ class EventListener(utils.LogMixin):
             address = s.getsockname()[0]
             s.close()
             return address
-        except socket.error:
+        except socket.error as e:
             raise PMException("Unable to detect the address to listen on for XML-RPC "
-                              "messages from the CCU. You might fix this by explicitly "
+                              "messages from the CCU (%s). You might fix this by explicitly "
                               "providing the parameter listen_address=([ADDRESS], [PORT]) "
-                              "to pmatic.events.init().")
+                              "to pmatic.events.init()." % e)
 
 
     def close(self):
