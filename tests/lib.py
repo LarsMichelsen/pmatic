@@ -204,6 +204,16 @@ class TestCCU(TestRemoteAPI):
         return ccu
 
 
+    @pytest.fixture(scope="class")
+    def class_ccu(self, API):
+        self.monkeypatch = monkeypatch()
+        self.monkeypatch.setattr(pmatic.api, 'init', lambda: None)
+
+        ccu = pmatic.CCU()
+        ccu.api = API
+        return ccu
+
+
 
 def is_testing_with_real_ccu():
     return os.environ.get("TEST_WITH_CCU") == "1"

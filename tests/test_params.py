@@ -330,6 +330,7 @@ class TestParameter(lib.TestCCU):
 
     def test_get_callbacks(self, p):
         assert p._get_callbacks("value_updated") == []
+        assert p._get_callbacks("value_changed") == []
 
         with pytest.raises(PMException) as e:
             assert p._get_callbacks("hauruck")

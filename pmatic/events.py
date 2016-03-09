@@ -339,8 +339,8 @@ class EventListener(utils.LogMixin):
     def remove_callback(self, cb_name, func):
         """Remove the specified callback func."""
         try:
-            self._get_callbacks(cb_name)[func]
-        except KeyError:
+            self._get_callbacks(cb_name).remove(func)
+        except ValueError:
             pass # allow deletion of non registered function
 
 
