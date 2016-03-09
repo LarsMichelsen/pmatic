@@ -259,7 +259,8 @@ class EventListener(utils.LogMixin):
 
         ccu_address = urlparse(self._ccu.api.address).hostname
 
-        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1) # wait for 1 second for the connect.
         try:
             s.connect((ccu_address, 80))
             address = s.getsockname()[0]
