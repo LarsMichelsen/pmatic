@@ -218,7 +218,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_listen_address</span> <span class="o">=</span> <span class="n">listen_address</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;list_address needs to e a tuple of two &quot;</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;listen_address needs to be a tuple of two &quot;</span>
                               <span class="s2">&quot;elements (address, port): </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">listen_address</span><span class="p">,</span> <span class="p">))</span>
 
 
@@ -313,17 +313,18 @@
 
         <span class="n">ccu_address</span> <span class="o">=</span> <span class="n">urlparse</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">address</span><span class="p">)</span><span class="o">.</span><span class="n">hostname</span>
 
-        <span class="n">s</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_DGRAM</span><span class="p">)</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">socket</span><span class="o">.</span><span class="n">socket</span><span class="p">(</span><span class="n">socket</span><span class="o">.</span><span class="n">AF_INET</span><span class="p">,</span> <span class="n">socket</span><span class="o">.</span><span class="n">SOCK_STREAM</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">settimeout</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="c1"># wait for 1 second for the connect.</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">s</span><span class="o">.</span><span class="n">connect</span><span class="p">((</span><span class="n">ccu_address</span><span class="p">,</span> <span class="mi">80</span><span class="p">))</span>
             <span class="n">address</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">getsockname</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">s</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">address</span>
-        <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+        <span class="k">except</span> <span class="n">socket</span><span class="o">.</span><span class="n">error</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Unable to detect the address to listen on for XML-RPC &quot;</span>
-                              <span class="s2">&quot;messages from the CCU. You might fix this by explicitly &quot;</span>
+                              <span class="s2">&quot;messages from the CCU (</span><span class="si">%s</span><span class="s2">). You might fix this by explicitly &quot;</span>
                               <span class="s2">&quot;providing the parameter listen_address=([ADDRESS], [PORT]) &quot;</span>
-                              <span class="s2">&quot;to pmatic.events.init().&quot;</span><span class="p">)</span>
+                              <span class="s2">&quot;to pmatic.events.init().&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="EventListener.close"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.events.EventListener.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -392,8 +393,8 @@
 <div class="viewcode-block" id="EventListener.remove_callback"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.events.EventListener.remove_callback">[docs]</a>    <span class="k">def</span> <span class="nf">remove_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cb_name</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove the specified callback func.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_callbacks</span><span class="p">(</span><span class="n">cb_name</span><span class="p">)[</span><span class="n">func</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_get_callbacks</span><span class="p">(</span><span class="n">cb_name</span><span class="p">)</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
             <span class="k">pass</span> <span class="c1"># allow deletion of non registered function</span></div>
 
 
