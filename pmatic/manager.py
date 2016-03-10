@@ -87,8 +87,7 @@ class Config(utils.LogMixin):
     def load(cls):
         try:
             try:
-                fh = open(cls.config_path + "/manager.config")
-                config = json.load(fh)
+                config = json.load(open(cls._config_path()))
             except IOError as e:
                 # a non existing file is allowed.
                 if e.errno == 2:
@@ -96,7 +95,7 @@ class Config(utils.LogMixin):
                 else:
                     raise
         except Exception:
-            cls.cls_logger().error("Failed to load config. Terminating.", exc_info=True)
+            cls.cls_logger().error("Failed to load the config. Terminating.", exc_info=True)
             sys.exit(1)
 
         for key, val in config.items():
@@ -114,7 +113,12 @@ class Config(utils.LogMixin):
                 config[key] = val
 
         json_config = json.dumps(config)
-        open(cls.config_path + "/manager.config", "w").write(json_config + "\n")
+        open(cls._config_path(), "w").write(json_config + "\n")
+
+
+    @classmethod
+    def _config_path(cls):
+        return cls.config_path + "/manager.config"
 
 
 

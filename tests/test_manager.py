@@ -30,6 +30,7 @@ import pytest
 import signal
 
 import pmatic.manager
+from pmatic.manager import Config
 from pmatic.exceptions import SignalReceived
 
 class TestConditionOnTime(object):
@@ -149,3 +150,115 @@ class TestManager(object):
                 c -= 1
 
         assert e.value._signum == signal.SIGTERM
+
+
+class TestConfig(object):
+    def test_default_config(self):
+        config_options = [
+            "config_path",
+            "static_path",
+            "script_path",
+            "ccu_enabled",
+            "ccu_address",
+            "ccu_credentials",
+            "log_level",
+            "log_file",
+            "event_history_length",
+            "pushover_api_token",
+            "pushover_user_token",
+        ]
+
+        for key, val in Config.__dict__.items():
+            if key not in [ "__module__", "__doc__", "load", "save", "_config_path" ]:
+                assert key in config_options
+
+        for key in config_options:
+            assert hasattr(Config, key)
+
+    def test_load(self, tmpdir, capfd):
+        pmatic.logging()
+
+        p = tmpdir.join("manager.config")
+
+        class TestConfig(Config):
+            @classmethod
+            def _config_path(cls):
+                return "%s" % p.realpath()
+
+        # Load empty config -> it's ok
+        TestConfig.load()
+
+        # Load invalid config. Check error handling
+        p.write("asdasd")
+        with pytest.raises(SystemExit):
+            TestConfig.load()
+
+        out, err = capfd.readouterr()
+        assert "Failed to load the config. Terminating." in err
+        assert out == ""
+
+        # Load empty json construct
+        p.write("{}", mode="w")
+        TestConfig.load()
+
+        # Load empty json construct
+        p.write("{\"log_level\": 10}", mode="w")
+        TestConfig.load()
+        assert TestConfig.log_level == 10
+
+
+    def test_load_io_errors(self, capfd):
+        pmatic.logging()
+
+        # IOError - some error code
+        class TestConfigIOError1(Config):
+            @classmethod
+            def _config_path(cls):
+                raise IOError()
+
+        with pytest.raises(SystemExit):
+            TestConfigIOError1.load()
+        out, err = capfd.readouterr()
+        assert "Failed to load the config. Terminating." in err
+        assert out == ""
+
+        # non existing file is ok
+        class TestConfigIOError2(Config):
+            @classmethod
+            def _config_path(cls):
+                e = IOError()
+                e.errno = 2
+                raise e
+
+        TestConfigIOError2.load()
+
+
+    def test_save(self, tmpdir):
+        p = tmpdir.join("manager.config")
+
+        class TestConfig(Config):
+            @classmethod
+            def _config_path(cls):
+                return "%s" % p.realpath()
+
+        # Save empty config
+        TestConfig.save()
+        assert p.read() == "{}\n"
+
+        # don't save empty attributes
+        TestConfig._hidden_attr = 1
+        TestConfig.save()
+        assert p.read() == "{}\n"
+
+        # don't save internal attributes
+        TestConfig.config_path = "xy"
+        TestConfig.script_path = "xy"
+        TestConfig.static_path = "xy"
+        TestConfig.log_file    = "xy"
+        TestConfig.save()
+        assert p.read() == "{}\n"
+
+        # don't try to save internal attributes
+        TestConfig.test_config_val = "xy"
+        TestConfig.save()
+        assert p.read() == "{\"test_config_val\": \"xy\"}\n"
