@@ -30,6 +30,7 @@ import pytest
 import signal
 
 import pmatic.manager
+import pmatic.utils as utils
 from pmatic.manager import Config
 from pmatic.exceptions import SignalReceived
 
@@ -262,3 +263,9 @@ class TestConfig(object):
         TestConfig.test_config_val = "xy"
         TestConfig.save()
         assert p.read() == "{\"test_config_val\": \"xy\"}\n"
+
+
+    def test_config_path(self):
+        path = Config._config_path()
+        assert utils.is_text(path)
+        assert path.endswith("manager.config")
