@@ -37,7 +37,7 @@ import pmatic.utils as utils
 import lib
 import pmatic.events
 
-class TestCCU(lib.TestCCU):
+class TestCCU(lib.TestCCUClassWide):
     def test_manager_ccu_init(self, ccu):
         builtins.manager_ccu = ccu
 
@@ -46,7 +46,8 @@ class TestCCU(lib.TestCCU):
         assert new_ccu.api == ccu.api
         assert isinstance(new_ccu.api, pmatic.api.AbstractAPI)
 
-        delattr(builtins, "manager_ccu")
+        del builtins.__dict__["manager_ccu"]
+        assert not hasattr(builtins, "manager_ccu")
 
         new_ccu = pmatic.CCU()
         assert new_ccu != ccu

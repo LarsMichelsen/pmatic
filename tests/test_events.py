@@ -68,7 +68,7 @@ class TestEventXMLRPCServer(object):
                 urlopen("http://127.0.0.1:9124")
 
 
-class TestEventListener(lib.TestCCU):
+class TestEventListener(lib.TestCCUClassWide):
     def test_ident(self):
         pmatic.events.EventListener._ident = 0
         assert pmatic.events.EventListener._ident == 0
@@ -78,8 +78,8 @@ class TestEventListener(lib.TestCCU):
 
 
     @pytest.fixture(scope="class")
-    def listener(self, class_ccu):
-        listener = pmatic.events.EventListener(class_ccu, ("127.0.0.1", 9124))
+    def listener(self, ccu):
+        listener = pmatic.events.EventListener(ccu, ("127.0.0.1", 9124))
         assert listener._interface_id == "pmatic-%d" % (pmatic.events.EventListener._ident-1)
         assert listener.rpc_server_url == "http://127.0.0.1:9124"
         return listener

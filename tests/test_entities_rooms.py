@@ -33,8 +33,8 @@ from pmatic.exceptions import PMException
 
 import lib
 
-class TestRoom(lib.TestCCU):
-    @pytest.fixture(scope="function")
+class TestRoom(lib.TestCCUClassWide):
+    @pytest.fixture(scope="class")
     def room(self, ccu):
         assert isinstance(ccu.rooms, CCURooms)
         return list(ccu.rooms)[0]
@@ -76,8 +76,8 @@ class TestRoom(lib.TestCCU):
 
 
 
-class TestCCURooms(lib.TestCCU):
-    @pytest.fixture(scope="function")
+class TestCCURooms(lib.TestCCUClassWide):
+    @pytest.fixture(scope="class")
     def rooms(self, ccu):
         return CCURooms(ccu)
 
@@ -119,7 +119,6 @@ class TestCCURooms(lib.TestCCU):
 
 
     def test_clear(self, ccu, rooms):
-        assert len(rooms._room_dict) == 0
         assert len(rooms) > 0
         rooms.clear()
         assert len(rooms._room_dict) == 0

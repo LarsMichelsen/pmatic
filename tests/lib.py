@@ -46,6 +46,7 @@ except ImportError:
     from urllib2 import HTTPError
 
 
+import pmatic
 import pmatic.api
 import pmatic.utils as utils
 
@@ -170,7 +171,7 @@ def wrap_urlopen(url, data=None, timeout=None):
 
 
 class TestRemoteAPI(object):
-    @pytest.fixture(scope="class")
+    @pytest.fixture(scope="module")
     def API(self, request):
         self.monkeypatch = monkeypatch()
         if not is_testing_with_real_ccu():
@@ -194,24 +195,29 @@ class TestRemoteAPI(object):
 
 
 class TestCCU(TestRemoteAPI):
+    def _get_test_ccu(self, API):
+        self.monkeypatch = monkeypatch()
+        self.monkeypatch.setattr(pmatic.api, 'init', lambda: None)
+
+        ccu = pmatic.CCU()
+        ccu.api = API
+        return ccu
+
     @pytest.fixture(scope="function")
     def ccu(self, API):
-        self.monkeypatch = monkeypatch()
-        self.monkeypatch.setattr(pmatic.api, 'init', lambda: None)
-
-        ccu = pmatic.CCU()
-        ccu.api = API
-        return ccu
+        return self._get_test_ccu(API)
 
 
+class TestCCUClassWide(TestCCU):
     @pytest.fixture(scope="class")
-    def class_ccu(self, API):
-        self.monkeypatch = monkeypatch()
-        self.monkeypatch.setattr(pmatic.api, 'init', lambda: None)
+    def ccu(self, API):
+        return self._get_test_ccu(API)
 
-        ccu = pmatic.CCU()
-        ccu.api = API
-        return ccu
+
+class TestCCUModuleWide(TestCCU):
+    @pytest.fixture(scope="module")
+    def ccu(self, API):
+        return self._get_test_ccu(API)
 
 
 

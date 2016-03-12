@@ -33,7 +33,7 @@ from pmatic.params import Parameter, ParameterINTEGER, ParameterFLOAT, \
 from pmatic import utils, PMException, PMActionFailed
 import lib
 
-class TestParameter(lib.TestCCU):
+class TestParameter(lib.TestCCUClassWide):
     @pytest.fixture(scope="function")
     def p(self, ccu):
         device = Device(ccu, {
@@ -352,7 +352,7 @@ class TestParameter(lib.TestCCU):
 
 
 
-class TestParameterFLOAT(lib.TestCCU):
+class TestParameterFLOAT(lib.TestCCUClassWide):
     @pytest.fixture(scope="function")
     def p(self, ccu):
         clima_regulator = list(ccu.devices.query(device_name="Bad-Thermostat"))[0].channels[2]
@@ -404,7 +404,7 @@ class TestParameterFLOAT(lib.TestCCU):
 
 
 
-class TestParameterBOOL(lib.TestCCU):
+class TestParameterBOOL(lib.TestCCUClassWide):
     @pytest.fixture(scope="function")
     def p(self, ccu):
         switch_state_channel = list(ccu.devices.query(device_name="Büro-Lampe"))[0].channels[1]
@@ -488,7 +488,7 @@ class TestParameterACTION(TestParameterBOOL):
 
 
 
-class TestParameterINTEGER(lib.TestCCU):
+class TestParameterINTEGER(lib.TestCCUClassWide):
     @pytest.fixture(scope="function")
     def p(self, ccu):
         clima_vent_drive = list(ccu.devices.query(device_name="Bad-Heizung"))[0].channels[1]
@@ -545,7 +545,7 @@ class TestParameterINTEGER(lib.TestCCU):
 
 
 
-class TestParameterENUM(lib.TestCCU):
+class TestParameterENUM(lib.TestCCUClassWide):
     @pytest.fixture(scope="function")
     def p(self, ccu):
         clima_vent_drive = list(ccu.devices.query(device_name="Bad-Heizung"))[0].channels[1]
@@ -574,7 +574,7 @@ class TestParameterENUM(lib.TestCCU):
 
 
 
-class TestParameterSTRING(lib.TestCCU):
+class TestParameterSTRING(lib.TestCCUClassWide):
     @pytest.fixture(scope="function")
     def p(self, ccu):
         trans = list(ccu.devices.query(device_name="Schlafzimmer-Links-Heizung"))[0].channels[4]

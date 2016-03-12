@@ -37,7 +37,7 @@ from pmatic.params import ParameterBOOL, ParameterFLOAT, ParameterACTION
 from pmatic.ccu import CCUDevices
 from pmatic.exceptions import PMException
 
-class TestEntity(lib.TestCCU):
+class TestEntity(lib.TestCCUClassWide):
     def test_minimal_entity(self, ccu):
         Entity(ccu, {})
 
@@ -123,7 +123,7 @@ class TestEntity(lib.TestCCU):
 
 
 
-class TestChannel(lib.TestCCU):
+class TestChannel(lib.TestCCUClassWide):
     @pytest.fixture(scope="function")
     def channel(self, ccu):
         device = Device(ccu, {
@@ -388,10 +388,11 @@ class TestChannel(lib.TestCCU):
 
 
 
-class TestDevices(lib.TestCCU):
+class TestDevices(lib.TestCCUClassWide):
     @pytest.fixture(scope="function")
     def devices(self, ccu):
         return Devices(ccu)
+
 
     def test_init(self, ccu):
         Devices(ccu)
@@ -522,6 +523,7 @@ class TestCCUDevices(TestDevices):
 
 
     def test_query(self, ccu):
+        ccu.devices.clear()
         assert len(ccu.devices._device_dict) == 0
 
         result1 = ccu.devices.query(device_type="HM-ES-PMSw1-Pl")
@@ -631,6 +633,7 @@ class TestCCUDevices(TestDevices):
 
 
     def test_already_initialized_devices(self, ccu):
+        ccu.devices.clear()
         assert len(ccu.devices.already_initialized_devices) == 0
 
         result1 = ccu.devices.query(device_type="HM-ES-PMSw1-Pl")
