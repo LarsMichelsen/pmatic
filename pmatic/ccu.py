@@ -71,7 +71,6 @@ class CCU(object):
         """
         if hasattr(self, "api"):
             return # Skip second __init__ of pmatic manager CCU instances (see __new__ below)
-        print("new one")
 
         super(CCU, self).__init__()
         self.api = pmatic.api.init(**kwargs)
