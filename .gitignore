@@ -10,3 +10,4 @@ htmlcov
 .cache
 dumps
 etc
+start-manager
