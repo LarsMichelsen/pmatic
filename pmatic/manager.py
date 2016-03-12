@@ -31,6 +31,13 @@ try:
 except ImportError:
     pass
 
+try:
+    # Python 2.x
+    import __builtin__ as builtins
+except ImportError:
+    # Python 3+
+    import builtins
+
 import os
 import cgi
 import sys
@@ -123,14 +130,14 @@ class Config(utils.LogMixin):
 
 
 # FIXME This handling is only for testing purposes and will be cleaned up soon
-if not utils.is_ccu():
-    Config.script_path = "/tmp/pmatic-scripts"
-    Config.static_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) \
-                         + "/manager_static"
-    Config.config_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) \
-                         + "/etc"
-    Config.ccu_address = "http://192.168.1.26"
-    Config.ccu_credentials = ("Admin", "EPIC-SECRET-PW")
+#if not utils.is_ccu():
+#    Config.script_path = "/tmp/pmatic-scripts"
+#    Config.static_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) \
+#                         + "/manager_static"
+#    Config.config_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) \
+#                         + "/etc"
+#    Config.ccu_address = "http://192.168.1.26"
+#    Config.ccu_credentials = ("Admin", "EPIC-SECRET-PW")
 
 
 
@@ -1434,13 +1441,12 @@ class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
         self.input("name", schedule.name)
         self.write("</td></tr>")
 
-        # FIXME: Implement this
-        #self.write("<tr><th>Keep running"
-        #           "<p>Keep the script running and restart it automatically after it has been "
-        #           "started once. <i>Note:</i> If the script is respawning too often, it's "
-        #           "restarts will be delayed.</p></th><td>")
-        #self.checkbox("keep_running", schedule.keep_running)
-        #self.write("</td></tr>")
+        self.write("<tr><th>Keep running"
+                   "<p>Keep the script running and restart it automatically after it has been "
+                   "started once. <i>Note:</i> If the script is respawning too often, it's "
+                   "restarts will be delayed.</p></th><td>")
+        self.checkbox("keep_running", schedule.keep_running)
+        self.write("</td></tr>")
 
         self.write("<tr><th>Disabled"
                    "<p>You can use this option to disable future executions of this "
@@ -1684,14 +1690,17 @@ def catch_stdout_and_stderr(out=None):
 
 
 class ScriptRunner(threading.Thread, utils.LogMixin):
-    def __init__(self, manager, script, run_inline=False):
+    def __init__(self, manager, script, run_inline=False, keep_running=False):
         threading.Thread.__init__(self)
         self.daemon = True
 
-        self._manager   = manager
+        self._manager     = manager
 
-        self.script     = script
-        self.run_inline = run_inline
+        self.script       = script
+        self.run_inline   = run_inline
+
+        self.keep_running = keep_running
+        self.restarted    = None
 
         self.output     = StringIO()
         self.exit_code  = None
@@ -1702,23 +1711,40 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
 
 
     def run(self):
-        try:
-            self.logger.info("Starting script (%s): %s",
-                    "inline" if self.run_inline else "external", self.script)
-            script_path = os.path.join(Config.script_path, self.script)
+        while True:
+            try:
+                self.logger.info("Starting script (%s): %s",
+                        "inline" if self.run_inline else "external", self.script)
+                script_path = os.path.join(Config.script_path, self.script)
 
-            if self.run_inline:
-                exit_code = self._run_inline(script_path)
+                if self.run_inline:
+                    exit_code = self._run_inline(script_path)
+                else:
+                    exit_code = self._run_external(script_path)
+
+                self.exit_code = exit_code
+                self.finished  = time.time()
+
+                self.logger.info("Finished (Exit-Code: %d).", self.exit_code)
+            except Exception:
+                self.logger.error("Failed to execute %s", self.script, exc_info=True)
+                self.logger.debug(traceback.format_exc())
+
+            # Either execute the script once or handle the keep_running option.
+            # when the script is restarting too fast, delay it for some time.
+            if not self.keep_running:
+                break
+
+            elif self.restarted != None and time.time() - self.restarted < 5:
+                delay = 30 - (time.time() - self.restarted)
+                self.logger.info("Last restart is less than 5 seconds ago, delaying restart for "
+                                 "%d seconds (\"Keep running\" is enabled)." % delay)
+                time.sleep(delay)
+                self.restarted = time.time()
+
             else:
-                exit_code = self._run_external(script_path)
-
-            self.exit_code = exit_code
-            self.finished  = time.time()
-
-            self.logger.info("Finished (Exit-Code: %d).", self.exit_code)
-        except Exception:
-            self.logger.error("Failed to execute %s", self.script, exc_info=True)
-            self.logger.debug(traceback.format_exc())
+                self.logger.info("Restarting the script (\"Keep running\" is enabled)")
+                self.restarted = time.time()
 
 
     def _run_external(self, script_path):
@@ -1745,8 +1771,7 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
             # Make the ccu object available globally so that the __new__ method
             # of the CCU class can use and return this instead of creating a new
             # CCU object within the pmatic scripts.
-            import __builtin__
-            __builtin__.manager_ccu = self._manager.ccu
+            builtins.manager_ccu = self._manager.ccu
 
             # Catch stdout and stderr of the executed python script and write
             # it to the same StringIO() object.
@@ -2229,7 +2254,8 @@ class Schedule(object):
     def execute(self):
         self.last_triggered = time.time()
         # FIXME: Recycle old runner?
-        self._runner = ScriptRunner(self._manager, self.script, self.run_inline)
+        self._runner = ScriptRunner(self._manager, self.script,
+                                    self.run_inline, self.keep_running)
         self._runner.start()
 
 

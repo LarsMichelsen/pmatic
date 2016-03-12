@@ -30,6 +30,13 @@ try:
 except ImportError:
     pass
 
+try:
+    # Python 2.x
+    import __builtin__ as builtins
+except ImportError:
+    # Python 3+
+    import builtins
+
 import re
 
 import pmatic.api
@@ -64,6 +71,7 @@ class CCU(object):
         """
         if hasattr(self, "api"):
             return # Skip second __init__ of pmatic manager CCU instances (see __new__ below)
+        print("new one")
 
         super(CCU, self).__init__()
         self.api = pmatic.api.init(**kwargs)
@@ -94,8 +102,8 @@ class CCU(object):
         We need to override the __new__ instead of e.g. use a factory to keep the API of the
         pmatic scripts equal in all pmatic script use cases.
         """
-        if "manager_ccu" in globals()["__builtins__"]:
-            return globals()["__builtins__"]["manager_ccu"]
+        if hasattr(builtins, "manager_ccu"):
+            return builtins.manager_ccu
         else:
             return super(CCU, cls).__new__(cls)
 

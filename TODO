@@ -8,7 +8,6 @@ Fixes:
 
 Todos:
 * Manager:
-  * Implement "keep running" option of schedules
   * Tests for the manager
   * Events: Close on shutdown when registered?
   * Make editing of scheules only possible when not currently running?
