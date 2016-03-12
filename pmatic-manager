@@ -76,6 +76,21 @@ parser.add_argument('-g',
     dest="foreground",
     action="store_true",
     help="Execute the pmatic manager in foreground instead of daemonizing.")
+parser.add_argument('-o',
+    dest="config_path",
+    help="Specify the location to the pmatic Manager config directory. "
+         "The default directory is \"/etc/config/addons/pmatic/etc\".",
+    default=pmatic.manager.Config.config_path)
+parser.add_argument('-r',
+    dest="script_path",
+    help="Specify the location to the pmatic script directory. "
+         "The default directory is \"/etc/config/addons/pmatic/scripts\".",
+    default=pmatic.manager.Config.script_path)
+parser.add_argument('-t',
+    dest="static_path",
+    help="Specify the location to the pmatic static file (images, ...) directory. "
+         "The default directory is \"/etc/config/addons/pmatic/manager_static\".",
+    default=pmatic.manager.Config.static_path)
 parser.add_argument('-l',
     dest="log_level",
     help="Specify the log level (defaults to INFO). You can choose from the following: "
@@ -127,6 +142,15 @@ pmatic.manager.Config.log_file = args.log_file
 file_logger = RotatingFileHandler(args.log_file, maxBytes=5*1024*1024, backupCount=2)
 file_logger.setLevel(args.log_level)
 file_logger.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(message)s'))
+
+# Apply other paths
+pmatic.manager.Config.script_path = args.script_path
+pmatic.manager.Config.static_path = args.static_path
+
+# If the config_path changed, load the new config
+if pmatic.manager.Config.config_path != args.config_path:
+    pmatic.manager.Config.config_path = args.config_path
+    pmatic.manager.Config.load()
 
 logger.addHandler(file_logger)
 
