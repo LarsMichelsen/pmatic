@@ -677,7 +677,7 @@ class AbstractScriptProgressPage(Html):
 
 
     def _progress(self):
-        self.h2("Progress")
+        self.h2(self.title())
         if not self._is_started():
             self.p("There is no script running.")
             return
@@ -1273,6 +1273,8 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
         action = self._vars.getvalue("action")
         if action == "delete":
             return self._handle_delete()
+        elif action == "start":
+            return self._handle_start()
 
 
     def _handle_delete(self):
@@ -1290,6 +1292,21 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
         self._manager.scheduler.remove(schedule_id)
         self._manager.scheduler.save()
         self.success("The schedule has been deleted.")
+
+
+    def _handle_start(self):
+        schedule_id = self._vars.getvalue("schedule_id")
+        if not schedule_id:
+            raise PMUserError("You need to provide a schedule to start.")
+        schedule_id = int(schedule_id)
+
+        if not self._manager.scheduler.exists(schedule_id):
+            raise PMUserError("This schedule does not exist.")
+
+        schedule = self._manager.scheduler.get(schedule_id)
+        schedule.execute()
+
+        self.success("The schedule has been started.")
 
 
     def process(self):
@@ -1312,10 +1329,16 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
                               "Edit this schedule")
             self.icon_button("trash", "?action=delete&schedule_id=%d" % schedule.id,
                               "Delete this schedule")
+
             if schedule.last_triggered:
                 self.icon_button("file-text-o",
                         "/schedule_result?schedule_id=%d" % schedule.id,
                         "Show the last schedule run result")
+
+            if not schedule.is_running:
+                self.icon_button("bolt", "?action=start&schedule_id=%d" % schedule.id,
+                                 "Manually trigger this schedule now")
+
             self.write("</td>")
             self.write("<td>%s</td>" % self.escape(schedule.name))
 
