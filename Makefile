@@ -122,6 +122,7 @@ help:
 	@echo "                     dist/ccu will be added to git to make CCU packaging without "
 	@echo "                     a chroot environment possible (like needed for travis containers)"
 	@echo "dist-ccu-step2     - Create addon package for installation on CCU (Python + pmatic)"
+	@echo "release            - Pack and upload pmatic to Pypi for creating a new release"
 	@echo
 	@echo "test	          - Run tests incl. coverage analyzing"
 	@echo "coverage	          - Report test coverage (short, console)"
@@ -142,13 +143,22 @@ help:
 
 setup:
 	sudo apt-get install debootstrap qemu-user-static rsync dialog python-pytest python-pip \
-			python3-pip python-sphinx snakefood
-	sudo pip install pytest_flakes pytest_runner coverage sphinxcontrib-images
+			python3-pip python-sphinx snakefood pandoc
+	sudo pip install pytest_flakes pytest_runner coverage sphinxcontrib-images pypandoc twine
 	sudo pip3 install pytest_flakes pytest_runner coverage
+
+release: dist
+	twine register dist/pmatic-$(VERSION).tar.gz
+	twine upload dist/pmatic-$(VERSION)*
 
 dist: dist-os dist-ccu
 
 dist-os:
+	./update-readme.py ; \
+	if git diff --name-only | grep README.rst >/dev/null; then \
+	    git add README.rst ; \
+	    git commit README.rst -nm "Updated README.rst readme from README.md" ; \
+	fi
 	python setup.py sdist
 	@echo "Created dist/pmatic-$(VERSION).tar.gz"
 
@@ -204,6 +214,12 @@ dist-ccu-step2:
 	    update_script \
 	    python-wrapper \
 	    pmatic.init
+	tar -rv -f $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar \
+	    LICENSE \
+	    README.md \
+	    README
+	tar -rv -C pmatic.egg-info -f $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar \
+	    PKG-INFO
 	gzip -f $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar
 	@echo "Created dist/pmatic-$(VERSION)_ccu.tar.gz"
 

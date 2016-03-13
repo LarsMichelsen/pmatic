@@ -8,17 +8,21 @@ want to run your scripts when all your other devices aren't running.
 Installation on the CCU2
 ------------------------
 
-You can download the snapshot addon from `here <https://larsmichelsen.github.io/pmatic/pmatic-snapshot_ccu.tar.gz>`_.
+You have two options to download pmatic. To have a stable version, you should
+download a released version from the `PyPI page of pmatic <https://pypi.python.org/pypi/pmatic>`_.
+To get the CCU addon you need to download the file named like ``pmatic-*_ccu.tar.gz``.
+
+If you feel adventurous and like to test the newest changes, you can download a snapshot
+CCU addon package from `here <https://larsmichelsen.github.io/pmatic/pmatic-snapshot_ccu.tar.gz>`_.
 It is a snapshot package which is automatically built from the latest
 git version available. So please note that this is not as stable as a
 released version would be. But feel free to try and test it. Let me know
 if you experience any issues with it. Once there is a better version ready
 I'll change these lines.
 
-`Download the file <https://larsmichelsen.github.io/pmatic/pmatic-snapshot_ccu.tar.gz>`_
-to your workstation. Then open up the Web Interface of the CCU in your browser and
-upload this file to your CCU using the regular addon upload form (In German: "Einstellungen /
-Systemsteuerung / Zusatzsoftware") to install pmatic on it.
+Once you downloaded the version of your choice, open up the Web Interface of the CCU in 
+your browser and upload this file to your CCU using the regular addon upload form
+(In German: "Einstellungen / Systemsteuerung / Zusatzsoftware") to install pmatic on it.
 
 After the CCU has been restarted, pmatic should have been installed. You can now use
 the pmatic Manager, which can be opened from the addon menu you used before to install
@@ -52,11 +56,11 @@ or not.
 Installation on your workstation
 --------------------------------
 
-The installation should be straight forward. First download pmatic by either downloading the 
-`current git snapshot <https://larsmichelsen.github.io/pmatic/pmatic-snapshot.tar.gz>`_, 
-cloning the `Git repository <https://github.com/LarsMichelsen/pmatic>`_ or download a 
-release archive (if available), unpack it and change to the extracted directory
-``pmatic-*``. Then execute:
+The installation should be straight forward. First download pmatic by either downloading a
+released version from the `PyPI pmatic page <https://pypi.python.org/pypi/pmatic>`_, the
+`current git snapshot <https://larsmichelsen.github.io/pmatic/pmatic-snapshot.tar.gz>`_ or
+by cloning the `Git repository <https://github.com/LarsMichelsen/pmatic>`_.
+Then unpack it and change to the extracted directory ``pmatic-*``. Then execute:
 
 .. code-block:: shell
 
@@ -73,7 +77,8 @@ installation was successful.
 
 
 I developed and tested pmatic on a Debian 8 system with Python 2.7.9, but
-pmatic should work on other platforms meeting the pmatic requirements.
+pmatic should work on other platforms meeting the pmatic requirements. It is also
+tested with all current Python 3 versions.
 
 Please let me know or send me a pull request on GitHub if there are compatibility
 issues on a platform you would expect pmatic to work.

@@ -23,17 +23,22 @@ try:
 except ImportError:
     from distutils.core import setup
 
+import os
+
+def read(fname):
+    return open(os.path.join(os.path.dirname(__file__), fname)).read()
+
 setup(name='pmatic',
     version='0.1',
     description='A simple API to to the Homematic CCU2',
-    long_description=\
-        'pmatic is a python library to provide access to the Homematic CCU2. You ' \
-        'can execute pmatic directly on the CCU2 or another system having Python ' \
-        'installed. With pmatic you can write your own Python scripts to communicate ' \
-        'with your CCU2 devices.',
-    author='Lars Michelsen',
-    author_email='lm@larsmichelsen.com',
-    url='https://github.com/LarsMichelsen/pmatic',
+    maintainer='Lars Michelsen',
+    maintainer_email='lm@larsmichelsen.com',
+    url='https://larsmichelsen.github.io/pmatic/',
+    bugtrack_url="https://github.com/LarsMichelsen/pmatic/issues",
+    download_url="https://pypi.python.org/pypi/pmatic",
+    keywords="Homematic, Python, CCU, Automating, Scripting, Home Automation",
+    long_description=read("README.rst"),
+    platforms="Linux,CCU2",
     license='GPLv2',
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -42,7 +47,14 @@ setup(name='pmatic',
         'Intended Audience :: System Administrators',
         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
         'Operating System :: OS Independent',
+        'Operating System :: POSIX',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.2',
+        'Programming Language :: Python :: 3.3',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
         'Topic :: Software Development :: Embedded Systems',
         'Topic :: Software Development :: Libraries :: Python Modules',
     ],
