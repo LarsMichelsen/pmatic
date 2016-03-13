@@ -464,6 +464,11 @@ class EventHandler(utils.LogMixin, object):
         for device_dict in devices.values():
             self._ccu.devices.add_from_low_level_dict(device_dict)
 
+        # As we just received all devices from the CCU mark the devices as initialized
+        # in the CCU object. This saves one Interface.listDevices call when accessing
+        # the "self._ccu.devices.devices" for the first time.
+        self._ccu.devices.initialized = True
+
         return True
 
 

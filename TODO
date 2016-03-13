@@ -1,6 +1,4 @@
 Fixes:
-* CCU object: After ccu.events has initialized all objects, mark the devices
-  of the CCU object as already initialized. listAllDevices is not needed anymore then.
 * Schedules on object events: Exception when object not yet existant
   Maybe initially fetch all objects when schedules rely on them.
 * Schedules/Jobs referencing not existing scripts:

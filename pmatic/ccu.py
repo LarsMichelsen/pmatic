@@ -215,6 +215,16 @@ class CCUDevices(Devices):
         return self._device_dict
 
 
+    @property
+    def initialized(self):
+        return self._initialized
+
+
+    @initialized.setter
+    def initialized(self, value):
+        self._initialized = value
+
+
     def _add_without_init(self, device):
         self._device_dict[device.address] = device
 
