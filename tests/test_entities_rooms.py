@@ -118,7 +118,7 @@ class TestCCURooms(lib.TestCCUClassWide):
         assert len(list(rooms4)) > 2
 
 
-    def test_clear(self, ccu, rooms):
+    def test_clear(self, rooms):
         assert len(rooms) > 0
         rooms.clear()
         assert len(rooms._room_dict) == 0

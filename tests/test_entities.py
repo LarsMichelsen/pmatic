@@ -370,7 +370,7 @@ class TestChannel(lib.TestCCUClassWide):
 
 
     def test_on_value_updated(self, channel):
-        def x(param):
+        def x(param): # pylint:disable=unused-argument
             raise PMException("DING")
 
         channel.on_value_updated(x)
@@ -606,7 +606,7 @@ class TestCCUDevices(TestDevices):
         assert len(devices) == expected_len
 
 
-    def test_clear(self, devices):
+    def test_clear(self, ccu, devices): # pylint:disable=unused-argument
         assert len(devices._device_dict) == 0
         assert len(devices) > 0
         devices.clear()

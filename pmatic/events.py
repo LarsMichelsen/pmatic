@@ -501,7 +501,7 @@ class EventHandler(utils.LogMixin, object):
     # Derzeit  werden  nur  Änderungen  an  den  Verknüpfungspa rtnern  auf  diesem  Weg
     # mitgeteilt.
     # FIXME: To be implemented.
-    def updateDevices(self, interface_id, address, hint): # pylint:disable=redefined-builtin
+    def updateDevices(self, interface_id, address, hint): # pylint:disable=unused-argument
         """The CCU wants to update the parameters of a device."""
         self.logger.debug("[UPDATE DEVICES] Update for device %s (%d)", address, hint)
         return True

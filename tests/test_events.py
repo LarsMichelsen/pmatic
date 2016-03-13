@@ -160,7 +160,7 @@ class TestEventListener(lib.TestCCUClassWide):
         # Wrong - not reachable
 
         class MySocketConnectFail(socket.socket):
-            def connect(self, address):
+            def connect(self, address): # pylint:disable=unused-argument
                 raise socket.error("geht nicht")
 
         ccu.api._address = "http://169.254.1.2"
