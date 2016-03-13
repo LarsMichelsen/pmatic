@@ -137,6 +137,8 @@ reserved.
 All outcome of the project is licensed under the terms of the GNU GPL
 v2. Take a look at the LICENSE file for details.
 
+.. |PyPI version| image:: https://badge.fury.io/py/pmatic.svg
+   :target: https://badge.fury.io/py/pmatic
 .. |Build Status| image:: https://travis-ci.org/LarsMichelsen/pmatic.svg?branch=master
    :target: https://travis-ci.org/LarsMichelsen/pmatic
 .. |Coverage Status| image:: https://coveralls.io/repos/github/LarsMichelsen/pmatic/badge.svg?branch=master
