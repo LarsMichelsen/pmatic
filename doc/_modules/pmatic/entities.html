@@ -279,7 +279,7 @@
 
 
     <span class="k">def</span> <span class="nf">_value_update_needed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Tells whether or not the set of  values should be fetched from the CCU.&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Tells whether or not the set of values should be fetched from the CCU.&quot;&quot;&quot;</span>
         <span class="n">oldest_value_time</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
@@ -581,7 +581,8 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Temperature: </span><span class="si">%s</span><span class="s2"> (Target: </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> \
-                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;ACTUAL_TEMPERATURE&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">])</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;ACTUAL_TEMPERATURE&quot;</span><span class="p">],</span>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">])</span>
 
 
 
@@ -958,6 +959,70 @@
 <span class="c1"># Funk-Heizkörperthermostat</span>
 <span class="k">class</span> <span class="nc">HMCCRTDN</span><span class="p">(</span><span class="n">SpecificDevice</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-CC-RT-DN&quot;</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the current temperature&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;ACTUAL_TEMPERATURE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">set_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the actual target temperature&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+
+    <span class="nd">@set_temperature.setter</span>
+    <span class="k">def</span> <span class="nf">set_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Specify the new set temperature. Please note that the CCU rounds this values to .0 or .5</span>
+<span class="sd">        after the comma. So if you provide .e.g 22.1 as new set temperature, the CCU will convert</span>
+<span class="sd">        this to 22.0.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">target</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Is set to `True` when the device is not enabled to heat.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mf">4.5</span>
+
+
+    <span class="k">def</span> <span class="nf">turn_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Call this method to tell the thermostat that it should not heat.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_temperature</span> <span class="o">=</span> <span class="mf">4.5</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">control_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the current control mode. This is either `AUTO`, `MANUAL`,</span>
+<span class="sd">        `PARTY` or `BOOST`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">formated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;CONTROL_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">formated</span><span class="p">()</span>
+        <span class="n">formated</span> <span class="o">=</span> <span class="n">formated</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-MODE&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;MANU&quot;</span><span class="p">,</span> <span class="s2">&quot;MANUAL&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">formated</span>
+
+
+    <span class="nd">@control_mode.setter</span>
+    <span class="k">def</span> <span class="nf">control_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
+        <span class="n">modes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AUTO&quot;</span><span class="p">,</span> <span class="s2">&quot;MANUAL&quot;</span><span class="p">,</span> <span class="s2">&quot;PARTY&quot;</span><span class="p">,</span> <span class="s2">&quot;BOOST&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">modes</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;The control mode must be one of: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">modes</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;MANUAL&quot;</span><span class="p">:</span>
+            <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;MANU&quot;</span>
+
+        <span class="n">value</span> <span class="o">=</span> <span class="bp">True</span>
+
+        <span class="c1"># In manual mode the set temperature needs to be provided. Set it to the</span>
+        <span class="c1"># current set temperature. When the set temperature is &quot;off&quot;, use the default</span>
+        <span class="c1"># value.</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;MANU&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_off</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">default</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_temperature</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_MODE&quot;</span> <span class="o">%</span> <span class="n">mode</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
 
 
     <span class="nd">@property</span>
