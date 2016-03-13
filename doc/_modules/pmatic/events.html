@@ -518,6 +518,11 @@
         <span class="k">for</span> <span class="n">device_dict</span> <span class="ow">in</span> <span class="n">devices</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">add_from_low_level_dict</span><span class="p">(</span><span class="n">device_dict</span><span class="p">)</span>
 
+        <span class="c1"># As we just received all devices from the CCU mark the devices as initialized</span>
+        <span class="c1"># in the CCU object. This saves one Interface.listDevices call when accessing</span>
+        <span class="c1"># the &quot;self._ccu.devices.devices&quot; for the first time.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="bp">True</span>
+
         <span class="k">return</span> <span class="bp">True</span>
 
 
