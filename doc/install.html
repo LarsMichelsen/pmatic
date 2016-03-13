@@ -63,16 +63,19 @@ Python installed or directly on the Homematic CCU. Later might be useful if you
 want to run your scripts when all your other devices aren&#8217;t running.</p>
 <div class="section" id="installation-on-the-ccu2">
 <h2>Installation on the CCU2<a class="headerlink" href="#installation-on-the-ccu2" title="Permalink to this headline">¶</a></h2>
-<p>You can download the snapshot addon from <a class="reference external" href="https://larsmichelsen.github.io/pmatic/pmatic-snapshot_ccu.tar.gz">here</a>.
+<p>You have two options to download pmatic. To have a stable version, you should
+download a released version from the <a class="reference external" href="https://pypi.python.org/pypi/pmatic">PyPI page of pmatic</a>.
+To get the CCU addon you need to download the file named like <code class="docutils literal"><span class="pre">pmatic-*_ccu.tar.gz</span></code>.</p>
+<p>If you feel adventurous and like to test the newest changes, you can download a snapshot
+CCU addon package from <a class="reference external" href="https://larsmichelsen.github.io/pmatic/pmatic-snapshot_ccu.tar.gz">here</a>.
 It is a snapshot package which is automatically built from the latest
 git version available. So please note that this is not as stable as a
 released version would be. But feel free to try and test it. Let me know
 if you experience any issues with it. Once there is a better version ready
 I&#8217;ll change these lines.</p>
-<p><a class="reference external" href="https://larsmichelsen.github.io/pmatic/pmatic-snapshot_ccu.tar.gz">Download the file</a>
-to your workstation. Then open up the Web Interface of the CCU in your browser and
-upload this file to your CCU using the regular addon upload form (In German: &#8220;Einstellungen /
-Systemsteuerung / Zusatzsoftware&#8221;) to install pmatic on it.</p>
+<p>Once you downloaded the version of your choice, open up the Web Interface of the CCU in
+your browser and upload this file to your CCU using the regular addon upload form
+(In German: &#8220;Einstellungen / Systemsteuerung / Zusatzsoftware&#8221;) to install pmatic on it.</p>
 <p>After the CCU has been restarted, pmatic should have been installed. You can now use
 the pmatic Manager, which can be opened from the addon menu you used before to install
 pmatic. Open this dialog again. You should see an entry for the pmatic addon and a link
@@ -98,11 +101,11 @@ or not.</p>
 </div>
 <div class="section" id="installation-on-your-workstation">
 <h2>Installation on your workstation<a class="headerlink" href="#installation-on-your-workstation" title="Permalink to this headline">¶</a></h2>
-<p>The installation should be straight forward. First download pmatic by either downloading the
-<a class="reference external" href="https://larsmichelsen.github.io/pmatic/pmatic-snapshot.tar.gz">current git snapshot</a>,
-cloning the <a class="reference external" href="https://github.com/LarsMichelsen/pmatic">Git repository</a> or download a
-release archive (if available), unpack it and change to the extracted directory
-<code class="docutils literal"><span class="pre">pmatic-*</span></code>. Then execute:</p>
+<p>The installation should be straight forward. First download pmatic by either downloading a
+released version from the <a class="reference external" href="https://pypi.python.org/pypi/pmatic">PyPI pmatic page</a>, the
+<a class="reference external" href="https://larsmichelsen.github.io/pmatic/pmatic-snapshot.tar.gz">current git snapshot</a> or
+by cloning the <a class="reference external" href="https://github.com/LarsMichelsen/pmatic">Git repository</a>.
+Then unpack it and change to the extracted directory <code class="docutils literal"><span class="pre">pmatic-*</span></code>. Then execute:</p>
 <div class="highlight-shell"><div class="highlight"><pre><span></span>python setup.py install
 </pre></div>
 </div>
@@ -113,7 +116,8 @@ release archive (if available), unpack it and change to the extracted directory
 <p>When the command completes silently (without <code class="docutils literal"><span class="pre">ImportError</span></code> exception) the
 installation was successful.</p>
 <p>I developed and tested pmatic on a Debian 8 system with Python 2.7.9, but
-pmatic should work on other platforms meeting the pmatic requirements.</p>
+pmatic should work on other platforms meeting the pmatic requirements. It is also
+tested with all current Python 3 versions.</p>
 <p>Please let me know or send me a pull request on GitHub if there are compatibility
 issues on a platform you would expect pmatic to work.</p>
 </div>
