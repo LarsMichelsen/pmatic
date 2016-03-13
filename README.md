@@ -115,6 +115,21 @@ for device in ccu.devices.query(device_type="HM-Sec-SC"):
 
 Please take a look at the issue tracker and the TODO file.
 
+What really is needed is specific support for the different Homematic devices. I added some
+specific classes for devices I have to the `pmatic/devices.py` but have not added properties
+and methods to reflect their individual features. And there are also a lot of devices I don't
+own. It would be really helpful if you could help out adding more devices to pmatic.
+
+This will make it a lot easier to use pmatic. Because, for example calling `device.is_battery_low`
+is a lot more comfortable than digging into the details of a device and find out you have to call
+`self.channels[4].values["FAULT_REPORTING"].formated() == "LOWBAT"`.
+
+So please help adding more devices!
+
+## Changes
+
+Please take a look at the `CHANGELOG.rst` file for a detailed list of changes.
+
 ## Reporting Bugs, Feature Requests
 
 Please use the issue tracker on the [pmatic GitHub page](https://github.com/LarsMichelsen/pmatic).

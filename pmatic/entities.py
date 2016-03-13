@@ -906,6 +906,20 @@ class HMCCRTDN(SpecificDevice):
     type_name = "HM-CC-RT-DN"
 
 
+    @property
+    def is_battery_low(self):
+        """Is ``True`` when the battery is reported to be low, otherwise ``False``.
+        If you want more details about the current battery, use :meth:`battery_state` to get
+        the current reported voltage."""
+        return self.channels[4].values["FAULT_REPORTING"].formated() == "LOWBAT"
+
+
+    @property
+    def battery_state(self):
+        return self.channels[4].values["BATTERY_STATE"]
+
+
+
 # Virtuelle Fernbedienung der CCU
 class HMRCV50(SpecificDevice):
     type_name = "HM-RCV-50"
