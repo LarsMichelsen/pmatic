@@ -555,7 +555,7 @@
     <span class="c1"># Derzeit  werden  nur  Änderungen  an  den  Verknüpfungspa rtnern  auf  diesem  Weg</span>
     <span class="c1"># mitgeteilt.</span>
     <span class="c1"># FIXME: To be implemented.</span>
-    <span class="k">def</span> <span class="nf">updateDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">hint</span><span class="p">):</span> <span class="c1"># pylint:disable=redefined-builtin</span>
+    <span class="k">def</span> <span class="nf">updateDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">hint</span><span class="p">):</span> <span class="c1"># pylint:disable=unused-argument</span>
         <span class="sd">&quot;&quot;&quot;The CCU wants to update the parameters of a device.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[UPDATE DEVICES] Update for device </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">hint</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">True</span>
