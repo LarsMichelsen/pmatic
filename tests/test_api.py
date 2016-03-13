@@ -94,7 +94,7 @@ class TestAbstractAPI(object):
 
         monkeypatch.setattr(API, "call", call_rega_present)
         with pytest.raises(PMException) as e:
-           API._parse_api_response("dingdong",
+            API._parse_api_response("dingdong",
               "{\"error\": {\"code\": 501, \"name\": \"xxx\", \"message\": \"asd\"}}")
         assert "[dingdong] xxx: asd" in str(e)
 
@@ -104,7 +104,7 @@ class TestAbstractAPI(object):
 
         monkeypatch.setattr(API, "call", call_rega_not_present)
         with pytest.raises(PMException) as e:
-           API._parse_api_response("dingdong",
+            API._parse_api_response("dingdong",
               "{\"error\": {\"code\": 501, \"name\": \"xxx\", \"message\": \"asd\"}}")
         assert "the CCU has just been started" in str(e)
 
