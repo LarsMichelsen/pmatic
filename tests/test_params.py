@@ -378,9 +378,10 @@ class TestParameterFLOAT(lib.TestCCUClassWide):
 
 
     def test_to_api_value(self, p):
-        assert p._to_api_value(1.0) == "1.00"
-        assert p._to_api_value(1.001) == "1.00"
-        assert p._to_api_value(999.124) == "999.12"
+        assert p._to_api_value(1.0) == "1.000000"
+        assert p._to_api_value(1.001) == "1.001000"
+        assert p._to_api_value(999.124) == "999.124000"
+        assert p._to_api_value(999.1240123) == "999.124012"
 
 
     def test_validate(self, p):

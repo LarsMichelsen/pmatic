@@ -367,7 +367,9 @@ class ParameterSTRING(Parameter):
 
 
 class ParameterFLOAT(Parameter):
-    datatype = "float"
+    # type to submit to CCU when setting this value. This has to be string. Strange.
+    datatype = "string"
+
     _transform_attributes = dict(Parameter._transform_attributes,
         DEFAULT=float,
         MAX=float,
@@ -380,10 +382,8 @@ class ParameterFLOAT(Parameter):
 
 
     def _to_api_value(self, value):
-        """Transforms the float value to an API value.
-
-        The precision is set to 2 digits. Hope this is ok."""
-        return "%0.2f" % value
+        """Transforms the float value to an API value."""
+        return "%0.6f" % value
 
 
     def _validate(self, value):

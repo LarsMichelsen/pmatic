@@ -225,7 +225,7 @@ class Channel(utils.LogMixin, Entity):
 
 
     def _value_update_needed(self):
-        """Tells whether or not the set of  values should be fetched from the CCU."""
+        """Tells whether or not the set of values should be fetched from the CCU."""
         oldest_value_time = None
         for param in self._values.values():
             try:
@@ -527,7 +527,8 @@ class ChannelClimaRTTransceiver(Channel):
     @property
     def summary_state(self):
         return "Temperature: %s (Target: %s)" % \
-                (self.values["ACTUAL_TEMPERATURE"], self.values["SET_TEMPERATURE"])
+                (self.values["ACTUAL_TEMPERATURE"],
+                 self.values["SET_TEMPERATURE"])
 
 
 
@@ -904,6 +905,70 @@ class SpecificDevice(Device):
 # Funk-Heizkörperthermostat
 class HMCCRTDN(SpecificDevice):
     type_name = "HM-CC-RT-DN"
+
+
+    @property
+    def temperature(self):
+        """Provides the current temperature"""
+        return self.channels[4].values["ACTUAL_TEMPERATURE"].value
+
+
+    @property
+    def set_temperature(self):
+        """Provides the actual target temperature"""
+        return self.channels[4].values["SET_TEMPERATURE"].value
+
+
+    @set_temperature.setter
+    def set_temperature(self, target):
+        """Specify the new set temperature. Please note that the CCU rounds this values to .0 or .5
+        after the comma. So if you provide .e.g 22.1 as new set temperature, the CCU will convert
+        this to 22.0."""
+        self.channels[4].values["SET_TEMPERATURE"].value = target
+
+
+    @property
+    def is_off(self):
+        """Is set to `True` when the device is not enabled to heat."""
+        return self.channels[4].values["SET_TEMPERATURE"].value == 4.5
+
+
+    def turn_off(self):
+        """Call this method to tell the thermostat that it should not heat."""
+        self.set_temperature = 4.5
+
+
+    @property
+    def control_mode(self):
+        """Provides the current control mode. This is either `AUTO`, `MANUAL`,
+        `PARTY` or `BOOST`.
+        """
+        formated = self.channels[4].values["CONTROL_MODE"].formated()
+        formated = formated.replace("-MODE", "").replace("MANU", "MANUAL")
+        return formated
+
+
+    @control_mode.setter
+    def control_mode(self, mode):
+        modes = ["AUTO", "MANUAL", "PARTY", "BOOST"]
+        if mode not in modes:
+            raise PMException("The control mode must be one of: %s" % ", ".join(modes))
+
+        if mode == "MANUAL":
+            mode = "MANU"
+
+        value = True
+
+        # In manual mode the set temperature needs to be provided. Set it to the
+        # current set temperature. When the set temperature is "off", use the default
+        # value.
+        if mode == "MANU":
+            if self.is_off:
+                value = self.channels[4].values["SET_TEMPERATURE"].default
+            else:
+                value = self.set_temperature
+
+        self.channels[4].values["%s_MODE" % mode].value = value
 
 
     @property
