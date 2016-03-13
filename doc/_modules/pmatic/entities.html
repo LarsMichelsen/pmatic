@@ -960,6 +960,20 @@
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-CC-RT-DN&quot;</span>
 
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_battery_low</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Is ``True`` when the battery is reported to be low, otherwise ``False``.</span>
+<span class="sd">        If you want more details about the current battery, use :meth:`battery_state` to get</span>
+<span class="sd">        the current reported voltage.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;FAULT_REPORTING&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">formated</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;LOWBAT&quot;</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">battery_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;BATTERY_STATE&quot;</span><span class="p">]</span>
+
+
+
 <span class="c1"># Virtuelle Fernbedienung der CCU</span>
 <span class="k">class</span> <span class="nc">HMRCV50</span><span class="p">(</span><span class="n">SpecificDevice</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-RCV-50&quot;</span>
