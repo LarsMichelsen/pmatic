@@ -302,12 +302,12 @@ class TestChannel(lib.TestCCUClassWide):
 
         # when more than X seconds old, an update is needed. Test this!
         update_needed_time = time.time() - 60
-        for key, val in channel.values.items():
+        for val in channel.values.values():
             val._value_updated = update_needed_time
 
         assert len(channel.values)
 
-        for key, val in channel.values.items():
+        for val in channel.values.values():
             if val.readable:
                 assert val.last_updated != update_needed_time
 
@@ -355,7 +355,7 @@ class TestChannel(lib.TestCCUClassWide):
 
 
     def test_on_value_changed(self, channel):
-        def x(param):
+        def x(param): # pylint:disable=unused-argument
             raise PMException("DING")
 
         channel.on_value_changed(x)
@@ -606,7 +606,7 @@ class TestCCUDevices(TestDevices):
         assert len(devices) == expected_len
 
 
-    def test_clear(self, ccu, devices):
+    def test_clear(self, devices):
         assert len(devices._device_dict) == 0
         assert len(devices) > 0
         devices.clear()

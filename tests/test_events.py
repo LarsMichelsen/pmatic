@@ -141,7 +141,7 @@ class TestEventListener(lib.TestCCUClassWide):
         listener = pmatic.events.EventListener(ccu, listen_address=("", 12345))
 
         class MySocket(socket.socket):
-            def connect(self, address):
+            def connect(self, address): # pylint:disable=unused-argument
                 return None
 
             def getsockname(self):

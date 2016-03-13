@@ -186,7 +186,7 @@ class TestParameter(lib.TestCCUClassWide):
 
 
     def test_value_setter_action_failed(self, p, monkeypatch):
-        def x(**kwargs):
+        def x(**kwargs): # pylint:disable=unused-argument
             return ""
 
         monkeypatch.setattr(p.channel._ccu.api, "interface_set_value", x)

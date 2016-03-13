@@ -169,7 +169,7 @@ class TestConfig(object):
             "pushover_user_token",
         ]
 
-        for key, val in Config.__dict__.items():
+        for key in Config.__dict__.keys():
             if key not in [ "__module__", "__doc__", "load", "save", "_config_path" ]:
                 assert key in config_options
 

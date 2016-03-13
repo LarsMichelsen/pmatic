@@ -60,12 +60,13 @@ def test_explicit_wrong_init():
         pmatic.api.init("WTF?!")
 
 
-class SpecificAPI(pmatic.api.AbstractAPI):
-    def close(self):
-        pass
 
+class SpecificAPI(pmatic.api.AbstractAPI):
     def _get_methods_config(self):
         return []
+
+    def close(self):
+        pass
 
 
 
@@ -88,7 +89,7 @@ class TestAbstractAPI(object):
             API._parse_api_response("ding", "{]")
         assert "Failed to parse response"
 
-        def call_rega_present(method_name_int, **kwargs):
+        def call_rega_present(method_name_int, **kwargs): # pylint:disable=unused-argument
             if method_name_int == "rega_is_present":
                 return True
 
@@ -98,7 +99,7 @@ class TestAbstractAPI(object):
               "{\"error\": {\"code\": 501, \"name\": \"xxx\", \"message\": \"asd\"}}")
         assert "[dingdong] xxx: asd" in str(e)
 
-        def call_rega_not_present(method_name_int, **kwargs):
+        def call_rega_not_present(method_name_int, **kwargs): # pylint:disable=unused-argument
             if method_name_int == "rega_is_present":
                 return False
 
@@ -110,7 +111,7 @@ class TestAbstractAPI(object):
 
 
     def test_invalid_api_call(self, API, monkeypatch):
-        def call(method_name_int, **kwargs):
+        def call(method_name_int, **kwargs): # pylint:disable=unused-argument
             API._get_method(method_name_int)
 
         monkeypatch.setattr(API, "call", call)

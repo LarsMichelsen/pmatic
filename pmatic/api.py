@@ -98,6 +98,12 @@ def init(mode=None, **kwargs):
 
 
 class AbstractAPI(utils.LogMixin):
+    """An abstract implementation of the pmatic low level API.
+
+    This is the base class for all specific API classes, which are currently
+    LocalAPI() and RemoteAPI().
+    """
+
     @classmethod
     def _replace_wrong_encoded_json(self, text):
         return text.replace("\\{", "{")\
@@ -105,11 +111,6 @@ class AbstractAPI(utils.LogMixin):
                    .replace("\\/", "/")
 
 
-    """An abstract implementation of the pmatic low level API.
-
-    This is the base class for all specific API classes, which are currently
-    LocalAPI() and RemoteAPI().
-    """
     def __init__(self):
         super(AbstractAPI, self).__init__()
         self._methods = {}
