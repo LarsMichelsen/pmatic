@@ -452,7 +452,7 @@ class RemoteAPI(AbstractAPI):
         method = self._get_method(method_name_int)
         args   = self.get_arguments(method, kwargs)
 
-        self.logger.info("CALL: %s ARGS: %r", method["NAME"], args)
+        self.logger.debug("CALL: %s ARGS: %r", method["NAME"], args)
         #import traceback
         #stack = "" #("".join(traceback.format_stack()[:-1])).encode("utf-8")
         #print(b"".join(traceback.format_stack()[:-1]))
