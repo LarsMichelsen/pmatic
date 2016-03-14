@@ -367,12 +367,13 @@ class ChannelMaintenance(Channel):
         """The maintenance channel does not provide a summary state.
 
         If you want to get a formated maintenance state, you need to use the property
-        `maintenance_state`."""
-        pass
+        :attr:`maintenance_state`."""
+        return None
 
 
     @property
     def maintenance_state(self):
+        """Provides the formated maintenance state of the associated device."""
         return super(self, ChannelMaintenance).summary_state
 
 
@@ -383,11 +384,14 @@ class ChannelShutterContact(Channel):
 
     @property
     def is_open(self):
+        """``True`` when the contact is reported to be open, otherwise ``False``."""
         return self.values["STATE"].value
 
 
     @property
     def summary_state(self):
+        """Provides a well formated state as string. It is ``open`` when the contact
+        is open, otherwise ``closed``."""
         return self.is_open and "open" or "closed"
 
 
@@ -398,15 +402,18 @@ class ChannelSwitch(Channel):
 
     @property
     def is_on(self):
+        """``True`` when the power is on, otherwise ``False``."""
         return self.values["STATE"].value
 
 
     @property
     def summary_state(self):
+        """Provides the current state as well formated string."""
         return "%s: %s" % (self.values["STATE"].name, self.is_on and "on" or "off")
 
 
     def toggle(self):
+        """Use this to toggle the switch."""
         if self.is_on:
             return self.switch_off()
         else:
@@ -414,10 +421,12 @@ class ChannelSwitch(Channel):
 
 
     def switch_off(self):
+        """Power off!"""
         return self.values["STATE"].set(False)
 
 
     def switch_on(self):
+        """Lights on!"""
         return self.values["STATE"].set(True)
 
 
@@ -426,28 +435,33 @@ class ChannelSwitch(Channel):
 class ChannelKey(Channel):
     type_name = "KEY"
 
-
     def press_short(self):
+        """Call this to trigger a short press."""
         return self.values["PRESS_SHORT"].set(True)
 
 
     def press_long(self):
+        """Triggers a long press."""
         return self.values["PRESS_LONG"].set(True)
 
 
     # Not verified working
     def press_long_release(self):
+        """Triggers the release of a long press."""
         return self.values["PRESS_LONG_RELEASE"].set(True)
 
 
     # Not verified
     def press_cont(self):
+        """Unknown. Untested. Please let me know what this is."""
         return self.values["PRESS_CONT"].set(True)
 
 
     @property
     def summary_state(self):
-        return None # has no state info as it's a toggle button
+        """Has no state info as it's a toggle button. This is only to override the
+        default summary_state property."""
+        return None
 
 
 
@@ -532,21 +546,21 @@ class ChannelClimaRTTransceiver(Channel):
 
 
 
-# Has not any values
 class ChannelWindowSwitchReceiver(Channel):
     type_name = "WINDOW_SWITCH_RECEIVER"
 
     @property
     def summary_state(self):
+        """Has not any values"""
         return None
 
 
-# Has not any values
 class ChannelWeatherReceiver(Channel):
     type_name = "WEATHER_RECEIVER"
 
     @property
     def summary_state(self):
+        """Has not any values"""
         return None
 
 
@@ -897,13 +911,8 @@ class Device(Entity):
 
 
 
-class SpecificDevice(Device):
-    pass
-
-
-
 # Funk-Heizkörperthermostat
-class HMCCRTDN(SpecificDevice):
+class HMCCRTDN(Device):
     type_name = "HM-CC-RT-DN"
 
 
@@ -915,15 +924,20 @@ class HMCCRTDN(SpecificDevice):
 
     @property
     def set_temperature(self):
-        """Provides the actual target temperature"""
+        """The actual set temperature of the device.
+
+        :getter: Provides the actual target temperature
+        :setter: Specify the new set temperature. Please note that the CCU rounds this values to
+                 .0 or .5 after the comma. So if you provide .e.g 22.1 as new set temperature,
+                 the CCU will convert this to 22.0. This is totally equal to the control on the
+                 device.
+        :type: float
+        """
         return self.channels[4].values["SET_TEMPERATURE"].value
 
 
     @set_temperature.setter
     def set_temperature(self, target):
-        """Specify the new set temperature. Please note that the CCU rounds this values to .0 or .5
-        after the comma. So if you provide .e.g 22.1 as new set temperature, the CCU will convert
-        this to 22.0."""
         self.channels[4].values["SET_TEMPERATURE"].value = target
 
 
@@ -940,8 +954,15 @@ class HMCCRTDN(SpecificDevice):
 
     @property
     def control_mode(self):
-        """Provides the current control mode. This is either `AUTO`, `MANUAL`,
-        `PARTY` or `BOOST`.
+        """
+        The actual control mode of the device. This is either ``AUTO``, ``MANUAL``,
+        ``PARTY`` or ``BOOST``.
+
+        :getter: Provides the current control mode.
+        :setter: Set the control mode. When setting to ``MANUAL`` it uses either the current
+                 set temperature as target temperature or the default temperature when the
+                 device is currently turned off.
+        :type: string
         """
         formated = self.channels[4].values["CONTROL_MODE"].formated()
         formated = formated.replace("-MODE", "").replace("MANU", "MANUAL")
@@ -981,17 +1002,18 @@ class HMCCRTDN(SpecificDevice):
 
     @property
     def battery_state(self):
+        """Provides the actual battery voltage reported by the device."""
         return self.channels[4].values["BATTERY_STATE"]
 
 
 
 # Virtuelle Fernbedienung der CCU
-class HMRCV50(SpecificDevice):
+class HMRCV50(Device):
     type_name = "HM-RCV-50"
 
 
 # Funk-Tür-/ Fensterkontakt
-class HMSecSC(SpecificDevice):
+class HMSecSC(Device):
     type_name = "HM-Sec-SC"
 
 
@@ -1002,7 +1024,7 @@ class HMSecSC(SpecificDevice):
 
 
 # Funk-Schaltaktor mit Leistungsmessung
-class HMESPMSw1Pl(SpecificDevice):
+class HMESPMSw1Pl(Device):
     type_name = "HM-ES-PMSw1-Pl"
 
 
@@ -1019,11 +1041,34 @@ class HMESPMSw1Pl(SpecificDevice):
 
 
 
-class HMPBI4FM(SpecificDevice):
+class HMPBI4FM(Device):
     type_name = "HM-PBI-4-FM"
 
-    def button(self, index):
-        return self.channels[index+1]
+    @property
+    def switch1(self):
+        """Provides to the :class:`.ChannelKey` object of the first switch.
+
+        You can do something like ``self.switch1.press_short()`` with this. For details take
+        a look at the methods provided by the :class:``.ChannelKey`` class."""
+        return self.channels[1]
+
+
+    @property
+    def switch2(self):
+        """Provides to the :class:`.ChannelKey` object of the second switch."""
+        return self.channels[2]
+
+
+    @property
+    def switch3(self):
+        """Provides to the :class:`.ChannelKey` object of the third switch."""
+        return self.channels[3]
+
+
+    @property
+    def switch4(self):
+        """Provides to the :class:`.ChannelKey` object of the fourth switch."""
+        return self.channels[4]
 
 
 
@@ -1166,7 +1211,7 @@ class Room(Entity):
 device_classes_by_type_name = {}
 for key, val in list(globals().items()):
     if isinstance(val, type):
-        if issubclass(val, Device) and key not in [ "Device", "SpecificDevice" ]:
+        if issubclass(val, Device) and key != "Device":
             device_classes_by_type_name[val.type_name] = val
 
 channel_classes_by_type_name = {}

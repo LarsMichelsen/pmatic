@@ -24,7 +24,7 @@ ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECR
 
 # Trigger a short button press for the first button of a HM-PBI-4-FM device
 for device in ccu.devices.query(device_name=u"Büro-Schalter"):
-    if device.button(0).press_short():
+    if device.switch1.press_short():
         print("done.")
     else:
         print("failed!")

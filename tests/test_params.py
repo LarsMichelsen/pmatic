@@ -442,7 +442,7 @@ class TestParameterBOOL(lib.TestCCUClassWide):
 class TestParameterACTION(TestParameterBOOL):
     @pytest.fixture(scope="function")
     def p(self, ccu):
-        button0 = list(ccu.devices.query(device_name="Büro-Schalter"))[0].button(0)
+        button0 = list(ccu.devices.query(device_name="Büro-Schalter"))[0].switch1
         assert isinstance(button0, ChannelKey)
         return button0.values["PRESS_SHORT"]
 

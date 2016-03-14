@@ -9,6 +9,7 @@ Contents:
    install.rst
    basic_usage.rst
    pmatic_module.rst
+   pmatic_devices.rst
    pmatic_notify.rst
    pmatic_manager.rst
    advanced.rst
