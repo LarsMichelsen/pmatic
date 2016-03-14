@@ -1,0 +1,539 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Specific Devices &mdash; pmatic 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinxcontrib-images/LightBox2/lightbox2/css/lightbox.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinxcontrib-images/LightBox2/lightbox2/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/sphinxcontrib-images/LightBox2/lightbox2/js/lightbox.min.js"></script>
+    <script type="text/javascript" src="_static/sphinxcontrib-images/LightBox2/lightbox2-customize/jquery-noconflict.js"></script>
+    <link rel="top" title="pmatic 0.1 documentation" href="index.html" />
+    <link rel="next" title="Send Notifications with pmatic" href="pmatic_notify.html" />
+    <link rel="prev" title="The pmatic Module" href="pmatic_module.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pmatic_notify.html" title="Send Notifications with pmatic"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pmatic_module.html" title="The pmatic Module"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pmatic 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="specific-devices">
+<h1>Specific Devices<a class="headerlink" href="#specific-devices" title="Permalink to this headline">¶</a></h1>
+<p>Pmatic supports all kind of devices which are provided by the CCU. Those unspecific devices
+are instances of <a class="reference internal" href="pmatic_module.html#pmatic.entities.Device" title="pmatic.entities.Device"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Device</span></code></a>. Those device values can be read and
+written with generic methods and properties. You can e.g. retrieve the current temperature
+measured by a HM-CC-RT-DN device as floating point number using
+<code class="docutils literal"><span class="pre">device.channels[4].values[&quot;ACTUAL_TEMPERATURE&quot;].value</span></code>. To get this right, you need to
+know several things:</p>
+<blockquote>
+<div><ul class="simple">
+<li>You need to know that the channel 4 of the device is the <code class="docutils literal"><span class="pre">CLIMATECONTROL_RT_TRANSCEIVER</span></code> channel.</li>
+<li>You need to know that the current temperature is available via the paramater <code class="docutils literal"><span class="pre">ACTUAL_TEMPERATURE</span></code>.</li>
+</ul>
+</div></blockquote>
+<p>I think thats problematic. You need to dig into documents and API descriptions of the manufacturers
+which should really not be neccessary.</p>
+<p>So there is the concept of specific device objects in pmatic. To stick with the example above,
+there is the <a class="reference internal" href="#pmatic.entities.HMCCRTDN" title="pmatic.entities.HMCCRTDN"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.HMCCRTDN</span></code></a> which is automatically used for HM-CC-RT-DN devices.
+When working with such a device, you have access to the property <code class="docutils literal"><span class="pre">device.temperature</span></code> which gives
+you the same value as the code above. Now that should be clear. We need specific devices!</p>
+<div class="section" id="hmccrtdn-hm-cc-rt-dn-funk-heizkorperthermostat">
+<h2>HMCCRTDN - HM-CC-RT-DN (Funk-Heizkörperthermostat)<a class="headerlink" href="#hmccrtdn-hm-cc-rt-dn-funk-heizkorperthermostat" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pmatic.entities.HMCCRTDN">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HMCCRTDN</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMCCRTDN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMCCRTDN" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Device" title="pmatic.entities.Device"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Device</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.entities.HMCCRTDN.temperature">
+<code class="descname">temperature</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the current temperature</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.HMCCRTDN.set_temperature">
+<code class="descname">set_temperature</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.set_temperature" title="Permalink to this definition">¶</a></dt>
+<dd><p>The actual set temperature of the device.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Getter:</th><td class="field-body">Provides the actual target temperature</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Setter:</th><td class="field-body">Specify the new set temperature. Please note that the CCU rounds this values to
+.0 or .5 after the comma. So if you provide .e.g 22.1 as new set temperature,
+the CCU will convert this to 22.0. This is totally equal to the control on the
+device.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.HMCCRTDN.is_off">
+<code class="descname">is_off</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.is_off" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is set to <cite>True</cite> when the device is not enabled to heat.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.entities.HMCCRTDN.turn_off">
+<code class="descname">turn_off</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMCCRTDN.turn_off"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMCCRTDN.turn_off" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call this method to tell the thermostat that it should not heat.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.HMCCRTDN.control_mode">
+<code class="descname">control_mode</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.control_mode" title="Permalink to this definition">¶</a></dt>
+<dd><p>The actual control mode of the device. This is either <code class="docutils literal"><span class="pre">AUTO</span></code>, <code class="docutils literal"><span class="pre">MANUAL</span></code>,
+<code class="docutils literal"><span class="pre">PARTY</span></code> or <code class="docutils literal"><span class="pre">BOOST</span></code>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Getter:</th><td class="field-body">Provides the current control mode.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Setter:</th><td class="field-body">Set the control mode. When setting to <code class="docutils literal"><span class="pre">MANUAL</span></code> it uses either the current
+set temperature as target temperature or the default temperature when the
+device is currently turned off.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.HMCCRTDN.is_battery_low">
+<code class="descname">is_battery_low</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.is_battery_low" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is <code class="docutils literal"><span class="pre">True</span></code> when the battery is reported to be low, otherwise <code class="docutils literal"><span class="pre">False</span></code>.
+If you want more details about the current battery, use <code class="xref py py-meth docutils literal"><span class="pre">battery_state()</span></code> to get
+the current reported voltage.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.HMCCRTDN.battery_state">
+<code class="descname">battery_state</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.battery_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the actual battery voltage reported by the device.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="hmsecsc-hm-sec-sc-funk-tur-fensterkontakt">
+<h2>HMSecSC - HM-Sec-SC (Funk-Tür-/ Fensterkontakt)<a class="headerlink" href="#hmsecsc-hm-sec-sc-funk-tur-fensterkontakt" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pmatic.entities.HMSecSC">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HMSecSC</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMSecSC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMSecSC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Device" title="pmatic.entities.Device"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Device</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="hmespmsw1pl-hm-es-pmsw1-pl-funk-schaltaktor-mit-leistungsmessung">
+<h2>HMESPMSw1Pl - HM-ES-PMSw1-Pl (Funk-Schaltaktor mit Leistungsmessung)<a class="headerlink" href="#hmespmsw1pl-hm-es-pmsw1-pl-funk-schaltaktor-mit-leistungsmessung" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pmatic.entities.HMESPMSw1Pl">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HMESPMSw1Pl</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMESPMSw1Pl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMESPMSw1Pl" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Device" title="pmatic.entities.Device"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Device</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.entities.HMESPMSw1Pl.summary_state">
+<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.HMESPMSw1Pl.summary_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="hmpbi4fm-hm-pbi-4-fm-funk-tasterschnittstelle-4-fach">
+<h2>HMPBI4FM - HM-PBI-4-FM (Funk-Tasterschnittstelle 4-fach)<a class="headerlink" href="#hmpbi4fm-hm-pbi-4-fm-funk-tasterschnittstelle-4-fach" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pmatic.entities.HMPBI4FM">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HMPBI4FM</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMPBI4FM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMPBI4FM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Device" title="pmatic.entities.Device"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Device</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.entities.HMPBI4FM.switch1">
+<code class="descname">switch1</code><a class="headerlink" href="#pmatic.entities.HMPBI4FM.switch1" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides to the <a class="reference internal" href="#pmatic.entities.ChannelKey" title="pmatic.entities.ChannelKey"><code class="xref py py-class docutils literal"><span class="pre">ChannelKey</span></code></a> object of the first switch.</p>
+<p>You can do something like <code class="docutils literal"><span class="pre">self.switch1.press_short()</span></code> with this. For details take
+a look at the methods provided by the :class:<code class="docutils literal"><span class="pre">.ChannelKey</span></code> class.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.HMPBI4FM.switch2">
+<code class="descname">switch2</code><a class="headerlink" href="#pmatic.entities.HMPBI4FM.switch2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides to the <a class="reference internal" href="#pmatic.entities.ChannelKey" title="pmatic.entities.ChannelKey"><code class="xref py py-class docutils literal"><span class="pre">ChannelKey</span></code></a> object of the second switch.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.HMPBI4FM.switch3">
+<code class="descname">switch3</code><a class="headerlink" href="#pmatic.entities.HMPBI4FM.switch3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides to the <a class="reference internal" href="#pmatic.entities.ChannelKey" title="pmatic.entities.ChannelKey"><code class="xref py py-class docutils literal"><span class="pre">ChannelKey</span></code></a> object of the third switch.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.HMPBI4FM.switch4">
+<code class="descname">switch4</code><a class="headerlink" href="#pmatic.entities.HMPBI4FM.switch4" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides to the <a class="reference internal" href="#pmatic.entities.ChannelKey" title="pmatic.entities.ChannelKey"><code class="xref py py-class docutils literal"><span class="pre">ChannelKey</span></code></a> object of the fourth switch.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="the-channels">
+<h2>The Channels<a class="headerlink" href="#the-channels" title="Permalink to this headline">¶</a></h2>
+<p>Each device is organized in several independent channels which all have individual features.
+This chapter describes all specific channels currently implemented in pmatic. Unknown channels
+are represented by the generic <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a> class.</p>
+<div class="section" id="channelmaintenance">
+<h3>ChannelMaintenance<a class="headerlink" href="#channelmaintenance" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelMaintenance">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelMaintenance</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelMaintenance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelMaintenance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelMaintenance.summary_state">
+<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.ChannelMaintenance.summary_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>The maintenance channel does not provide a summary state.</p>
+<p>If you want to get a formated maintenance state, you need to use the property
+<code class="xref py py-attr docutils literal"><span class="pre">maintenance_state</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelMaintenance.maintenance_state">
+<code class="descname">maintenance_state</code><a class="headerlink" href="#pmatic.entities.ChannelMaintenance.maintenance_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the formated maintenance state of the associated device.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="channelshuttercontact">
+<h3>ChannelShutterContact<a class="headerlink" href="#channelshuttercontact" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelShutterContact">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelShutterContact</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelShutterContact"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelShutterContact" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelShutterContact.is_open">
+<code class="descname">is_open</code><a class="headerlink" href="#pmatic.entities.ChannelShutterContact.is_open" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal"><span class="pre">True</span></code> when the contact is reported to be open, otherwise <code class="docutils literal"><span class="pre">False</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelShutterContact.summary_state">
+<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.ChannelShutterContact.summary_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides a well formated state as string. It is <code class="docutils literal"><span class="pre">open</span></code> when the contact
+is open, otherwise <code class="docutils literal"><span class="pre">closed</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="channelswitch">
+<h3>ChannelSwitch<a class="headerlink" href="#channelswitch" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelSwitch">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelSwitch</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelSwitch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelSwitch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelSwitch.is_on">
+<code class="descname">is_on</code><a class="headerlink" href="#pmatic.entities.ChannelSwitch.is_on" title="Permalink to this definition">¶</a></dt>
+<dd><p><code class="docutils literal"><span class="pre">True</span></code> when the power is on, otherwise <code class="docutils literal"><span class="pre">False</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelSwitch.summary_state">
+<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.ChannelSwitch.summary_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the current state as well formated string.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.entities.ChannelSwitch.toggle">
+<code class="descname">toggle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelSwitch.toggle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelSwitch.toggle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use this to toggle the switch.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.entities.ChannelSwitch.switch_off">
+<code class="descname">switch_off</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelSwitch.switch_off"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelSwitch.switch_off" title="Permalink to this definition">¶</a></dt>
+<dd><p>Power off!</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.entities.ChannelSwitch.switch_on">
+<code class="descname">switch_on</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelSwitch.switch_on"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelSwitch.switch_on" title="Permalink to this definition">¶</a></dt>
+<dd><p>Lights on!</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="channelkey">
+<h3>ChannelKey<a class="headerlink" href="#channelkey" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelKey">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelKey</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+<dl class="method">
+<dt id="pmatic.entities.ChannelKey.press_short">
+<code class="descname">press_short</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelKey.press_short"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelKey.press_short" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call this to trigger a short press.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.entities.ChannelKey.press_long">
+<code class="descname">press_long</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelKey.press_long"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelKey.press_long" title="Permalink to this definition">¶</a></dt>
+<dd><p>Triggers a long press.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.entities.ChannelKey.press_long_release">
+<code class="descname">press_long_release</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelKey.press_long_release"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelKey.press_long_release" title="Permalink to this definition">¶</a></dt>
+<dd><p>Triggers the release of a long press.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.entities.ChannelKey.press_cont">
+<code class="descname">press_cont</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelKey.press_cont"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelKey.press_cont" title="Permalink to this definition">¶</a></dt>
+<dd><p>Unknown. Untested. Please let me know what this is.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelKey.summary_state">
+<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.ChannelKey.summary_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Has no state info as it&#8217;s a toggle button. This is only to override the
+default summary_state property.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="channelvirtualkey">
+<h3>ChannelVirtualKey<a class="headerlink" href="#channelvirtualkey" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelVirtualKey">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelVirtualKey</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelVirtualKey"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelVirtualKey" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pmatic.entities.ChannelKey" title="pmatic.entities.ChannelKey"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.ChannelKey</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="channelpowermeter">
+<h3>ChannelPowermeter<a class="headerlink" href="#channelpowermeter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelPowermeter">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelPowermeter</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelPowermeter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelPowermeter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="channelconditionpower">
+<h3>ChannelConditionPower<a class="headerlink" href="#channelconditionpower" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelConditionPower">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelConditionPower</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelConditionPower"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelConditionPower" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="channelconditioncurrent">
+<h3>ChannelConditionCurrent<a class="headerlink" href="#channelconditioncurrent" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelConditionCurrent">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelConditionCurrent</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelConditionCurrent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelConditionCurrent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="channelconditionvoltage">
+<h3>ChannelConditionVoltage<a class="headerlink" href="#channelconditionvoltage" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelConditionVoltage">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelConditionVoltage</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelConditionVoltage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelConditionVoltage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="channelconditionfrequency">
+<h3>ChannelConditionFrequency<a class="headerlink" href="#channelconditionfrequency" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelConditionFrequency">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelConditionFrequency</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelConditionFrequency"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelConditionFrequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="channelweather">
+<h3>ChannelWeather<a class="headerlink" href="#channelweather" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelWeather">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelWeather</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelWeather"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelWeather" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="channelclimaventdrive">
+<h3>ChannelClimaVentDrive<a class="headerlink" href="#channelclimaventdrive" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelClimaVentDrive">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelClimaVentDrive</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelClimaVentDrive"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelClimaVentDrive" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="channelclimaregulator">
+<h3>ChannelClimaRegulator<a class="headerlink" href="#channelclimaregulator" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelClimaRegulator">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelClimaRegulator</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelClimaRegulator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelClimaRegulator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelClimaRegulator.summary_state">
+<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.ChannelClimaRegulator.summary_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="channelclimarttransceiver">
+<h3>ChannelClimaRTTransceiver<a class="headerlink" href="#channelclimarttransceiver" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelClimaRTTransceiver">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelClimaRTTransceiver</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelClimaRTTransceiver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelClimaRTTransceiver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelClimaRTTransceiver.summary_state">
+<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.ChannelClimaRTTransceiver.summary_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Specific Devices</a><ul>
+<li><a class="reference internal" href="#hmccrtdn-hm-cc-rt-dn-funk-heizkorperthermostat">HMCCRTDN - HM-CC-RT-DN (Funk-Heizkörperthermostat)</a></li>
+<li><a class="reference internal" href="#hmsecsc-hm-sec-sc-funk-tur-fensterkontakt">HMSecSC - HM-Sec-SC (Funk-Tür-/ Fensterkontakt)</a></li>
+<li><a class="reference internal" href="#hmespmsw1pl-hm-es-pmsw1-pl-funk-schaltaktor-mit-leistungsmessung">HMESPMSw1Pl - HM-ES-PMSw1-Pl (Funk-Schaltaktor mit Leistungsmessung)</a></li>
+<li><a class="reference internal" href="#hmpbi4fm-hm-pbi-4-fm-funk-tasterschnittstelle-4-fach">HMPBI4FM - HM-PBI-4-FM (Funk-Tasterschnittstelle 4-fach)</a></li>
+<li><a class="reference internal" href="#the-channels">The Channels</a><ul>
+<li><a class="reference internal" href="#channelmaintenance">ChannelMaintenance</a></li>
+<li><a class="reference internal" href="#channelshuttercontact">ChannelShutterContact</a></li>
+<li><a class="reference internal" href="#channelswitch">ChannelSwitch</a></li>
+<li><a class="reference internal" href="#channelkey">ChannelKey</a></li>
+<li><a class="reference internal" href="#channelvirtualkey">ChannelVirtualKey</a></li>
+<li><a class="reference internal" href="#channelpowermeter">ChannelPowermeter</a></li>
+<li><a class="reference internal" href="#channelconditionpower">ChannelConditionPower</a></li>
+<li><a class="reference internal" href="#channelconditioncurrent">ChannelConditionCurrent</a></li>
+<li><a class="reference internal" href="#channelconditionvoltage">ChannelConditionVoltage</a></li>
+<li><a class="reference internal" href="#channelconditionfrequency">ChannelConditionFrequency</a></li>
+<li><a class="reference internal" href="#channelweather">ChannelWeather</a></li>
+<li><a class="reference internal" href="#channelclimaventdrive">ChannelClimaVentDrive</a></li>
+<li><a class="reference internal" href="#channelclimaregulator">ChannelClimaRegulator</a></li>
+<li><a class="reference internal" href="#channelclimarttransceiver">ChannelClimaRTTransceiver</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pmatic_module.html"
+                        title="previous chapter">The pmatic Module</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pmatic_notify.html"
+                        title="next chapter">Send Notifications with pmatic</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pmatic_devices.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pmatic_notify.html" title="Send Notifications with pmatic"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pmatic_module.html" title="The pmatic Module"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pmatic 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Lars Michelsen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+    </div>
+  </body>
+</html>

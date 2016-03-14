@@ -339,7 +339,7 @@
         <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formated</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="Channel.set_logic_attributes"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Channel.set_logic_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_logic_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">set_logic_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Used to update the logic attributes of this channel.</span>
 
 <span class="sd">        Applying the attributes in the dictionary to this object. Special handling</span>
@@ -357,7 +357,7 @@
         <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">[</span> <span class="s2">&quot;address&quot;</span><span class="p">,</span> <span class="s2">&quot;device_id&quot;</span> <span class="p">]:</span>
             <span class="k">del</span> <span class="n">attrs</span><span class="p">[</span><span class="n">a</span><span class="p">]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_set_attributes</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_attributes</span><span class="p">(</span><span class="n">attrs</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="Channel.on_value_changed"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Channel.on_value_changed">[docs]</a>    <span class="k">def</span> <span class="nf">on_value_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
@@ -410,7 +410,7 @@
 
 
 <span class="c1"># FIXME: Implement this</span>
-<span class="k">class</span> <span class="nc">ChannelMaintenance</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelMaintenance"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelMaintenance">[docs]</a><span class="k">class</span> <span class="nc">ChannelMaintenance</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;MAINTENANCE&quot;</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Maintenance&quot;</span>
     <span class="nb">id</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># FIXME: Really no id for maintenance channels?</span>
@@ -421,138 +421,152 @@
         <span class="sd">&quot;&quot;&quot;The maintenance channel does not provide a summary state.</span>
 
 <span class="sd">        If you want to get a formated maintenance state, you need to use the property</span>
-<span class="sd">        `maintenance_state`.&quot;&quot;&quot;</span>
-        <span class="k">pass</span>
+<span class="sd">        :attr:`maintenance_state`.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">None</span>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">maintenance_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ChannelMaintenance</span><span class="p">)</span><span class="o">.</span><span class="n">summary_state</span>
+        <span class="sd">&quot;&quot;&quot;Provides the formated maintenance state of the associated device.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ChannelMaintenance</span><span class="p">)</span><span class="o">.</span><span class="n">summary_state</span></div>
 
 
 
 <span class="c1"># FIXME: Handle LOWBAT/ERROR</span>
-<span class="k">class</span> <span class="nc">ChannelShutterContact</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelShutterContact"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelShutterContact">[docs]</a><span class="k">class</span> <span class="nc">ChannelShutterContact</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;SHUTTER_CONTACT&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_open</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;``True`` when the contact is reported to be open, otherwise ``False``.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;STATE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_open</span> <span class="ow">and</span> <span class="s2">&quot;open&quot;</span> <span class="ow">or</span> <span class="s2">&quot;closed&quot;</span>
+        <span class="sd">&quot;&quot;&quot;Provides a well formated state as string. It is ``open`` when the contact</span>
+<span class="sd">        is open, otherwise ``closed``.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_open</span> <span class="ow">and</span> <span class="s2">&quot;open&quot;</span> <span class="ow">or</span> <span class="s2">&quot;closed&quot;</span></div>
 
 
 
 <span class="c1"># FIXME: Handle INHIBIT, WORKING</span>
-<span class="k">class</span> <span class="nc">ChannelSwitch</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelSwitch"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelSwitch">[docs]</a><span class="k">class</span> <span class="nc">ChannelSwitch</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;SWITCH&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">is_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;``True`` when the power is on, otherwise ``False``.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;STATE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the current state as well formated string.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;STATE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_on</span> <span class="ow">and</span> <span class="s2">&quot;on&quot;</span> <span class="ow">or</span> <span class="s2">&quot;off&quot;</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">toggle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelSwitch.toggle"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelSwitch.toggle">[docs]</a>    <span class="k">def</span> <span class="nf">toggle</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Use this to toggle the switch.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_on</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">switch_off</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">switch_on</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">switch_on</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span> <span class="nf">switch_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;STATE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span>
+<div class="viewcode-block" id="ChannelSwitch.switch_off"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelSwitch.switch_off">[docs]</a>    <span class="k">def</span> <span class="nf">switch_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Power off!&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;STATE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">switch_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;STATE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="ChannelSwitch.switch_on"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelSwitch.switch_on">[docs]</a>    <span class="k">def</span> <span class="nf">switch_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Lights on!&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;STATE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></div></div>
 
 
 
 <span class="c1"># FIXME: Handle LED_STATUS, ALL_LEDS, LED_SLEEP_MODE, INSTALL_TEST</span>
-<span class="k">class</span> <span class="nc">ChannelKey</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelKey"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelKey">[docs]</a><span class="k">class</span> <span class="nc">ChannelKey</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;KEY&quot;</span>
 
+<div class="viewcode-block" id="ChannelKey.press_short"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelKey.press_short">[docs]</a>    <span class="k">def</span> <span class="nf">press_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Call this to trigger a short press.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_SHORT&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></div>
 
-    <span class="k">def</span> <span class="nf">press_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_SHORT&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
 
-
-    <span class="k">def</span> <span class="nf">press_long</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_LONG&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="ChannelKey.press_long"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelKey.press_long">[docs]</a>    <span class="k">def</span> <span class="nf">press_long</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Triggers a long press.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_LONG&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></div>
 
 
     <span class="c1"># Not verified working</span>
-    <span class="k">def</span> <span class="nf">press_long_release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_LONG_RELEASE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="ChannelKey.press_long_release"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelKey.press_long_release">[docs]</a>    <span class="k">def</span> <span class="nf">press_long_release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Triggers the release of a long press.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_LONG_RELEASE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></div>
 
 
     <span class="c1"># Not verified</span>
-    <span class="k">def</span> <span class="nf">press_cont</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_CONT&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span>
+<div class="viewcode-block" id="ChannelKey.press_cont"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelKey.press_cont">[docs]</a>    <span class="k">def</span> <span class="nf">press_cont</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Unknown. Untested. Please let me know what this is.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_CONT&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">None</span> <span class="c1"># has no state info as it&#39;s a toggle button</span>
+        <span class="sd">&quot;&quot;&quot;Has no state info as it&#39;s a toggle button. This is only to override the</span>
+<span class="sd">        default summary_state property.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">None</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">ChannelVirtualKey</span><span class="p">(</span><span class="n">ChannelKey</span><span class="p">):</span>
-    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;VIRTUAL_KEY&quot;</span>
+<div class="viewcode-block" id="ChannelVirtualKey"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelVirtualKey">[docs]</a><span class="k">class</span> <span class="nc">ChannelVirtualKey</span><span class="p">(</span><span class="n">ChannelKey</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;VIRTUAL_KEY&quot;</span></div>
 
 
 
 <span class="c1"># FIXME: Handle all values:</span>
 <span class="c1"># {u&#39;POWER&#39;: u&#39;3.520000&#39;, u&#39;ENERGY_COUNTER&#39;: u&#39;501.400000&#39;, u&#39;BOOT&#39;: u&#39;1&#39;,</span>
 <span class="c1">#  u&#39;CURRENT&#39;: u&#39;26.000000&#39;, u&#39;FREQUENCY&#39;: u&#39;50.010000&#39;, u&#39;VOLTAGE&#39;: u&#39;228.900000&#39;}</span>
-<span class="k">class</span> <span class="nc">ChannelPowermeter</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
-    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;POWERMETER&quot;</span>
+<div class="viewcode-block" id="ChannelPowermeter"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelPowermeter">[docs]</a><span class="k">class</span> <span class="nc">ChannelPowermeter</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;POWERMETER&quot;</span></div>
 
 
 <span class="c1"># FIXME: To be implemented.</span>
-<span class="k">class</span> <span class="nc">ChannelConditionPower</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
-    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CONDITION_POWER&quot;</span>
+<div class="viewcode-block" id="ChannelConditionPower"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelConditionPower">[docs]</a><span class="k">class</span> <span class="nc">ChannelConditionPower</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CONDITION_POWER&quot;</span></div>
 
 
 <span class="c1"># FIXME: To be implemented.</span>
-<span class="k">class</span> <span class="nc">ChannelConditionCurrent</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
-    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CONDITION_CURRENT&quot;</span>
+<div class="viewcode-block" id="ChannelConditionCurrent"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelConditionCurrent">[docs]</a><span class="k">class</span> <span class="nc">ChannelConditionCurrent</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CONDITION_CURRENT&quot;</span></div>
 
 
 <span class="c1"># FIXME: To be implemented.</span>
-<span class="k">class</span> <span class="nc">ChannelConditionVoltage</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
-    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CONDITION_VOLTAGE&quot;</span>
-
-
-
-<span class="c1"># FIXME: To be implemented.</span>
-<span class="k">class</span> <span class="nc">ChannelConditionFrequency</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
-    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CONDITION_FREQUENCY&quot;</span>
+<div class="viewcode-block" id="ChannelConditionVoltage"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelConditionVoltage">[docs]</a><span class="k">class</span> <span class="nc">ChannelConditionVoltage</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CONDITION_VOLTAGE&quot;</span></div>
 
 
 
 <span class="c1"># FIXME: To be implemented.</span>
-<span class="k">class</span> <span class="nc">ChannelWeather</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
-    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;WEATHER&quot;</span>
+<div class="viewcode-block" id="ChannelConditionFrequency"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelConditionFrequency">[docs]</a><span class="k">class</span> <span class="nc">ChannelConditionFrequency</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CONDITION_FREQUENCY&quot;</span></div>
+
+
+
+<span class="c1"># FIXME: To be implemented.</span>
+<div class="viewcode-block" id="ChannelWeather"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelWeather">[docs]</a><span class="k">class</span> <span class="nc">ChannelWeather</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;WEATHER&quot;</span></div>
 
 
 
 <span class="c1"># FIXME: Handle ERROR</span>
-<span class="k">class</span> <span class="nc">ChannelClimaVentDrive</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
-    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CLIMATECONTROL_VENT_DRIVE&quot;</span>
+<div class="viewcode-block" id="ChannelClimaVentDrive"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelClimaVentDrive">[docs]</a><span class="k">class</span> <span class="nc">ChannelClimaVentDrive</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CLIMATECONTROL_VENT_DRIVE&quot;</span></div>
 
 
 
 <span class="c1"># FIXME: Handle ADJUSTING_COMMAND, ADJUSTING_DATA</span>
-<span class="k">class</span> <span class="nc">ChannelClimaRegulator</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelClimaRegulator"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelClimaRegulator">[docs]</a><span class="k">class</span> <span class="nc">ChannelClimaRegulator</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CLIMATECONTROL_REGULATOR&quot;</span>
 
     <span class="nd">@property</span>
@@ -563,7 +577,7 @@
         <span class="k">elif</span> <span class="n">val</span> <span class="o">==</span> <span class="mf">100.0</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;Ventil open&quot;</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="s2">&quot;Ventil: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SETPOINT&quot;</span><span class="p">]</span>
+            <span class="k">return</span> <span class="s2">&quot;Ventil: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SETPOINT&quot;</span><span class="p">]</span></div>
 
 
 <span class="c1"># Devices:</span>
@@ -575,32 +589,32 @@
 <span class="c1">#  u&#39;BOOST_STATE&#39;: u&#39;15&#39;, u&#39;PARTY_STOP_YEAR&#39;: u&#39;0&#39;, u&#39;PARTY_STOP_MONTH&#39;: u&#39;1&#39;,</span>
 <span class="c1">#  u&#39;VALVE_STATE&#39;: u&#39;10&#39;, u&#39;PARTY_START_TIME&#39;: u&#39;450&#39;, u&#39;PARTY_TEMPERATURE&#39;: u&#39;5.000000&#39;,</span>
 <span class="c1">#  u&#39;CONTROL_MODE&#39;: u&#39;1&#39;}</span>
-<span class="k">class</span> <span class="nc">ChannelClimaRTTransceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelClimaRTTransceiver"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelClimaRTTransceiver">[docs]</a><span class="k">class</span> <span class="nc">ChannelClimaRTTransceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CLIMATECONTROL_RT_TRANSCEIVER&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="s2">&quot;Temperature: </span><span class="si">%s</span><span class="s2"> (Target: </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> \
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;ACTUAL_TEMPERATURE&quot;</span><span class="p">],</span>
-                 <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">])</span>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">])</span></div>
 
 
 
-<span class="c1"># Has not any values</span>
 <span class="k">class</span> <span class="nc">ChannelWindowSwitchReceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;WINDOW_SWITCH_RECEIVER&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Has not any values&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">None</span>
 
 
-<span class="c1"># Has not any values</span>
 <span class="k">class</span> <span class="nc">ChannelWeatherReceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;WEATHER_RECEIVER&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Has not any values&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">None</span>
 
 
@@ -951,13 +965,8 @@
 
 
 
-<span class="k">class</span> <span class="nc">SpecificDevice</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
-    <span class="k">pass</span>
-
-
-
 <span class="c1"># Funk-Heizkörperthermostat</span>
-<span class="k">class</span> <span class="nc">HMCCRTDN</span><span class="p">(</span><span class="n">SpecificDevice</span><span class="p">):</span>
+<div class="viewcode-block" id="HMCCRTDN"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMCCRTDN">[docs]</a><span class="k">class</span> <span class="nc">HMCCRTDN</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-CC-RT-DN&quot;</span>
 
 
@@ -969,15 +978,20 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">set_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Provides the actual target temperature&quot;&quot;&quot;</span>
+        <span class="sd">&quot;&quot;&quot;The actual set temperature of the device.</span>
+
+<span class="sd">        :getter: Provides the actual target temperature</span>
+<span class="sd">        :setter: Specify the new set temperature. Please note that the CCU rounds this values to</span>
+<span class="sd">                 .0 or .5 after the comma. So if you provide .e.g 22.1 as new set temperature,</span>
+<span class="sd">                 the CCU will convert this to 22.0. This is totally equal to the control on the</span>
+<span class="sd">                 device.</span>
+<span class="sd">        :type: float</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 
 
     <span class="nd">@set_temperature.setter</span>
     <span class="k">def</span> <span class="nf">set_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Specify the new set temperature. Please note that the CCU rounds this values to .0 or .5</span>
-<span class="sd">        after the comma. So if you provide .e.g 22.1 as new set temperature, the CCU will convert</span>
-<span class="sd">        this to 22.0.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">target</span>
 
 
@@ -987,15 +1001,22 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mf">4.5</span>
 
 
-    <span class="k">def</span> <span class="nf">turn_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HMCCRTDN.turn_off"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMCCRTDN.turn_off">[docs]</a>    <span class="k">def</span> <span class="nf">turn_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Call this method to tell the thermostat that it should not heat.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">set_temperature</span> <span class="o">=</span> <span class="mf">4.5</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">set_temperature</span> <span class="o">=</span> <span class="mf">4.5</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">control_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Provides the current control mode. This is either `AUTO`, `MANUAL`,</span>
-<span class="sd">        `PARTY` or `BOOST`.</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        The actual control mode of the device. This is either ``AUTO``, ``MANUAL``,</span>
+<span class="sd">        ``PARTY`` or ``BOOST``.</span>
+
+<span class="sd">        :getter: Provides the current control mode.</span>
+<span class="sd">        :setter: Set the control mode. When setting to ``MANUAL`` it uses either the current</span>
+<span class="sd">                 set temperature as target temperature or the default temperature when the</span>
+<span class="sd">                 device is currently turned off.</span>
+<span class="sd">        :type: string</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">formated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;CONTROL_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">formated</span><span class="p">()</span>
         <span class="n">formated</span> <span class="o">=</span> <span class="n">formated</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-MODE&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;MANU&quot;</span><span class="p">,</span> <span class="s2">&quot;MANUAL&quot;</span><span class="p">)</span>
@@ -1035,28 +1056,29 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">battery_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;BATTERY_STATE&quot;</span><span class="p">]</span>
+        <span class="sd">&quot;&quot;&quot;Provides the actual battery voltage reported by the device.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;BATTERY_STATE&quot;</span><span class="p">]</span></div>
 
 
 
 <span class="c1"># Virtuelle Fernbedienung der CCU</span>
-<span class="k">class</span> <span class="nc">HMRCV50</span><span class="p">(</span><span class="n">SpecificDevice</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">HMRCV50</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-RCV-50&quot;</span>
 
 
 <span class="c1"># Funk-Tür-/ Fensterkontakt</span>
-<span class="k">class</span> <span class="nc">HMSecSC</span><span class="p">(</span><span class="n">SpecificDevice</span><span class="p">):</span>
+<div class="viewcode-block" id="HMSecSC"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMSecSC">[docs]</a><span class="k">class</span> <span class="nc">HMSecSC</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-Sec-SC&quot;</span>
 
 
     <span class="c1"># Make methods of ChannelShutterContact() available</span>
     <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">attr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">attr</span><span class="p">)</span></div>
 
 
 
 <span class="c1"># Funk-Schaltaktor mit Leistungsmessung</span>
-<span class="k">class</span> <span class="nc">HMESPMSw1Pl</span><span class="p">(</span><span class="n">SpecificDevice</span><span class="p">):</span>
+<div class="viewcode-block" id="HMESPMSw1Pl"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMESPMSw1Pl">[docs]</a><span class="k">class</span> <span class="nc">HMESPMSw1Pl</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-ES-PMSw1-Pl&quot;</span>
 
 
@@ -1069,15 +1091,38 @@
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">HMESPMSw1Pl</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_get_summary_state</span><span class="p">(</span>
             <span class="n">skip_channel_types</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ChannelConditionPower&quot;</span><span class="p">,</span> <span class="s2">&quot;ChannelConditionCurrent&quot;</span><span class="p">,</span>
-                                <span class="s2">&quot;ChannelConditionVoltage&quot;</span><span class="p">,</span> <span class="s2">&quot;ChannelConditionFrequency&quot;</span><span class="p">])</span>
+                                <span class="s2">&quot;ChannelConditionVoltage&quot;</span><span class="p">,</span> <span class="s2">&quot;ChannelConditionFrequency&quot;</span><span class="p">])</span></div>
 
 
 
-<span class="k">class</span> <span class="nc">HMPBI4FM</span><span class="p">(</span><span class="n">SpecificDevice</span><span class="p">):</span>
+<div class="viewcode-block" id="HMPBI4FM"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMPBI4FM">[docs]</a><span class="k">class</span> <span class="nc">HMPBI4FM</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-PBI-4-FM&quot;</span>
 
-    <span class="k">def</span> <span class="nf">button</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="n">index</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">switch1</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides to the :class:`.ChannelKey` object of the first switch.</span>
+
+<span class="sd">        You can do something like ``self.switch1.press_short()`` with this. For details take</span>
+<span class="sd">        a look at the methods provided by the :class:``.ChannelKey`` class.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">switch2</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides to the :class:`.ChannelKey` object of the second switch.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">switch3</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides to the :class:`.ChannelKey` object of the third switch.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">switch4</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides to the :class:`.ChannelKey` object of the fourth switch.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span></div>
 
 
 
@@ -1220,7 +1265,7 @@
 <span class="n">device_classes_by_type_name</span> <span class="o">=</span> <span class="p">{}</span>
 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">globals</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">type</span><span class="p">):</span>
-        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">Device</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span> <span class="s2">&quot;Device&quot;</span><span class="p">,</span> <span class="s2">&quot;SpecificDevice&quot;</span> <span class="p">]:</span>
+        <span class="k">if</span> <span class="nb">issubclass</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">Device</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="o">!=</span> <span class="s2">&quot;Device&quot;</span><span class="p">:</span>
             <span class="n">device_classes_by_type_name</span><span class="p">[</span><span class="n">val</span><span class="o">.</span><span class="n">type_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
 
 <span class="n">channel_classes_by_type_name</span> <span class="o">=</span> <span class="p">{}</span>

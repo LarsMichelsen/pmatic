@@ -42,6 +42,7 @@ Channel - Manages values
 .. autoclass:: pmatic.entities.Channel
     :members:
     :undoc-members:
+    :exclude-members: set_logic_attributes
 
 CCURooms - Top Level Collection of Rooms
 ========================================
