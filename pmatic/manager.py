@@ -443,6 +443,7 @@ class PageHandler(object):
             (b'Content-type', self._get_content_type().encode("utf-8")),
         ]
         self._page = []
+        self._vars = cgi.FieldStorage()
 
         self._read_environment()
 
@@ -469,7 +470,6 @@ class PageHandler(object):
     def _read_vars(self):
         wsgi_input = self._env["wsgi.input"]
         if not wsgi_input:
-            self._vars = cgi.FieldStorage()
             return
 
         self._vars = FieldStorage(fp=wsgi_input, environ=self._env,
