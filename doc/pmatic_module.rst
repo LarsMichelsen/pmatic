@@ -17,7 +17,7 @@ CCUDevices - Top Level Collection of Devices
     :members:
     :undoc-members:
     :special-members:
-    :exclude-members: __init__,__module__
+    :exclude-members: __init__,__module__,initialized,add_from_low_level_dict,already_initialized_devices
 
 Devices - Collections of Devices
 ================================

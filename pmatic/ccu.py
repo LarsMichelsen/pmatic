@@ -217,6 +217,12 @@ class CCUDevices(Devices):
 
     @property
     def initialized(self):
+        """Full initialization of the device collection.
+
+        :getter: Whether or not the devices collection has been fully initialized.
+        :setter: Sets the device collection to initialized state (Only for internal use)
+        :type: bool
+        """
         return self._initialized
 
 
@@ -350,7 +356,9 @@ class CCUDevices(Devices):
         """Provides access to the already known devices without fetching new ones.
 
         Directly provices access to the device dictionary where the address of the devices
-        is used as key and the device objects are the values."""
+        is used as key and the device objects are the values.
+
+        Only for internal use."""
         return self._device_dict
 
 
