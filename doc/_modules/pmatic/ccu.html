@@ -271,6 +271,12 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Full initialization of the device collection.</span>
+
+<span class="sd">        :getter: Whether or not the devices collection has been fully initialized.</span>
+<span class="sd">        :setter: Sets the device collection to initialized state (Only for internal use)</span>
+<span class="sd">        :type: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span>
 
 
@@ -374,7 +380,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">_add_without_init</span><span class="p">(</span><span class="n">device</span><span class="p">)</span>
 
 
-<div class="viewcode-block" id="CCUDevices.add_from_low_level_dict"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCUDevices.add_from_low_level_dict">[docs]</a>    <span class="k">def</span> <span class="nf">add_from_low_level_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">add_from_low_level_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Creates a device object and add it to the collection.</span>
 
 <span class="sd">        This method can be used to create a device object by providing a valid</span>
@@ -383,7 +389,7 @@
 <span class="sd">        It creates the device and also assigns the logic level attributes to</span>
 <span class="sd">        the object so that it is a fully initialized device object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_add_without_init</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_from_low_level_dict</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_without_init</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_from_low_level_dict</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span>
 
 
     <span class="k">def</span> <span class="nf">_create_from_low_level_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
@@ -404,7 +410,9 @@
         <span class="sd">&quot;&quot;&quot;Provides access to the already known devices without fetching new ones.</span>
 
 <span class="sd">        Directly provices access to the device dictionary where the address of the devices</span>
-<span class="sd">        is used as key and the device objects are the values.&quot;&quot;&quot;</span>
+<span class="sd">        is used as key and the device objects are the values.</span>
+
+<span class="sd">        Only for internal use.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span></div>
 
 
