@@ -709,6 +709,17 @@ class ChannelRemoteControlReceiver(Channel):
         return None
 
 
+# Devices:
+#  HM-TC-IT-WM-W-EU
+class ChannelWeatherTransmit(Channel):
+    type_name = "WEATHER_TRANSMIT"
+
+    @property
+    def summary_state(self):
+        return "Temperature: %s, Humidity: %s" % \
+                (self.values["TEMPERATURE"],
+                 self.values["HUMIDITY"])
+
 
 # Devices:
 #  HM-TC-IT-WM-W-EU
