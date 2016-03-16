@@ -25,13 +25,14 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import os
+import cgi
 import time
 import pytest
 import signal
 
 import pmatic.manager
 import pmatic.utils as utils
-from pmatic.manager import Config
+from pmatic.manager import Config, Html
 from pmatic.exceptions import SignalReceived
 
 class TestConditionOnTime(object):
@@ -269,3 +270,90 @@ class TestConfig(object):
         path = Config._config_path()
         assert utils.is_text(path)
         assert path.endswith("manager.config")
+
+
+
+class FieldStorageForTesting(cgi.FieldStorage):
+    def setvalue(self, key, val):
+        self.list.append(cgi.MiniFieldStorage(key, val))
+
+    def clear(self):
+        self.list = []
+
+
+
+class HtmlForTesting(Html):
+    def __init__(self):
+        super(HtmlForTesting, self).__init__()
+        self._vars = FieldStorageForTesting()
+        self._page = []
+        self.url = "/"
+
+
+    def write(self, code):
+        self._page.append(code)
+
+
+    def flush(self):
+        code = "".join(self._page)
+        self._page = []
+        return code
+
+
+
+class TestHtml(object):
+    @pytest.fixture(scope="function")
+    def h(self):
+        return HtmlForTesting()
+
+
+    def test_is_action(self, h):
+        assert h.is_action() == False
+        h._vars.setvalue("action", "XY")
+        assert h.is_action() == True
+
+
+    def test_is_checked(self, h):
+        assert h.is_checked("test123") == False
+        h._vars.setvalue("test123", "1")
+        assert h.is_checked("test123") == True
+        h._vars.setvalue("test123", "")
+        assert h.is_checked("test123") == True
+
+
+    def test_add_missing_vars(self, h):
+        h.add_missing_vars()
+        assert h.flush() == ""
+
+        h._vars.setvalue("dingeling", "1")
+        h.add_missing_vars()
+        page = h.flush()
+        assert "<input type=\"hidden" in page
+        assert "name=\"dingeling\"" in page
+
+
+    def test_begin_form(self, h):
+        h._form_vars.append("xxx")
+        assert "xxx" in h._form_vars
+        h.begin_form()
+        assert h._form_vars == []
+        assert "<form " in h.flush()
+
+
+    def test_end_form(self, h):
+        h.end_form()
+        assert "</form>" in h.flush()
+
+
+    # FIXME: Add missing tests.
+
+
+    def test_escape(self, h):
+        result = h.escape("&\"'><")
+        assert result == "&amp;&quot;&apos;&gt;&lt;"
+        assert h.escape("<a href=\"'\">") == "&lt;a href=&quot;&apos;&quot;&gt;"
+
+
+    def test_write_text(self, h):
+        h.write_text("<script>alert(1)</script>")
+        assert "&lt;script&gt;alert(1)&lt;/script&gt;" in h.flush()

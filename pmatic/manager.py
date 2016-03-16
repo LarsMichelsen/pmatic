@@ -193,6 +193,18 @@ class Html(object):
         return bool(self._vars.getvalue("action"))
 
 
+    def is_checked(self, name):
+        return self._vars.getvalue(name) is not None
+
+
+    def add_missing_vars(self):
+        """Adds the vars which have been used to call this page but are yet missing in the
+        current form as hidden vars to the form."""
+        for key in self._vars.keys():
+            if key not in self._form_vars:
+                self.hidden(key, self._vars.getvalue(key))
+
+
     def begin_form(self, multipart=None):
         self._form_vars = []
         enctype = " enctype=\"multipart/form-data\"" if multipart else ""
@@ -203,14 +215,6 @@ class Html(object):
 
     def end_form(self):
         self.write("</form>\n")
-
-
-    def add_missing_vars(self):
-        """Adds the vars which have been used to call this page but are yet missing in the
-        current form as hidden vars to the form."""
-        for key in self._vars.keys():
-            if key not in self._form_vars:
-                self.hidden(key, self._vars[key].value)
 
 
     def file_upload(self, name, accept="text/*"):
@@ -250,10 +254,6 @@ class Html(object):
         checked = " checked" if deflt else ""
         self.write("<input type=\"checkbox\" name=\"%s\"%s>\n" %
                                         (self.escape(name), self.escape(checked)))
-
-
-    def is_checked(self, name):
-        return self._vars.getvalue(name) is not None
 
 
     def select(self, name, choices, deflt=None, onchange=None):
@@ -359,6 +359,7 @@ class Html(object):
 
     def write_text(self, text):
         self.write(self.escape(text))
+
 
 
 class FieldStorage(cgi.FieldStorage):
