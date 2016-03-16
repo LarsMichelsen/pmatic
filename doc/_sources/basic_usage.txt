@@ -184,10 +184,10 @@ You might use pmatic for different kind of software. Some ideas:
   using the APIs pmatic provides or register for specific events happening and
   then perform custom actions.
 
-- **Planned: Scripts executed based on events**
+- **Scripts executed based on events**
 
-  The event handling is not finished yet, but this will also be a way to use
-  pmatic. The complexity is equal to the manually triggered one shot scripts.
-  The only difference is that the scripts are registering with pmatic and then
-  pmatic is triggering them on it's own when the configured condition to start
-  the script is met.
+  You can use the pmatic manager to deal with the CCUs events and create schedules
+  which are triggered when events for specific devices are received.
+
+  It is also possible to do the event handling on your own. Take a look at the
+  "Print temperature updates" example above.
