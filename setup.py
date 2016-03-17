@@ -64,5 +64,5 @@ setup(name='pmatic',
         ('/usr/share/doc/pmatic', ['LICENSE', 'README.md']),
     ],
     setup_requires=['pytest-runner'],
-    tests_require=['pytest', 'pytest-flakes', 'pytest-cache'],
+    tests_require=['pytest', 'pytest-flakes', 'pytest-cache', 'beautifulsoup4'],
 )

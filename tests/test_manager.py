@@ -29,6 +29,7 @@ import cgi
 import time
 import pytest
 import signal
+from bs4 import BeautifulSoup
 
 import pmatic.manager
 import pmatic.utils as utils
@@ -300,6 +301,10 @@ class HtmlForTesting(Html):
         return code
 
 
+    def title(self):
+        return "HtmlForTesting Title"
+
+
 
 class TestHtml(object):
     @pytest.fixture(scope="function")
@@ -332,6 +337,23 @@ class TestHtml(object):
         assert "name=\"dingeling\"" in page
 
 
+    def test_page_header_and_footer(self, h):
+        h.page_header()
+        h.page_footer()
+        page = h.flush()
+        bs = BeautifulSoup(page, "html.parser")
+        assert len(bs.find_all("html")) == 1
+        assert len(bs.find_all("head")) == 1
+        assert len(bs.find_all("body")) == 1
+
+
+    def test_navigation(self, h):
+        h.navigation()
+        page = h.flush()
+        bs = BeautifulSoup(page, "html.parser")
+        assert len(bs.find_all("ul")) == 1
+
+
     def test_begin_form(self, h):
         h._form_vars.append("xxx")
         assert "xxx" in h._form_vars
@@ -345,6 +367,100 @@ class TestHtml(object):
         assert "</form>" in h.flush()
 
 
+    def test_upload(self, h):
+        h.file_upload("upload", "text/plain")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("input")) == 1
+        assert soup.find("input")["name"] == "upload"
+        assert soup.find("input")["accept"] == "text/plain"
+        assert "upload" in h._form_vars
+
+        h.file_upload("upload")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert soup.find("input")["accept"] == "text/*"
+
+
+    def test_hidden(self, h):
+        h.hidden("geheim", "blaah")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("input")) == 1
+        assert soup.find("input")["type"] == "hidden"
+        assert soup.find("input")["name"] == "geheim"
+        assert "geheim" in h._form_vars
+
+
+    def test_password(self, h):
+        h.password("geheim")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("input")) == 1
+        assert soup.find("input")["type"] == "password"
+        assert soup.find("input")["name"] == "geheim"
+        assert "geheim" in h._form_vars
+
+
+    def test_submit(self, h):
+        h.submit("Abschicken")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("button")) == 1
+        assert soup.find("button")["type"] == "submit"
+        assert soup.find("button")["name"] == "action"
+        assert soup.find("button")["value"] == "1"
+        assert "action" in h._form_vars
+
+        h.submit("Abschicken", "xyz", "_action")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("button")) == 1
+        assert soup.find("button")["type"] == "submit"
+        assert soup.find("button")["name"] == "_action"
+        assert soup.find("button")["value"] == "xyz"
+        assert "action" in h._form_vars
+
+
+    def test_input(self, h):
+        h.input("text")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("input")) == 1
+        assert soup.find("input")["type"] == "text"
+        assert soup.find("input")["name"] == "text"
+        assert soup.find("input")["value"] == ""
+        assert "text" in h._form_vars
+
+        h.input("text1", "hallo")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("input")) == 1
+        assert soup.find("input")["type"] == "text"
+        assert soup.find("input")["name"] == "text1"
+        assert soup.find("input")["value"] == "hallo"
+        assert "text1" in h._form_vars
+
+        h.input("text2", "hallo", "cssclass")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("input")) == 1
+        assert soup.find("input")["type"] == "text"
+        assert soup.find("input")["name"] == "text2"
+        assert soup.find("input")["value"] == "hallo"
+        assert soup.find("input")["class"] == ["cssclass"]
+        assert "text2" in h._form_vars
+
+
+    def test_checkbox(self, h):
+        h.checkbox("name")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("input")) == 1
+        assert soup.find("input")["type"] == "checkbox"
+        assert soup.find("input")["name"] == "name"
+        assert "checked" not in soup.find("input")
+        assert "name" in h._form_vars
+
+        h.checkbox("name", True)
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("input")) == 1
+        assert soup.find("input")["type"] == "checkbox"
+        assert soup.find("input")["name"] == "name"
+        assert soup.find("input")["checked"] == ""
+        assert "name" in h._form_vars
+
+
     # FIXME: Add missing tests.
 
 
@@ -352,6 +468,7 @@ class TestHtml(object):
         result = h.escape("&\"'><")
         assert result == "&amp;&quot;&apos;&gt;&lt;"
         assert h.escape("<a href=\"'\">") == "&lt;a href=&quot;&apos;&quot;&gt;"
+        assert h.escape(1) == "1"
 
 
     def test_write_text(self, h):

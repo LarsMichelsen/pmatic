@@ -144,8 +144,9 @@ help:
 setup:
 	sudo apt-get install debootstrap qemu-user-static rsync dialog python-pytest python-pip \
 			python3-pip python-sphinx snakefood pandoc
-	sudo pip install pytest_flakes pytest_runner coverage sphinxcontrib-images pypandoc twine
-	sudo pip3 install pytest_flakes pytest_runner coverage
+	sudo pip install pytest_flakes pytest_runner coverage beautifulsoup4 \
+			sphinxcontrib-images pypandoc twine
+	sudo pip3 install pytest_flakes pytest_runner coverage beautifulsoup4
 
 release: dist
 	twine register dist/pmatic-$(VERSION).tar.gz
