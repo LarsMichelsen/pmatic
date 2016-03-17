@@ -171,7 +171,7 @@ class Channel(utils.LogMixin, Entity):
         unknown channel needs to be created a debug message is being logged.
 
         The list of the created channels is then returned."""
-        channel_objects = []
+        channel_objects = {}
         for channel_dict in channel_dicts:
             channel_class = channel_classes_by_type_name.get(channel_dict["type"], Channel)
 
@@ -179,7 +179,7 @@ class Channel(utils.LogMixin, Entity):
                 cls.cls_logger().debug("Using generic Channel class (Type: %s): %r" %
                                                     (channel_dict["type"], channel_dict))
 
-            channel_objects.append(channel_class(device, channel_dict))
+            channel_objects[channel_dict["index"]] = channel_class(device, channel_dict)
         return channel_objects
 
 
