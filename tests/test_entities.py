@@ -238,8 +238,9 @@ class TestChannel(lib.TestCCUClassWide):
         ])
 
         assert len(channels) == 2
-        assert isinstance(channels[0], ChannelShutterContact)
+        assert 0 not in channels
         assert isinstance(channels[1], ChannelShutterContact)
+        assert isinstance(channels[2], ChannelShutterContact)
 
 
 

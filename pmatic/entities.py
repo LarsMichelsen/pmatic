@@ -101,6 +101,25 @@ class Entity(object):
 
 
 
+class Channels(dict):
+    """This class has been created to make the dict where the channels are stored
+    in to have a similar interface like a list.
+
+    We want to have a consistent interface when e.g. doing this:
+
+    ```
+    for device in ccu.devices:
+        for channel in device.channels:
+            ...
+    ```
+
+    With only a dict for device.channels it would need device.channels.values()
+    """
+    def __iter__(self):
+        return iter(sorted(self.values(), key=lambda x: x.index))
+
+
+
 class Channel(utils.LogMixin, Entity):
     _transform_attributes = {
         # ReGa attributes:
@@ -165,13 +184,14 @@ class Channel(utils.LogMixin, Entity):
         """Creates channel instances associated with the given *device* instance from the given
         attribute dictionaries.
 
-        Uses the list of channel attribute dictionaries given with *channel_dicts* to create a list
-        of specific `Channel` instances (like e.g. :class:`ChannelShutterContact`) or the generic
-        :class:`Channel` class. Normally each channel should have a specific class. In case an
-        unknown channel needs to be created a debug message is being logged.
+        Uses the list of channel attribute dictionaries given with *channel_dicts* to create a
+        dictionary of specific `Channel` instances (like e.g. :class:`ChannelShutterContact`)
+        or the generic :class:`Channel` class. Normally each channel should have a specific
+        class. In case an unknown channel needs to be created a debug message is being logged.
+        The dictionary uses the index of the channel (the channel id) as key for entries.
 
-        The list of the created channels is then returned."""
-        channel_objects = {}
+        The dictionary of the created channels is then returned."""
+        channel_objects = Channels()
         for channel_dict in channel_dicts:
             channel_class = channel_classes_by_type_name.get(channel_dict["type"], Channel)
 
