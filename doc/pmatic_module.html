@@ -409,11 +409,12 @@ provides them as string. The values are sorted by the titles.</p>
 <em class="property">classmethod </em><code class="descname">from_channel_dicts</code><span class="sig-paren">(</span><em>device</em>, <em>channel_dicts</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#Channel.from_channel_dicts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.Channel.from_channel_dicts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates channel instances associated with the given <em>device</em> instance from the given
 attribute dictionaries.</p>
-<p>Uses the list of channel attribute dictionaries given with <em>channel_dicts</em> to create a list
-of specific <cite>Channel</cite> instances (like e.g. <code class="xref py py-class docutils literal"><span class="pre">ChannelShutterContact</span></code>) or the generic
-<code class="xref py py-class docutils literal"><span class="pre">Channel</span></code> class. Normally each channel should have a specific class. In case an
-unknown channel needs to be created a debug message is being logged.</p>
-<p>The list of the created channels is then returned.</p>
+<p>Uses the list of channel attribute dictionaries given with <em>channel_dicts</em> to create a
+dictionary of specific <cite>Channel</cite> instances (like e.g. <code class="xref py py-class docutils literal"><span class="pre">ChannelShutterContact</span></code>)
+or the generic <code class="xref py py-class docutils literal"><span class="pre">Channel</span></code> class. Normally each channel should have a specific
+class. In case an unknown channel needs to be created a debug message is being logged.
+The dictionary uses the index of the channel (the channel id) as key for entries.</p>
+<p>The dictionary of the created channels is then returned.</p>
 </dd></dl>
 
 <dl class="attribute">
