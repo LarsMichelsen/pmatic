@@ -342,8 +342,7 @@ class Html(object):
 
 
     def js(self, script):
-        self.write("<script type=\"text/javascript\">%s</script>\n" %
-                                                        self.escape(script))
+        self.write("<script type=\"text/javascript\">%s</script>\n" % script)
 
 
     def redirect(self, delay, url):

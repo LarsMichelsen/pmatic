@@ -461,7 +461,150 @@ class TestHtml(object):
         assert "name" in h._form_vars
 
 
-    # FIXME: Add missing tests.
+    def test_select(self, h):
+        h.select("s1", [])
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("select")) == 1
+        assert soup.find("select")["name"] == "s1"
+        assert len(soup.find_all("option")) == 1
+        assert soup.find("option")["value"] == ""
+        assert "s1" in h._form_vars
+
+        h.select("s2", [("opt1", "Opt 1"), ("opt2", "Opt 2")], "opt2", "alert(1)")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("select")) == 1
+        assert soup.find("select")["name"] == "s2"
+        assert len(soup.find_all("option")) == 3
+        assert "s2" in h._form_vars
+
+        options = soup.find_all("option")
+        assert options[0]["value"] == ""
+        assert "selected" not in options[0]
+        assert options[1]["value"] == "opt1"
+        assert "selected" not in options[1]
+        assert options[2]["value"] == "opt2"
+        assert options[2]["selected"] == ""
+
+
+    def test_icon(self, h):
+        h.icon("dingdong", "Title!", "cssclass")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("i")) == 1
+        assert soup.find("i")["class"] == ["fa", "fa-dingdong", "cssclass"]
+        assert soup.find("i")["title"] == "Title!"
+
+
+    def test_icon_button(self, h):
+        h.icon_button("dingdong", "http://lala/lulu", "Title!")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("a")) == 1
+        assert len(soup.find_all("i")) == 1
+        assert soup.find("a")["class"] == ["icon_button"]
+        assert soup.find("a")["href"] == "http://lala/lulu"
+
+
+    def test_button(self, h):
+        h.button("dingdong", "Hallo", "http://lala/lulu")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("a")) == 1
+        assert len(soup.find_all("i")) == 1
+        assert soup.find("a")["class"] == ["button"]
+        assert soup.find("a")["href"] == "http://lala/lulu"
+
+
+    def test_error(self, h):
+        h.error("ACHTUNG!")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("div")) == 1
+        assert len(soup.find_all("i")) == 1
+        assert soup.find("i")["class"] == ["fa", "fa-2x", "fa-bomb"]
+        assert soup.find("div")["class"] == ["message", "error"]
+        assert soup.find("div").getText() == " ACHTUNG!"
+
+
+    def test_success(self, h):
+        h.success("ACHTUNG!")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("div")) == 1
+        assert len(soup.find_all("i")) == 1
+        assert soup.find("i")["class"] == ["fa", "fa-2x", "fa-check-circle-o"]
+        assert soup.find("div")["class"] == ["message", "success"]
+        assert soup.find("div").getText() == " ACHTUNG!"
+
+
+    def test_info(self, h):
+        h.info("ACHTUNG!")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("div")) == 1
+        assert len(soup.find_all("i")) == 1
+        assert soup.find("i")["class"] == ["fa", "fa-2x", "fa-info-circle"]
+        assert soup.find("div")["class"] == ["message", "info"]
+        assert soup.find("div").getText() == " ACHTUNG!"
+
+
+    def test_confirm(self, h):
+        # pre submit
+        assert h.confirm("ye?") == False
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("form")) == 1
+        assert soup.find("i")["class"] == ["fa", "fa-2x", "fa-question-circle"]
+        assert soup.find("div")["class"] == ["message", "confirm"]
+        assert soup.find("div").getText() == " ye?"
+
+        assert soup.find("button")["name"] == "_confirm"
+        assert soup.find("button")["value"] == "yes"
+        assert soup.find("a")["href"] == "javascript:window.history.back()"
+        assert soup.find("a").getText("No")
+
+
+        # post submit
+        h._vars.setvalue("_confirm", "yes")
+        assert h.confirm("ye?") == True
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("form")) == 0
+
+
+    def test_h2(self, h):
+        h.h2("piff")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("h2")) == 1
+        assert soup.find("h2").getText("piff")
+
+
+    def test_h3(self, h):
+        h.h3("paff")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("h3")) == 1
+        assert soup.find("h3").getText("paff")
+
+
+    def test_p(self, h):
+        h.p("paff")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("p")) == 1
+        assert soup.find("p").getText("paff")
+
+
+    def test_js_file(self, h):
+        h.js_file("/asd/bla")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("script")) == 1
+        assert soup.find("script")["src"] == "/asd/bla"
+
+
+    def test_js(self, h):
+        h.js("alert(1)")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("script")) == 1
+        assert soup.find("script").getText("alert(1)")
+
+
+    def test_redirect(self, h):
+        h.redirect(0, "http://lalaxy.i")
+        soup = BeautifulSoup(h.flush(), "html.parser")
+        assert len(soup.find_all("script")) == 1
+        assert "setTimeout(" in soup.find("script").getText()
+        assert "'http://lalaxy.i'" in soup.find("script").getText()
 
 
     def test_escape(self, h):
