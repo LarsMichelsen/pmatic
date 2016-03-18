@@ -33,8 +33,50 @@ from bs4 import BeautifulSoup
 
 import pmatic.manager
 import pmatic.utils as utils
-from pmatic.manager import Config, Html
+from pmatic.manager import Config, Html, FieldStorage, Condition
 from pmatic.exceptions import SignalReceived
+
+class TestCondition(object):
+    @pytest.fixture(scope="class")
+    def c(self):
+        return Condition(None)
+
+
+    def test_condition_types(self):
+        types = sorted([ c.__name__ for c in Condition.types() ])
+        names = sorted(["ConditionOnStartup",
+                        "ConditionOnCCUInitialized",
+                        "ConditionOnDeviceEvent",
+                        "ConditionOnTime"])
+        assert types == names
+
+
+    def test_from_config(self, c):
+        c.from_config({"asd": 1})
+        assert getattr(c, "asd", 1)
+
+
+    def test_to_config(self, c):
+        assert c.to_config() == {"type_name": ""}
+
+
+    def test_title(self, c):
+        assert c.display() == ""
+
+
+    def test_input_parameters(self, c):
+        h = HtmlForTesting()
+        c.input_parameters(h, "")
+        assert h.flush() == ""
+
+
+    def test_set_submitted_vars(self, c):
+        h = HtmlForTesting()
+        old_attrs = c.__dict__.copy()
+        c.set_submitted_vars(h, "")
+        assert old_attrs == c.__dict__
+
+
 
 class TestConditionOnTime(object):
     @pytest.fixture(scope="class")
@@ -85,6 +127,9 @@ class TestConditionOnTime(object):
         c.calculate_next_time()
         assert c.next_time == self._time("2017-01-01 09:00:00")
 
+        txt = c.display()
+        assert txt.startswith("based on time: daily, at 09:00")
+
 
     def test_weekly(self, c, monkeypatch):
         c.interval_type = "weekly"
@@ -103,6 +148,9 @@ class TestConditionOnTime(object):
         self._fake_time(monkeypatch, "2016-12-31 23:59:00") # saturday
         c.calculate_next_time()
         assert c.next_time == self._time("2017-01-02 19:31:00")
+
+        txt = c.display()
+        assert txt.startswith("based on time: weekly on day 1 of week, at 19:31")
 
 
     def test_monthly(self, c, monkeypatch):
@@ -130,6 +178,16 @@ class TestConditionOnTime(object):
         self._fake_time(monkeypatch, "2016-02-29 11:11:11")
         c.calculate_next_time()
         assert c.next_time == self._time("2016-03-01 00:00:00")
+
+        txt = c.display()
+        assert txt.startswith("based on time: monthly on day 1 of month, at 00:00")
+
+
+    def test_unknown_interval_type(self, c, monkeypatch):
+        c.interval_type = "xyztype"
+        assert c._next_time == None
+        with pytest.raises(NotImplementedError):
+            c.next_time()
 
 
 
@@ -617,3 +675,19 @@ class TestHtml(object):
     def test_write_text(self, h):
         h.write_text("<script>alert(1)</script>")
         assert "&lt;script&gt;alert(1)&lt;/script&gt;" in h.flush()
+
+
+
+class TestFieldStorage(object):
+    def test_getvalue(self):
+        f = FieldStorage()
+        f.list.append(cgi.MiniFieldStorage(b"key1", b"dingdong"))
+        f.list.append(cgi.MiniFieldStorage(b"key2", None))
+
+        assert utils.is_text(f.getvalue("key1"))
+        assert f.getvalue("key1") == "dingdong"
+
+        assert f.getvalue("key2") == None
+
+        assert f.getvalue("key3") == None
+        assert f.getvalue("key3", b"x") == "x"
