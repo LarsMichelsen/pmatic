@@ -1296,6 +1296,12 @@ class HMSecSC(Device):
 
 
 
+# Optischer Funk-Tür-/ Fensterkontakt
+class HMSecSCo(HMSecSC):
+    type_name = "HM-Sec-SCo"
+
+
+
 # Funk-Schaltaktor mit Leistungsmessung
 class HMESPMSw1Pl(Device):
     type_name = "HM-ES-PMSw1-Pl"
