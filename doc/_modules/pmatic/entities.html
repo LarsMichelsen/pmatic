@@ -74,7 +74,7 @@
 
 <span class="c1"># Relevant docs:</span>
 <span class="c1"># - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_XmlRpc_V1_502__2_.pdf</span>
-<span class="c1"># - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_Script_Teil_4_Datenpunkte_1_503.pdf</span>
+<span class="c1"># - http://www.eq-3.de/Downloads/eq3/download%20bereich/hm_web_ui_doku/hm_devices_Endkunden.pdf</span>
 
 <span class="c1"># Add Python 3.x behaviour to 2.7</span>
 <span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
@@ -285,13 +285,19 @@
         <span class="k">for</span> <span class="n">param_spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">interface_get_paramset_description</span><span class="p">(</span><span class="n">interface</span><span class="o">=</span><span class="s2">&quot;BidCos-RF&quot;</span><span class="p">,</span>
                                                     <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">paramsetType</span><span class="o">=</span><span class="s2">&quot;VALUES&quot;</span><span class="p">):</span>
             <span class="n">param_id</span> <span class="o">=</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span>
+            <span class="n">unit</span> <span class="o">=</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;UNIT&quot;</span><span class="p">]</span>
+            <span class="n">ty</span> <span class="o">=</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;TYPE&quot;</span><span class="p">]</span>
 
-            <span class="n">class_name</span> <span class="o">=</span> <span class="s2">&quot;Parameter</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;TYPE&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;%&quot;</span><span class="p">:</span>
+                <span class="n">ty</span> <span class="o">=</span> <span class="s2">&quot;PERCENTAGE&quot;</span>
+
+            <span class="n">class_name</span> <span class="o">=</span> <span class="s2">&quot;Parameter</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ty</span>
+
             <span class="n">cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pmatic</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">cls</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: Skipping unknown parameter </span><span class="si">%s</span><span class="s2"> of type </span><span class="si">%s</span><span class="s2">. &quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: Skipping unknown parameter </span><span class="si">%s</span><span class="s2"> of type </span><span class="si">%s</span><span class="s2">, unit </span><span class="si">%s</span><span class="s2">. &quot;</span>
                                     <span class="s2">&quot;Class </span><span class="si">%s</span><span class="s2"> not implemented.&quot;</span> <span class="o">%</span>
-                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_type</span><span class="p">,</span> <span class="n">param_id</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;TYPE&quot;</span><span class="p">],</span> <span class="n">class_name</span><span class="p">))</span>
+                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_type</span><span class="p">,</span> <span class="n">param_id</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">class_name</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">param_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">)</span>
 
@@ -429,7 +435,9 @@
 
 
 
-<span class="c1"># FIXME: Implement this</span>
+<span class="c1"># FIXME: Implement this. The Device() object already has a lot of methods</span>
+<span class="c1"># related to the maintenance channel. Shouldn&#39;t they be moved here and evantually</span>
+<span class="c1"># only be available as shortcut in the Device object?</span>
 <div class="viewcode-block" id="ChannelMaintenance"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelMaintenance">[docs]</a><span class="k">class</span> <span class="nc">ChannelMaintenance</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;MAINTENANCE&quot;</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Maintenance&quot;</span>
@@ -614,9 +622,10 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="s2">&quot;Temperature: </span><span class="si">%s</span><span class="s2"> (Target: </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> \
+        <span class="k">return</span> <span class="s2">&quot;Temperature: </span><span class="si">%s</span><span class="s2"> (Target: </span><span class="si">%s</span><span class="s2">, Valve: </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> \
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;ACTUAL_TEMPERATURE&quot;</span><span class="p">],</span>
-                 <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">])</span></div>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">],</span>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;VALVE_STATE&quot;</span><span class="p">])</span></div>
 
 
 
@@ -837,8 +846,9 @@
     <span class="c1">#  u&#39;CONFIG_PENDING&#39;: u&#39;0&#39;, u&#39;RSSI_DEVICE&#39;: u&#39;-65535&#39;, u&#39;DUTYCYCLE&#39;: u&#39;0&#39;}</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">maintenance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the whole set of all available maintenance parameters as dictionary.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="sd">&quot;&quot;&quot;Returns the :class:`ChannelMaintenance` object of this device. It provides</span>
+<span class="sd">        access to generic maintenance information available on this device.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="Device.set_logic_attributes"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Device.set_logic_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_logic_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attrs</span><span class="p">):</span>
@@ -865,7 +875,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;HM-RCV-50&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">True</span> <span class="c1"># CCU is always assumed to be online</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="p">[</span><span class="s2">&quot;UNREACH&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;UNREACH&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 
 
     <span class="nd">@property</span>
@@ -875,7 +885,7 @@
 <span class="sd">        When the battery is in normal state, it is ``False``. It might be a</span>
 <span class="sd">        non battery powered device, then it is ``None``.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="p">[</span><span class="s2">&quot;LOWBAT&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;LOWBAT&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">None</span> <span class="c1"># not battery powered</span>
 
@@ -887,7 +897,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;HM-RCV-50&quot;</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="p">[</span><span class="s2">&quot;CONFIG_PENDING&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;CONFIG_PENDING&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 
 
     <span class="nd">@property</span>
@@ -895,7 +905,7 @@
         <span class="sd">&quot;&quot;&quot;Is ``True`` when the CCU has a pending firmware update for this device.</span>
 <span class="sd">        Otherwise it is ``False``.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="p">[</span><span class="s2">&quot;UPDATE_PENDING&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;UPDATE_PENDING&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">False</span>
 
@@ -908,10 +918,29 @@
 
 <span class="sd">        In case of the CCU itself or a non radio device it is set to ``(None, None)``.&quot;&quot;&quot;</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="p">[</span><span class="s2">&quot;RSSI_DEVICE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> \
-                   <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="p">[</span><span class="s2">&quot;RSSI_PEER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;RSSI_DEVICE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> \
+                   <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;RSSI_PEER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
+
+
+    <span class="c1">#{u&#39;CONTROL&#39;: u&#39;NONE&#39;, u&#39;OPERATIONS&#39;: u&#39;7&#39;, u&#39;NAME&#39;: u&#39;INHIBIT&#39;, u&#39;MIN&#39;: u&#39;0&#39;,</span>
+    <span class="c1"># u&#39;DEFAULT&#39;: u&#39;0&#39;, u&#39;MAX&#39;: u&#39;1&#39;, u&#39;TAB_ORDER&#39;: u&#39;6&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;, u&#39;TYPE&#39;: u&#39;BOOL&#39;,</span>
+    <span class="c1"># u&#39;ID&#39;: u&#39;INHIBIT&#39;, u&#39;UNIT&#39;: u&#39;&#39;}</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">inhibit</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The actual inhibit state of the device.</span>
+
+<span class="sd">        :getter: Whether or not the device is currently locked, provided as :class:`ParameterBOOL`.</span>
+<span class="sd">        :setter: Specify the new inhibit state as boolean.</span>
+<span class="sd">        :type: ParameterBOOL/bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;INHIBIT&quot;</span><span class="p">]</span>
+
+
+    <span class="nd">@inhibit.setter</span>
+    <span class="k">def</span> <span class="nf">inhibit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;INHIBIT&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">state</span>
 
 
     <span class="nd">@property</span>
@@ -986,33 +1015,106 @@
 
 
 <span class="c1"># Funk-Heizkörperthermostat</span>
+<span class="c1"># TODO:</span>
+<span class="c1">#{u&#39;CONTROL&#39;: u&#39;NONE&#39;, u&#39;OPERATIONS&#39;: u&#39;5&#39;, u&#39;NAME&#39;: u&#39;FAULT_REPORTING&#39;, u&#39;MIN&#39;: u&#39;0&#39;,</span>
+<span class="c1"># u&#39;DEFAULT&#39;: u&#39;0&#39;, u&#39;MAX&#39;: u&#39;7&#39;, u&#39;VALUE_LIST&#39;: u&#39;NO_FAULT VALVE_TIGHT</span>
+<span class="c1"># ADJUSTING_RANGE_TOO_LARGE ADJUSTING_RANGE_TOO_SMALL COMMUNICATION_ERROR {}</span>
+<span class="c1"># LOWBAT VALVE_ERROR_POSITION&#39;, u&#39;TAB_ORDER&#39;: u&#39;1&#39;, u&#39;FLAGS&#39;: u&#39;9&#39;,</span>
+<span class="c1"># u&#39;TYPE&#39;: u&#39;ENUM&#39;, u&#39;ID&#39;: u&#39;FAULT_REPORTING&#39;, u&#39;UNIT&#39;: u&#39;&#39;}</span>
+
+<span class="c1">#{u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.PARTY_TEMP&#39;, u&#39;OPERATIONS&#39;: u&#39;3&#39;, u&#39;NAME&#39;: u&#39;PARTY_TEMPERATURE&#39;,</span>
+<span class="c1"># u&#39;MIN&#39;: u&#39;5.000000&#39;, u&#39;DEFAULT&#39;: u&#39;20.000000&#39;, u&#39;MAX&#39;: u&#39;30.000000&#39;, u&#39;TAB_ORDER&#39;: u&#39;13&#39;,</span>
+<span class="c1"># u&#39;FLAGS&#39;: u&#39;1&#39;, u&#39;TYPE&#39;: u&#39;FLOAT&#39;, u&#39;ID&#39;: u&#39;PARTY_TEMPERATURE&#39;, u&#39;UNIT&#39;: u&#39;\xb0C&#39;}</span>
+<span class="c1">#{u&#39;CONTROL&#39;: u&#39;NONE&#39;, u&#39;OPERATIONS&#39;: u&#39;2&#39;, u&#39;NAME&#39;: u&#39;PARTY_MODE_SUBMIT&#39;, u&#39;MIN&#39;: u&#39;&#39;,</span>
+<span class="c1"># u&#39;DEFAULT&#39;: u&#39;&#39;, u&#39;MAX&#39;: u&#39;&#39;, u&#39;TAB_ORDER&#39;: u&#39;12&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;, u&#39;TYPE&#39;: u&#39;STRING&#39;,</span>
+<span class="c1"># u&#39;ID&#39;: u&#39;PARTY_MODE_SUBMIT&#39;, u&#39;UNIT&#39;: u&#39;&#39;}</span>
+<span class="c1">#{u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.PARTY_START_TIME&#39;, u&#39;OPERATIONS&#39;: u&#39;3&#39;,</span>
+<span class="c1"># u&#39;NAME&#39;: u&#39;PARTY_START_TIME&#39;, u&#39;MIN&#39;: u&#39;0&#39;, u&#39;DEFAULT&#39;: u&#39;0&#39;, u&#39;MAX&#39;: u&#39;1410&#39;,</span>
+<span class="c1"># u&#39;TAB_ORDER&#39;: u&#39;14&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;, u&#39;TYPE&#39;: u&#39;INTEGER&#39;, u&#39;ID&#39;: u&#39;PARTY_START_TIME&#39;,</span>
+<span class="c1"># u&#39;UNIT&#39;: u&#39;minutes&#39;}</span>
+<span class="c1">#{u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.PARTY_START_DAY&#39;, u&#39;OPERATIONS&#39;: u&#39;3&#39;, u&#39;NAME&#39;: u&#39;PARTY_START_DAY&#39;,</span>
+<span class="c1"># u&#39;MIN&#39;: u&#39;1&#39;, u&#39;DEFAULT&#39;: u&#39;1&#39;, u&#39;MAX&#39;: u&#39;31&#39;, u&#39;TAB_ORDER&#39;: u&#39;15&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;,</span>
+<span class="c1"># u&#39;TYPE&#39;: u&#39;INTEGER&#39;, u&#39;ID&#39;: u&#39;PARTY_START_DAY&#39;, u&#39;UNIT&#39;: u&#39;day&#39;}</span>
+<span class="c1">#{u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.PARTY_START_MONTH&#39;, u&#39;OPERATIONS&#39;: u&#39;3&#39;,</span>
+<span class="c1"># u&#39;NAME&#39;: u&#39;PARTY_START_MONTH&#39;, u&#39;MIN&#39;: u&#39;1&#39;, u&#39;DEFAULT&#39;: u&#39;1&#39;, u&#39;MAX&#39;: u&#39;12&#39;,</span>
+<span class="c1"># u&#39;TAB_ORDER&#39;: u&#39;16&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;, u&#39;TYPE&#39;: u&#39;INTEGER&#39;, u&#39;ID&#39;:</span>
+<span class="c1"># u&#39;PARTY_START_MONTH&#39;, u&#39;UNIT&#39;: u&#39;month&#39;}</span>
+<span class="c1">#{u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.PARTY_START_YEAR&#39;, u&#39;OPERATIONS&#39;: u&#39;3&#39;,</span>
+<span class="c1"># u&#39;NAME&#39;: u&#39;PARTY_START_YEAR&#39;, u&#39;MIN&#39;: u&#39;0&#39;, u&#39;DEFAULT&#39;: u&#39;12&#39;, u&#39;MAX&#39;: u&#39;99&#39;,</span>
+<span class="c1"># u&#39;TAB_ORDER&#39;: u&#39;17&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;, u&#39;TYPE&#39;: u&#39;INTEGER&#39;, u&#39;ID&#39;: u&#39;PARTY_START_YEAR&#39;,</span>
+<span class="c1"># u&#39;UNIT&#39;: u&#39;year&#39;}</span>
+<span class="c1">#{u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.PARTY_STOP_TIME&#39;, u&#39;OPERATIONS&#39;: u&#39;3&#39;,</span>
+<span class="c1"># u&#39;NAME&#39;: u&#39;PARTY_STOP_TIME&#39;, u&#39;MIN&#39;: u&#39;0&#39;, u&#39;DEFAULT&#39;: u&#39;0&#39;, u&#39;MAX&#39;: u&#39;1410&#39;,</span>
+<span class="c1"># u&#39;TAB_ORDER&#39;: u&#39;18&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;, u&#39;TYPE&#39;: u&#39;INTEGER&#39;, u&#39;ID&#39;: u&#39;PARTY_STOP_TIME&#39;,</span>
+<span class="c1"># u&#39;UNIT&#39;: u&#39;minutes&#39;}</span>
+<span class="c1">#{u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.PARTY_STOP_DAY&#39;, u&#39;OPERATIONS&#39;: u&#39;3&#39;, u&#39;NAME&#39;: u&#39;PARTY_STOP_DAY&#39;,</span>
+<span class="c1"># u&#39;MIN&#39;: u&#39;1&#39;, u&#39;DEFAULT&#39;: u&#39;1&#39;, u&#39;MAX&#39;: u&#39;31&#39;, u&#39;TAB_ORDER&#39;: u&#39;19&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;,</span>
+<span class="c1"># u&#39;TYPE&#39;: u&#39;INTEGER&#39;, u&#39;ID&#39;: u&#39;PARTY_STOP_DAY&#39;, u&#39;UNIT&#39;: u&#39;day&#39;}</span>
+<span class="c1">#{u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.PARTY_STOP_MONTH&#39;, u&#39;OPERATIONS&#39;: u&#39;3&#39;, u&#39;NAME&#39;: u&#39;PARTY_STOP_MONTH&#39;,</span>
+<span class="c1"># u&#39;MIN&#39;: u&#39;1&#39;, u&#39;DEFAULT&#39;: u&#39;1&#39;, u&#39;MAX&#39;: u&#39;12&#39;, u&#39;TAB_ORDER&#39;: u&#39;20&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;,</span>
+<span class="c1"># u&#39;TYPE&#39;: u&#39;INTEGER&#39;, u&#39;ID&#39;: u&#39;PARTY_STOP_MONTH&#39;, u&#39;UNIT&#39;: u&#39;month&#39;}</span>
+<span class="c1">#{u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.PARTY_STOP_YEAR&#39;, u&#39;OPERATIONS&#39;: u&#39;3&#39;, u&#39;NAME&#39;: u&#39;PARTY_STOP_YEAR&#39;,</span>
+<span class="c1"># u&#39;MIN&#39;: u&#39;0&#39;, u&#39;DEFAULT&#39;: u&#39;12&#39;, u&#39;MAX&#39;: u&#39;99&#39;, u&#39;TAB_ORDER&#39;: u&#39;21&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;,</span>
+<span class="c1"># u&#39;TYPE&#39;: u&#39;INTEGER&#39;, u&#39;ID&#39;: u&#39;PARTY_STOP_YEAR&#39;, u&#39;UNIT&#39;: u&#39;year&#39;}</span>
 <div class="viewcode-block" id="HMCCRTDN"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMCCRTDN">[docs]</a><span class="k">class</span> <span class="nc">HMCCRTDN</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-CC-RT-DN&quot;</span>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Provides the current temperature&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;ACTUAL_TEMPERATURE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="sd">&quot;&quot;&quot;Provides the current temperature.</span>
+
+<span class="sd">        Returns an instance of :class:`ParameterFLOAT`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;ACTUAL_TEMPERATURE&quot;</span><span class="p">]</span>
+
+
+    <span class="c1">#{u&#39;CONTROL&#39;: u&#39;NONE&#39;, u&#39;OPERATIONS&#39;: u&#39;5&#39;, u&#39;NAME&#39;: u&#39;VALVE_STATE&#39;, u&#39;MIN&#39;: u&#39;0&#39;,</span>
+    <span class="c1"># u&#39;DEFAULT&#39;: u&#39;0&#39;, u&#39;MAX&#39;: u&#39;99&#39;, u&#39;TAB_ORDER&#39;: u&#39;3&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;, u&#39;TYPE&#39;: u&#39;INTEGER&#39;,</span>
+    <span class="c1"># u&#39;ID&#39;: u&#39;VALVE_STATE&#39;, u&#39;UNIT&#39;: u&#39;%&#39;}</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">valve_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the current valve state in percentage.</span>
+
+<span class="sd">        Returns an instance of :class:`ParameterPERCENTAGE`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;VALVE_STATE&quot;</span><span class="p">]</span>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">set_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The actual set temperature of the device.</span>
 
-<span class="sd">        :getter: Provides the actual target temperature</span>
-<span class="sd">        :setter: Specify the new set temperature. Please note that the CCU rounds this values to</span>
+<span class="sd">        :getter: Provides the actual target temperature as :class:`ParameterFLOAT`.</span>
+<span class="sd">        :setter: Specify the new set temperature as float. Please note that the CCU rounds</span>
+<span class="sd">                 this values to</span>
 <span class="sd">                 .0 or .5 after the comma. So if you provide .e.g 22.1 as new set temperature,</span>
 <span class="sd">                 the CCU will convert this to 22.0. This is totally equal to the control on the</span>
 <span class="sd">                 device.</span>
-<span class="sd">        :type: float</span>
+<span class="sd">        :type: ParameterFloat/float</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">]</span>
 
 
     <span class="nd">@set_temperature.setter</span>
     <span class="k">def</span> <span class="nf">set_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">target</span>
+
+
+    <span class="c1"># {u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.COMFORT&#39;, u&#39;OPERATIONS&#39;: u&#39;2&#39;, u&#39;NAME&#39;: u&#39;COMFORT_MODE&#39;,</span>
+    <span class="c1">#  u&#39;MIN&#39;: u&#39;0&#39;, u&#39;DEFAULT&#39;: u&#39;0&#39;, u&#39;MAX&#39;: u&#39;1&#39;, u&#39;TAB_ORDER&#39;: u&#39;10&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;,</span>
+    <span class="c1">#  u&#39;TYPE&#39;: u&#39;ACTION&#39;, u&#39;ID&#39;: u&#39;COMFORT_MODE&#39;, u&#39;UNIT&#39;: u&#39;&#39;}</span>
+<div class="viewcode-block" id="HMCCRTDN.set_temperature_comfort"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMCCRTDN.set_temperature_comfort">[docs]</a>    <span class="k">def</span> <span class="nf">set_temperature_comfort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the :attr:`set_temperature` to the configured comfort temperature&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;COMFORT_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">1</span></div>
+
+
+    <span class="c1">#{u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.LOWERING&#39;, u&#39;OPERATIONS&#39;: u&#39;2&#39;, u&#39;NAME&#39;: u&#39;LOWERING_MODE&#39;,</span>
+    <span class="c1"># u&#39;MIN&#39;: u&#39;0&#39;, u&#39;DEFAULT&#39;: u&#39;0&#39;, u&#39;MAX&#39;: u&#39;1&#39;, u&#39;TAB_ORDER&#39;: u&#39;11&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;,</span>
+    <span class="c1"># u&#39;TYPE&#39;: u&#39;ACTION&#39;, u&#39;ID&#39;: u&#39;LOWERING_MODE&#39;, u&#39;UNIT&#39;: u&#39;&#39;}</span>
+<div class="viewcode-block" id="HMCCRTDN.set_temperature_lowering"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMCCRTDN.set_temperature_lowering">[docs]</a>    <span class="k">def</span> <span class="nf">set_temperature_lowering</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the :attr:`set_temperature` to the configured lowering temperature&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;LOWERING_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">1</span></div>
 
 
     <span class="nd">@property</span>
@@ -1077,7 +1179,21 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">battery_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Provides the actual battery voltage reported by the device.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;BATTERY_STATE&quot;</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;BATTERY_STATE&quot;</span><span class="p">]</span>
+
+
+    <span class="c1"># {u&#39;CONTROL&#39;: u&#39;NONE&#39;, u&#39;OPERATIONS&#39;: u&#39;5&#39;, u&#39;NAME&#39;: u&#39;BOOST_STATE&#39;, u&#39;MIN&#39;: u&#39;0&#39;,</span>
+    <span class="c1">#  u&#39;DEFAULT&#39;: u&#39;0&#39;, u&#39;MAX&#39;: u&#39;30&#39;, u&#39;TAB_ORDER&#39;: u&#39;4&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;,</span>
+    <span class="c1">#  u&#39;TYPE&#39;: u&#39;INTEGER&#39;, u&#39;ID&#39;: u&#39;BOOST_STATE&#39;, u&#39;UNIT&#39;: u&#39;min&#39;}</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">boost_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;When boost mode is currently active this returns the number of minutes left</span>
+<span class="sd">        in boost mode. Otherwise it returns ``None``.</span>
+
+<span class="sd">        Provides the configured boost duration as :class:`ParameterINTEGER`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">control_mode</span> <span class="o">==</span> <span class="s2">&quot;BOOST&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;BOOST_STATE&quot;</span><span class="p">]</span></div>
 
 
 

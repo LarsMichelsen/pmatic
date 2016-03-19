@@ -318,7 +318,8 @@ device class or the generic <code class="xref py py-class docutils literal"><spa
 <dl class="attribute">
 <dt id="pmatic.entities.Device.maintenance">
 <code class="descname">maintenance</code><a class="headerlink" href="#pmatic.entities.Device.maintenance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the whole set of all available maintenance parameters as dictionary.</p>
+<dd><p>Returns the <code class="xref py py-class docutils literal"><span class="pre">ChannelMaintenance</span></code> object of this device. It provides
+access to generic maintenance information available on this device.</p>
 </dd></dl>
 
 <dl class="method">
@@ -364,6 +365,24 @@ Otherwise it is <code class="docutils literal"><span class="pre">False</span></c
 <dd><p>Is a two element tuple of the devices current RSSI (Received Signal Strength Indication).</p>
 <p>The first element is the devices RSSI, the second one the CCUs RSSI.</p>
 <p>In case of the CCU itself or a non radio device it is set to <code class="docutils literal"><span class="pre">(None,</span> <span class="pre">None)</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.Device.inhibit">
+<code class="descname">inhibit</code><a class="headerlink" href="#pmatic.entities.Device.inhibit" title="Permalink to this definition">¶</a></dt>
+<dd><p>The actual inhibit state of the device.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Getter:</th><td class="field-body">Whether or not the device is currently locked, provided as <code class="xref py py-class docutils literal"><span class="pre">ParameterBOOL</span></code>.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Setter:</th><td class="field-body">Specify the new inhibit state as boolean.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">ParameterBOOL/bool</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">

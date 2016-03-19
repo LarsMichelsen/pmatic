@@ -85,7 +85,15 @@ you the same value as the code above. Now that should be clear. We need specific
 <dl class="attribute">
 <dt id="pmatic.entities.HMCCRTDN.temperature">
 <code class="descname">temperature</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.temperature" title="Permalink to this definition">¶</a></dt>
-<dd><p>Provides the current temperature</p>
+<dd><p>Provides the current temperature.</p>
+<p>Returns an instance of <code class="xref py py-class docutils literal"><span class="pre">ParameterFLOAT</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.HMCCRTDN.valve_state">
+<code class="descname">valve_state</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.valve_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the current valve state in percentage.</p>
+<p>Returns an instance of <code class="xref py py-class docutils literal"><span class="pre">ParameterPERCENTAGE</span></code>.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -96,17 +104,30 @@ you the same value as the code above. Now that should be clear. We need specific
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Getter:</th><td class="field-body">Provides the actual target temperature</td>
+<tr class="field-odd field"><th class="field-name">Getter:</th><td class="field-body">Provides the actual target temperature as <code class="xref py py-class docutils literal"><span class="pre">ParameterFLOAT</span></code>.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Setter:</th><td class="field-body">Specify the new set temperature. Please note that the CCU rounds this values to
+<tr class="field-even field"><th class="field-name">Setter:</th><td class="field-body">Specify the new set temperature as float. Please note that the CCU rounds
+this values to
 .0 or .5 after the comma. So if you provide .e.g 22.1 as new set temperature,
 the CCU will convert this to 22.0. This is totally equal to the control on the
 device.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">ParameterFloat/float</td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.entities.HMCCRTDN.set_temperature_comfort">
+<code class="descname">set_temperature_comfort</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMCCRTDN.set_temperature_comfort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMCCRTDN.set_temperature_comfort" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the <code class="xref py py-attr docutils literal"><span class="pre">set_temperature</span></code> to the configured comfort temperature</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.entities.HMCCRTDN.set_temperature_lowering">
+<code class="descname">set_temperature_lowering</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMCCRTDN.set_temperature_lowering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMCCRTDN.set_temperature_lowering" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the <code class="xref py py-attr docutils literal"><span class="pre">set_temperature</span></code> to the configured lowering temperature</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -154,6 +175,14 @@ the current reported voltage.</p>
 <dt id="pmatic.entities.HMCCRTDN.battery_state">
 <code class="descname">battery_state</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.battery_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides the actual battery voltage reported by the device.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.entities.HMCCRTDN.boost_duration">
+<code class="descname">boost_duration</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.boost_duration" title="Permalink to this definition">¶</a></dt>
+<dd><p>When boost mode is currently active this returns the number of minutes left
+in boost mode. Otherwise it returns <code class="docutils literal"><span class="pre">None</span></code>.</p>
+<p>Provides the configured boost duration as <code class="xref py py-class docutils literal"><span class="pre">ParameterINTEGER</span></code>.</p>
 </dd></dl>
 
 </dd></dl>
