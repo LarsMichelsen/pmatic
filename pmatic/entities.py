@@ -20,7 +20,7 @@
 
 # Relevant docs:
 # - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_XmlRpc_V1_502__2_.pdf
-# - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_Script_Teil_4_Datenpunkte_1_503.pdf
+# - http://www.eq-3.de/Downloads/eq3/download%20bereich/hm_web_ui_doku/hm_devices_Endkunden.pdf
 
 # Add Python 3.x behaviour to 2.7
 from __future__ import absolute_import
@@ -231,13 +231,19 @@ class Channel(utils.LogMixin, Entity):
         for param_spec in self._ccu.api.interface_get_paramset_description(interface="BidCos-RF",
                                                     address=self.address, paramsetType="VALUES"):
             param_id = param_spec["ID"]
+            unit = param_spec["UNIT"]
+            ty = param_spec["TYPE"]
 
-            class_name = "Parameter%s" % param_spec["TYPE"]
+            if unit == "%":
+                ty = "PERCENTAGE"
+
+            class_name = "Parameter%s" % ty
+
             cls = getattr(pmatic.params, class_name)
             if not cls:
-                self.logger.warning("%s: Skipping unknown parameter %s of type %s. "
+                self.logger.warning("%s: Skipping unknown parameter %s of type %s, unit %s. "
                                     "Class %s not implemented." %
-                            (self.channel_type, param_id, param_spec["TYPE"], class_name))
+                            (self.channel_type, param_id, ty, unit, class_name))
             else:
                 self._values[param_id] = cls(self, param_spec)
 
@@ -375,7 +381,9 @@ class Channel(utils.LogMixin, Entity):
 
 
 
-# FIXME: Implement this
+# FIXME: Implement this. The Device() object already has a lot of methods
+# related to the maintenance channel. Shouldn't they be moved here and evantually
+# only be available as shortcut in the Device object?
 class ChannelMaintenance(Channel):
     type_name = "MAINTENANCE"
     name = "Maintenance"
@@ -560,9 +568,10 @@ class ChannelClimaRTTransceiver(Channel):
 
     @property
     def summary_state(self):
-        return "Temperature: %s (Target: %s)" % \
+        return "Temperature: %s (Target: %s, Valve: %s)" % \
                 (self.values["ACTUAL_TEMPERATURE"],
-                 self.values["SET_TEMPERATURE"])
+                 self.values["SET_TEMPERATURE"],
+                 self.values["VALVE_STATE"])
 
 
 
@@ -783,8 +792,9 @@ class Device(Entity):
     #  u'CONFIG_PENDING': u'0', u'RSSI_DEVICE': u'-65535', u'DUTYCYCLE': u'0'}
     @property
     def maintenance(self):
-        """Returns the whole set of all available maintenance parameters as dictionary."""
-        return self.channels[0].values
+        """Returns the :class:`ChannelMaintenance` object of this device. It provides
+        access to generic maintenance information available on this device."""
+        return self.channels[0]
 
 
     def set_logic_attributes(self, attrs):
@@ -811,7 +821,7 @@ class Device(Entity):
         if self.type == "HM-RCV-50":
             return True # CCU is always assumed to be online
         else:
-            return not self.maintenance["UNREACH"].value
+            return not self.maintenance.values["UNREACH"].value
 
 
     @property
@@ -821,7 +831,7 @@ class Device(Entity):
         When the battery is in normal state, it is ``False``. It might be a
         non battery powered device, then it is ``None``."""
         try:
-            return self.maintenance["LOWBAT"].value
+            return self.maintenance.values["LOWBAT"].value
         except KeyError:
             return None # not battery powered
 
@@ -833,7 +843,7 @@ class Device(Entity):
         if self.type == "HM-RCV-50":
             return False
         else:
-            return self.maintenance["CONFIG_PENDING"].value
+            return self.maintenance.values["CONFIG_PENDING"].value
 
 
     @property
@@ -841,7 +851,7 @@ class Device(Entity):
         """Is ``True`` when the CCU has a pending firmware update for this device.
         Otherwise it is ``False``."""
         try:
-            return self.maintenance["UPDATE_PENDING"].value
+            return self.maintenance.values["UPDATE_PENDING"].value
         except KeyError:
             return False
 
@@ -854,10 +864,29 @@ class Device(Entity):
 
         In case of the CCU itself or a non radio device it is set to ``(None, None)``."""
         try:
-            return self.maintenance["RSSI_DEVICE"].value, \
-                   self.maintenance["RSSI_PEER"].value
+            return self.maintenance.values["RSSI_DEVICE"].value, \
+                   self.maintenance.values["RSSI_PEER"].value
         except KeyError:
             return None, None
+
+
+    #{u'CONTROL': u'NONE', u'OPERATIONS': u'7', u'NAME': u'INHIBIT', u'MIN': u'0',
+    # u'DEFAULT': u'0', u'MAX': u'1', u'TAB_ORDER': u'6', u'FLAGS': u'1', u'TYPE': u'BOOL',
+    # u'ID': u'INHIBIT', u'UNIT': u''}
+    @property
+    def inhibit(self):
+        """The actual inhibit state of the device.
+
+        :getter: Whether or not the device is currently locked, provided as :class:`ParameterBOOL`.
+        :setter: Specify the new inhibit state as boolean.
+        :type: ParameterBOOL/bool
+        """
+        return self.maintenance.values["INHIBIT"]
+
+
+    @inhibit.setter
+    def inhibit(self, state):
+        self.maintenance.values["INHIBIT"].value = state
 
 
     @property
@@ -932,33 +961,106 @@ class Device(Entity):
 
 
 # Funk-Heizkörperthermostat
+# TODO:
+#{u'CONTROL': u'NONE', u'OPERATIONS': u'5', u'NAME': u'FAULT_REPORTING', u'MIN': u'0',
+# u'DEFAULT': u'0', u'MAX': u'7', u'VALUE_LIST': u'NO_FAULT VALVE_TIGHT
+# ADJUSTING_RANGE_TOO_LARGE ADJUSTING_RANGE_TOO_SMALL COMMUNICATION_ERROR {}
+# LOWBAT VALVE_ERROR_POSITION', u'TAB_ORDER': u'1', u'FLAGS': u'9',
+# u'TYPE': u'ENUM', u'ID': u'FAULT_REPORTING', u'UNIT': u''}
+
+#{u'CONTROL': u'HEATING_CONTROL.PARTY_TEMP', u'OPERATIONS': u'3', u'NAME': u'PARTY_TEMPERATURE',
+# u'MIN': u'5.000000', u'DEFAULT': u'20.000000', u'MAX': u'30.000000', u'TAB_ORDER': u'13',
+# u'FLAGS': u'1', u'TYPE': u'FLOAT', u'ID': u'PARTY_TEMPERATURE', u'UNIT': u'\xb0C'}
+#{u'CONTROL': u'NONE', u'OPERATIONS': u'2', u'NAME': u'PARTY_MODE_SUBMIT', u'MIN': u'',
+# u'DEFAULT': u'', u'MAX': u'', u'TAB_ORDER': u'12', u'FLAGS': u'1', u'TYPE': u'STRING',
+# u'ID': u'PARTY_MODE_SUBMIT', u'UNIT': u''}
+#{u'CONTROL': u'HEATING_CONTROL.PARTY_START_TIME', u'OPERATIONS': u'3',
+# u'NAME': u'PARTY_START_TIME', u'MIN': u'0', u'DEFAULT': u'0', u'MAX': u'1410',
+# u'TAB_ORDER': u'14', u'FLAGS': u'1', u'TYPE': u'INTEGER', u'ID': u'PARTY_START_TIME',
+# u'UNIT': u'minutes'}
+#{u'CONTROL': u'HEATING_CONTROL.PARTY_START_DAY', u'OPERATIONS': u'3', u'NAME': u'PARTY_START_DAY',
+# u'MIN': u'1', u'DEFAULT': u'1', u'MAX': u'31', u'TAB_ORDER': u'15', u'FLAGS': u'1',
+# u'TYPE': u'INTEGER', u'ID': u'PARTY_START_DAY', u'UNIT': u'day'}
+#{u'CONTROL': u'HEATING_CONTROL.PARTY_START_MONTH', u'OPERATIONS': u'3',
+# u'NAME': u'PARTY_START_MONTH', u'MIN': u'1', u'DEFAULT': u'1', u'MAX': u'12',
+# u'TAB_ORDER': u'16', u'FLAGS': u'1', u'TYPE': u'INTEGER', u'ID':
+# u'PARTY_START_MONTH', u'UNIT': u'month'}
+#{u'CONTROL': u'HEATING_CONTROL.PARTY_START_YEAR', u'OPERATIONS': u'3',
+# u'NAME': u'PARTY_START_YEAR', u'MIN': u'0', u'DEFAULT': u'12', u'MAX': u'99',
+# u'TAB_ORDER': u'17', u'FLAGS': u'1', u'TYPE': u'INTEGER', u'ID': u'PARTY_START_YEAR',
+# u'UNIT': u'year'}
+#{u'CONTROL': u'HEATING_CONTROL.PARTY_STOP_TIME', u'OPERATIONS': u'3',
+# u'NAME': u'PARTY_STOP_TIME', u'MIN': u'0', u'DEFAULT': u'0', u'MAX': u'1410',
+# u'TAB_ORDER': u'18', u'FLAGS': u'1', u'TYPE': u'INTEGER', u'ID': u'PARTY_STOP_TIME',
+# u'UNIT': u'minutes'}
+#{u'CONTROL': u'HEATING_CONTROL.PARTY_STOP_DAY', u'OPERATIONS': u'3', u'NAME': u'PARTY_STOP_DAY',
+# u'MIN': u'1', u'DEFAULT': u'1', u'MAX': u'31', u'TAB_ORDER': u'19', u'FLAGS': u'1',
+# u'TYPE': u'INTEGER', u'ID': u'PARTY_STOP_DAY', u'UNIT': u'day'}
+#{u'CONTROL': u'HEATING_CONTROL.PARTY_STOP_MONTH', u'OPERATIONS': u'3', u'NAME': u'PARTY_STOP_MONTH',
+# u'MIN': u'1', u'DEFAULT': u'1', u'MAX': u'12', u'TAB_ORDER': u'20', u'FLAGS': u'1',
+# u'TYPE': u'INTEGER', u'ID': u'PARTY_STOP_MONTH', u'UNIT': u'month'}
+#{u'CONTROL': u'HEATING_CONTROL.PARTY_STOP_YEAR', u'OPERATIONS': u'3', u'NAME': u'PARTY_STOP_YEAR',
+# u'MIN': u'0', u'DEFAULT': u'12', u'MAX': u'99', u'TAB_ORDER': u'21', u'FLAGS': u'1',
+# u'TYPE': u'INTEGER', u'ID': u'PARTY_STOP_YEAR', u'UNIT': u'year'}
 class HMCCRTDN(Device):
     type_name = "HM-CC-RT-DN"
 
 
     @property
     def temperature(self):
-        """Provides the current temperature"""
-        return self.channels[4].values["ACTUAL_TEMPERATURE"].value
+        """Provides the current temperature.
+
+        Returns an instance of :class:`ParameterFLOAT`.
+        """
+        return self.channels[4].values["ACTUAL_TEMPERATURE"]
+
+
+    #{u'CONTROL': u'NONE', u'OPERATIONS': u'5', u'NAME': u'VALVE_STATE', u'MIN': u'0',
+    # u'DEFAULT': u'0', u'MAX': u'99', u'TAB_ORDER': u'3', u'FLAGS': u'1', u'TYPE': u'INTEGER',
+    # u'ID': u'VALVE_STATE', u'UNIT': u'%'}
+    @property
+    def valve_state(self):
+        """Provides the current valve state in percentage.
+
+        Returns an instance of :class:`ParameterPERCENTAGE`.
+        """
+        return self.channels[4].values["VALVE_STATE"]
 
 
     @property
     def set_temperature(self):
         """The actual set temperature of the device.
 
-        :getter: Provides the actual target temperature
-        :setter: Specify the new set temperature. Please note that the CCU rounds this values to
+        :getter: Provides the actual target temperature as :class:`ParameterFLOAT`.
+        :setter: Specify the new set temperature as float. Please note that the CCU rounds
+                 this values to
                  .0 or .5 after the comma. So if you provide .e.g 22.1 as new set temperature,
                  the CCU will convert this to 22.0. This is totally equal to the control on the
                  device.
-        :type: float
+        :type: ParameterFloat/float
         """
-        return self.channels[4].values["SET_TEMPERATURE"].value
+        return self.channels[4].values["SET_TEMPERATURE"]
 
 
     @set_temperature.setter
     def set_temperature(self, target):
         self.channels[4].values["SET_TEMPERATURE"].value = target
+
+
+    # {u'CONTROL': u'HEATING_CONTROL.COMFORT', u'OPERATIONS': u'2', u'NAME': u'COMFORT_MODE',
+    #  u'MIN': u'0', u'DEFAULT': u'0', u'MAX': u'1', u'TAB_ORDER': u'10', u'FLAGS': u'1',
+    #  u'TYPE': u'ACTION', u'ID': u'COMFORT_MODE', u'UNIT': u''}
+    def set_temperature_comfort(self):
+        """Sets the :attr:`set_temperature` to the configured comfort temperature"""
+        self.channels[4].values["COMFORT_MODE"].value = 1
+
+
+    #{u'CONTROL': u'HEATING_CONTROL.LOWERING', u'OPERATIONS': u'2', u'NAME': u'LOWERING_MODE',
+    # u'MIN': u'0', u'DEFAULT': u'0', u'MAX': u'1', u'TAB_ORDER': u'11', u'FLAGS': u'1',
+    # u'TYPE': u'ACTION', u'ID': u'LOWERING_MODE', u'UNIT': u''}
+    def set_temperature_lowering(self):
+        """Sets the :attr:`set_temperature` to the configured lowering temperature"""
+        self.channels[4].values["LOWERING_MODE"].value = 1
 
 
     @property
@@ -1024,6 +1126,20 @@ class HMCCRTDN(Device):
     def battery_state(self):
         """Provides the actual battery voltage reported by the device."""
         return self.channels[4].values["BATTERY_STATE"]
+
+
+    # {u'CONTROL': u'NONE', u'OPERATIONS': u'5', u'NAME': u'BOOST_STATE', u'MIN': u'0',
+    #  u'DEFAULT': u'0', u'MAX': u'30', u'TAB_ORDER': u'4', u'FLAGS': u'1',
+    #  u'TYPE': u'INTEGER', u'ID': u'BOOST_STATE', u'UNIT': u'min'}
+    @property
+    def boost_duration(self):
+        """When boost mode is currently active this returns the number of minutes left
+        in boost mode. Otherwise it returns ``None``.
+
+        Provides the configured boost duration as :class:`ParameterINTEGER`.
+        """
+        if self.control_mode == "BOOST":
+            return self.channels[4].values["BOOST_STATE"]
 
 
 

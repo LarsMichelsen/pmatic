@@ -23,15 +23,6 @@ import pmatic
 
 ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
-for device in ccu.devices.query(device_type="HM-CC-RT-DN"):
-    # You can use the generic summary_state() method.
-    print("%s: %s" % (device.name, device.summary_state))
+device = list(ccu.devices.query(device_name="Wohnzimmer"))[0]
 
-    # But you can also use the individual attributes
-    print("%s:" % device.name)
-    print("  is disabled:     %s" % ("Yes" if device.is_off else "No"))
-    print("  control mode:    %s" % device.control_mode)
-    print("  valve state:     %s" % device.valve_state)
-    print("  temperature:     %s" % device.temperature)
-    print("  set temperature: %s" % device.set_temperature)
-    print("")
+print("%s: %s, Valve State: %s" % (device.name, device.summary_state, device.valve_state))
