@@ -31,7 +31,7 @@ import pmatic.api
 import pmatic.utils as utils
 import lib
 from pmatic.entities import Entity, Channel, Device, Devices, HMESPMSw1Pl, ChannelClimaRegulator, \
-                            ChannelShutterContact, \
+                            ChannelShutterContact, ChannelKey, \
                             device_classes_by_type_name, channel_classes_by_type_name
 from pmatic.params import ParameterBOOL, ParameterFLOAT, ParameterACTION, ParameterINTEGER
 from pmatic.ccu import CCUDevices
@@ -644,6 +644,63 @@ class TestCCUDevices(TestDevices):
 
 
 
+class TestDevice(lib.TestCCUClassWide):
+    @pytest.fixture(scope="class")
+    def d(self, ccu):
+        return list(ccu.devices.query(device_name="Wohnzimmer"))[0]
+
+
+    def test_is_online(self, d):
+        assert d.is_online == True
+
+        d.maintenance.values["UNREACH"]._value = True
+        assert d.is_online == False
+
+        orig_ty = d.type
+        d.type = "HM-RCV-50"
+        d.maintenance.values["UNREACH"]._value = False
+        assert d.is_online == True
+
+        d.maintenance.values["UNREACH"]._value = True
+        assert d.is_online == True
+
+        d.type = orig_ty
+
+
+    def test_has_pending_config(self, d):
+        d.has_pending_config == False
+
+        d.maintenance.values["CONFIG_PENDING"]._value = True
+        assert d.has_pending_config == True
+
+        orig_ty = d.type
+        d.type = "HM-RCV-50"
+        d.maintenance.values["CONFIG_PENDING"]._value = True
+        assert d.has_pending_config == False
+
+        d.maintenance.values["CONFIG_PENDING"]._value = False
+        assert d.has_pending_config == False
+
+        d.type = orig_ty
+
+
+    def test_has_pending_update(self, d):
+        d.has_pending_update == False
+
+        d.maintenance.values["UPDATE_PENDING"]._value = True
+        assert d.has_pending_update == True
+
+        sav = d.maintenance.values["UPDATE_PENDING"]
+        del d.maintenance.values["UPDATE_PENDING"]
+
+        assert d.has_pending_update == False
+
+        d.maintenance.values["UPDATE_PENDING"] = sav
+
+    # FIXME: Add missing tests!
+
+
+
 class TestHMCCRTDN(lib.TestCCUClassWide):
     @pytest.fixture(scope="class")
     def d(self, ccu):
@@ -770,6 +827,19 @@ class TestHMCCRTDN(lib.TestCCUClassWide):
     def test_battery_state(self, d):
         assert type(d.battery_state) == ParameterFLOAT
         assert d.battery_state.unit == "V"
+
+
+
+class TestHMPBI4FM(lib.TestCCUClassWide):
+    @pytest.fixture(scope="class")
+    def d(self, ccu):
+        return list(ccu.devices.query(device_name="Büro-Schalter"))[0]
+
+
+    def test_switches(self, d):
+        for num in range(1, 5):
+            switch = getattr(d, "switch%d" % num)
+            assert isinstance(switch, ChannelKey)
 
 
 
