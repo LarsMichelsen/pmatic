@@ -1052,7 +1052,7 @@ class HMCCRTDN(Device):
     #  u'TYPE': u'ACTION', u'ID': u'COMFORT_MODE', u'UNIT': u''}
     def set_temperature_comfort(self):
         """Sets the :attr:`set_temperature` to the configured comfort temperature"""
-        self.channels[4].values["COMFORT_MODE"].value = 1
+        self.channels[4].values["COMFORT_MODE"].value = True
 
 
     #{u'CONTROL': u'HEATING_CONTROL.LOWERING', u'OPERATIONS': u'2', u'NAME': u'LOWERING_MODE',
@@ -1060,7 +1060,7 @@ class HMCCRTDN(Device):
     # u'TYPE': u'ACTION', u'ID': u'LOWERING_MODE', u'UNIT': u''}
     def set_temperature_lowering(self):
         """Sets the :attr:`set_temperature` to the configured lowering temperature"""
-        self.channels[4].values["LOWERING_MODE"].value = 1
+        self.channels[4].values["LOWERING_MODE"].value = True
 
 
     @property
@@ -1107,9 +1107,11 @@ class HMCCRTDN(Device):
         # value.
         if mode == "MANU":
             if self.is_off:
-                value = self.channels[4].values["SET_TEMPERATURE"].default
+                value = self.set_temperature.default
+                # Also set the set_temperature attribute
+                self.set_temperature = value
             else:
-                value = self.set_temperature
+                value = self.set_temperature.value
 
         self.channels[4].values["%s_MODE" % mode].value = value
 
