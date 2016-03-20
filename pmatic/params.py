@@ -135,62 +135,6 @@ class Parameter(object):
         return self._value
 
 
-    @property
-    def last_updated(self):
-        """Returns the unix time when the value has been updated the last time.
-
-        This is measured since the creation of the object (startup of pmatic).
-
-        It raises a PMException when the parameter can not be read."""
-        if not self.readable:
-            raise PMException("The value can not be read.")
-        return self._value_updated
-
-
-    @property
-    def last_changed(self):
-        """Returns the unix time when the value has been changed the last time.
-
-        This is measured since the creation of the object (startup of pmatic).
-
-        It raises a PMException when the parameter can not be read."""
-        if not self.readable:
-            raise PMException("The value can not be read.")
-        return self._value_changed
-
-
-    @property
-    def is_visible_to_user(self):
-        """Whether or not this parameter should be visible to the end-user."""
-        return self.flags & 1 == 1
-
-
-    @property
-    def is_internal(self):
-        """Whether or not this parameter is an internal flag."""
-        return self.flags & 2 == 2
-
-
-    @property
-    def is_transformer(self):
-        """Whether or not modifying this parameter changes behaviour of this channel.
-
-        Can only be changed when no links are configured for this channel."""
-        return self.flags & 4 == 4
-
-
-    @property
-    def is_service(self):
-        """Whether or not a maintenance message is available."""
-        return self.flags & 8 == 8
-
-
-    @property
-    def is_service_sticky(self):
-        """Whether or not there is a sticky maintenance message."""
-        return self.flags & 16 == 16
-
-
     @value.setter
     def value(self, value):
         if not self.writable:
@@ -258,6 +202,62 @@ class Parameter(object):
 
     def set_to_default(self):
         self.value = self.default
+
+
+    @property
+    def last_updated(self):
+        """Returns the unix time when the value has been updated the last time.
+
+        This is measured since the creation of the object (startup of pmatic).
+
+        It raises a PMException when the parameter can not be read."""
+        if not self.readable:
+            raise PMException("The value can not be read.")
+        return self._value_updated
+
+
+    @property
+    def last_changed(self):
+        """Returns the unix time when the value has been changed the last time.
+
+        This is measured since the creation of the object (startup of pmatic).
+
+        It raises a PMException when the parameter can not be read."""
+        if not self.readable:
+            raise PMException("The value can not be read.")
+        return self._value_changed
+
+
+    @property
+    def is_visible_to_user(self):
+        """Whether or not this parameter should be visible to the end-user."""
+        return self.flags & 1 == 1
+
+
+    @property
+    def is_internal(self):
+        """Whether or not this parameter is an internal flag."""
+        return self.flags & 2 == 2
+
+
+    @property
+    def is_transformer(self):
+        """Whether or not modifying this parameter changes behaviour of this channel.
+
+        Can only be changed when no links are configured for this channel."""
+        return self.flags & 4 == 4
+
+
+    @property
+    def is_service(self):
+        """Whether or not a maintenance message is available."""
+        return self.flags & 8 == 8
+
+
+    @property
+    def is_service_sticky(self):
+        """Whether or not there is a sticky maintenance message."""
+        return self.flags & 16 == 16
 
 
     def _formated(self, value_format="%s"):
@@ -329,6 +329,10 @@ class Parameter(object):
 class ParameterNUMERIC(Parameter):
     def __eq__(self, other):
         return self.value == other
+
+
+    def __ne__(self, other):
+        return self.value != other
 
 
     def __gt__(self, other):
@@ -457,6 +461,7 @@ class ParameterFLOAT(ParameterNUMERIC):
         return super(ParameterFLOAT, self)._formated("%0.2f")
 
 
+
 class ParameterBOOL(Parameter):
     datatype = "boolean"
 
@@ -475,6 +480,7 @@ class ParameterBOOL(Parameter):
             raise PMException("Invalid type. You need to provide a bool value.")
 
         return True
+
 
 
 # 'control': u'NONE', 'operations': 5, 'name': u'ERROR', 'min': 0, 'default': 0, 'max': 4,
@@ -499,5 +505,19 @@ class ParameterENUM(ParameterINTEGER):
         return self.value_list[self.value]
 
 
+
 class ParameterACTION(ParameterBOOL):
     pass
+
+
+
+#
+# DEVICE SPECIFIC PARAMETERS
+#
+
+
+class ParameterControlMode(ParameterENUM):
+    def formated(self):
+        formated = super(ParameterControlMode, self).formated()
+        formated = formated.replace("-MODE", "").replace("MANU", "MANUAL")
+        return formated

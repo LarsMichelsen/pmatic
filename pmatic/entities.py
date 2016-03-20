@@ -231,23 +231,30 @@ class Channel(utils.LogMixin, Entity):
         for param_spec in self._ccu.api.interface_get_paramset_description(interface="BidCos-RF",
                                                     address=self.address, paramsetType="VALUES"):
             param_id = param_spec["ID"]
-            unit = param_spec["UNIT"]
-            ty = param_spec["TYPE"]
-
-            if unit == "%":
-                ty = "PERCENTAGE"
-
-            class_name = "Parameter%s" % ty
+            class_name = self._get_class_name_of_param_spec(param_spec)
 
             cls = getattr(pmatic.params, class_name)
             if not cls:
                 self.logger.warning("%s: Skipping unknown parameter %s of type %s, unit %s. "
                                     "Class %s not implemented." %
-                            (self.channel_type, param_id, ty, unit, class_name))
+                            (self.channel_type, param_id, param_spec["TYPE"],
+                             param_spec["UNIT"], class_name))
             else:
                 self._values[param_id] = cls(self, param_spec)
 
         self._register_saved_callbacks()
+
+
+    def _get_class_name_of_param_spec(self, param_spec):
+        """Gathers the name of the class to be used for creating a parameter object
+        from the given parameter specification."""
+        unit = param_spec["UNIT"]
+        ty = param_spec["TYPE"]
+
+        if unit == "%":
+            ty = "PERCENTAGE"
+
+        return "Parameter%s" % ty
 
 
     def _value_update_needed(self):
@@ -572,6 +579,13 @@ class ChannelClimaRTTransceiver(Channel):
                 (self.values["ACTUAL_TEMPERATURE"],
                  self.values["SET_TEMPERATURE"],
                  self.values["VALVE_STATE"])
+
+
+    def _get_class_name_of_param_spec(self, param_spec):
+        if param_spec["ID"] == "CONTROL_MODE":
+            return "ParameterControlMode"
+        else:
+            return super(ChannelClimaRTTransceiver, self)._get_class_name_of_param_spec(param_spec)
 
 
 
@@ -1080,15 +1094,14 @@ class HMCCRTDN(Device):
         The actual control mode of the device. This is either ``AUTO``, ``MANUAL``,
         ``PARTY`` or ``BOOST``.
 
-        :getter: Provides the current control mode.
-        :setter: Set the control mode. When setting to ``MANUAL`` it uses either the current
-                 set temperature as target temperature or the default temperature when the
+        :getter: Provides the current control mode as :class:`ParameterENUM`.
+        :setter: Set the control mode by the name of the mode (see above). When setting
+                 to ``MANUAL`` it uses either the current set temperature as target
+                 temperature or the default temperature when the
                  device is currently turned off.
-        :type: string
+        :type: ParameterENUM/string
         """
-        formated = self.channels[4].values["CONTROL_MODE"].formated()
-        formated = formated.replace("-MODE", "").replace("MANU", "MANUAL")
-        return formated
+        return self.channels[4].values["CONTROL_MODE"]
 
 
     @control_mode.setter

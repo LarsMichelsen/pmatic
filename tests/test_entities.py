@@ -676,11 +676,15 @@ class TestHMCCRTDN(lib.TestCCUClassWide):
         assert d.set_temperature == 9.5
 
         d.set_temperature_comfort()
+        if not lib.is_testing_with_real_ccu():
+            d.set_temperature._value = 20.0
         assert d.set_temperature != 9.5
 
         d.set_temperature = 9.5
 
         d.set_temperature_lowering()
+        if not lib.is_testing_with_real_ccu():
+            d.set_temperature._value = 10.0
         assert d.set_temperature != 9.5
 
         d.set_temperature = prev_temp
@@ -695,28 +699,46 @@ class TestHMCCRTDN(lib.TestCCUClassWide):
         d.set_temperature = prev_temp
 
 
-    def test_control_mode(self, d):
+    def test_control_mode(self, d, monkeypatch):
+        # Test setting invalid control mode
+        with pytest.raises(PMException) as e:
+            d.control_mode = "BIMBAM"
+        assert "must be one of" in str(e)
+
         def set_mode(mode):
             d.control_mode = mode
 
-            # In my tests it took some time to apply th new mode. Wait for 10 seconds
+            # Fake the value for testing without CCU. When testing with CCU, this
+            # value is fetched fresh from the CCU.
+            if not lib.is_testing_with_real_ccu():
+                d.control_mode._value = mode
+
+                if mode == "BOOST":
+                    d.boost_duration._value = 5
+
+            # In my tests it took some time to apply the new mode. Wait for 10 seconds
             # maximum after setting the new mode.
-            while range(10):
+            for i in range(20):
                 if d.control_mode == mode:
                     break
                 time.sleep(1)
 
             assert d.control_mode == mode
 
+        # When testing without CCU the values must not be refetched because
+        # the API calls for reading the values are always using the same parameter
+        # set, but should return different states. This is currently not supported
+        # by the recorded CCU transaction mechanism.
+        if not lib.is_testing_with_real_ccu():
+            monkeypatch.setattr(d.channels[4], "_value_update_needed", lambda: False)
+
+        # Ensure consistent initial state
         set_mode("AUTO")
         d.set_temperature = 20.0
 
-        with pytest.raises(PMException) as e:
-            d.control_mode = "BIMBAM"
-        assert "must be one of" in str(e)
-
         prev_temp = d.set_temperature.value
         set_mode("MANUAL")
+
         assert d.set_temperature.value == prev_temp
 
         d.turn_off()
@@ -729,7 +751,7 @@ class TestHMCCRTDN(lib.TestCCUClassWide):
         set_mode("BOOST")
 
         assert type(d.boost_duration) == ParameterINTEGER
-        assert d.boost_duration.value < 6
+        assert d.boost_duration < 6
 
         # FIXME: TEst party mode
         set_mode("AUTO")
