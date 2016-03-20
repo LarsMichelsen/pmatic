@@ -326,7 +326,29 @@ class Parameter(object):
 
 
 
-class ParameterINTEGER(Parameter):
+class ParameterNUMERIC(Parameter):
+    def __eq__(self, other):
+        return self.value == other
+
+
+    def __gt__(self, other):
+        return self.value > other
+
+
+    def __lt__(self, other):
+        return self.value < other
+
+
+    def __ge__(self, other):
+        return self.value >= other
+
+
+    def __le__(self, other):
+        return self.value <= other
+
+
+
+class ParameterINTEGER(ParameterNUMERIC):
     datatype = "integer"
 
     _transform_attributes = dict(Parameter._transform_attributes,
@@ -391,7 +413,7 @@ class ParameterSTRING(Parameter):
 
 
 
-class ParameterFLOAT(Parameter):
+class ParameterFLOAT(ParameterNUMERIC):
     # type to submit to CCU when setting this value. This has to be string. Strange.
     datatype = "string"
 
@@ -422,6 +444,13 @@ class ParameterFLOAT(Parameter):
             raise PMException("Invalid value (Exceeds minimum of %0.2f)" % self.min)
 
         return True
+
+
+    def _set_value(self, value):
+        """Setter to update the internal data structures. Allows integer, converts
+        them to float."""
+        return super(ParameterFLOAT, self)._set_value(float(value))
+
 
 
     def formated(self):
