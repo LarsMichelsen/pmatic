@@ -285,23 +285,30 @@
         <span class="k">for</span> <span class="n">param_spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">interface_get_paramset_description</span><span class="p">(</span><span class="n">interface</span><span class="o">=</span><span class="s2">&quot;BidCos-RF&quot;</span><span class="p">,</span>
                                                     <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">paramsetType</span><span class="o">=</span><span class="s2">&quot;VALUES&quot;</span><span class="p">):</span>
             <span class="n">param_id</span> <span class="o">=</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span>
-            <span class="n">unit</span> <span class="o">=</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;UNIT&quot;</span><span class="p">]</span>
-            <span class="n">ty</span> <span class="o">=</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;TYPE&quot;</span><span class="p">]</span>
-
-            <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;%&quot;</span><span class="p">:</span>
-                <span class="n">ty</span> <span class="o">=</span> <span class="s2">&quot;PERCENTAGE&quot;</span>
-
-            <span class="n">class_name</span> <span class="o">=</span> <span class="s2">&quot;Parameter</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ty</span>
+            <span class="n">class_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_class_name_of_param_spec</span><span class="p">(</span><span class="n">param_spec</span><span class="p">)</span>
 
             <span class="n">cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pmatic</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">cls</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: Skipping unknown parameter </span><span class="si">%s</span><span class="s2"> of type </span><span class="si">%s</span><span class="s2">, unit </span><span class="si">%s</span><span class="s2">. &quot;</span>
                                     <span class="s2">&quot;Class </span><span class="si">%s</span><span class="s2"> not implemented.&quot;</span> <span class="o">%</span>
-                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_type</span><span class="p">,</span> <span class="n">param_id</span><span class="p">,</span> <span class="n">ty</span><span class="p">,</span> <span class="n">unit</span><span class="p">,</span> <span class="n">class_name</span><span class="p">))</span>
+                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_type</span><span class="p">,</span> <span class="n">param_id</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;TYPE&quot;</span><span class="p">],</span>
+                             <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;UNIT&quot;</span><span class="p">],</span> <span class="n">class_name</span><span class="p">))</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">param_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_register_saved_callbacks</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">_get_class_name_of_param_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Gathers the name of the class to be used for creating a parameter object</span>
+<span class="sd">        from the given parameter specification.&quot;&quot;&quot;</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;UNIT&quot;</span><span class="p">]</span>
+        <span class="n">ty</span> <span class="o">=</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;TYPE&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;%&quot;</span><span class="p">:</span>
+            <span class="n">ty</span> <span class="o">=</span> <span class="s2">&quot;PERCENTAGE&quot;</span>
+
+        <span class="k">return</span> <span class="s2">&quot;Parameter</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ty</span>
 
 
     <span class="k">def</span> <span class="nf">_value_update_needed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -625,7 +632,14 @@
         <span class="k">return</span> <span class="s2">&quot;Temperature: </span><span class="si">%s</span><span class="s2"> (Target: </span><span class="si">%s</span><span class="s2">, Valve: </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> \
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;ACTUAL_TEMPERATURE&quot;</span><span class="p">],</span>
                  <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">],</span>
-                 <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;VALVE_STATE&quot;</span><span class="p">])</span></div>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;VALVE_STATE&quot;</span><span class="p">])</span>
+
+
+    <span class="k">def</span> <span class="nf">_get_class_name_of_param_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;CONTROL_MODE&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;ParameterControlMode&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ChannelClimaRTTransceiver</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_get_class_name_of_param_spec</span><span class="p">(</span><span class="n">param_spec</span><span class="p">)</span></div>
 
 
 
@@ -1106,7 +1120,7 @@
     <span class="c1">#  u&#39;TYPE&#39;: u&#39;ACTION&#39;, u&#39;ID&#39;: u&#39;COMFORT_MODE&#39;, u&#39;UNIT&#39;: u&#39;&#39;}</span>
 <div class="viewcode-block" id="HMCCRTDN.set_temperature_comfort"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMCCRTDN.set_temperature_comfort">[docs]</a>    <span class="k">def</span> <span class="nf">set_temperature_comfort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets the :attr:`set_temperature` to the configured comfort temperature&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;COMFORT_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">1</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;COMFORT_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">True</span></div>
 
 
     <span class="c1">#{u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.LOWERING&#39;, u&#39;OPERATIONS&#39;: u&#39;2&#39;, u&#39;NAME&#39;: u&#39;LOWERING_MODE&#39;,</span>
@@ -1114,7 +1128,7 @@
     <span class="c1"># u&#39;TYPE&#39;: u&#39;ACTION&#39;, u&#39;ID&#39;: u&#39;LOWERING_MODE&#39;, u&#39;UNIT&#39;: u&#39;&#39;}</span>
 <div class="viewcode-block" id="HMCCRTDN.set_temperature_lowering"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMCCRTDN.set_temperature_lowering">[docs]</a>    <span class="k">def</span> <span class="nf">set_temperature_lowering</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets the :attr:`set_temperature` to the configured lowering temperature&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;LOWERING_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="mi">1</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;LOWERING_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">True</span></div>
 
 
     <span class="nd">@property</span>
@@ -1134,15 +1148,14 @@
 <span class="sd">        The actual control mode of the device. This is either ``AUTO``, ``MANUAL``,</span>
 <span class="sd">        ``PARTY`` or ``BOOST``.</span>
 
-<span class="sd">        :getter: Provides the current control mode.</span>
-<span class="sd">        :setter: Set the control mode. When setting to ``MANUAL`` it uses either the current</span>
-<span class="sd">                 set temperature as target temperature or the default temperature when the</span>
+<span class="sd">        :getter: Provides the current control mode as :class:`ParameterENUM`.</span>
+<span class="sd">        :setter: Set the control mode by the name of the mode (see above). When setting</span>
+<span class="sd">                 to ``MANUAL`` it uses either the current set temperature as target</span>
+<span class="sd">                 temperature or the default temperature when the</span>
 <span class="sd">                 device is currently turned off.</span>
-<span class="sd">        :type: string</span>
+<span class="sd">        :type: ParameterENUM/string</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">formated</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;CONTROL_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">formated</span><span class="p">()</span>
-        <span class="n">formated</span> <span class="o">=</span> <span class="n">formated</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-MODE&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;MANU&quot;</span><span class="p">,</span> <span class="s2">&quot;MANUAL&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">formated</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;CONTROL_MODE&quot;</span><span class="p">]</span>
 
 
     <span class="nd">@control_mode.setter</span>
@@ -1161,9 +1174,11 @@
         <span class="c1"># value.</span>
         <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;MANU&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_off</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">default</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_temperature</span><span class="o">.</span><span class="n">default</span>
+                <span class="c1"># Also set the set_temperature attribute</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">set_temperature</span> <span class="o">=</span> <span class="n">value</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_temperature</span>
+                <span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">set_temperature</span><span class="o">.</span><span class="n">value</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">_MODE&quot;</span> <span class="o">%</span> <span class="n">mode</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -1287,21 +1302,22 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">room_id</span><span class="p">,</span> <span class="n">deflt</span><span class="p">)</span></div>
 
 
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides a sorted list of all ids of all initialized room.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+
 <div class="viewcode-block" id="Rooms.add"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Rooms.add">[docs]</a>    <span class="k">def</span> <span class="nf">add</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Add a :class:`Room` to the collection.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">room</span><span class="p">,</span> <span class="n">Room</span><span class="p">):</span>
-            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;You can only add room objects.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;You can only add Room objects.&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="p">[</span><span class="n">room</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">room</span></div>
 
 
 <div class="viewcode-block" id="Rooms.exists"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Rooms.exists">[docs]</a>    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Check whether or not a :class:`Room` with the given id is in this collection.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">room_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span></div>
-
-
-<div class="viewcode-block" id="Rooms.ids"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Rooms.ids">[docs]</a>    <span class="k">def</span> <span class="nf">ids</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns a list of all addresses of all initialized room.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="Rooms.delete"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Rooms.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room_id</span><span class="p">):</span>
