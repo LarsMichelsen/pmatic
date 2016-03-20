@@ -33,7 +33,7 @@ import lib
 from pmatic.entities import Entity, Channel, Device, Devices, HMESPMSw1Pl, ChannelClimaRegulator, \
                             ChannelShutterContact, \
                             device_classes_by_type_name, channel_classes_by_type_name
-from pmatic.params import ParameterBOOL, ParameterFLOAT, ParameterACTION
+from pmatic.params import ParameterBOOL, ParameterFLOAT, ParameterACTION, ParameterINTEGER
 from pmatic.ccu import CCUDevices
 from pmatic.exceptions import PMException
 
@@ -641,6 +641,113 @@ class TestCCUDevices(TestDevices):
         assert len(result1) > 0
 
         assert len(ccu.devices.already_initialized_devices) == len(result1)
+
+
+
+class TestHMCCRTDN(lib.TestCCUClassWide):
+    @pytest.fixture(scope="class")
+    def d(self, ccu):
+        return list(ccu.devices.query(device_name="Wohnzimmer"))[0]
+
+
+    def test_temperature(self, d):
+        assert type(d.temperature) == ParameterFLOAT
+        assert type(d.temperature.value) == float
+        assert utils.is_string("%s" % d.temperature)
+
+
+    def test_set_temperature(self, d):
+        assert type(d.set_temperature) == ParameterFLOAT
+        assert type(d.set_temperature.value) == float
+        assert utils.is_string("%s" % d.set_temperature)
+
+
+    def test_is_off(self, d):
+        assert d.set_temperature._set_value(10.5)
+        assert d.is_off == False
+        assert d.set_temperature._set_value(4.5)
+        assert d.is_off == True
+
+
+    def test_change_temperature(self, d):
+        prev_temp = d.set_temperature.value
+
+        d.set_temperature = 9.5
+        assert d.set_temperature == 9.5
+
+        d.set_temperature_comfort()
+        assert d.set_temperature != 9.5
+
+        d.set_temperature = 9.5
+
+        d.set_temperature_lowering()
+        assert d.set_temperature != 9.5
+
+        d.set_temperature = prev_temp
+
+
+    def test_turn_off(self, d):
+        prev_temp = d.set_temperature.value
+
+        d.turn_off()
+        assert d.is_off == True
+
+        d.set_temperature = prev_temp
+
+
+    def test_control_mode(self, d):
+        def set_mode(mode):
+            d.control_mode = mode
+
+            # In my tests it took some time to apply th new mode. Wait for 10 seconds
+            # maximum after setting the new mode.
+            while range(10):
+                if d.control_mode == mode:
+                    break
+                time.sleep(1)
+
+            assert d.control_mode == mode
+
+        set_mode("AUTO")
+        d.set_temperature = 20.0
+
+        with pytest.raises(PMException) as e:
+            d.control_mode = "BIMBAM"
+        assert "must be one of" in str(e)
+
+        prev_temp = d.set_temperature.value
+        set_mode("MANUAL")
+        assert d.set_temperature.value == prev_temp
+
+        d.turn_off()
+        assert d.is_off == True
+
+        set_mode("MANUAL")
+        assert d.set_temperature.value == d.set_temperature.default
+
+        assert d.boost_duration == None
+        set_mode("BOOST")
+
+        assert type(d.boost_duration) == ParameterINTEGER
+        assert d.boost_duration.value < 6
+
+        # FIXME: TEst party mode
+        set_mode("AUTO")
+
+
+    def test_is_battery_low(self, d):
+        assert d.is_battery_low == False
+        p = d.channels[4].values["FAULT_REPORTING"]
+        val = p.possible_values.index("LOWBAT")
+        p._set_value(val)
+        assert d.is_battery_low == True
+        p._set_value(0)
+        assert d.is_battery_low == False
+
+
+    def test_battery_state(self, d):
+        assert type(d.battery_state) == ParameterFLOAT
+        assert d.battery_state.unit == "V"
 
 
 
