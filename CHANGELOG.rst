@@ -17,6 +17,8 @@ Incompatible (possible manual changes needed):
   maintenance values as before, you need to use ``Device.maintenance.values```
 * HM-PBI-4-FM: Changed access to switches from ``device.button(0)`` to
   a hopefully clearer ``device.switch1``, ``device.switch2``, ...
+* ``Room.ids()`` has been moved to ``Room.ids`` and is now returing the list
+  of room ids sorted.
 
 Version 0.1 (2016-03-13)
 ------------------------

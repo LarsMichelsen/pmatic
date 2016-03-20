@@ -1248,21 +1248,22 @@ class Rooms(object):
         return self._rooms.get(room_id, deflt)
 
 
+    @property
+    def ids(self):
+        """Provides a sorted list of all ids of all initialized room."""
+        return sorted(self._rooms.keys())
+
+
     def add(self, room):
         """Add a :class:`Room` to the collection."""
         if not isinstance(room, Room):
-            raise PMException("You can only add room objects.")
+            raise PMException("You can only add Room objects.")
         self._rooms[room.id] = room
 
 
     def exists(self, room_id):
         """Check whether or not a :class:`Room` with the given id is in this collection."""
         return room_id in self._rooms
-
-
-    def ids(self):
-        """Returns a list of all addresses of all initialized room."""
-        return self._rooms.keys()
 
 
     def delete(self, room_id):

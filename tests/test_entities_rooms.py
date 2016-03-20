@@ -124,3 +124,54 @@ class TestCCURooms(lib.TestCCUClassWide):
         assert len(rooms._room_dict) == 0
 
 
+
+class TestRooms(lib.TestCCUClassWide):
+    @pytest.fixture(scope="class")
+    def rooms(self, ccu):
+        return ccu.rooms.query()
+
+
+    def test_get(self, rooms):
+        first_id = list(rooms._rooms.keys())[0]
+        assert isinstance(first_id, int)
+
+        room = rooms.get(first_id)
+        assert isinstance(room, Room)
+
+        assert rooms.get(0) == None
+        assert rooms.get(0, False) == False
+
+
+    def test_add(self, rooms):
+        with pytest.raises(PMException) as e:
+            rooms.add(None)
+        assert "Room objects" in str(e)
+
+        first_room = list(rooms)[0]
+        rooms.delete(first_room.id)
+        assert not rooms.exists(first_room.id)
+
+        rooms.add(first_room)
+        assert rooms.exists(first_room.id)
+
+
+    def test_ids(self, rooms):
+        for id in rooms.ids:
+            assert isinstance(id, int)
+
+        assert len(rooms.ids) > 0
+        assert len(rooms.ids) == len(rooms)
+
+
+    def test_delete(self, rooms):
+        # Deleting of not existing room does not raise an exception
+        rooms.delete(0)
+
+
+    def test_clear(self, rooms):
+        assert len(rooms) > 0
+        rooms.clear()
+        assert len(rooms) == 0
+
+
+
