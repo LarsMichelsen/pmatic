@@ -33,7 +33,7 @@ from bs4 import BeautifulSoup
 
 import pmatic.manager
 import pmatic.utils as utils
-from pmatic.manager import Config, Html, FieldStorage, Condition
+from pmatic.manager import Config, Html, FieldStorage, Condition, PageHandler
 from pmatic.exceptions import SignalReceived
 
 class TestCondition(object):
@@ -691,3 +691,99 @@ class TestFieldStorage(object):
 
         assert f.getvalue("key3") == None
         assert f.getvalue("key3", b"x") == "x"
+
+
+
+class TestPageHandler(object):
+    #@pytest.fixture(scope="class")
+    #def p(self, ccu):
+    #    return PageHandler(None,)
+
+
+    def test_pages(self):
+        pages = PageHandler.pages()
+        assert len(pages) != 0
+
+        for url in [ "", "run", "schedule", "edit_schedule", "add_schedule",
+                     "ajax_update_output", "404", "event_log", "state", "login",
+                     "config", "schedule_result" ]:
+            assert "" in pages
+
+        for url, cls in pages.items():
+            assert utils.is_text(url)
+            assert issubclass(cls, PageHandler)
+
+
+    def test_base_url(self):
+        assert PageHandler.base_url({"PATH_INFO": "/"}) == ""
+        assert PageHandler.base_url({"PATH_INFO": "/asd/eee/bbb"}) == "asd"
+        assert PageHandler.base_url({"PATH_INFO": "//eee/bbb"}) == "eee"
+        assert PageHandler.base_url({"PATH_INFO": "//eee-/bbb"}) == "eee-"
+        assert PageHandler.base_url({"PATH_INFO": "eee-/bbb"}) == "eee-"
+
+
+    def test_is_password_set(self, tmpdir, monkeypatch):
+        p = tmpdir.join("manager.secret")
+        monkeypatch.setattr(Config, "config_path", "%s" % p.dirpath())
+        assert PageHandler.is_password_set() == False
+        p.write("")
+        assert PageHandler.is_password_set() == True
+
+
+    def _cookie_dict(self, val):
+        if utils.is_py2():
+            return {"HTTP_COOKIE": b"pmatic_auth=\"%s\"" % val.encode("utf-8")}
+        else:
+            return {"HTTP_COOKIE": "pmatic_auth=\"%s\"" % val}
+
+
+    def test_get_auth_cookie_value(self):
+        assert PageHandler._get_auth_cookie_value({}) == None
+        assert PageHandler._get_auth_cookie_value({"HTTP_COOKIE": ""}) == None
+        val = PageHandler._get_auth_cookie_value(self._cookie_dict("asd"))
+        assert utils.is_string(val)
+        assert val == "asd"
+
+
+    def test_is_authenticated(self, tmpdir, monkeypatch):
+        p = tmpdir.join("manager.secret")
+        monkeypatch.setattr(Config, "config_path", "%s" % p.dirpath())
+        p.write("123")
+
+        assert PageHandler._is_authenticated({}) == False
+        assert PageHandler._is_authenticated(self._cookie_dict("xxx")) == False
+        assert PageHandler._is_authenticated(self._cookie_dict("x:x:x")) == False
+
+        assert PageHandler._is_authenticated(self._cookie_dict("x:x")) == False
+        assert PageHandler._is_authenticated(
+            self._cookie_dict("blah:7eb3204ec7f0c578e072bd68dae3930cd653810e07390eba527ac12a6945879e")) == True
+        assert PageHandler._is_authenticated(
+            self._cookie_dict("xlah:7eb3204ec7f0c578e072bd68dae3930cd653810e07390eba527ac12a6945879e")) == False
+        assert PageHandler._is_authenticated(
+            self._cookie_dict("blah:3eb3204ec7f0c578e072bd68dae3930cd653810e07390eba527ac12a6945879e")) == False
+
+
+    def test_get(self, monkeypatch, tmpdir):
+        monkeypatch.setattr(PageHandler, "is_password_set", staticmethod(lambda: False))
+        assert PageHandler.get({"PATH_INFO": "/"}).__name__ == "PageMain"
+        monkeypatch.undo()
+
+        monkeypatch.setattr(PageHandler, "is_password_set", staticmethod(lambda: True))
+        monkeypatch.setattr(PageHandler, "_is_authenticated", staticmethod(lambda x: False))
+        assert PageHandler.get({"PATH_INFO": "/"}).__name__ == "PageLogin"
+        monkeypatch.undo()
+        monkeypatch.undo()
+
+        monkeypatch.setattr(PageHandler, "is_password_set", staticmethod(lambda: True))
+        assert PageHandler.get({"PATH_INFO": "/"}).__name__ == "PageLogin"
+
+        monkeypatch.setattr(PageHandler, "_is_authenticated", staticmethod(lambda x: True))
+        assert PageHandler.get({"PATH_INFO": "/"}).__name__ == "PageMain"
+        assert PageHandler.get({"PATH_INFO": "//"}).__name__ == "PageMain"
+
+        assert PageHandler.get({"PATH_INFO": "/asd"}).__name__ == "Page404"
+
+        p = tmpdir.mkdir("css").join("pmatic.css")
+        monkeypatch.setattr(Config, "static_path", "%s" % tmpdir.realpath())
+        p.write("123")
+        assert PageHandler.get({"PATH_INFO": "/css/pmatic.css"}).__name__ == "StaticFile"

@@ -9,6 +9,7 @@ Unreleased (Use snapshot builds to get these changes)
   ``device.control_mode``, ``device.battery_state``, ``device.boost_duration``,
   ``device.set_temperature_comfort()``, ``device.set_temperature_lowering()``,
   ``device.valve_state``
+* Manager: The manager can now be used with Python 3 (testing in progress)
 
 Incompatible (possible manual changes needed):
 

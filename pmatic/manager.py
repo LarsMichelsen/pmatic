@@ -162,9 +162,9 @@ class Html(object):
                    "content=\"text/html; charset=utf-8\">\n")
         self.write("<meta http-equiv=\"X-UA-Compatible\" "
                    "content=\"IE=edge\">\n")
-        self.write("<link rel=\"stylesheet\" href=\"css/font-awesome.min.css\">\n")
-        self.write("<link rel=\"stylesheet\" href=\"css/pmatic.css\">\n")
-        self.write("<link rel=\"shortcut icon\" href=\"favicon.ico\" type=\"image/ico\">\n")
+        self.write("<link rel=\"stylesheet\" href=\"/css/font-awesome.min.css\">\n")
+        self.write("<link rel=\"stylesheet\" href=\"/css/pmatic.css\">\n")
+        self.write("<link rel=\"shortcut icon\" href=\"/favicon.ico\" type=\"image/ico\">\n")
         self.write('<title>%s</title>\n' % self.escape(self.title()))
         self.write('</head>\n')
         self.write("<body>\n")
@@ -371,7 +371,7 @@ class FieldStorage(cgi.FieldStorage):
 
 
 
-class PageHandler(object):
+class PageHandler(utils.LogMixin):
     @classmethod
     def pages(cls):
         pages = {}
@@ -383,8 +383,42 @@ class PageHandler(object):
 
     @classmethod
     def base_url(self, environ):
-        parts = environ['PATH_INFO'][1:].split("/")
+        parts = environ['PATH_INFO'].lstrip("/").split("/")
         return parts[0]
+
+
+    @classmethod
+    def is_password_set(self):
+        return os.path.exists(os.path.join(Config.config_path, "manager.secret"))
+
+
+    @classmethod
+    def _get_auth_cookie_value(self, environ):
+        for name, cookie in SimpleCookie(environ.get("HTTP_COOKIE")).items():
+            if name == "pmatic_auth":
+                return cookie.value
+
+
+    @classmethod
+    def _is_authenticated(self, environ):
+        value = self._get_auth_cookie_value(environ)
+        self.cls_logger().debug(repr(value))
+        if not value or value.count(":") != 1:
+            return False
+
+        salt, salted_hash = value.split(":", 1)
+
+        filepath = os.path.join(Config.config_path, "manager.secret")
+        secret = open(filepath).read().strip()
+
+        to_hash = secret + salt
+        if not utils.is_py2():
+            to_hash = to_hash.encode("utf-8")
+        correct_hash = sha256(to_hash).hexdigest()
+
+        #.decode("utf-8")
+
+        return salted_hash == correct_hash
 
 
     @classmethod
@@ -405,43 +439,14 @@ class PageHandler(object):
                 return static_file_class
 
 
-    @classmethod
-    def is_password_set(self):
-        return os.path.exists(os.path.join(Config.config_path, "manager.secret"))
-
-
-    @classmethod
-    def _get_auth_cookie_value(self, environ):
-        for name, cookie in SimpleCookie(environ.get("HTTP_COOKIE")).items():
-            if name == "pmatic_auth":
-                return cookie.value
-
-
-    @classmethod
-    def _is_authenticated(self, environ):
-        value = self._get_auth_cookie_value(environ)
-        if not value or value.count(":") != 1:
-            return False
-
-        salt, salted_hash = value.split(":", 1)
-
-        filepath = os.path.join(Config.config_path, "manager.secret")
-        secret = open(filepath).read().strip()
-
-        correct_hash = sha256(secret + salt).hexdigest().decode("utf-8")
-
-        return salted_hash == correct_hash
-
-
     def __init__(self, manager, environ, start_response):
         super(PageHandler, self).__init__()
         self._manager = manager
         self._env = environ
         self._start_response = start_response
 
-        self._http_headers = [
-            (b'Content-type', self._get_content_type().encode("utf-8")),
-        ]
+        self._http_headers = []
+        self._set_http_header("Content-type", self._get_content_type())
         self._page = []
         self._vars = cgi.FieldStorage()
 
@@ -449,7 +454,7 @@ class PageHandler(object):
 
 
     def _get_content_type(self):
-        return b'text/html; charset=UTF-8'
+        return "text/html; charset=UTF-8"
 
 
     def _read_environment(self):
@@ -459,7 +464,7 @@ class PageHandler(object):
     def _set_cookie(self, name, value):
         cookie = SimpleCookie()
         cookie[name.encode("utf-8")] = value.encode("utf-8")
-        self._http_headers.append((b"Set-Cookie", cookie[name.encode("utf-8")].OutputString()))
+        self._set_http_header("Set-Cookie", cookie[name.encode("utf-8")].OutputString())
 
 
     @property
@@ -478,6 +483,13 @@ class PageHandler(object):
 
     def _send_http_header(self):
         self._start_response(self._http_status(200), self._http_headers)
+
+
+    def _set_http_header(self, k, v):
+        if utils.is_py2():
+            self._http_headers.append((k.encode("utf-8"), v.encode("utf-8")))
+        else:
+            self._http_headers.append((k, v))
 
 
     def process_page(self):
@@ -541,19 +553,24 @@ class PageHandler(object):
 
     def _http_status(self, code):
         if code == 200:
-            return b'200 OK'
+            txt = '200 OK'
         elif code == 301:
-            return b'301 Moved Permanently'
+            txt = '301 Moved Permanently'
         elif code == 302:
-            return b'302 Found'
+            txt = '302 Found'
         elif code == 304:
-            return b'304 Not Modified'
+            txt = '304 Not Modified'
         elif code == 404:
-            return b'404 Not Found'
+            txt = '404 Not Found'
         elif code == 500:
-            return b'500 Internal Server Error'
+            txt = '500 Internal Server Error'
         else:
-            return str(code)
+            txt = '%d' % code
+
+        if utils.is_py2():
+            return txt.encode("utf-8")
+        else:
+            return txt
 
 
 
@@ -624,12 +641,12 @@ class StaticFile(PageHandler):
             return []
 
         mtime = os.stat(file_path).st_mtime
-        self._http_headers.append((b"Last-Modified",
-                    time.strftime("%a, %d %b %Y %H:%M:%S UTC", time.gmtime(mtime))))
+        self._set_http_header("Last-Modified",
+                    time.strftime("%a, %d %b %Y %H:%M:%S UTC", time.gmtime(mtime)))
 
         if path_info.startswith("/scripts"):
-            self._http_headers.append((b"Content-Disposition",
-                b"attachment; filename=\"%s\"" % os.path.basename(path_info)))
+            self._set_http_header("Content-Disposition",
+                "attachment; filename=\"%s\"" % os.path.basename(path_info))
 
         self._start_response(self._http_status(200), self._http_headers)
         return [ l for l in open(file_path) ]
@@ -932,7 +949,7 @@ class PageAjaxUpdateOutput(PageHandler, Html, utils.LogMixin):
     url = "ajax_update_output"
 
     def _get_content_type(self):
-        return b"text/plain; charset=UTF-8"
+        return "text/plain; charset=UTF-8"
 
     def process_page(self):
         output = []
@@ -2000,7 +2017,7 @@ class EventManager(threading.Thread, utils.LogMixin):
         threading.Thread.__init__(self)
         self._manager         = manager
         self.daemon           = True
-        self._initialized     = False
+        self._is_initialized  = False
         self._fail_exc        = None
         self._terminate       = False
 
@@ -2026,7 +2043,7 @@ class EventManager(threading.Thread, utils.LogMixin):
         self.logger.debug("events initialized")
         self._manager.ccu.events.on_value_updated(self._on_value_updated)
         self.logger.info("Event processing initialized.")
-        self._initialized = True
+        self._is_initialized = True
 
 
     def _on_value_updated(self, updated_param):
@@ -2041,7 +2058,7 @@ class EventManager(threading.Thread, utils.LogMixin):
 
     @property
     def initialized(self):
-        return self._initialized
+        return self._is_initialized
 
 
     @property

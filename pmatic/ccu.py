@@ -104,7 +104,7 @@ class CCU(object):
         if hasattr(builtins, "manager_ccu"):
             return builtins.manager_ccu
         else:
-            return super(CCU, cls).__new__(cls, **kwargs)
+            return super(CCU, cls).__new__(cls)
 
 
     @property

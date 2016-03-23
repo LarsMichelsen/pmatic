@@ -3,6 +3,7 @@ Fixes:
   Maybe initially fetch all objects when schedules rely on them.
 * Schedules/Jobs referencing not existing scripts:
   - Don't execute the schedules (disable them?)
+* favicon.ico - does not exist and StaticFile.get() does not handle this path
 
 Todos:
 * Manager:
