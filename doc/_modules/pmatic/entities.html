@@ -302,13 +302,7 @@
     <span class="k">def</span> <span class="nf">_get_class_name_of_param_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Gathers the name of the class to be used for creating a parameter object</span>
 <span class="sd">        from the given parameter specification.&quot;&quot;&quot;</span>
-        <span class="n">unit</span> <span class="o">=</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;UNIT&quot;</span><span class="p">]</span>
-        <span class="n">ty</span> <span class="o">=</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;TYPE&quot;</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;%&quot;</span><span class="p">:</span>
-            <span class="n">ty</span> <span class="o">=</span> <span class="s2">&quot;PERCENTAGE&quot;</span>
-
-        <span class="k">return</span> <span class="s2">&quot;Parameter</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ty</span>
+        <span class="k">return</span> <span class="s2">&quot;Parameter</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;TYPE&quot;</span><span class="p">]</span>
 
 
     <span class="k">def</span> <span class="nf">_value_update_needed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -1090,7 +1084,7 @@
     <span class="k">def</span> <span class="nf">valve_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Provides the current valve state in percentage.</span>
 
-<span class="sd">        Returns an instance of :class:`ParameterPERCENTAGE`.</span>
+<span class="sd">        Returns an instance of :class:`ParameterINTEGER`.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;VALVE_STATE&quot;</span><span class="p">]</span>
 
