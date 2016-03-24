@@ -7,106 +7,6 @@ CCU_HOST          ?= ccu
 
 .PHONY: chroot dist
 
-CCU_PYTHON_FILES = \
-    bin/python2.7 \
-    lib/python2.7/site.py \
-    lib/python2.7/os.py \
-    lib/python2.7/traceback.py \
-    lib/python2.7/re.py \
-    lib/python2.7/posixpath.py \
-    lib/python2.7/stat.py \
-    lib/python2.7/genericpath.py \
-    lib/python2.7/warnings.py \
-    lib/python2.7/linecache.py \
-    lib/python2.7/types.py \
-    lib/python2.7/UserDict.py \
-    lib/python2.7/_abcoll.py \
-    lib/python2.7/abc.py \
-    lib/python2.7/_weakrefset.py \
-    lib/python2.7/copy_reg.py \
-    lib/python2.7/sysconfig.py \
-    lib/python2.7/sre_compile.py \
-    lib/python2.7/sre_parse.py \
-    lib/python2.7/sre_constants.py \
-    lib/python2.7/_sysconfigdata.py \
-    lib/python2.7/platform.py \
-    \
-    lib/python2.7/subprocess.py \
-    lib/python2.7/pickle.py \
-    lib/python2.7/pickle.py \
-    lib/python2.7/*struct.py \
-    lib/python2.7/json/*.py \
-    lib/python2.7/codecs.py \
-    lib/python2.7/encodings/*.py \
-    lib/python2.7/stringprep.py \
-    lib/python2.7/__future__.py \
-    \
-    lib/python2.7/logging/*.py \
-    lib/python2.7/weakref.py \
-    lib/python2.7/atexit.py \
-    \
-    lib/python2.7/urllib2.py \
-    lib/python2.7/base64.py \
-    lib/python2.7/hashlib.py \
-    lib/python2.7/lib-dynload/_hashlib*.so \
-    lib/python2.7/sha.py \
-    lib/python2.7/httplib.py \
-    lib/python2.7/io.py \
-    lib/python2.7/socket.py \
-    lib/python2.7/functools.py \
-    lib/python2.7/urlparse.py \
-    lib/python2.7/collections.py \
-    lib/python2.7/keyword.py \
-    lib/python2.7/heapq.py \
-    lib/python2.7/bisect.py \
-    lib/python2.7/mimetools.py \
-    lib/python2.7/tempfile.py \
-    lib/python2.7/random.py \
-    lib/python2.7/rfc822.py \
-    lib/python2.7/urllib.py \
-    lib/python2.7/string.py \
-    \
-    lib/python2.7/threading.py \
-    lib/python2.7/SocketServer.py \
-    lib/python2.7/BaseHTTPServer.py \
-    lib/python2.7/SimpleXMLRPCServer.py \
-    lib/python2.7/xmllib.py \
-    lib/python2.7/xmlrpclib.py \
-    \
-    lib/python2.7/argparse.py \
-    lib/python2.7/copy.py \
-    lib/python2.7/textwrap.py \
-    lib/python2.7/gettext.py \
-    lib/python2.7/locale.py \
-    \
-    lib/python2.7/cgi.py \
-    lib/python2.7/Cookie.py \
-    lib/python2.7/wsgiref/*.py \
-    lib/python2.7/contextlib.py \
-    lib/python2.7/StringIO.py \
-    lib/python2.7/glob.py \
-    lib/python2.7/fnmatch.py \
-    lib/python2.7/_strptime.py \
-    lib/python2.7/calendar.py \
-    lib/python2.7/lib-dynload/datetime.so \
-    \
-    lib/python2.7/inspect.py \
-    lib/python2.7/dis.py \
-    lib/python2.7/opcode.py \
-    lib/python2.7/tokenize.py \
-    lib/python2.7/token.py
-
-# These files are not really optional, but have different paths on different platforms
-# ignore missing files during rsync.
-# _sysconfigdata_nd: Difference between paths
-# _struct.so, binascii.so, ...: Travis has not built it into python
-CCU_PYTHON_FILES_OPTIONAL = \
-    lib/python2.7/_sysconfigdata_nd.py \
-    lib/python2.7/plat-x86_64-linux-gnu/_sysconfigdata_nd.py \
-
-CCU_PYTHON_FILES_TRAVIS = \
-    lib/python2.7/lib-dynload/*.so
-
 help:
 	@echo
 	@echo "Available commands:"
@@ -182,24 +82,9 @@ dist-ccu-step1:
 	fi
 	mkdir -p $(CCU_PREDIST_PATH)/python
 	cd $(CHROOT_PATH)/usr ; \
-	rsync -aRv --no-g $(CCU_PYTHON_FILES) $(CCU_PREDIST_PATH)/python ; \
-	rsync -aR --no-g $(CCU_PYTHON_FILES_OPTIONAL) $(CCU_PREDIST_PATH)/python \
+	rsync -aRv --no-g $$(cat ccu_pkg/python-modules.list) $(CCU_PREDIST_PATH)/python ; \
+	rsync -aR --no-g $$(cat ccu_pkg/python-modules-optional.list) $(CCU_PREDIST_PATH)/python \
 	    2>/dev/null || true
-
-copy-ccu-python-modules-for-test:
-	@if [ -z "$(TARGET_DIR)" ] || [ ! -d $(TARGET_DIR) ]; then \
-	    echo "ERROR: Target directory \"$(TARGET_DIR)\" not existing." ; \
-	    exit 1 ; \
-	fi ; \
-	TARGET_DIR=$$(realpath $(TARGET_DIR)) ; \
-	if [ -n "$$TRAVIS" ]; then \
-	    cd /opt/python/2.7.* ; \
-	else \
-	    cd /usr ; \
-	fi ; \
-	rsync -aR --no-g $(CCU_PYTHON_FILES) $$TARGET_DIR/ ; \
-	rsync -aR --no-g $(CCU_PYTHON_FILES_OPTIONAL) $$TARGET_DIR/ 2>/dev/null || true ; \
-	rsync -aR --no-g $(CCU_PYTHON_FILES_TRAVIS) $$TARGET_DIR/ 2>/dev/null || true
 
 
 dist-ccu-step2:

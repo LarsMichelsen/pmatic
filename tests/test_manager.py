@@ -26,14 +26,19 @@ from __future__ import unicode_literals
 
 import os
 import cgi
+import sys
 import time
 import pytest
 import signal
 from bs4 import BeautifulSoup
 
+pytestmark = pytest.mark.skipif(sys.platform == "win32",
+                                reason="manager currently does not run on windows")
+
 import pmatic.manager
-import pmatic.utils as utils
 from pmatic.manager import Config, Html, FieldStorage, Condition, PageHandler
+
+import pmatic.utils as utils
 from pmatic.exceptions import SignalReceived
 
 class TestCondition(object):
