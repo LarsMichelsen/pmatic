@@ -29,6 +29,7 @@ CCU_PYTHON_FILES = \
     lib/python2.7/sre_parse.py \
     lib/python2.7/sre_constants.py \
     lib/python2.7/_sysconfigdata.py \
+    lib/python2.7/platform.py \
     \
     lib/python2.7/subprocess.py \
     lib/python2.7/pickle.py \

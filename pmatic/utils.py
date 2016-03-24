@@ -29,10 +29,10 @@ try:
 except ImportError:
     pass
 
-import os
 import re
 import sys
 import logging
+import platform
 
 class LogMixin(object):
     """Inherit from this class to provide logging support.
@@ -105,4 +105,4 @@ def fmt_percentage_int(perc):
 
 def is_ccu():
     """Returns True when executed on a CCU device. Otherwise False is being returned."""
-    return ".ccu" in os.uname()[2]
+    return ".ccu" in platform.uname()[2]

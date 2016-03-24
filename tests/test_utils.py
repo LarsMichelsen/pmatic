@@ -26,7 +26,7 @@ from __future__ import unicode_literals
 
 import pytest
 import sys
-import os
+import platform
 from pmatic import utils
 
 
@@ -117,19 +117,29 @@ def test_fmt_percentage_int():
         assert utils.fmt_percentage_int(None)
 
 
-def test_is_ccu():
-    orig_uname = os.uname
+def test_is_ccu(monkeypatch):
+    monkeypatch.setattr(platform, "uname", lambda: (
+        'Linux', 'dev', '3.16.0-4-amd64',
+        '#1 SMP Debian 3.16.7-ckt9-3~deb8u1 (2015-04-24)', 'x86_64'))
+    assert utils.is_ccu() == False
 
-    os.uname = lambda: ('Linux', 'dev', '3.16.0-4-amd64',
-                        '#1 SMP Debian 3.16.7-ckt9-3~deb8u1 (2015-04-24)', 'x86_64')
-    assert not utils.is_ccu()
+    monkeypatch.setattr(platform, "uname", lambda: (
+        'Darwin', 'hubert.local', '11.4.2',
+        'Darwin Kernel Version 11.4.2: Thu Aug 23 16:25:48 PDT 2012; '
+        +'root:xnu-1699.32.7~1/RELEASE_X86_64', 'x86_64', 'i386'))
+    assert utils.is_ccu() == False
 
-    os.uname = lambda: ('Linux', 'ccu', '3.4.11.ccu2',
-                        '#1 PREEMPT Fri Oct 16 10:43:35 CEST 2015', 'armv5tejl')
-    assert utils.is_ccu()
+    monkeypatch.setattr(platform, "uname", lambda: (
+        'Windows', 'dhellmann', '2008ServerR2', '6.1.7600', 'AMD64',
+        'Intel64 Family 6 Model 15 Stepping 11, GenuineIntel'))
+    assert utils.is_ccu() == False
 
-    os.uname = lambda: ('Linux', 'ccu2', '3.4.11.ccu2',
-                        '#1 PREEMPT Wed Dec 16 09:23:30 CET 2015', 'armv5tejl')
-    assert utils.is_ccu()
+    monkeypatch.setattr(platform, "uname", lambda: (
+        'Linux', 'ccu', '3.4.11.ccu2',
+        '#1 PREEMPT Fri Oct 16 10:43:35 CEST 2015', 'armv5tejl'))
+    assert utils.is_ccu() == True
 
-    os.uname = orig_uname
+    monkeypatch.setattr(platform, "uname", lambda: (
+        'Linux', 'ccu2', '3.4.11.ccu2',
+        '#1 PREEMPT Wed Dec 16 09:23:30 CET 2015', 'armv5tejl'))
+    assert utils.is_ccu() == True
