@@ -25,7 +25,7 @@ addons:
 # Run tests with coverage checking
 script:
     - cd $TRAVIS_BUILD_DIR
-    - coverage run --source=pmatic setup.py test
+    - coverage run --source=pmatic setup.py test -a "-vv"
 
 after_success:
     # Upload coverage
