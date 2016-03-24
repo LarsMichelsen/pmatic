@@ -12,6 +12,7 @@ Unreleased (Use snapshot builds to get these changes)
 * Manager: The manager can now be used with Python 3 (testing in progress)
 * Windows: Made CCU detection platform independent
 * Windows: Made setup.py more platform independent
+* Better linking from addon page to the manager page
 
 Incompatible (possible manual changes needed):
 

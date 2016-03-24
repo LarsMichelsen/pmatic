@@ -131,10 +131,9 @@ install:
 	sudo python setup.py install
 	sudo python3 setup.py install
 
-install-ccu: install-ccu-python install-ccu-pmatic
+install-ccu: install-ccu-python install-ccu-pmatic install-ccu-scripts
 
 install-ccu-python:
-	@echo TODO
 	rsync -av --no-g \
 	    --exclude=\*.pyc \
 	    --exclude=.\*.swp \
@@ -152,6 +151,11 @@ install-ccu-pmatic:
 	rsync -aRv --no-g \
 	    pmatic-manager \
 	    root@$(CCU_HOST):/usr/local/bin/pmatic-manager
+
+install-ccu-scripts:
+	rsync -av --no-g \
+	    ccu_pkg/pmatic.init \
+	    root@$(CCU_HOST):/usr/local/etc/config/rc.d/pmatic
 
 version:
 	@newversion=$$(dialog --stdout --inputbox "New Version:" 0 0 "$(VERSION)") ; \

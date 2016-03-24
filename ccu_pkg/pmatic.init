@@ -49,12 +49,12 @@ restart)
   ;;
 info)
   echo "Info: <center><b>pmatic CCU Addon</b><center>"
-  echo "Info: <center><a href='https://github.com/LarsMichelsen/pmatic' target='_blank'>https://github.com/LarsMichelsen/pmatic</a><center>"
+  echo "Info: <center><a href='https://github.com/LarsMichelsen/pmatic' target='_blank'>https://github.com/LarsMichelsen/pmatic</a><center><br>"
   echo "Info: <center><a href='/' onclick='javascript:event.target.port=9120' target='_blank'>pmatic Manager</a><center>"
   echo "Version: $VERSION"
   echo "Name: pmatic"
   echo "Operations: uninstall restart"
-  #echo "Config-Url: $CONFIG_URL"
+  echo "Config-Url: '+location.protocol + '//' + location.hostname + ':9120"
   #echo "Update: $CONFIG_URL/update-check.cgi"
   ;;
 uninstall)
