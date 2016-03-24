@@ -77,7 +77,8 @@ def populate_tmp_dir(target_path):
                 raise Exception("Did not find a file for %s from %s." % (line, list_file))
 
             for file_path in matched_files:
-                target_file_path = os.path.join(target_path, os.path.basename(file_path))
+                target_file_path = os.path.join(target_path, os.path.dirname(line),
+                                                os.path.basename(file_path))
                 print("%s => %s" % (file_path, target_file_path))
                 shutil.copyfile(file_path, target_file_path)
 
