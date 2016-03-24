@@ -53,8 +53,15 @@ import subprocess
 from wsgiref.handlers import SimpleHandler
 import wsgiref.simple_server
 from hashlib import sha256
-from grp import getgrnam
-from pwd import getpwnam
+
+try:
+    from grp import getgrnam
+    from pwd import getpwnam
+except ImportError:
+    # don't raise missing e.g. grp module on windows platform (does not exist)
+    # The manager is not working on windows. At least allow to import it for tests.
+    if sys.platform == "win32":
+        pass
 
 try:
     from Cookie import SimpleCookie
