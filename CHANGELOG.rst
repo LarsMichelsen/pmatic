@@ -11,6 +11,7 @@ Unreleased (Use snapshot builds to get these changes)
   ``device.valve_state``
 * Manager: The manager can now be used with Python 3 (testing in progress)
 * Windows: Made CCU detection platform independent
+* Windows: Made setup.py more platform independent
 
 Incompatible (possible manual changes needed):
 

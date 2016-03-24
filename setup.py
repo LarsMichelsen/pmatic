@@ -28,6 +28,19 @@ import os
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
+
+# Returns paths and lists of data files to install. The path is currently
+# only known for posix systems. Please add other platforms when you know
+# the correct paths.
+def data_files():
+    if os.name == "posix":
+        return [
+            ('/usr/share/doc/pmatic', ['LICENSE', 'README.md']),
+        ]
+    else:
+        return []
+
+
 setup(name='pmatic',
     version='0.1',
     description='A simple API to to the Homematic CCU2',
@@ -37,7 +50,7 @@ setup(name='pmatic',
     download_url="https://pypi.python.org/pypi/pmatic",
     keywords="Homematic, Python, CCU, Automating, Scripting, Home Automation",
     long_description=read("README.rst"),
-    platforms="Linux,CCU2",
+    platforms="Linux,Windows,CCU2",
     license='GPLv2',
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -47,6 +60,7 @@ setup(name='pmatic',
         'License :: OSI Approved :: GNU General Public License v2 (GPLv2)',
         'Operating System :: OS Independent',
         'Operating System :: POSIX',
+        'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
@@ -60,9 +74,7 @@ setup(name='pmatic',
     packages=[
       'pmatic',
     ],
-    data_files=[
-        ('/usr/share/doc/pmatic', ['LICENSE', 'README.md']),
-    ],
+    data_files=data_files(),
     setup_requires=['pytest-runner'],
     tests_require=['pytest', 'pytest-flakes', 'pytest-cache', 'beautifulsoup4'],
 )
