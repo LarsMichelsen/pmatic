@@ -79,6 +79,10 @@ def populate_tmp_dir(target_path):
             for file_path in matched_files:
                 target_file_path = os.path.join(target_path, os.path.dirname(line),
                                                 os.path.basename(file_path))
+
+                if not os.path.exists(os.path.basename(target_file_path)):
+                    os.makedirs(os.path.basename(target_file_path))
+
                 print("%s => %s" % (file_path, target_file_path))
                 shutil.copyfile(file_path, target_file_path)
 
