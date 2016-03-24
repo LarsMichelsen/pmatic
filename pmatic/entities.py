@@ -248,13 +248,7 @@ class Channel(utils.LogMixin, Entity):
     def _get_class_name_of_param_spec(self, param_spec):
         """Gathers the name of the class to be used for creating a parameter object
         from the given parameter specification."""
-        unit = param_spec["UNIT"]
-        ty = param_spec["TYPE"]
-
-        if unit == "%":
-            ty = "PERCENTAGE"
-
-        return "Parameter%s" % ty
+        return "Parameter%s" % param_spec["TYPE"]
 
 
     def _value_update_needed(self):
@@ -1036,7 +1030,7 @@ class HMCCRTDN(Device):
     def valve_state(self):
         """Provides the current valve state in percentage.
 
-        Returns an instance of :class:`ParameterPERCENTAGE`.
+        Returns an instance of :class:`ParameterINTEGER`.
         """
         return self.channels[4].values["VALVE_STATE"]
 

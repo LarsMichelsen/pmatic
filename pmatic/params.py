@@ -387,31 +387,6 @@ class ParameterINTEGER(ParameterNUMERIC):
 
 
 
-# {u'CONTROL': u'NONE', u'OPERATIONS': u'5', u'NAME': u'VALVE_STATE', u'MIN': u'0',
-#  u'DEFAULT': u'0', u'MAX': u'99', u'TAB_ORDER': u'3', u'FLAGS': u'1',
-#  u'TYPE': u'INTEGER', u'ID': u'VALVE_STATE', u'UNIT': u'%'}
-class ParameterPERCENTAGE(ParameterINTEGER):
-    _transform_attributes = dict(ParameterINTEGER._transform_attributes,
-        # Saw min == 0, max == 99. Add +1 to have 1-100 range.
-        DEFAULT = lambda v: int(v)+1,
-        MAX = lambda v: int(v)+1,
-        MIN = lambda v: int(v)+1,
-    )
-
-
-    def _from_api_value(self, value):
-        return int(value)+1
-
-
-    def _to_api_value(self, value):
-        return "%d" % (value-1)
-
-
-    def formated(self):
-        return super(ParameterPERCENTAGE, self)._formated("%d")
-
-
-
 class ParameterSTRING(Parameter):
     pass
 

@@ -29,7 +29,7 @@ import pytest
 from pmatic.entities import Channel, Device, ChannelKey
 from pmatic.params import Parameter, ParameterINTEGER, ParameterFLOAT, \
                           ParameterBOOL, ParameterACTION, ParameterSTRING, \
-                          ParameterENUM, ParameterPERCENTAGE
+                          ParameterENUM
 from pmatic import utils, PMException, PMActionFailed
 import lib
 
@@ -543,64 +543,6 @@ class TestParameterINTEGER(lib.TestCCUClassWide):
         assert p.formated() == "101 min"
         p._value = -100
         assert p.formated() == "-100 min"
-
-
-
-class TestParameterPERCENTAGE(lib.TestCCUClassWide):
-    @pytest.fixture(scope="function")
-    def p(self, ccu):
-        device = list(ccu.devices.query(device_name="Wohnzimmer"))[0]
-        return device.valve_state
-
-
-    def test_attributes(self, p):
-        assert isinstance(p, ParameterPERCENTAGE)
-        assert p.type == "INTEGER"
-        assert p.unit == "%"
-        assert p.internal_name == "VALVE_STATE"
-        assert p.name == "Valve State"
-        assert isinstance(p.value, int)
-        assert isinstance(p.min, int)
-        assert isinstance(p.max, int)
-        assert isinstance(p.default, int)
-
-
-    def test_from_api_value(self, p):
-        assert p._from_api_value("1") == 2
-        assert p._from_api_value("0") == 1
-        assert p._from_api_value("99") == 100
-        with pytest.raises(ValueError):
-            p._from_api_value("1.0")
-
-
-    def test_to_api_value(self, p):
-        assert p._to_api_value(1) == "0"
-        assert p._to_api_value(1.001) == "0"
-        assert p._to_api_value(99) == "98"
-
-
-    def test_validate(self, p):
-        assert p._validate(p.min+1) == True
-        assert p._validate(p.min) == True
-        assert p._validate(p.max) == True
-
-        with pytest.raises(PMException):
-            p._validate(1.0)
-        with pytest.raises(PMException):
-            p._validate(None)
-        with pytest.raises(PMException):
-            p._validate(p.min-1)
-        with pytest.raises(PMException):
-            p._validate(p.max+1)
-
-
-    def test_formated(self, p):
-        p._value = 1
-        assert p.formated() == "1%"
-        p._value = 101
-        assert p.formated() == "101%"
-        p._value = -100
-        assert p.formated() == "-100%"
 
 
 
