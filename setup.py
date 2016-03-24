@@ -24,6 +24,7 @@ except ImportError:
     from distutils.core import setup
 
 import os
+import sys
 
 def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
@@ -39,6 +40,20 @@ def data_files():
         ]
     else:
         return []
+
+
+def test_requirements():
+    req = [
+        'pytest',
+        'pytest-flakes',
+        'pytest-cache',
+        'beautifulsoup4',
+    ]
+
+    if sys.version_info[0] < 3:
+        req.append('snakefood')
+
+    return req
 
 
 setup(name='pmatic',
@@ -76,11 +91,5 @@ setup(name='pmatic',
     ],
     data_files=data_files(),
     setup_requires=['pytest-runner'],
-    tests_require=[
-        'pytest',
-        'pytest-flakes',
-        'pytest-cache',
-        'beautifulsoup4',
-        'snakefood'
-    ],
+    tests_require=test_requirements()
 )
