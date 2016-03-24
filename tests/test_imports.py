@@ -84,7 +84,7 @@ def populate_tmp_dir(target_path):
                     os.makedirs(os.path.basename(target_file_path))
 
                 print("%s => %s" % (file_path, target_file_path))
-                shutil.copyfile(file_path, target_file_path)
+                shutil.copy(file_path, target_file_path)
 
 
 def find_imports():
