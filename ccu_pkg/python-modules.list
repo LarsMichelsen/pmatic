@@ -78,7 +78,6 @@ lib/python2.7/glob.py
 lib/python2.7/fnmatch.py
 lib/python2.7/_strptime.py
 lib/python2.7/calendar.py
-lib/python2.7/lib-dynload/datetime.so
 
 lib/python2.7/inspect.py
 lib/python2.7/dis.py

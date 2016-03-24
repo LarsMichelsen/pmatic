@@ -61,7 +61,6 @@ def populate_tmp_dir(target_path):
         workdir = sys.prefix
     else:
         workdir = "/usr"
-    os.chdir(workdir)
 
     for list_file, optional in [ ("python-modules.list",          False),
                                  ("python-modules-travis.list",   True),
@@ -72,7 +71,7 @@ def populate_tmp_dir(target_path):
             if not line or line[0] == "#":
                 continue
 
-            matched_files = glob.glob(line)
+            matched_files = glob.glob(os.path.join(workdir, line))
             if not matched_files and not optional:
                 raise Exception("Did not find a file for %s from %s." % (line, list_file))
 
@@ -80,8 +79,8 @@ def populate_tmp_dir(target_path):
                 target_file_path = os.path.join(target_path, os.path.dirname(line),
                                                 os.path.basename(file_path))
 
-                if not os.path.exists(os.path.basename(target_file_path)):
-                    os.makedirs(os.path.basename(target_file_path))
+                if not os.path.exists(os.path.dirname(target_file_path)):
+                    os.makedirs(os.path.dirname(target_file_path))
 
                 print("%s => %s" % (file_path, target_file_path))
                 shutil.copy(file_path, target_file_path)
@@ -89,7 +88,8 @@ def populate_tmp_dir(target_path):
 
 def find_imports():
     p = subprocess.Popen("python -c \"from snakefood.list import main ; main()\" "
-                         "-u %s" % " ".join(path_patterns),
+                         "-u %s" % " ".join([ p for p in path_patterns
+                                              if not p.startswith("tests/") ] ),
                          cwd=repo_dir(),
                          shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = p.communicate()
