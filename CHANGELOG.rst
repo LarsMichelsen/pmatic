@@ -10,6 +10,8 @@ Unreleased (Use snapshot builds to get these changes)
   ``device.set_temperature_comfort()``, ``device.set_temperature_lowering()``,
   ``device.valve_state``
 * Manager: The manager can now be used with Python 3 (testing in progress)
+* Manager: Schedules that rely in objects can now be edited even when the
+  manager is currently not connected with the CCU.
 * Windows: Made CCU detection platform independent
 * Windows: Made setup.py more platform independent
 * Better linking from addon page to the manager page

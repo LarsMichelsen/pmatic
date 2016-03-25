@@ -1921,6 +1921,15 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
         self._register_for_ccu_events()
 
+        # Reload the schedules to update the CCU dependent conditions
+        self.scheduler.load()
+
+
+    @property
+    def ccu_initialized(self):
+        """Whether or not a connection with the CCU has been initialized."""
+        return self.ccu != None
+
 
     def _register_for_ccu_events(self):
         if self.event_manager.is_alive():
@@ -2222,6 +2231,10 @@ class Scheduler(threading.Thread, utils.LogMixin):
         return self._schedules[schedule_id]
 
 
+    def clear(self):
+        self._schedules = []
+
+
     def add(self, schedule):
         if schedule.id is None:
             num = len(self._schedules)
@@ -2247,6 +2260,7 @@ class Scheduler(threading.Thread, utils.LogMixin):
 
     def load(self):
         try:
+            self.clear()
             try:
                 fh = open(Config.config_path + "/manager.schedules")
                 schedule_config = json.load(fh)
@@ -2414,8 +2428,38 @@ class ConditionOnCCUInitialized(Condition):
         page.write("<i>This condition has no parameters.</i>")
 
 
+class DummyDevice(object):
+    """This device object is needed when a device can not be constructed
+    e.g. because the CCU is currently not available."""
+    def __init__(self, device_address, channel_address, param_id):
+        self.name    = device_address
+        self.address = self.name
+        self.channels = [
+            DummyChannel(channel_address, param_id),
+        ]
 
-class ConditionOnDeviceEvent(Condition):
+
+class DummyChannel(object):
+    """This channel object is needed when a channel can not be constructed
+    e.g. because the CCU is currently not available."""
+    def __init__(self, channel_address, param_id):
+        self.name    = channel_address
+        self.address = self.name
+        self.values  = {
+            param_id: DummyParam(param_id),
+        }
+
+
+class DummyParam(object):
+    """This object is needed when a real object can not be constructed
+    e.g. because the CCU is currently not available."""
+    def __init__(self, param_id):
+        self.id   = param_id
+        self.name = self.id
+
+
+
+class ConditionOnDeviceEvent(Condition, utils.LogMixin):
     type_name = "on_device_event"
     type_title = "on device event"
 
@@ -2430,9 +2474,22 @@ class ConditionOnDeviceEvent(Condition):
         self.channel    = None
         self.param      = None
         self.event_type = None
+        self._loaded    = False
 
 
     def from_config(self, cfg):
+        self.event_type = cfg["event_type"]
+
+        if not self._manager.ccu_initialized:
+            self.device  = DummyDevice(cfg["device_address"], cfg["channel_address"],
+                                       cfg["param_id"])
+            self.channel = self.device.channels[0]
+            self.param   = list(self.channel.values.values())[0]
+
+            self.logger.debug("Can not load \"device event\" condition because the "
+                              "connection with the CCU is not established. Will retry later.")
+            return
+
         self.device = self._manager.ccu.devices.query(
                                 device_address=cfg["device_address"]).get(cfg["device_address"])
         if not self.device:
@@ -2447,7 +2504,7 @@ class ConditionOnDeviceEvent(Condition):
         if not self.param:
             return
 
-        self.event_type = cfg["event_type"]
+        self._loaded = True
 
 
     def to_config(self):
@@ -2465,15 +2522,25 @@ class ConditionOnDeviceEvent(Condition):
         txt = super(ConditionOnDeviceEvent, self).display()
         txt += ": %s, %s, %s, %s" % (self.device.name, self.channel.name,
                                      self.param.name, dict(self._event_types)[self.event_type])
+        if not self._loaded:
+            txt += " (Not connected with CCU. Can not execute this at the moment)"
         return txt
 
 
     def _device_choices(self):
+        if not self._loaded:
+            yield self.device.address, self.device.address
+            return
+
         for device in self._manager.ccu.devices:
             yield device.address, "%s (%s)" % (device.name, device.address)
 
 
     def _channel_choices(self):
+        if not self._loaded:
+            yield self.channel.address, self.channel.address
+            return
+
         if not self.device:
             return
 
@@ -2482,6 +2549,10 @@ class ConditionOnDeviceEvent(Condition):
 
 
     def _param_choices(self):
+        if not self._loaded:
+            yield self.param.id, self.param.id
+            return
+
         if not self.channel:
             return
 
@@ -2507,7 +2578,22 @@ class ConditionOnDeviceEvent(Condition):
 
 
     def set_submitted_vars(self, page, varprefix):
-        device_address = page.vars.getvalue(varprefix+"device_address")
+        device_address  = page.vars.getvalue(varprefix+"device_address")
+        channel_address = page.vars.getvalue(varprefix+"channel_address")
+        param_id        = page.vars.getvalue(varprefix+"param_id")
+        event_type      = page.vars.getvalue(varprefix+"event_type")
+
+        if event_type:
+            if event_type not in dict(self._event_types):
+                raise PMUserError("Invalid event type given.")
+            self.event_type = event_type
+
+        if not self._manager.ccu_initialized:
+            self.device  = DummyDevice(device_address, channel_address, param_id)
+            self.channel = self.device.channels[0]
+            self.param   = list(self.channel.values.values())[0]
+            return
+
         if device_address:
             self.device = self._manager.ccu.devices.query(
                                 device_address=device_address).get(device_address)
@@ -2516,7 +2602,6 @@ class ConditionOnDeviceEvent(Condition):
         else:
             return
 
-        channel_address = page.vars.getvalue(varprefix+"channel_address")
         if channel_address:
             try:
                 self.channel = self.device.channel_by_address(channel_address)
@@ -2525,19 +2610,12 @@ class ConditionOnDeviceEvent(Condition):
         else:
             return
 
-        param_id = page.vars.getvalue(varprefix+"param_id")
         if param_id:
             self.param = self.channel.values.get(param_id)
             if not self.param:
                 raise PMUserError("Unable to find the given channel.")
         else:
             return
-
-        event_type = page.vars.getvalue(varprefix+"event_type")
-        if event_type:
-            if event_type not in dict(self._event_types):
-                raise PMUserError("Invalid event type given.")
-            self.event_type = event_type
 
 
 
