@@ -171,7 +171,7 @@ class Html(object):
                    "content=\"IE=edge\">\n")
         self.write("<link rel=\"stylesheet\" href=\"/css/font-awesome.min.css\">\n")
         self.write("<link rel=\"stylesheet\" href=\"/css/pmatic.css\">\n")
-        self.write("<link rel=\"shortcut icon\" href=\"/favicon.ico\" type=\"image/ico\">\n")
+        self.write("<link rel=\"shortcut icon\" href=\"/favicon.ico\">\n")
         self.write('<title>%s</title>\n' % self.escape(self.title()))
         self.write('</head>\n')
         self.write("<body>\n")
@@ -588,7 +588,8 @@ class StaticFile(PageHandler):
             return # don't allow .. in paths to prevent opening of unintended files
 
         if path_info.startswith("/css/") or path_info.startswith("/fonts/") \
-           or path_info.startswith("/scripts/") or path_info.startswith("/js/"):
+           or path_info.startswith("/scripts/") or path_info.startswith("/js/") \
+           or path_info == "/favicon.ico":
             file_path = StaticFile.system_path_from_pathinfo(path_info)
             if os.path.exists(file_path):
                 return StaticFile
@@ -606,7 +607,7 @@ class StaticFile(PageHandler):
         ext = self._env["PATH_INFO"].split(".")[-1]
         if ext == "css":
             return "text/css; charset=UTF-8"
-        if ext == "js":
+        elif ext == "js":
             return "application/x-javascript; charset=UTF-8"
         elif ext == "otf":
             return "application/vnd.ms-opentype"
@@ -618,6 +619,8 @@ class StaticFile(PageHandler):
             return "application/octet-stream"
         elif ext == "woff2":
             return "application/octet-stream"
+        elif ext == "ico":
+            return "image/x-icon"
         else:
             return "text/plain; charset=UTF-8"
 

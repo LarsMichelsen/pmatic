@@ -1,5 +1,4 @@
 Fixes:
-* favicon.ico - does not exist and StaticFile.get() does not handle this path
 * Windows: Output encoding? (see output of list_thermostats.py)
 
 Todos:
