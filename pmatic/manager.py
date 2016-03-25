@@ -1512,8 +1512,11 @@ class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
         self.checkbox("run_inline", schedule.run_inline)
         self.write("</td></tr>")
 
+        scripts = list(self._get_scripts())
+        if schedule.script != "" and schedule.script not in scripts:
+            scripts.append(schedule.script)
         self.write("<tr><th>Script to execute</th><td>")
-        self.select("script", sorted([ (s, s) for s in self._get_scripts() ]), schedule.script)
+        self.select("script", sorted([ (s, s) for s in scripts ]), schedule.script)
         self.write("</td></tr>")
         self.write("</table>")
 
