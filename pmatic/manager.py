@@ -75,7 +75,7 @@ except ImportError:
 
 import pmatic
 import pmatic.utils as utils
-from pmatic.exceptions import PMUserError, SignalReceived
+from pmatic.exceptions import PMUserError, SignalReceived, PMException
 
 # Set while a script is executed with the "/run" page
 g_runner = None
@@ -660,28 +660,6 @@ class StaticFile(PageHandler):
 
 
 
-class AbstractScriptPage(object):
-    def _get_scripts(self):
-        if not os.path.exists(Config.script_path):
-            raise PMUserError("The script directory %s does not exist." %
-                                                    Config.script_path)
-
-        for dirpath, _unused_dirnames, filenames in os.walk(Config.script_path):
-            if dirpath == Config.script_path:
-                relpath = ""
-            else:
-                relpath = dirpath[len(Config.script_path)+1:]
-
-            for filename in filenames:
-                filepath = os.path.join(dirpath, filename)
-                if os.path.isfile(filepath) and filename[0] != ".":
-                    if relpath:
-                        yield os.path.join(relpath, filename)
-                    else:
-                        yield filename
-
-
-
 class AbstractScriptProgressPage(Html):
     def __init__(self):
         super(AbstractScriptProgressPage, self).__init__()
@@ -773,7 +751,7 @@ class AbstractScriptProgressPage(Html):
 
 
 
-class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
+class PageMain(PageHandler, Html, utils.LogMixin):
     url = ""
 
     def title(self):
@@ -826,7 +804,7 @@ class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
         if not filename:
             raise PMUserError("You need to provide a script name to delete.")
 
-        if filename not in self._get_scripts():
+        if filename not in self._manager.get_scripts():
             raise PMUserError("This script does not exist.")
 
         filepath = os.path.join(Config.script_path, filename)
@@ -862,7 +840,7 @@ class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
         self.write("<th>Actions</th>"
                    "<th class=\"largest\">Filename</th>"
                    "<th>Last modified</th></tr>\n")
-        for filename in self._get_scripts():
+        for filename in self._manager.get_scripts():
             path = os.path.join(Config.script_path, filename)
             last_mod_ts = os.stat(path).st_mtime
 
@@ -884,7 +862,7 @@ class PageMain(PageHandler, Html, AbstractScriptPage, utils.LogMixin):
 
 
 
-class PageRun(PageHandler, AbstractScriptProgressPage, AbstractScriptPage, utils.LogMixin):
+class PageRun(PageHandler, AbstractScriptProgressPage, utils.LogMixin):
     url = "run"
 
     def title(self):
@@ -910,7 +888,7 @@ class PageRun(PageHandler, AbstractScriptProgressPage, AbstractScriptPage, utils
         if not script:
             raise PMUserError("You have to select a script.")
 
-        if script not in self._get_scripts():
+        if script not in self._manager.get_scripts():
             raise PMUserError("You have to select a valid script.")
 
         if self._is_running():
@@ -939,7 +917,7 @@ class PageRun(PageHandler, AbstractScriptProgressPage, AbstractScriptPage, utils
         self.write("<div class=\"execute_form\">\n")
         self.begin_form()
         self.write_text("Select the script: ")
-        self.select("script", sorted([ (s, s) for s in self._get_scripts() ]))
+        self.select("script", sorted([ (s, s) for s in self._manager.get_scripts() ]))
         self.submit("Run script", "run")
         self.end_form()
         self.write("</div>\n")
@@ -1328,6 +1306,10 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
             raise PMUserError("This schedule does not exist.")
 
         schedule = self._manager.scheduler.get(schedule_id)
+
+        if not schedule.script_exists:
+            raise PMUserError("The configured script does not exist.")
+
         schedule.execute()
 
         self.success("The schedule has been started.")
@@ -1391,7 +1373,7 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
 
 
 
-class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
+class PageEditSchedule(PageHandler, Html, utils.LogMixin):
     url = "edit_schedule"
 
     def _get_mode(self):
@@ -1430,7 +1412,7 @@ class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
             schedule.disabled     = self.is_checked("disabled")
 
             script = self._vars.getvalue("script")
-            if script and script not in self._get_scripts():
+            if script and script not in self._manager.get_scripts():
                 raise PMUserError("The given script does not exist.")
             if submit and not script:
                 raise PMUserError("You have to select a script.")
@@ -1512,7 +1494,7 @@ class PageEditSchedule(PageHandler, AbstractScriptPage, Html, utils.LogMixin):
         self.checkbox("run_inline", schedule.run_inline)
         self.write("</td></tr>")
 
-        scripts = list(self._get_scripts())
+        scripts = list(self._manager.get_scripts())
         if schedule.script != "" and schedule.script not in scripts:
             scripts.append(schedule.script)
         self.write("<tr><th>Script to execute</th><td>")
@@ -2023,6 +2005,26 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         raise SignalReceived(signum)
 
 
+    def get_scripts(self):
+        if not os.path.exists(Config.script_path):
+            raise PMUserError("The script directory %s does not exist." %
+                                                    Config.script_path)
+
+        for dirpath, _unused_dirnames, filenames in os.walk(Config.script_path):
+            if dirpath == Config.script_path:
+                relpath = ""
+            else:
+                relpath = dirpath[len(Config.script_path)+1:]
+
+            for filename in filenames:
+                filepath = os.path.join(dirpath, filename)
+                if os.path.isfile(filepath) and filename[0] != ".":
+                    if relpath:
+                        yield os.path.join(relpath, filename)
+                    else:
+                        yield filename
+
+
 
 class RequestHandler(wsgiref.simple_server.WSGIRequestHandler, utils.LogMixin):
     def log_message(self, fmt, *args):
@@ -2210,6 +2212,11 @@ class Scheduler(threading.Thread, utils.LogMixin):
                                                                             schedule.name)
             return
 
+        if not schedule.script_exists:
+            self.logger.info("[%s] Conditions matched, but script does not exist.",
+                                                                      schedule.name)
+            return
+
         schedule.execute()
 
 
@@ -2315,7 +2322,15 @@ class Schedule(object):
         return self._runner and self._runner.is_alive()
 
 
+    @property
+    def script_exists(self):
+        return self.script in self._manager.get_scripts()
+
+
     def execute(self):
+        if not self.script_exists:
+            raise PMException("Not executing since the script does not exist.")
+
         self.last_triggered = time.time()
         # FIXME: Recycle old runner?
         self._runner = ScriptRunner(self._manager, self.script,
