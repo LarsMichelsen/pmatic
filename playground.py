@@ -34,12 +34,12 @@ from pmatic.entities import *
 from pmatic import utils
 from pmatic.exceptions import PMDeviceOffline
 
-from pmatic.notify import Pushover
+#from pmatic.notify import Pushover
 
 # Set log level to debug for pmatic and start logging to console
 #pmatic.logging(pmatic.DEBUG)
 
-ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
+#ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
 #print(ccu.signal_strengths)
 
