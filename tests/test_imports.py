@@ -58,7 +58,7 @@ def populate_tmp_dir(target_path):
     if "TRAVIS" in os.environ:
         src_dirs = [
             glob.glob("/opt/python/2.7.*")[0],
-            glob.glob("/home/travis/virtualenv/python2.7.*/lib/python2.*/site-packages")[0],
+            glob.glob("/home/travis/virtualenv/python2.7.*/lib/python2.7/site-packages")[0],
         ]
     elif sys.platform == "win32":
         src_dirs = [sys.prefix]
@@ -78,6 +78,7 @@ def populate_tmp_dir(target_path):
             for src_dir in src_dirs:
                 for matched in glob.glob(os.path.join(src_dir, line)):
                     rel_path = os.path.dirname(matched[len(src_dir)+1:])
+                    print(matched, rel_path)
                     matched_files.append((matched, rel_path))
 
             if not matched_files and not optional:
