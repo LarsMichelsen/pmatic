@@ -56,4 +56,4 @@ p.update()
 
 for person in p.persons:
     #person.update_presence()
-    print(person.name + " " + (person.present and "is at home" or " is not at home"))
+    print(person.name + " " + (person.present and "is at home" or "is not at home"))
