@@ -22,7 +22,14 @@ fi
 # remove files of old versions (same as in pmatic.init)
 rm $BIN_DIR/python2.7 $BIN_DIR/python $BIN_DIR/pmatic-manager
 rm -rf $ADDON_DIR/python
+rm -rf $ADDON_DIR/pmatic
+rm -rf $ADDON_DIR/lib
 rm -rf $ADDON_DIR/manager_static
+if [ -h /usr/lib/libexpat.so.1 ]; then
+    mount -o remount,rw /
+    rm -f /usr/lib/libexpat.so.1
+    mount -o remount,ro /
+fi
 
 if [ ! -d $BIN_DIR ]; then
     mkdir -p $BIN_DIR
@@ -59,6 +66,7 @@ chmod +x $BIN_DIR/pmatic-manager
 
 # copy all stuff and setup rc.d
 cp -R python manager_static $ADDON_DIR/
+cp -R libs $ADDON_DIR/lib
 cp -R examples $ADDON_DIR/scripts/
 cp -R pmatic $ADDON_DIR/python/lib/python2.7/
 ln -s python/lib/python2.7/pmatic $ADDON_DIR/pmatic

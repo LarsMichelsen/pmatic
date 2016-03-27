@@ -1,5 +1,7 @@
 VERSION            = 0.1
+REPO_PATH         ?= $(shell pwd)
 CHROOT_PATH       ?= $(shell pwd)/chroot
+CHROOT_DEB_MIRROR ?= http://ftp.de.debian.org/debian
 CCU_PREDIST_PATH  ?= $(shell pwd)/ccu_pkg
 DIST_PATH         ?= $(shell pwd)/dist
 CCU_PKG_PATH      ?= $(DIST_PATH)/ccu
@@ -66,10 +68,13 @@ dist-os:
 
 chroot:
 	[ ! -d $(CHROOT_PATH) ] && mkdir $(CHROOT_PATH) || true
-	sudo debootstrap --no-check-gpg --foreign --arch=armel --include=python \
-	    wheezy $(CHROOT_PATH) http://ftp.debian.org/debian
+	sudo debootstrap --no-check-gpg --foreign --arch=armel \
+	    --include=python,python-pip \
+	    wheezy $(CHROOT_PATH) $(CHROOT_DEB_MIRROR)
 	sudo cp /usr/bin/qemu-arm-static $(CHROOT_PATH)/usr/bin
-	LANG=C sudo chroot $(CHROOT_PATH) /debootstrap/debootstrap --second-stage
+	LANG=C sudo chroot $(CHROOT_PATH) /debootstrap/debootstrap --second-stage ; \
+	    pip install requests ; \
+	    pip install simpletr64
 
 dist-ccu:
 	sudo $(MAKE) dist-ccu-step1
@@ -82,13 +87,15 @@ dist-ccu-step1:
 	fi
 	mkdir -p $(CCU_PREDIST_PATH)/python
 	cd $(CHROOT_PATH)/usr ; \
-	rsync -aRv --no-g $$(cat ccu_pkg/python-modules.list) $(CCU_PREDIST_PATH)/python ; \
-	rsync -aR --no-g $$(cat ccu_pkg/python-modules-optional.list) $(CCU_PREDIST_PATH)/python \
-	    2>/dev/null || true
-
+	rsync -aRvL --no-g $$(cat $(REPO_PATH)/ccu_pkg/python-modules.list) \
+	    $(CCU_PREDIST_PATH)/python ; \
+	rsync -aRL --no-g $$(cat $(REPO_PATH)/ccu_pkg/python-modules-optional.list) \
+	    $(CCU_PREDIST_PATH)/python 2>/dev/null || true
+	rsync -av --no-g $(CHROOT_PATH)/lib/arm-linux-gnueabi/libexpat.so.1.* \
+	    $(CCU_PREDIST_PATH)/libs/ ; \
 
 dist-ccu-step2:
-	rsync -av $(CCU_PREDIST_PATH)/python $(CCU_PKG_PATH)/
+	rsync -av $(CCU_PREDIST_PATH)/python $(CCU_PREDIST_PATH)/libs $(CCU_PKG_PATH)/
 	rsync -aRv --no-g \
 	    --exclude=\*.pyc \
 	    --exclude=.\*.swp \
@@ -148,6 +155,12 @@ install-ccu-pmatic:
 	    --exclude=__pycache__ \
 	    pmatic \
 	    root@$(CCU_HOST):/usr/local/etc/config/addons/pmatic/python/lib/python2.7/
+	rsync -aRv --no-g \
+	    --exclude=\*.pyc \
+	    --exclude=.\*.swp \
+	    --exclude=__pycache__ \
+	    examples \
+	    root@$(CCU_HOST):/usr/local/etc/config/addons/pmatic/scripts/
 	rsync -aRv --no-g \
 	    pmatic-manager \
 	    root@$(CCU_HOST):/usr/local/bin/pmatic-manager

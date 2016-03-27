@@ -16,6 +16,13 @@ start() {
       ln -sf $CONFIG_DIR/rc.d/pmatic $INIT_TARGET
       mount -o remount,ro /
   fi
+
+  # Hate this, but found no better way.
+  if [ ! -e /usr/lib/libexpat.so.1 ]; then
+      mount -o remount,rw /
+      ln -s $ADDON_DIR/lib/libexpat.so.1.* /usr/lib/libexpat.so.1
+      mount -o remount,ro /
+  fi
   
   if [ -z "$PID" ]; then
       echo -n "Starting pmatic manager..."
@@ -66,13 +73,18 @@ uninstall)
   # containing user files like $ADDON_DIR/scripts.
   rm /usr/local/bin/python2.7 /usr/local/bin/python /usr/local/bin/pmatic-manager
   rm -rf $ADDON_DIR/python
+  rm -rf $ADDON_DIR/pmatic
+  rm -rf $ADDON_DIR/lib
   rm -rf $ADDON_DIR/manager_static
   
+  mount -o remount,rw /
   if [ -h $INIT_TARGET ]; then
-      mount -o remount,rw /
       rm -f $INIT_TARGET
-      mount -o remount,ro /
   fi
+  if [ -h /usr/lib/libexpat.so.1 ]; then
+      rm -f /usr/lib/libexpat.so.1
+  fi
+  mount -o remount,ro /
   ;;
 *)
   echo "Usage: $0 {start|stop|restart|uninstall}" >&2
