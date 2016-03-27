@@ -54,6 +54,9 @@ def test_invalid_imports():
     assert stdout == b""
 
 
+# Puts all python modules / files mentioned in the module lists to a temporary
+# directory which is then later used to check whether or not all imported modules
+# are available using these modules.
 def populate_tmp_dir(target_path):
     if "TRAVIS" in os.environ:
         src_dirs = [
@@ -65,7 +68,8 @@ def populate_tmp_dir(target_path):
     else:
         src_dirs = ["/usr"]
 
-    print(src_dirs)
+    print("Base source directories: %r" % src_dirs)
+    print("Target path: %s" % target_path)
 
     for list_file, optional in [ ("python-modules.list",          False),
                                  ("python-modules-travis.list",   True),

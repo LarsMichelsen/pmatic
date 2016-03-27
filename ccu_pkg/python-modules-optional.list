@@ -6,18 +6,12 @@ lib/python2.7/_sysconfigdata_nd.py
 lib/python2.7/plat-x86_64-linux-gnu/_sysconfigdata_nd.py
 lib/python2.7/lib-dynload/datetime.so
 lib/python2.7/lib-dynload/_io.so
-# only available in chroot
-local/lib/python2.7/dist-packages/simpletr64/*.py
-local/lib/python2.7/dist-packages/simpletr64/actions/*.py
-local/lib/python2.7/dist-packages/requests/*.py
-# travis path
+# travis+chroot path
 lib/python2.7/site-packages/simpletr64/*.py
 lib/python2.7/site-packages/simpletr64/actions/*.py
-# chroot path
-local/lib/python2.7/dist-packages/requests/packages/*.py
-local/lib/python2.7/dist-packages/requests/packages/*/*.py
-local/lib/python2.7/dist-packages/requests/packages/*/*/*.py
-local/lib/python2.7/dist-packages/requests/packages/*/*/*/*.py
+# ubuntu path
+local/lib/python2.7/dist-packages/simpletr64/*.py
+local/lib/python2.7/dist-packages/simpletr64/actions/*.py
 # Same on debian system
 lib/python2.7/*-packages/requests/*.py
 lib/python2.7/*-packages/requests/packages/*.py

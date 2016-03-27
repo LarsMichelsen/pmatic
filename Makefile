@@ -69,13 +69,13 @@ dist-os:
 
 chroot:
 	[ ! -d $(CHROOT_PATH) ] && mkdir $(CHROOT_PATH) || true
-	sudo debootstrap --no-check-gpg --foreign --arch=armel \
+	sudo debootstrap --foreign --arch=armel \
 	    --include=python,python-pip \
 	    wheezy $(CHROOT_PATH) $(CHROOT_DEB_MIRROR)
 	sudo cp /usr/bin/qemu-arm-static $(CHROOT_PATH)/usr/bin
-	LANG=C sudo chroot $(CHROOT_PATH) /debootstrap/debootstrap --second-stage ; \
-	    pip install requests ; \
-	    pip install simpletr64
+	LANG=C sudo chroot $(CHROOT_PATH) /bin/bash -c "/debootstrap/debootstrap --second-stage"
+	LANG=C sudo chroot $(CHROOT_PATH) /bin/bash -c \
+	    "pip install --install-option=\"--prefix=/usr\" simpleTR64"
 
 dist-ccu:
 	sudo $(MAKE) dist-ccu-step1
