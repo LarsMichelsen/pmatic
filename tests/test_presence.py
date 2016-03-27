@@ -28,7 +28,7 @@ import time
 import pytest
 
 import pmatic.presence
-from pmatic.presence import Presence, Person, PersonalDevice, \
+from pmatic.presence import Presence, Resident, PersonalDevice, \
                             PersonalDeviceFritzBoxHost
 from pmatic.exceptions import PMUserError, PMException
 
@@ -39,9 +39,9 @@ class TestPresence(object):
         return Presence()
 
 
-    def _add_person(self, pr):
+    def _add_resident(self, pr):
         pr.from_config({
-            "persons": [
+            "residents": [
                 {
                     "name": "Lars",
                     "devices" : [
@@ -56,44 +56,45 @@ class TestPresence(object):
 
 
     def test_from_config(self, p):
-        assert p.persons == []
+        assert p.residents == []
         p.from_config({})
-        assert p.persons == []
+        assert p.residents == []
 
-        self._add_person(p)
-        assert len(p.persons) == 1
-        assert type(p.persons[0]) == Person
+        self._add_resident(p)
+        assert len(p.residents) == 1
+        assert type(p.residents[0]) == Resident
 
 
     def test_to_config(self, p):
-        assert p.to_config() == {"persons": []}
+        assert p.to_config() == {"residents": []}
 
-        self._add_person(p)
+        self._add_resident(p)
         assert isinstance(p.to_config(), dict)
         assert len(p.to_config()) == 1
 
 
     # FIXME: def test_update():
 
-    def test_add_person(self, p):
-        assert p.persons == []
-        p.add_person(Person(p))
-        assert len(p.persons) == 1
-        assert isinstance(p.persons[0], Person)
+    def test_add_resident(self, p):
+        assert p.residents == []
+        p.add_resident(Resident(p))
+        assert len(p.residents) == 1
+        assert isinstance(p.residents[0], Resident)
 
 
     def test_clear(self, p):
-        self._add_person(p)
-        assert len(p.persons) == 1
+        self._add_resident(p)
+        assert len(p.residents) == 1
         p.clear()
-        assert p.persons == []
+        assert p.residents == []
 
 
-class TestPerson(object):
+
+class TestResident(object):
     @pytest.fixture(scope="function")
     def p(self):
         presence = Presence()
-        return Person(presence)
+        return Resident(presence)
 
 
     def test_init(self, p):
@@ -104,8 +105,8 @@ class TestPerson(object):
         assert p.last_changed == None
 
 
-    def _from_config(self, person):
-        person.from_config({
+    def _from_config(self, resident):
+        resident.from_config({
             "name": "Lars",
             "devices" : [
                 {

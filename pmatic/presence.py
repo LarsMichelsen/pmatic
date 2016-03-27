@@ -39,25 +39,25 @@ except ImportError as e:
 
 
 class Presence(object):
-    """This class is meant to detect presence of persons. It is using
+    """This class is meant to detect presence of residents. It is using
     a modularized collection of possible plugins which can be used
     to detect the presence. For example there is one plugin to detect
     the presence of users by asking a local fritz!Box for the current
     active devices. The devices are then matched with the configuration
-    of persons."""
+    of residents."""
     def __init__(self):
         super(Presence, self).__init__()
-        self.persons = []
+        self.residents = []
 
 
     def from_config(self, cfg):
-        """Build the presence object, persons and devices from a persisted
+        """Build the presence object, residents and devices from a persisted
         configuration dictionary."""
         self.clear()
-        for person_cfg in cfg.get("persons", []):
-            p = Person(self)
-            p.from_config(person_cfg)
-            self.add_person(p)
+        for resident_cfg in cfg.get("residents", []):
+            p = Resident(self)
+            p.from_config(resident_cfg)
+            self.add_resident(p)
 
 
     def to_config(self):
@@ -66,32 +66,32 @@ class Presence(object):
         afterwards and handed over to :meth:`from_config` to reconstruct the
         current presence object."""
         return {
-            "persons": [ p.to_config() for p in self.persons ],
+            "residents": [ p.to_config() for p in self.residents ],
         }
 
 
     def update(self):
-        """Call this to update the presence information of all configured persons
+        """Call this to update the presence information of all configured residents
         and their devices. This normally calls the presence plugins to update the
         presence information from the connected data source."""
-        for person in self.persons:
-            person.update_presence()
+        for resident in self.residents:
+            resident.update_presence()
 
 
-    def add_person(self, p):
-        """Add a :class:`Person` object to the presence detection."""
-        self.persons.append(p)
+    def add_resident(self, p):
+        """Add a :class:`Resident` object to the presence detection."""
+        self.residents.append(p)
 
 
     def clear(self):
         """Resets the Persence object to it's initial state."""
-        self.persons = []
+        self.residents = []
 
 
 
-class Person(utils.LogMixin):
+class Resident(utils.LogMixin):
     def __init__(self, presence):
-        super(Person, self).__init__()
+        super(Resident, self).__init__()
         self._presence = presence
         self.name      = "Mr. X"
         self.devices   = []
@@ -143,15 +143,15 @@ class Person(utils.LogMixin):
 
 
     def add_device(self, device):
-        """Adds a :class:`PersonalDevice` object to the person. Please note that
+        """Adds a :class:`PersonalDevice` object to the resident. Please note that
         you need to use a specific class inherited from :class:`PersonalDevice`,
         for example the :class:`PersonalDeviceFritzBoxHost` class."""
         self.devices.append(device)
 
 
     def update_presence(self):
-        """Updates the presence of this person. When at least one device is active,
-        the person is treated to be present."""
+        """Updates the presence of this resident. When at least one device is active,
+        the resident is treated to be present."""
         if not self.devices:
             self.logger.debug("Has no devices associated. Not updating the presence.")
             return
