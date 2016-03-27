@@ -101,5 +101,5 @@ lib/python2.7/_MozillaCookieJar.py
 lib/python2.7/Queue.py
 lib/python2.7/mimetypes.py
 lib/python2.7/gzip.py
-lib/python2.7/dist-packages/six.py
+lib/python2.7/*-packages/six.py
 lib/python2.7/pkgutil.py
