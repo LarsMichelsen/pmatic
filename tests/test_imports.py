@@ -56,11 +56,14 @@ def test_invalid_imports():
 
 def populate_tmp_dir(target_path):
     if "TRAVIS" in os.environ:
-        workdir = glob.glob("/opt/python/2.7.*")[0]
+        src_dirs = [
+            glob.glob("/opt/python/2.7.*")[0],
+            glob.glob("/home/travis/virtualenv/python2.7.*/lib/python2.*/site-packages")[0],
+        ]
     elif sys.platform == "win32":
-        workdir = sys.prefix
+        src_dirs = [sys.prefix]
     else:
-        workdir = "/usr"
+        src_dirs = ["/usr"]
 
     for list_file, optional in [ ("python-modules.list",          False),
                                  ("python-modules-travis.list",   True),
@@ -71,12 +74,16 @@ def populate_tmp_dir(target_path):
             if not line or line[0] == "#":
                 continue
 
-            matched_files = glob.glob(os.path.join(workdir, line))
+            matched_files = []
+            for src_dir in src_dirs:
+                for matched in glob.glob(os.path.join(src_dir, line)):
+                    rel_path = os.path.dirname(matched[len(src_dir)+1:])
+                    matched_files.append((matched, rel_path))
+
             if not matched_files and not optional:
                 raise Exception("Did not find a file for %s from %s." % (line, list_file))
 
-            for file_path in matched_files:
-                rel_path = os.path.dirname(file_path[len(workdir)+1:])
+            for file_path, rel_path in matched_files:
                 target_file_path = os.path.join(target_path, rel_path, os.path.basename(file_path))
 
                 if not os.path.exists(os.path.dirname(target_file_path)):
