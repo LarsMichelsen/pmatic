@@ -57,8 +57,8 @@ def test_invalid_imports():
 def populate_tmp_dir(target_path):
     if "TRAVIS" in os.environ:
         src_dirs = [
-            glob.glob("/opt/python/2.7.*")[0],
             glob.glob("/home/travis/virtualenv/python2.7.*")[0],
+            glob.glob("/opt/python/2.7.*")[0],
         ]
     elif sys.platform == "win32":
         src_dirs = [sys.prefix]
