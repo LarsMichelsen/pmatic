@@ -10,6 +10,10 @@ lib/python2.7/lib-dynload/_io.so
 local/lib/python2.7/dist-packages/simpletr64/*.py
 local/lib/python2.7/dist-packages/simpletr64/actions/*.py
 local/lib/python2.7/dist-packages/requests/*.py
+# travis path
+lib/python2.7/site-packages/simpletr64/*.py
+lib/python2.7/site-packages/simpletr64/actions/*.py
+# chroot path
 local/lib/python2.7/dist-packages/requests/packages/*.py
 local/lib/python2.7/dist-packages/requests/packages/*/*.py
 local/lib/python2.7/dist-packages/requests/packages/*/*/*.py
