@@ -72,16 +72,16 @@ leaves.</p>
 <span class="target" id="module-pmatic.presence"></span><dl class="class">
 <dt id="pmatic.presence.Presence">
 <em class="property">class </em><code class="descclassname">pmatic.presence.</code><code class="descname">Presence</code><a class="reference internal" href="_modules/pmatic/presence.html#Presence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Presence" title="Permalink to this definition">¶</a></dt>
-<dd><p>This class is meant to detect presence of persons. It is using
+<dd><p>This class is meant to detect presence of residents. It is using
 a modularized collection of possible plugins which can be used
 to detect the presence. For example there is one plugin to detect
 the presence of users by asking a local fritz!Box for the current
 active devices. The devices are then matched with the configuration
-of persons.</p>
+of residents.</p>
 <dl class="method">
 <dt id="pmatic.presence.Presence.from_config">
 <code class="descname">from_config</code><span class="sig-paren">(</span><em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/presence.html#Presence.from_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Presence.from_config" title="Permalink to this definition">¶</a></dt>
-<dd><p>Build the presence object, persons and devices from a persisted
+<dd><p>Build the presence object, residents and devices from a persisted
 configuration dictionary.</p>
 </dd></dl>
 
@@ -97,15 +97,15 @@ current presence object.</p>
 <dl class="method">
 <dt id="pmatic.presence.Presence.update">
 <code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/presence.html#Presence.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Presence.update" title="Permalink to this definition">¶</a></dt>
-<dd><p>Call this to update the presence information of all configured persons
+<dd><p>Call this to update the presence information of all configured residents
 and their devices. This normally calls the presence plugins to update the
 presence information from the connected data source.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pmatic.presence.Presence.add_person">
-<code class="descname">add_person</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/presence.html#Presence.add_person"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Presence.add_person" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a <a class="reference internal" href="#pmatic.presence.Person" title="pmatic.presence.Person"><code class="xref py py-class docutils literal"><span class="pre">Person</span></code></a> object to the presence detection.</p>
+<dt id="pmatic.presence.Presence.add_resident">
+<code class="descname">add_resident</code><span class="sig-paren">(</span><em>p</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/presence.html#Presence.add_resident"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Presence.add_resident" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a <a class="reference internal" href="#pmatic.presence.Resident" title="pmatic.presence.Resident"><code class="xref py py-class docutils literal"><span class="pre">Resident</span></code></a> object to the presence detection.</p>
 </dd></dl>
 
 <dl class="method">
@@ -117,50 +117,50 @@ presence information from the connected data source.</p>
 </dd></dl>
 
 <dl class="class">
-<dt id="pmatic.presence.Person">
-<em class="property">class </em><code class="descclassname">pmatic.presence.</code><code class="descname">Person</code><span class="sig-paren">(</span><em>presence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/presence.html#Person"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Person" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.presence.Resident">
+<em class="property">class </em><code class="descclassname">pmatic.presence.</code><code class="descname">Resident</code><span class="sig-paren">(</span><em>presence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/presence.html#Resident"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Resident" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="attribute">
-<dt id="pmatic.presence.Person.last_updated">
-<code class="descname">last_updated</code><a class="headerlink" href="#pmatic.presence.Person.last_updated" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.presence.Resident.last_updated">
+<code class="descname">last_updated</code><a class="headerlink" href="#pmatic.presence.Resident.last_updated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Is set to the unix timestamp of the last update or <code class="docutils literal"><span class="pre">None</span></code> when not updated yet.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pmatic.presence.Person.last_changed">
-<code class="descname">last_changed</code><a class="headerlink" href="#pmatic.presence.Person.last_changed" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.presence.Resident.last_changed">
+<code class="descname">last_changed</code><a class="headerlink" href="#pmatic.presence.Resident.last_changed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Is set to the unix timestamp of the last presence
 change or <code class="docutils literal"><span class="pre">None</span></code> when not updated yet.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pmatic.presence.Person.from_config">
-<code class="descname">from_config</code><span class="sig-paren">(</span><em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/presence.html#Person.from_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Person.from_config" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.presence.Resident.from_config">
+<code class="descname">from_config</code><span class="sig-paren">(</span><em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/presence.html#Resident.from_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Resident.from_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="method">
-<dt id="pmatic.presence.Person.to_config">
-<code class="descname">to_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/presence.html#Person.to_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Person.to_config" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.presence.Resident.to_config">
+<code class="descname">to_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/presence.html#Resident.to_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Resident.to_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="attribute">
-<dt id="pmatic.presence.Person.present">
-<code class="descname">present</code><a class="headerlink" href="#pmatic.presence.Person.present" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.presence.Resident.present">
+<code class="descname">present</code><a class="headerlink" href="#pmatic.presence.Resident.present" title="Permalink to this definition">¶</a></dt>
 <dd><p>Is <code class="docutils literal"><span class="pre">True</span></code> when the user is present and <code class="docutils literal"><span class="pre">False</span></code> when not.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pmatic.presence.Person.add_device">
-<code class="descname">add_device</code><span class="sig-paren">(</span><em>device</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/presence.html#Person.add_device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Person.add_device" title="Permalink to this definition">¶</a></dt>
-<dd><p>Adds a <a class="reference internal" href="#pmatic.presence.PersonalDevice" title="pmatic.presence.PersonalDevice"><code class="xref py py-class docutils literal"><span class="pre">PersonalDevice</span></code></a> object to the person. Please note that
+<dt id="pmatic.presence.Resident.add_device">
+<code class="descname">add_device</code><span class="sig-paren">(</span><em>device</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/presence.html#Resident.add_device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Resident.add_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a <a class="reference internal" href="#pmatic.presence.PersonalDevice" title="pmatic.presence.PersonalDevice"><code class="xref py py-class docutils literal"><span class="pre">PersonalDevice</span></code></a> object to the resident. Please note that
 you need to use a specific class inherited from <a class="reference internal" href="#pmatic.presence.PersonalDevice" title="pmatic.presence.PersonalDevice"><code class="xref py py-class docutils literal"><span class="pre">PersonalDevice</span></code></a>,
 for example the <a class="reference internal" href="#pmatic.presence.PersonalDeviceFritzBoxHost" title="pmatic.presence.PersonalDeviceFritzBoxHost"><code class="xref py py-class docutils literal"><span class="pre">PersonalDeviceFritzBoxHost</span></code></a> class.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pmatic.presence.Person.update_presence">
-<code class="descname">update_presence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/presence.html#Person.update_presence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Person.update_presence" title="Permalink to this definition">¶</a></dt>
-<dd><p>Updates the presence of this person. When at least one device is active,
-the person is treated to be present.</p>
+<dt id="pmatic.presence.Resident.update_presence">
+<code class="descname">update_presence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/presence.html#Resident.update_presence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.presence.Resident.update_presence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the presence of this resident. When at least one device is active,
+the resident is treated to be present.</p>
 </dd></dl>
 
 </dd></dl>

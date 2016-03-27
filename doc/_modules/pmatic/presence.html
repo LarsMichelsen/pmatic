@@ -93,25 +93,25 @@
 
 
 <div class="viewcode-block" id="Presence"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Presence">[docs]</a><span class="k">class</span> <span class="nc">Presence</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;This class is meant to detect presence of persons. It is using</span>
+    <span class="sd">&quot;&quot;&quot;This class is meant to detect presence of residents. It is using</span>
 <span class="sd">    a modularized collection of possible plugins which can be used</span>
 <span class="sd">    to detect the presence. For example there is one plugin to detect</span>
 <span class="sd">    the presence of users by asking a local fritz!Box for the current</span>
 <span class="sd">    active devices. The devices are then matched with the configuration</span>
-<span class="sd">    of persons.&quot;&quot;&quot;</span>
+<span class="sd">    of residents.&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Presence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">persons</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">residents</span> <span class="o">=</span> <span class="p">[]</span>
 
 
 <div class="viewcode-block" id="Presence.from_config"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Presence.from_config">[docs]</a>    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Build the presence object, persons and devices from a persisted</span>
+        <span class="sd">&quot;&quot;&quot;Build the presence object, residents and devices from a persisted</span>
 <span class="sd">        configuration dictionary.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">person_cfg</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;persons&quot;</span><span class="p">,</span> <span class="p">[]):</span>
-            <span class="n">p</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-            <span class="n">p</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">person_cfg</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">add_person</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
+        <span class="k">for</span> <span class="n">resident_cfg</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;residents&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">Resident</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">resident_cfg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_resident</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Presence.to_config"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Presence.to_config">[docs]</a>    <span class="k">def</span> <span class="nf">to_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -120,32 +120,32 @@
 <span class="sd">        afterwards and handed over to :meth:`from_config` to reconstruct the</span>
 <span class="sd">        current presence object.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;persons&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="n">p</span><span class="o">.</span><span class="n">to_config</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span> <span class="p">],</span>
+            <span class="s2">&quot;residents&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="n">p</span><span class="o">.</span><span class="n">to_config</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">residents</span> <span class="p">],</span>
         <span class="p">}</span></div>
 
 
 <div class="viewcode-block" id="Presence.update"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Presence.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Call this to update the presence information of all configured persons</span>
+        <span class="sd">&quot;&quot;&quot;Call this to update the presence information of all configured residents</span>
 <span class="sd">        and their devices. This normally calls the presence plugins to update the</span>
 <span class="sd">        presence information from the connected data source.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="p">:</span>
-            <span class="n">person</span><span class="o">.</span><span class="n">update_presence</span><span class="p">()</span></div>
+        <span class="k">for</span> <span class="n">resident</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">residents</span><span class="p">:</span>
+            <span class="n">resident</span><span class="o">.</span><span class="n">update_presence</span><span class="p">()</span></div>
 
 
-<div class="viewcode-block" id="Presence.add_person"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Presence.add_person">[docs]</a>    <span class="k">def</span> <span class="nf">add_person</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Add a :class:`Person` object to the presence detection.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
+<div class="viewcode-block" id="Presence.add_resident"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Presence.add_resident">[docs]</a>    <span class="k">def</span> <span class="nf">add_resident</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a :class:`Resident` object to the presence detection.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">residents</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Presence.clear"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Presence.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Resets the Persence object to it&#39;s initial state.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">persons</span> <span class="o">=</span> <span class="p">[]</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">residents</span> <span class="o">=</span> <span class="p">[]</span></div></div>
 
 
 
-<div class="viewcode-block" id="Person"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Person">[docs]</a><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">LogMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="Resident"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Resident">[docs]</a><span class="k">class</span> <span class="nc">Resident</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">LogMixin</span><span class="p">):</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">presence</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Resident</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_presence</span> <span class="o">=</span> <span class="n">presence</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span>      <span class="o">=</span> <span class="s2">&quot;Mr. X&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">devices</span>   <span class="o">=</span> <span class="p">[]</span>
@@ -168,7 +168,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_presence_changed</span>
 
 
-<div class="viewcode-block" id="Person.from_config"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Person.from_config">[docs]</a>    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+<div class="viewcode-block" id="Resident.from_config"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Resident.from_config">[docs]</a>    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">devices</span> <span class="o">=</span> <span class="p">[]</span>
@@ -183,7 +183,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">add_device</span><span class="p">(</span><span class="n">device</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Person.to_config"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Person.to_config">[docs]</a>    <span class="k">def</span> <span class="nf">to_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Resident.to_config"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Resident.to_config">[docs]</a>    <span class="k">def</span> <span class="nf">to_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;name&quot;</span>    <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="s2">&quot;devices&quot;</span> <span class="p">:</span> <span class="p">[</span> <span class="n">d</span><span class="o">.</span><span class="n">to_config</span><span class="p">()</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">devices</span> <span class="p">],</span>
@@ -196,16 +196,16 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_present</span>
 
 
-<div class="viewcode-block" id="Person.add_device"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Person.add_device">[docs]</a>    <span class="k">def</span> <span class="nf">add_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Adds a :class:`PersonalDevice` object to the person. Please note that</span>
+<div class="viewcode-block" id="Resident.add_device"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Resident.add_device">[docs]</a>    <span class="k">def</span> <span class="nf">add_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds a :class:`PersonalDevice` object to the resident. Please note that</span>
 <span class="sd">        you need to use a specific class inherited from :class:`PersonalDevice`,</span>
 <span class="sd">        for example the :class:`PersonalDeviceFritzBoxHost` class.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">device</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Person.update_presence"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Person.update_presence">[docs]</a>    <span class="k">def</span> <span class="nf">update_presence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Updates the presence of this person. When at least one device is active,</span>
-<span class="sd">        the person is treated to be present.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="Resident.update_presence"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Resident.update_presence">[docs]</a>    <span class="k">def</span> <span class="nf">update_presence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Updates the presence of this resident. When at least one device is active,</span>
+<span class="sd">        the resident is treated to be present.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">devices</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Has no devices associated. Not updating the presence.&quot;</span><span class="p">)</span>
             <span class="k">return</span>
