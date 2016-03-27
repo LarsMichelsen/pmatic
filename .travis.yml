@@ -14,6 +14,10 @@ install:
     # install for doc build / publish
     - pip install sphinx
     - pip install sphinxcontrib-images
+    # Is normally installed due to dependency in "setup.py" but travis
+    # build installs this as egg which breaks the current import test so try
+    # to install it manually before.
+    - pip install simpleTR64
     # install for for import tests
     - if [ $TRAVIS_PYTHON_VERSION = '2.7' ]; then pip install snakefood; fi
     - find /home/travis/build/LarsMichelsen/pmatic/.eggs
