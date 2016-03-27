@@ -58,12 +58,14 @@ def populate_tmp_dir(target_path):
     if "TRAVIS" in os.environ:
         src_dirs = [
             glob.glob("/opt/python/2.7.*")[0],
-            glob.glob("/home/travis/virtualenv/python2.7.*/lib/python2.7/site-packages")[0],
+            glob.glob("/home/travis/virtualenv/python2.7.*")[0],
         ]
     elif sys.platform == "win32":
         src_dirs = [sys.prefix]
     else:
         src_dirs = ["/usr"]
+
+    print(src_dirs)
 
     for list_file, optional in [ ("python-modules.list",          False),
                                  ("python-modules-travis.list",   True),
