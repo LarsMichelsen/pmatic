@@ -20,8 +20,8 @@ install:
     - pip install simpleTR64
     # install for for import tests
     - if [ $TRAVIS_PYTHON_VERSION = '2.7' ]; then pip install snakefood; fi
-    - find /opt/python/2.7.*/lib/python2.7
-    - find /home/travis/virtualenv/python2.7.*/lib/python2.7
+    #- find /opt/python/2.7.*/lib/python2.7
+    #- find /home/travis/virtualenv/python2.7.*/lib/python2.7
 
 addons:
   apt:

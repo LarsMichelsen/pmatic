@@ -91,7 +91,7 @@ def populate_tmp_dir(target_path):
                 if not os.path.exists(os.path.dirname(target_file_path)):
                     os.makedirs(os.path.dirname(target_file_path))
 
-                print("%s => %s" % (file_path, target_file_path))
+                #print("%s => %s" % (file_path, target_file_path))
                 shutil.copy(file_path, target_file_path)
 
 
