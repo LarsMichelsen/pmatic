@@ -1,0 +1,402 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pmatic.presence &mdash; pmatic 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/sphinxcontrib-images/LightBox2/lightbox2/css/lightbox.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/sphinxcontrib-images/LightBox2/lightbox2/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/sphinxcontrib-images/LightBox2/lightbox2/js/lightbox.min.js"></script>
+    <script type="text/javascript" src="../../_static/sphinxcontrib-images/LightBox2/lightbox2-customize/jquery-noconflict.js"></script>
+    <link rel="top" title="pmatic 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="pmatic" href="../pmatic.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pmatic 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../pmatic.html" accesskey="U">pmatic</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pmatic.presence</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># encoding: utf-8</span>
+<span class="c1">#</span>
+<span class="c1"># pmatic - A simple API to to the Homematic CCU2</span>
+<span class="c1"># Copyright (C) 2016 Lars Michelsen &lt;lm@larsmichelsen.com&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software; you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation; either version 2 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License along</span>
+<span class="c1"># with this program; if not, write to the Free Software Foundation, Inc.,</span>
+<span class="c1"># 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.</span>
+
+<span class="c1"># Add Python 3.x behaviour to 2.7</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">pmatic.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">pmatic.exceptions</span> <span class="kn">import</span> <span class="n">PMUserError</span><span class="p">,</span> <span class="n">PMException</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">simpletr64.actions.lan</span> <span class="kn">import</span> <span class="n">Lan</span> <span class="k">as</span> <span class="n">SimpleTR64Lan</span>
+<span class="k">except</span> <span class="ne">ImportError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">if</span> <span class="s2">&quot;simpletr64&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+        <span class="n">SimpleTR64Lan</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span>
+
+
+<div class="viewcode-block" id="Presence"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Presence">[docs]</a><span class="k">class</span> <span class="nc">Presence</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;This class is meant to detect presence of persons. It is using</span>
+<span class="sd">    a modularized collection of possible plugins which can be used</span>
+<span class="sd">    to detect the presence. For example there is one plugin to detect</span>
+<span class="sd">    the presence of users by asking a local fritz!Box for the current</span>
+<span class="sd">    active devices. The devices are then matched with the configuration</span>
+<span class="sd">    of persons.&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Presence</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persons</span> <span class="o">=</span> <span class="p">[]</span>
+
+
+<div class="viewcode-block" id="Presence.from_config"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Presence.from_config">[docs]</a>    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Build the presence object, persons and devices from a persisted</span>
+<span class="sd">        configuration dictionary.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">person_cfg</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;persons&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="n">p</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">person_cfg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_person</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Presence.to_config"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Presence.to_config">[docs]</a>    <span class="k">def</span> <span class="nf">to_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a dictionary representing the whole presence configuration.</span>
+<span class="sd">        This dictionary can be saved somewhere, for example in a file, loaded</span>
+<span class="sd">        afterwards and handed over to :meth:`from_config` to reconstruct the</span>
+<span class="sd">        current presence object.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;persons&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="n">p</span><span class="o">.</span><span class="n">to_config</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span> <span class="p">],</span>
+        <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="Presence.update"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Presence.update">[docs]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Call this to update the presence information of all configured persons</span>
+<span class="sd">        and their devices. This normally calls the presence plugins to update the</span>
+<span class="sd">        presence information from the connected data source.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">person</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="p">:</span>
+            <span class="n">person</span><span class="o">.</span><span class="n">update_presence</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Presence.add_person"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Presence.add_person">[docs]</a>    <span class="k">def</span> <span class="nf">add_person</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">p</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add a :class:`Person` object to the presence detection.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Presence.clear"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Presence.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Resets the Persence object to it&#39;s initial state.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">persons</span> <span class="o">=</span> <span class="p">[]</span></div></div>
+
+
+
+<div class="viewcode-block" id="Person"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Person">[docs]</a><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">LogMixin</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">presence</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_presence</span> <span class="o">=</span> <span class="n">presence</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span>      <span class="o">=</span> <span class="s2">&quot;Mr. X&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">devices</span>   <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_presence_updated</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_presence_changed</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_present</span>          <span class="o">=</span> <span class="bp">False</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">last_updated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Is set to the unix timestamp of the last update or ``None`` when not updated yet.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_presence_updated</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">last_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Is set to the unix timestamp of the last presence</span>
+<span class="sd">        change or ``None`` when not updated yet.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_presence_changed</span>
+
+
+<div class="viewcode-block" id="Person.from_config"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Person.from_config">[docs]</a>    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">devices</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">device_cfg</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;devices&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">cls</span> <span class="o">=</span> <span class="n">PersonalDevice</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">device_cfg</span><span class="p">[</span><span class="s2">&quot;type_name&quot;</span><span class="p">])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">cls</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">PMUserError</span><span class="p">(</span><span class="s2">&quot;Failed to load personal device type: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span>
+                                                            <span class="n">device_cfg</span><span class="p">[</span><span class="s2">&quot;type_name&quot;</span><span class="p">])</span>
+
+            <span class="n">device</span> <span class="o">=</span> <span class="n">cls</span><span class="p">()</span>
+            <span class="n">device</span><span class="o">.</span><span class="n">from_config</span><span class="p">(</span><span class="n">device_cfg</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_device</span><span class="p">(</span><span class="n">device</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Person.to_config"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Person.to_config">[docs]</a>    <span class="k">def</span> <span class="nf">to_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;name&quot;</span>    <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;devices&quot;</span> <span class="p">:</span> <span class="p">[</span> <span class="n">d</span><span class="o">.</span><span class="n">to_config</span><span class="p">()</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">devices</span> <span class="p">],</span>
+        <span class="p">}</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">present</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Is ``True`` when the user is present and ``False`` when not.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_present</span>
+
+
+<div class="viewcode-block" id="Person.add_device"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Person.add_device">[docs]</a>    <span class="k">def</span> <span class="nf">add_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Adds a :class:`PersonalDevice` object to the person. Please note that</span>
+<span class="sd">        you need to use a specific class inherited from :class:`PersonalDevice`,</span>
+<span class="sd">        for example the :class:`PersonalDeviceFritzBoxHost` class.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">device</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Person.update_presence"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.Person.update_presence">[docs]</a>    <span class="k">def</span> <span class="nf">update_presence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Updates the presence of this person. When at least one device is active,</span>
+<span class="sd">        the person is treated to be present.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">devices</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Has no devices associated. Not updating the presence.&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+
+        <span class="n">new_value</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="k">for</span> <span class="n">device</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">devices</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">device</span><span class="o">.</span><span class="n">active</span><span class="p">:</span>
+                <span class="n">new_value</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="k">break</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_presence</span><span class="p">(</span><span class="n">new_value</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span> <span class="nf">_set_presence</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Internal helper for setting the presence state&quot;&quot;&quot;</span>
+        <span class="n">old_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_present</span>
+
+        <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_presence_updated</span> <span class="o">=</span> <span class="n">now</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_present</span> <span class="o">=</span> <span class="n">new_value</span>
+        <span class="k">if</span> <span class="n">new_value</span> <span class="o">!=</span> <span class="n">old_value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_presence_changed</span> <span class="o">=</span> <span class="n">now</span></div>
+
+
+
+<div class="viewcode-block" id="PersonalDevice"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.PersonalDevice">[docs]</a><span class="k">class</span> <span class="nc">PersonalDevice</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="n">type_name</span>  <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">type_title</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="PersonalDevice.types"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.PersonalDevice.types">[docs]</a>    <span class="k">def</span> <span class="nf">types</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a list of all available specific PersonalDevice classes&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">()</span></div>
+
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="PersonalDevice.get"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.PersonalDevice.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">type_name</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the subclass of PersonalDevice which matches the given :attr:`type_name`</span>
+<span class="sd">        or ``None`` if there is no match.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">subclass</span> <span class="ow">in</span> <span class="n">cls</span><span class="o">.</span><span class="n">__subclasses__</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">subclass</span><span class="o">.</span><span class="n">type_name</span> <span class="o">==</span> <span class="n">type_name</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">subclass</span>
+        <span class="k">return</span> <span class="bp">None</span></div>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PersonalDevice</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>   <span class="o">=</span> <span class="s2">&quot;Unspecific device&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_active</span> <span class="o">=</span> <span class="bp">False</span>
+
+
+<div class="viewcode-block" id="PersonalDevice.from_config"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.PersonalDevice.from_config">[docs]</a>    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PersonalDevice.to_config"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.PersonalDevice.to_config">[docs]</a>    <span class="k">def</span> <span class="nf">to_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;type_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_name</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the name of this device.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Whether or not this device is currently active.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active</span></div>
+
+
+
+<div class="viewcode-block" id="PersonalDeviceFritzBoxHost"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.PersonalDeviceFritzBoxHost">[docs]</a><span class="k">class</span> <span class="nc">PersonalDeviceFritzBoxHost</span><span class="p">(</span><span class="n">PersonalDevice</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;fritz_box_host&quot;</span>
+    <span class="n">type_title</span> <span class="o">=</span> <span class="s2">&quot;fritz!Box Host&quot;</span>
+
+    <span class="c1"># Class wide connection handling (not per object)</span>
+    <span class="n">connection</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">_address</span>   <span class="o">=</span> <span class="s2">&quot;fritz.box&quot;</span>
+    <span class="n">_protocol</span>  <span class="o">=</span> <span class="s2">&quot;http&quot;</span>
+    <span class="n">_port</span>      <span class="o">=</span> <span class="mi">49000</span>
+    <span class="n">_user</span>      <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">_password</span>  <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="PersonalDeviceFritzBoxHost.configure"><a class="viewcode-back" href="../../pmatic_presence.html#pmatic.presence.PersonalDeviceFritzBoxHost.configure">[docs]</a>    <span class="k">def</span> <span class="nf">configure</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">address</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">password</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">address</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">_address</span> <span class="o">=</span> <span class="n">address</span>
+        <span class="k">if</span> <span class="n">protocol</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">_protocol</span> <span class="o">=</span> <span class="n">protocol</span>
+        <span class="k">if</span> <span class="n">port</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">_port</span> <span class="o">=</span> <span class="n">port</span>
+        <span class="k">if</span> <span class="n">user</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">_user</span> <span class="o">=</span> <span class="n">user</span>
+        <span class="k">if</span> <span class="n">password</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">_password</span> <span class="o">=</span> <span class="n">password</span></div>
+
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_connect</span><span class="p">(</span><span class="n">cls</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">SimpleTR64Lan</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Could not import the required </span><span class="se">\&quot;</span><span class="s2">simpletr64.actions.lan.Lan</span><span class="se">\&quot;</span><span class="s2">.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cls</span><span class="o">.</span><span class="n">connection</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">connection</span> <span class="o">=</span> <span class="n">SimpleTR64Lan</span><span class="p">(</span><span class="n">hostname</span><span class="o">=</span><span class="n">cls</span><span class="o">.</span><span class="n">_address</span><span class="p">,</span>
+                                           <span class="n">port</span><span class="o">=</span><span class="n">cls</span><span class="o">.</span><span class="n">_port</span><span class="p">,</span>
+                                           <span class="n">protocol</span><span class="o">=</span><span class="n">cls</span><span class="o">.</span><span class="n">_protocol</span><span class="p">)</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">setupTR64Device</span><span class="p">(</span><span class="s2">&quot;fritz.box&quot;</span><span class="p">)</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">username</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_user</span>
+            <span class="n">cls</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">password</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_password</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">PersonalDeviceFritzBoxHost</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>       <span class="o">=</span> <span class="s2">&quot;fritz!Box Device&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ip_address</span> <span class="o">=</span> <span class="bp">None</span>
+
+
+    <span class="k">def</span> <span class="nf">_update_host_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">PersonalDeviceFritzBoxHost</span><span class="o">.</span><span class="n">_connect</span><span class="p">()</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">PersonalDeviceFritzBoxHost</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">getHostDetailsByMACAddress</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_mac</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Is raised when no device with this mac can be found</span>
+            <span class="k">if</span> <span class="s2">&quot;NoSuchEntryInArray&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">):</span>
+                <span class="k">return</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ip_address</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">ipaddress</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>       <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">hostname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_active</span>     <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">active</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the name of this device.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_host_info</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PersonalDeviceFritzBoxHost</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">active</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Whether or not this device is currently active.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_host_info</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">PersonalDeviceFritzBoxHost</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">active</span></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pmatic 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../pmatic.html" >pmatic</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Lars Michelsen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+    </div>
+  </body>
+</html>

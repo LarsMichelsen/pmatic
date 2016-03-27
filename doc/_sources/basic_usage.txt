@@ -158,6 +158,59 @@ This script produces an output like this:
       Büro-Lampe
       Büro-Schalter
 
+Presence detection with the fritz!Box
+-------------------------------------
+
+Pmatic can assist you detecting the presence of persons e.g. by communicating with the
+fritz!Box to check whether or not the mobile phone of a resident is currently active.
+
+.. code-block:: python
+
+    #!/usr/bin/python
+    from pmatic.presence import Presence, PersonalDeviceFritzBoxHost
+    PersonalDeviceFritzBoxHost.configure("fritz.box", password="EPIC-SECRET-PW")
+
+    # Now create a presence manager instance and configure it. Currently the easiest
+    # way is to use it is to use the from_config() method with the following data:
+    p = Presence()
+    p.from_config({
+        "persons": [
+            {
+                "name": "Lars",
+                "devices" : [
+                    {
+                        "type_name": "fritz_box_host",
+                        "mac": "30:10:E6:10:D4:B2",
+                    },
+                ]
+            }
+        ],
+    })
+
+    # After initialization you can run either .update() on the presence instance
+    # or .update_presence() on a specific person to update the presence information
+    # from the data source, in this case the fritz!Box.
+    p.update()
+
+    for person in p.persons:
+        #person.update_presence()
+        print(person.name + " " + (person.present and "is at home" or " is not at home"))
+
+
+This script produces an output like this:
+
+.. code-block:: shell
+
+   Lars is at home
+
+Having this piece of information you can now modify your scripts to behave differently,
+depending on which of your residents is at home. Take a look at the
+:ref:`presence_detection` chapter for details.
+
+To make it even more comfortable the pmatic Manager has a dedicated GUI to configure your
+users and devices. Within the manager you can even trigger scripts when a user arrives or
+leaves.
+
 Some use cases
 --------------
 
