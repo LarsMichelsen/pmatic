@@ -3,6 +3,10 @@ The pmatic Changelog
 
 Unreleased (Use snapshot builds to get these changes)
 -----------------------------------------------------
+* Started implementation of ``pmatic.presence`` which can be used to
+  manage the presence of your residents and make your scripts do different
+  things depending on the presence of them. Take a look at the docs for
+  details.
 * HM-CC-RT-DN: Fixed low battery detection via ``device.is_battery_low``
 * HM-CC-RT-DN: Added specific attributes/methods: ``device.temperature``,
   ``device.set_temperature``, ``device.is_off``, ``device.turn_off()``,
@@ -16,10 +20,6 @@ Unreleased (Use snapshot builds to get these changes)
 * Windows: Made CCU detection platform independent
 * Windows: Made setup.py more platform independent
 * Better linking from addon page to the manager page
-* Started implementation of ``pmatic.presence`` which can be used to
-  manage the presence of your residents and make your scripts do different
-  things depending on the presence of them. Take a look at the docs for
-  details.
 
 Incompatible (possible manual changes needed):
 

@@ -48,6 +48,7 @@ def test_requirements():
         'pytest-flakes',
         'pytest-cache',
         'beautifulsoup4',
+        'simpleTR64',
     ]
 
     if sys.version_info[0] < 3:

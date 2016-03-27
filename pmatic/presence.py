@@ -29,7 +29,6 @@ import time
 import pmatic.utils as utils
 from pmatic.exceptions import PMUserError, PMException
 
-
 try:
     from simpletr64.actions.lan import Lan as SimpleTR64Lan
 except ImportError as e:
@@ -54,8 +53,7 @@ class Presence(object):
     def from_config(self, cfg):
         """Build the presence object, persons and devices from a persisted
         configuration dictionary."""
-        self.persons = []
-
+        self.clear()
         for person_cfg in cfg.get("persons", []):
             p = Person(self)
             p.from_config(person_cfg)
@@ -85,6 +83,11 @@ class Presence(object):
         self.persons.append(p)
 
 
+    def clear(self):
+        """Resets the Persence object to it's initial state."""
+        self.persons = []
+
+
 
 class Person(utils.LogMixin):
     def __init__(self, presence):
@@ -96,6 +99,19 @@ class Person(utils.LogMixin):
         self._presence_updated = None
         self._presence_changed = None
         self._present          = False
+
+
+    @property
+    def last_updated(self):
+        """Is set to the unix timestamp of the last update or ``None`` when not updated yet."""
+        return self._presence_updated
+
+
+    @property
+    def last_changed(self):
+        """Is set to the unix timestamp of the last presence
+        change or ``None`` when not updated yet."""
+        return self._presence_changed
 
 
     def from_config(self, cfg):
@@ -158,7 +174,7 @@ class Person(utils.LogMixin):
 
         self._present = new_value
         if new_value != old_value:
-            self._presence_changed = True
+            self._presence_changed = now
 
 
 
@@ -218,18 +234,24 @@ class PersonalDeviceFritzBoxHost(PersonalDevice):
 
     # Class wide connection handling (not per object)
     connection = None
-    _address   = None
-    _port      = None
-    _user      = None
-    _password  = None
+    _address   = "fritz.box"
+    _protocol  = "http"
+    _port      = 49000
+    _user      = ""
+    _password  = ""
 
     @classmethod
-    def configure(cls, address, protocol=None, port=None, user=None, password=None):
-        cls._address    = address or "fritz.box"
-        cls._protocol   = protocol or "http"
-        cls._port       = port or 49000
-        cls._user       = user or ""
-        cls._password   = password or ""
+    def configure(cls, address=None, protocol=None, port=None, user=None, password=None):
+        if address != None:
+            cls._address = address
+        if protocol != None:
+            cls._protocol = protocol
+        if port != None:
+            cls._port = port
+        if user != None:
+            cls._user = user
+        if password != None:
+            cls._password = password
 
 
     @classmethod
@@ -272,11 +294,11 @@ class PersonalDeviceFritzBoxHost(PersonalDevice):
     def name(self):
         """Provides the name of this device."""
         self._update_host_info()
-        return self._name
+        return super(PersonalDeviceFritzBoxHost, self).name
 
 
     @property
     def active(self):
         """Whether or not this device is currently active."""
         self._update_host_info()
-        return self._active
+        return super(PersonalDeviceFritzBoxHost, self).active
