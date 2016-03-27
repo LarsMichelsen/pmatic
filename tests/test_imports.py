@@ -76,8 +76,8 @@ def populate_tmp_dir(target_path):
                 raise Exception("Did not find a file for %s from %s." % (line, list_file))
 
             for file_path in matched_files:
-                target_file_path = os.path.join(target_path, os.path.dirname(line),
-                                                os.path.basename(file_path))
+                rel_path = os.path.dirname(file_path[len(workdir)+1:])
+                target_file_path = os.path.join(target_path, rel_path, os.path.basename(file_path))
 
                 if not os.path.exists(os.path.dirname(target_file_path)):
                     os.makedirs(os.path.dirname(target_file_path))
