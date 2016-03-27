@@ -27,6 +27,8 @@ from __future__ import unicode_literals
 import time
 import pytest
 
+from simpletr64.actions.lan import Lan, HostDetails
+
 import pmatic.presence
 from pmatic.presence import Presence, Resident, PersonalDevice, \
                             PersonalDeviceFritzBoxHost
@@ -256,24 +258,97 @@ class TestPersonalDeviceFritzBoxHost(object):
         assert "simpletr64.actions.lan.Lan" in str(e)
         monkeypatch.undo()
 
-        # FIXME: Test connect
-
         PersonalDeviceFritzBoxHost.connection = "X"
         PersonalDeviceFritzBoxHost._connect()
         assert PersonalDeviceFritzBoxHost.connection == "X"
+        PersonalDeviceFritzBoxHost.connection = None
+
+        PersonalDeviceFritzBoxHost._connect()
+        assert isinstance(PersonalDeviceFritzBoxHost.connection, Lan)
 
 
     @pytest.fixture(scope="function")
     def f(self):
-        return PersonalDeviceFritzBoxHost()
+        d = PersonalDeviceFritzBoxHost()
+        d.from_config({"mac": "00:de:ad:be:ef:00"})
+        return d
 
 
     def test_init(self, f):
         assert f._name == "fritz!Box Device"
         assert f._ip_address == None
         assert f._active == False
+        assert f._mac == "00:de:ad:be:ef:00"
+
+    def _details_is_active(self, mac_address):
+        return HostDetails({
+            "NewMACAddress"    : mac_address,
+            "NewHostName"      : "blafasel",
+            "NewIPAddress"     : "123.123.123.123",
+            "NewActive"        : "1",
+            "NewInterfaceType" : None,
+            "NewAddressSource" : None,
+            "NewLeaseTimeRemaining" : 1,
+        })
 
 
-    # FIXME: test_update_host_info(self, f)
-    # FIXME: test_name(self, f)
-    # FIXME: test_active(self, f)
+    def test_update_host_info(self, f, monkeypatch):
+        def _details_is_inactive(mac_address):
+            return HostDetails({
+                "NewMACAddress"    : mac_address,
+                "NewHostName"      : "blafaselgnah",
+                "NewIPAddress"     : "123.123.123.123",
+                "NewActive"        : "0",
+                "NewInterfaceType" : None,
+                "NewAddressSource" : None,
+                "NewLeaseTimeRemaining" : 1,
+            })
+
+        def _details_invalid_mac(mac_address):
+            raise ValueError("Could note execute ... bla ... -- NoSuchEntryInArray")
+
+        def _details_another_error(mac_address):
+            raise ValueError("Could note execute ... bla ... -- irgendwas")
+
+        monkeypatch.setattr(PersonalDeviceFritzBoxHost.connection, "getHostDetailsByMACAddress",
+                            self._details_is_active)
+
+        f._update_host_info()
+        assert f._name == "blafasel"
+        assert f._active == True
+
+        monkeypatch.setattr(PersonalDeviceFritzBoxHost.connection, "getHostDetailsByMACAddress",
+                            _details_is_inactive)
+
+        f._update_host_info()
+        assert f._name == "blafaselgnah"
+        assert f._active == False
+
+        monkeypatch.setattr(PersonalDeviceFritzBoxHost.connection, "getHostDetailsByMACAddress",
+                            _details_invalid_mac)
+
+        f._update_host_info()
+        assert f._name == "blafaselgnah"
+        assert f._active == False
+
+        monkeypatch.setattr(PersonalDeviceFritzBoxHost.connection, "getHostDetailsByMACAddress",
+                            _details_another_error)
+
+        with pytest.raises(ValueError):
+            f._update_host_info()
+        assert f._name == "blafaselgnah"
+        assert f._active == False
+
+
+    def test_name(self, f, monkeypatch):
+        assert f._name != "blafasel"
+        monkeypatch.setattr(PersonalDeviceFritzBoxHost.connection, "getHostDetailsByMACAddress",
+                            self._details_is_active)
+        assert f.name == "blafasel"
+
+
+    def test_active(self, f, monkeypatch):
+        assert f._active == False
+        monkeypatch.setattr(PersonalDeviceFritzBoxHost.connection, "getHostDetailsByMACAddress",
+                            self._details_is_active)
+        assert f.active == True
