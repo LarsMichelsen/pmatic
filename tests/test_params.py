@@ -24,6 +24,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import time
 import pytest
 
 from pmatic.entities import Channel, Device, ChannelKey
@@ -208,6 +209,7 @@ class TestParameter(lib.TestCCUClassWide):
 
         last_updated = p.last_updated
         p.value = "false"
+        time.sleep(0.05)
         assert last_updated < p.last_updated
 
 
@@ -221,6 +223,7 @@ class TestParameter(lib.TestCCUClassWide):
         assert last_changed == p.last_changed
 
         p.value = "false"
+        time.sleep(0.05)
         assert last_changed < p.last_changed
 
 
