@@ -19,14 +19,14 @@ local/lib/python2.7/dist-packages/requests/packages/*/*.py
 local/lib/python2.7/dist-packages/requests/packages/*/*/*.py
 local/lib/python2.7/dist-packages/requests/packages/*/*/*/*.py
 # Same on debian system
-lib/python2.7/dist-packages/requests/*.py
-lib/python2.7/dist-packages/requests/packages/*.py
-lib/python2.7/dist-packages/requests/packages/*/*.py
-lib/python2.7/dist-packages/requests/packages/*/*/*.py
-lib/python2.7/dist-packages/requests/packages/*/*/*/*.py
-lib/python2.7/dist-packages/chardet/*.py
-lib/python2.7/dist-packages/urllib3/*.py
-lib/python2.7/dist-packages/urllib3/util/*.py
-lib/python2.7/dist-packages/urllib3/packages/*.py
-lib/python2.7/dist-packages/urllib3/packages/*/*.py
-lib/python2.7/dist-packages/urllib3/packages/*/*/*.py
+lib/python2.7/*-packages/requests/*.py
+lib/python2.7/*-packages/requests/packages/*.py
+lib/python2.7/*-packages/requests/packages/*/*.py
+lib/python2.7/*-packages/requests/packages/*/*/*.py
+lib/python2.7/*-packages/requests/packages/*/*/*/*.py
+lib/python2.7/*-packages/chardet/*.py
+lib/python2.7/*-packages/urllib3/*.py
+lib/python2.7/*-packages/urllib3/util/*.py
+lib/python2.7/*-packages/urllib3/packages/*.py
+lib/python2.7/*-packages/urllib3/packages/*/*.py
+lib/python2.7/*-packages/urllib3/packages/*/*/*.py
