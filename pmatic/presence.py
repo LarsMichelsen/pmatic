@@ -27,13 +27,16 @@ from __future__ import unicode_literals
 import time
 
 import pmatic.utils as utils
-from pmatic.exceptions import PMUserError
+from pmatic.exceptions import PMUserError, PMException
 
 
 try:
-    import fritzconnection
-except ImportError:
-    fritzconnection = None
+    from simpletr64.actions.lan import Lan as SimpleTR64Lan
+except ImportError as e:
+    if "simpletr64" in str(e):
+        SimpleTR64Lan = None
+    else:
+        raise
 
 
 class Presence(object):
@@ -221,21 +224,26 @@ class PersonalDeviceFritzBoxHost(PersonalDevice):
     _password  = None
 
     @classmethod
-    def configure(cls, address, port=None, user=None, password=None):
-        from fritzconnection import fritzconnection
+    def configure(cls, address, protocol=None, port=None, user=None, password=None):
         cls._address    = address or "fritz.box"
-        cls._port       = port or fritzconnection.FRITZ_TCP_PORT
-        cls._user       = user or fritzconnection.FRITZ_USERNAME
+        cls._protocol   = protocol or "http"
+        cls._port       = port or 49000
+        cls._user       = user or ""
         cls._password   = password or ""
 
 
     @classmethod
     def _connect(cls):
+        if SimpleTR64Lan == None:
+            raise PMException("Could not import the required \"simpletr64.actions.lan.Lan\".")
+
         if cls.connection == None:
-            from fritzconnection import fritzconnection
-            cls.connection = fritzconnection.FritzConnection(
-                                cls._address, cls._port,
-                                cls._user, cls._password)
+            cls.connection = SimpleTR64Lan(hostname=cls._address,
+                                           port=cls._port,
+                                           protocol=cls._protocol)
+            cls.connection.setupTR64Device("fritz.box")
+            cls.connection.username = cls._user
+            cls.connection.password = cls._password
 
 
     def __init__(self):
@@ -244,16 +252,20 @@ class PersonalDeviceFritzBoxHost(PersonalDevice):
         self._ip_address = None
 
 
-    def _action(self, actionname, **kwargs):
-        self.__class__._connect()
-        return self.__class__.connection.call_action("Hosts", actionname, **kwargs)
-
-
     def _update_host_info(self):
-        result = self._action("GetSpecificHostEntry", NewMACAddress=self._mac)
-        self._ip_address = result["NewIPAddress"]
-        self._name       = result["NewHostName"]
-        self._active     = result["NewActive"] == "1"
+        PersonalDeviceFritzBoxHost._connect()
+        try:
+            result = PersonalDeviceFritzBoxHost.connection.getHostDetailsByMACAddress(self._mac)
+        except ValueError as e:
+            # Is raised when no device with this mac can be found
+            if "NoSuchEntryInArray" in str(e):
+                return
+            else:
+                raise
+
+        self._ip_address = result.ipaddress
+        self._name       = result.hostname
+        self._active     = result.active
 
 
     @property
