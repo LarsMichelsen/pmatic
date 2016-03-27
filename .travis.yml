@@ -14,8 +14,6 @@ install:
     # install for doc build / publish
     - pip install sphinx
     - pip install sphinxcontrib-images
-    # needed for urllib3/requests if I remember correctly
-    - pip install six
     # install for for import tests
     - if [ $TRAVIS_PYTHON_VERSION = '2.7' ]; then pip install snakefood; fi
     - find /opt/python/2.7.*/lib/python2.7
@@ -25,6 +23,7 @@ addons:
   apt:
     packages:
         - realpath
+        - python-six
 
 # Run tests with coverage checking
 script:
