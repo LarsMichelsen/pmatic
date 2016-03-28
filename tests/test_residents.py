@@ -217,18 +217,18 @@ class TestResident(object):
         assert len(p.devices) == 1
 
 
-    def test_update_presence(self, p):
+    def test_update_presence(self, p, monkeypatch):
         assert p.devices == []
         p.update_presence() # Should not change anything
 
-        self._from_config(p)
-        p.devices[0]._active = False
+        d = PersonalDevice()
+        p.add_device(d)
+
+        d._active = False
         p.update_presence()
         assert p.present == False
 
-        d = PersonalDevice()
         d._active = True
-        p.add_device(d)
         p.update_presence()
         assert p.present == True
 
