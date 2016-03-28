@@ -55,6 +55,7 @@ lib/python2.7/random.py
 lib/python2.7/rfc822.py
 lib/python2.7/urllib.py
 lib/python2.7/string.py
+lib/python2.7/smtplib.py
 
 lib/python2.7/threading.py
 lib/python2.7/SocketServer.py
