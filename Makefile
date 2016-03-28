@@ -55,6 +55,7 @@ setup:
 release: dist
 	twine register dist/pmatic-$(VERSION).tar.gz
 	twine upload dist/pmatic-$(VERSION)*
+	$(MAKE) version
 
 dist: dist-os dist-ccu
 
