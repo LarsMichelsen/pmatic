@@ -58,7 +58,7 @@ def test_requirements():
 
 
 setup(name='pmatic',
-    version='0.1',
+    version='0.2',
     description='A simple API to to the Homematic CCU2',
     maintainer='Lars Michelsen',
     maintainer_email='lm@larsmichelsen.com',
