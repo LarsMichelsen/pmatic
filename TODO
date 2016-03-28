@@ -21,8 +21,9 @@ Todos:
   * Tests for the manager
   * Events: Close on shutdown when registered?
   * Make editing of scheules only possible when not currently running?
-  * Add resident arrive / leave as event for schedules
+* Residents / presence:
   * Add resident arrive / leave as event to the event log
+  * how to use residents in inline and non inline scripts?
 * Cleanup: set_submitted_vars() shows: Cleanup access to channel by address to
   have an API equal to getting a device from devices or param from channel.
 * Doc: Document the parameter classes and parameter types

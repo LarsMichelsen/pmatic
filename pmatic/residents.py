@@ -56,7 +56,7 @@ class Residents(utils.LogMixin):
         for resident_cfg in cfg.get("residents", []):
             r = Resident(self)
             r.from_config(resident_cfg)
-            self.residents.append(r)
+            self._add(r)
 
 
     def to_config(self):
@@ -91,6 +91,11 @@ class Residents(utils.LogMixin):
         """
         r.id = self._next_resident_id
         self._next_resident_id += 1
+        self._add(r)
+
+
+    def _add(self, r):
+        """Internal helper to add the given resident to this collection."""
         self.residents.append(r)
 
 
@@ -133,9 +138,10 @@ class Residents(utils.LogMixin):
 
 
 
-class Resident(utils.LogMixin):
+class Resident(utils.LogMixin, utils.CallbackMixin):
     def __init__(self, presence):
         super(Resident, self).__init__()
+        self._init_callbacks(["presence_updated", "presence_changed"])
         self._presence = presence
         self.id        = None
         self.devices   = []
@@ -229,15 +235,33 @@ class Resident(utils.LogMixin):
 
         now = time.time()
         self._presence_updated = now
+        self._callback("presence_updated")
 
         self._present = new_value
         if new_value != old_value:
             self._presence_changed = now
+            self._callback("presence_changed")
 
 
     def clear_devices(self):
         """Resets the device list to it's initial state."""
         self.devices = []
+
+
+    def on_presence_updated(self, func):
+        """Register a function to be called each time the presence of this resident is updated.
+
+        The function must accept a single argument which is the the current :class:`Resident`
+        object."""
+        self.register_callback("presence_updated", func)
+
+
+    def on_presence_changed(self, func):
+        """Register a function to be called each time the presence of this resident is changed.
+
+        The function must accept a single argument which is the the current :class:`Resident`
+        object."""
+        self.register_callback("presence_changed", func)
 
 
 

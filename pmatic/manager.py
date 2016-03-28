@@ -2276,12 +2276,14 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         self.set_app(self._request_handler)
 
         self.ccu           = None
+        self.residents     = None
         self.event_manager = EventManager(self)
-        self.residents     = ManagerResidents()
 
         self.event_history = EventHistory()
         self.scheduler = Scheduler(self)
         self.scheduler.start()
+
+        self.residents = ManagerResidents(self)
 
 
     # FIXME: When running the manager from remote:
@@ -2573,9 +2575,15 @@ class ManagerResidents(Residents, PersistentConfig, utils.LogMixin):
     _config_file = "manager.residents"
     _name        = "residents"
 
-    def __init__(self):
+    def __init__(self, manager):
         super(ManagerResidents, self).__init__()
+        self._manager = manager
         self.load(default={})
+
+
+    def _add(self, r):
+        r.on_presence_changed(self._manager.scheduler.handle_presence_changed)
+        super(ManagerResidents, self)._add(r)
 
 
 
@@ -2627,7 +2635,7 @@ class Scheduler(threading.Thread, utils.LogMixin, PersistentConfig):
     def _execute_presence_update(self):
         """Updates the presence information of residents in the configured interval. When no
         resident is configured, this method is doing nothing."""
-        if not self._manager.residents.enabled:
+        if not self._manager.residents or not self._manager.residents.enabled:
             self.logger.debug("Not updating presence information (not enabled)")
             return
 
@@ -2640,6 +2648,7 @@ class Scheduler(threading.Thread, utils.LogMixin, PersistentConfig):
         """Checks all configured timed schedules whether or not the next occurance has been
         reached. Then, if reached, the schedule is executed and the next occurance is calculated.
         """
+        # FIXME: Optimize schedule/condition handling
         for schedule in self.enabled_schedules:
             for condition in schedule.conditions:
                 if isinstance(condition, ConditionOnTime):
@@ -2654,6 +2663,7 @@ class Scheduler(threading.Thread, utils.LogMixin, PersistentConfig):
                     #                                    condition.next_time, time.time())
 
 
+    # FIXME: Optimize schedule/condition handling
     def _schedules_with_condition_type(self, cls):
         for schedule in self.enabled_schedules:
             matched = False
@@ -2664,6 +2674,24 @@ class Scheduler(threading.Thread, utils.LogMixin, PersistentConfig):
 
             if matched:
                 yield schedule
+
+
+    # FIXME: Optimize schedule/condition handling
+    def handle_presence_changed(self, resident):
+        """Checks all configured resident presence schedules whether or not they are fitting
+        this just occured event. If so the schedule is executed.
+        """
+        for schedule in self.enabled_schedules:
+            for condition in schedule.conditions:
+                if isinstance(condition, ConditionOnResidentPresence):
+                    if condition.resident == resident:
+                        event_type = condition.event_type
+                        if event_type == "change" \
+                           or (resident.present and event_type == "arrival") \
+                           or (not resident.present and event_type == "departure"):
+                            self.logger.debug("Presence condition matched: %s/%s" %
+                                                            (resident.name, event_type))
+                            self.execute(schedule)
 
 
     def execute(self, schedule):
