@@ -123,7 +123,7 @@ class TestResidents(object):
         self._add_resident(p)
         r = p.get_by_name("Lars")
         assert isinstance(r, Resident)
-        r.name == "Lars"
+        assert r.name == "Lars"
 
 
     def test_remove(self, p):
@@ -351,9 +351,9 @@ class TestPersonalDeviceFritzBoxHost(object):
 
 
     def test_init(self, f):
-        assert f._name == "fritz!Box Device"
+        assert f.name == "fritz!Box Device"
+        assert f.active == False
         assert f._ip_address == None
-        assert f._active == False
         assert f._mac == "00:de:ad:be:ef:00"
 
     def _details_is_active(self, mac_address):
@@ -390,36 +390,37 @@ class TestPersonalDeviceFritzBoxHost(object):
                             self._details_is_active)
 
         f._update_host_info()
-        assert f._name == "blafasel"
-        assert f._active == True
+        assert f.name == "blafasel"
+        assert f.active == True
 
         monkeypatch.setattr(PersonalDeviceFritzBoxHost.connection, "getHostDetailsByMACAddress",
                             _details_is_inactive)
 
         f._update_host_info()
-        assert f._name == "blafaselgnah"
-        assert f._active == False
+        assert f.name == "blafaselgnah"
+        assert f.active == False
 
         monkeypatch.setattr(PersonalDeviceFritzBoxHost.connection, "getHostDetailsByMACAddress",
                             _details_invalid_mac)
 
         f._update_host_info()
-        assert f._name == "blafaselgnah"
-        assert f._active == False
+        assert f.name == "blafaselgnah"
+        assert f.active == False
 
         monkeypatch.setattr(PersonalDeviceFritzBoxHost.connection, "getHostDetailsByMACAddress",
                             _details_another_error)
 
         with pytest.raises(ValueError):
             f._update_host_info()
-        assert f._name == "blafaselgnah"
-        assert f._active == False
+        assert f.name == "blafaselgnah"
+        assert f.active == False
 
 
     def test_name(self, f, monkeypatch):
-        assert f._name != "blafasel"
+        assert f.name != "blafasel"
         monkeypatch.setattr(PersonalDeviceFritzBoxHost.connection, "getHostDetailsByMACAddress",
                             self._details_is_active)
+        f._update_host_info()
         assert f.name == "blafasel"
 
 
@@ -427,4 +428,5 @@ class TestPersonalDeviceFritzBoxHost(object):
         assert f._active == False
         monkeypatch.setattr(PersonalDeviceFritzBoxHost.connection, "getHostDetailsByMACAddress",
                             self._details_is_active)
+        f._update_host_info()
         assert f.active == True

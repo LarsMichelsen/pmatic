@@ -359,17 +359,3 @@ class PersonalDeviceFritzBoxHost(PersonalDevice):
         self._ip_address = result.ipaddress
         self._name       = result.hostname
         self._active     = result.active
-
-
-    @property
-    def name(self):
-        """Provides the name of this device."""
-        self._update_host_info()
-        return super(PersonalDeviceFritzBoxHost, self).name
-
-
-    @property
-    def active(self):
-        """Whether or not this device is currently active."""
-        self._update_host_info()
-        return super(PersonalDeviceFritzBoxHost, self).active

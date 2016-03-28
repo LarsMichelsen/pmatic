@@ -1205,7 +1205,7 @@ class ManagerPersonalDeviceFritzBoxHost(ManagerPersonalDevice):
 
     @staticmethod
     def display(device):
-        txt = "%s (%s)" % (device._name, device.mac)
+        txt = "%s (%s)" % (device.name, device.mac)
         if not Config.fritzbox_enabled:
             txt += "<br><i>You need to configure the " \
                    "<a href=\"/config\">fritz!Box connection</a> to make this work.</i>"
@@ -2565,7 +2565,7 @@ class PersistentConfig(object):
         raise NotImplementedError()
 
 
-    def from_config(self):
+    def from_config(self, config):
         raise NotImplementedError()
 
 
