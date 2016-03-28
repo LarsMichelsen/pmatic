@@ -53,7 +53,7 @@ class Residents(utils.LogMixin):
         for resident_cfg in cfg.get("residents", []):
             p = Resident(self)
             p.from_config(resident_cfg)
-            self.add_resident(p)
+            self.add(p)
 
 
     def to_config(self):
@@ -81,23 +81,41 @@ class Residents(utils.LogMixin):
             resident.update_presence()
 
 
-    def add_resident(self, r):
+    def add(self, r):
         """Add a :class:`Resident` object to the presence detection."""
         num = len(self.residents)
         r.id = num
         self.residents.append(r)
 
 
-    def resident_exists(self, resident_id):
+    def exists(self, resident_id):
         """Returns ``True`` when a resident with the given id exists.
         Otherwise ``False`` is returned."""
         return resident_id < len(self.residents)
 
 
-    def get_resident(self, resident_id):
-        """Returns the resident matching the given ``resident_id``. Raises an
+    def get(self, resident_id):
+        """Returns the :class:`Resident` matching the given ``resident_id``. Raises an
         ``IndexError`` when this resident does not exist."""
         return self.residents[resident_id]
+
+
+    def get_by_name(self, resident_name):
+        """Returns the first :class:`Resident` matching the given ``resident_name``. Returns
+        ``None`` when there is no resident with this name."""
+        for resident in self.residents:
+            if resident.name == resident_name:
+                return resident
+        return None
+
+
+    def remove(self, resident_id):
+        """Removes the resident with the given ``resident_id`` from the Residents. Tolerates non
+        existing resident ids."""
+        try:
+            self.residents.pop(resident_id)
+        except IndexError:
+            pass
 
 
     def clear(self):

@@ -39,6 +39,7 @@ except ImportError:
     import builtins
 
 import os
+import re
 import cgi
 import sys
 import time
@@ -76,6 +77,7 @@ except ImportError:
 import pmatic
 import pmatic.utils as utils
 from pmatic.exceptions import PMUserError, SignalReceived, PMException
+from pmatic.residents import Residents, Resident, PersonalDevice, PersonalDeviceFritzBoxHost
 
 # Set while a script is executed with the "/run" page
 g_runner = None
@@ -92,10 +94,17 @@ class Config(utils.LogMixin):
     log_level = None
     log_file  = "/var/log/pmatic-manager.log"
 
-    event_history_length = 1000
+    event_history_length     = 1000
+    presence_update_interval = 60 # seconds
 
     pushover_api_token = None
     pushover_user_token = None
+
+    fritzbox_enabled  = False
+    fritzbox_address  = "fritz.box"
+    fritzbox_port     = 49000
+    fritzbox_username = ""
+    fritzbox_password = ""
 
     @classmethod
     def load(cls):
@@ -187,6 +196,7 @@ class Html(object):
         self.write("<li><a href=\"/\"><i class=\"fa fa-code\"></i>Scripts</a></li>\n")
         self.write("<li><a href=\"/run\"><i class=\"fa fa-flash\"></i>Execute Scripts</a></li>\n")
         self.write("<li><a href=\"/schedule\"><i class=\"fa fa-tasks\"></i>Schedule</a></li>\n")
+        self.write("<li><a href=\"/residents\"><i class=\"fa fa-users\"></i>Residents</a></li>\n")
         self.write("<li><a href=\"/event_log\"><i class=\"fa fa-list\"></i>Event Log</a></li>\n")
         self.write("<li><a href=\"/config\"><i class=\"fa fa-gear\"></i>Configuration</a></li>\n")
         self.write("<li class=\"right\"><a href=\"https://larsmichelsen.github.io/pmatic/\" "
@@ -1002,6 +1012,303 @@ class PageLogin(PageHandler, Html, utils.LogMixin):
 
 
 
+class PageEditResident(PageHandler, Html, utils.LogMixin):
+    url = "edit_resident"
+
+    def _get_mode(self):
+        return "edit"
+
+
+    def _get_resident(self):
+        resident_id = self._vars.getvalue("resident_id")
+        if resident_id is None:
+            raise PMUserError("You need to provide a <tt>resident_id</tt>.")
+        resident_id = int(resident_id)
+
+        if not self._manager.residents.exists(resident_id):
+            raise PMUserError("The schedule you are trying to edit does not exist.")
+
+        return self._manager.residents.get(resident_id)
+
+
+    def _get_device_types(self):
+        types = []
+        for subclass in PersonalDevice.types():
+            types.append((subclass.type_name, subclass.type_title))
+        return types
+
+
+    def _get_manager_device_class(self, cls):
+        return globals()["Manager"+cls.__name__]
+
+
+    def _set_submitted_vars(self, resident, submit):
+        if self._vars.getvalue("submitted") == "1":
+            # submitted for reload or saving!
+
+            resident.name = self._vars.getvalue("name")
+            if submit and not resident.name:
+                raise PMUserError("You have to provide a name.")
+
+            resident.email = self._vars.getvalue("email")
+            if submit and resident.email and \
+               not re.match(r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)", resident.email):
+                raise PMUserError("You have to provide either none or a valid email address.")
+
+            resident.mobile = self._vars.getvalue("mobile")
+            resident.pushover_token = self._vars.getvalue("pushover_token")
+
+            num_devices = int(self._vars.getvalue("num_devices"))
+            resident.clear_devices()
+            has_error = False
+            for device_id in range(num_devices):
+                device_type = self._vars.getvalue("device_%d_type" % device_id)
+                if device_type:
+                    cls = PersonalDevice.get(device_type)
+                    if not cls:
+                        raise PMUserError("Invalid device type \"%s\" given." % device_type)
+
+                    manager_cls = self._get_manager_device_class(cls)
+                    device = cls()
+                    try:
+                        manager_cls.set_submitted_vars(self, device, "device_%d_" % device_id)
+                    except PMUserError as e:
+                        if submit:
+                            self.error(e)
+                        has_error = True
+
+                    resident.add_device(device)
+
+            if submit and has_error:
+                raise PMUserError("An error occured, please correct this.")
+
+
+    def action(self):
+        resident = self._get_resident()
+        self._set_submitted_vars(resident, submit=True)
+
+        if self._get_mode() == "new":
+            self._manager.residents.add(resident)
+
+        self._manager.residents.save()
+        self.success("The resident has been saved. Opening the resident list now.")
+        self.redirect(2, "/residents")
+
+
+    def title(self):
+        return "Edit resident"
+
+
+    def process(self):
+        self.h2(self.title())
+
+        mode = self._get_mode()
+        resident = self._get_resident()
+        self._set_submitted_vars(resident, submit=False)
+
+        self.begin_form()
+        if mode == "edit":
+            self.hidden("resident_id", str(resident.id))
+        self.hidden("submitted", "1")
+        self.write("<table>")
+        self.write("<tr><th>Name</th><td>")
+        self.input("name", resident.name)
+        self.write("</td></tr>")
+        self.write("<tr><th>Email</th><td>")
+        self.input("email", resident.email)
+        self.write("</td></tr>")
+        self.write("<tr><th>Mobile Phone</th><td>")
+        self.input("mobile", resident.mobile)
+        self.write("</td></tr>")
+        self.write("<tr><th>Pushover Token</th><td>")
+        self.input("pushover_token", resident.pushover_token)
+        self.write("</td></tr>")
+        self.write("</table>")
+
+        self.h3("Devices")
+        self.p("To detect the presence you have to associate at least one device to the resident "
+               "which is then used to detect the presence of this resident.")
+        self.write("<table>")
+        self.write("<tr>")
+        self.write("<th>Type</th>")
+        self.write("<th>Parameters</th>")
+        self.write("</tr>")
+
+        self.hidden("num_devices", str(len(resident.devices)+1))
+        for device_id, device in enumerate(resident.devices + [PersonalDevice()]):
+            varprefix = "device_%d_" % device_id
+            self.write("<tr>")
+            self.write("<td>")
+            self.select(varprefix+"type", self._get_device_types(),
+                        deflt=device.type_name,
+                        onchange="this.form.submit()")
+            self.write("</td>")
+
+            self.write("<td>")
+            manager_cls = self._get_manager_device_class(device.__class__)
+            manager_cls.input_parameters(self, device, varprefix)
+            self.write("</td>")
+            self.write("</tr>")
+
+        self.write("</table>")
+        self.submit("Save", "save")
+        self.end_form()
+
+
+
+class PageAddResident(PageEditResident, PageHandler):
+    url = "add_resident"
+
+    def _get_mode(self):
+        return "new"
+
+
+    def _get_resident(self):
+        return Resident(self._manager.residents)
+
+
+    def title(self):
+        return "Add resident"
+
+
+
+class ManagerPersonalDevice(object):
+    @staticmethod
+    def input_parameters(page, device, varprefix):
+        pass
+
+
+    @staticmethod
+    def set_submitted_vars(page, device, varprefix):
+        pass
+
+    
+    @staticmethod
+    def display(device):
+        return ""
+
+
+
+class ManagerPersonalDeviceFritzBoxHost(ManagerPersonalDevice):
+    @staticmethod
+    def input_parameters(page, device, varprefix):
+        page.write("MAC address: ")
+        page.input(varprefix+"mac", device.mac)
+
+
+    @staticmethod
+    def set_submitted_vars(page, device, varprefix):
+        mac = page.vars.getvalue(varprefix+"mac")
+        if mac != None:
+            device.mac = mac
+
+
+    @staticmethod
+    def display(device):
+        txt = "%s (%s)" % (device._name, device.mac)
+        if not Config.fritzbox_enabled:
+            txt += "<br><i>You need to configure the " \
+                   "<a href=\"/config\">fritz!Box connection</a> to make this work.</i>"
+        return txt
+
+
+
+class PageResidents(PageHandler, Html, utils.LogMixin):
+    url = "residents"
+
+    def title(self):
+        return "Residents & Presence detection"
+
+
+    def action(self):
+        self.ensure_password_is_set()
+        action = self._vars.getvalue("action")
+        if action == "delete":
+            return self._handle_delete()
+
+
+    def _handle_delete(self):
+        resident_id = self._vars.getvalue("resident_id")
+        if not resident_id:
+            raise PMUserError("You need to provide a resident to delete.")
+        resident_id = int(resident_id)
+
+        if not self._manager.residents.exists(resident_id):
+            raise PMUserError("This resident does not exist.")
+
+        if not self.confirm("Do you really want to delete this resident?"):
+            return False
+
+        self._manager.residents.remove(resident_id)
+        self._manager.residents.save()
+        self.success("The resident has been deleted.")
+
+
+    def _get_manager_device_class(self, cls):
+        return globals()["Manager"+cls.__name__]
+
+
+    def process(self):
+        self.h2("Residents & Presence detection")
+        self.p("This page lets you either configure your residents and the presence detection "
+               "of them. Once configured and detected you can make your schedules execute "
+               "specific scripts when one resident becomes present or leaves. Or you can "
+               "make your scripts behave depending on presence. You can also reference your "
+               "residents in your scripts, for example to get their attributes like the mail "
+               "address or whatever you need.")
+
+        self.button("user", "Add resident", "/add_resident")
+        self.write("<br>")
+        self.write("<br>")
+
+        self.write("<table>")
+        self.write("<tr><th>Actions</th><th>Name</th><th>Devices</th>"
+                   "<th>Last update</th><th>Last change</th><th>Present</th>")
+        self.write("</tr>")
+        for resident in self._manager.residents.residents:
+            self.write("<tr>")
+            self.write("<td>")
+            self.icon_button("edit", "/edit_resident?resident_id=%d" % resident.id,
+                              "Edit this resident")
+            self.icon_button("trash", "?action=delete&resident_id=%d" % resident.id,
+                              "Delete this resident")
+            self.write("</td>")
+            self.write("<td>%s</td>" % self.escape(resident.name))
+
+            self.write("<td>")
+            for device in resident.devices:
+                manager_cls = self._get_manager_device_class(device.__class__)
+                self.write(manager_cls.display(device)+"<br>")
+            self.write("</td>")
+
+            last_updated = resident.last_updated
+            if last_updated:
+                last_updated = time.strftime("%Y-%m-%d %H:%M:%S",
+                                               time.localtime(last_updated))
+            else:
+                last_updated = "<i>Got no information yet.</i>"
+            self.write("<td>%s</td>" % last_updated)
+
+            last_changed = resident.last_changed
+            if last_changed:
+                last_changed = time.strftime("%Y-%m-%d %H:%M:%S",
+                                               time.localtime(last_changed))
+            else:
+                last_changed = "<i>Got no information yet.</i>"
+            self.write("<td>%s</td>" % last_changed)
+
+            self.write("<td>")
+            if resident.present:
+                self.icon("home", "Is currently at home.")
+            else:
+                self.icon("question", "Is currently away.")
+            self.write("</td>")
+
+            self.write("</tr>")
+        self.write("</table>")
+
+
+
 class PageConfiguration(PageHandler, Html, utils.LogMixin):
     url = "config"
 
@@ -1042,6 +1349,7 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
             Config.log_level = log_level_name
 
         self._save_ccu_config()
+        self._save_fritzbox_config()
         self._save_pushover_config()
 
         event_history_length = self._vars.getvalue("event_history_length")
@@ -1056,6 +1364,51 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
 
         Config.save()
         self.success("The configuration has been updated.")
+
+
+    def _save_fritzbox_config(self):
+        fritzbox_config_changed = False
+
+        fritzbox_enabled = self.is_checked("fritzbox_enabled")
+        if fritzbox_enabled != Config.fritzbox_enabled:
+            fritzbox_config_changed = True
+        Config.fritzbox_enabled = fritzbox_enabled
+
+        fritzbox_address = self._vars.getvalue("fritzbox_address")
+        if not fritzbox_address:
+            raise PMUserError("You need to configure the fritz!Box address to be able to "
+                              "communicate with your fritz!Box.")
+
+        if fritzbox_address != Config.fritzbox_address:
+            fritzbox_config_changed = True
+        Config.fritzbox_address = fritzbox_address
+
+        fritzbox_port = self._vars.getvalue("fritzbox_port")
+        if not fritzbox_port:
+            raise PMUserError("You need to configure the fritz!Box port to be able to "
+                              "communicate with your fritz!Box.")
+        else:
+            fritzbox_port = int(fritzbox_port)
+
+        if fritzbox_port != Config.fritzbox_port:
+            fritzbox_config_changed = True
+        Config.fritzbox_port = fritzbox_port
+
+        fritzbox_username = self._vars.getvalue("fritzbox_username").strip()
+        if fritzbox_username != Config.fritzbox_username:
+            fritzbox_config_changed = True
+        Config.fritzbox_username = fritzbox_username
+
+        fritzbox_password = self._vars.getvalue("fritzbox_password")
+        if fritzbox_password != "":
+            if fritzbox_password != Config.fritzbox_password:
+                fritzbox_config_changed = True
+            Config.fritzbox_password = fritzbox_password
+
+        if fritzbox_config_changed:
+            # makes the connection be reinitialized on next request
+            # FIXME: Move this to a method.
+            PersonalDeviceFritzBoxHost.connection = None
 
 
     def _save_ccu_config(self):
@@ -1076,11 +1429,16 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
 
         ccu_username = self._vars.getvalue("ccu_username").strip()
         ccu_password = self._vars.getvalue("ccu_password")
-        if not ccu_username or not ccu_password:
+        if ccu_username and not ccu_password and Config.ccu_credentials:
+            # not trying to change the password
+            ccu_credentials = ccu_username, Config.ccu_credentials[1]
+
+        elif not ccu_username:
             if Config.ccu_enabled and not utils.is_ccu():
                 raise PMUserError("You need to configure the CCU credentials to be able to "
                                   "communicate with your CCU.")
             ccu_credentials = None
+
         else:
             ccu_credentials = ccu_username, ccu_password
 
@@ -1136,7 +1494,7 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         self.begin_form()
         self.write("<table>")
 
-        self.write("<tr><th>Log Level"
+        self.write("<tr><th>Log level"
                    "<p>Log entries having the configured log level (or a worse one) are logged to"
                    " the file <tt>%s</tt> by default.</p>"
                    "</th>" % Config.log_file)
@@ -1145,12 +1503,22 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         self.write("</td>")
         self.write("</tr>")
 
-        self.write("<tr><th>Event Log Entries"
+        self.write("<tr><th>Event log entries"
                    "<p>Number of event log entries to keep. Once you the pmatic manager received "
                    "more events from the CCU, the older ones will be dropped.</p>"
                    "</th>")
         self.write("<td>")
         self.input("event_history_length", str(Config.event_history_length))
+        self.write("</td>")
+        self.write("</tr>")
+
+        self.write("<tr><th>Presence update interval"
+                   "<p>You can configure in which intervals the presence information of your "
+                   "residents should be updated. This defaults to 60 seconds, but you can "
+                   "adapt it to your needs.</p>"
+                   "</th>")
+        self.write("<td>")
+        self.input("presence_update_interval", str(Config.presence_update_interval))
         self.write("</td>")
         self.write("</tr>")
 
@@ -1181,6 +1549,38 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         self.write("<tr><th>Password</th>")
         self.write("<td>")
         self.password("ccu_password")
+        self.write("</td>")
+        self.write("</tr>")
+        self.write("</table>")
+
+        self.h3("fritz!Box Connection")
+        self.p("If you like to connect with your fritz!Box to detect presence of your "
+               "users, you may enable this connection. Eventually you will have to "
+               "configure the address and credentials of your fritz!Box here.")
+        self.write("<table>")
+        self.write("<tr><th>Connect with fritz!Box</th>")
+        self.write("<td>")
+        self.checkbox("fritzbox_enabled", Config.fritzbox_enabled)
+        self.write("</td>")
+        self.write("</tr>")
+        self.write("<tr><th>Address</th>")
+        self.write("<td>")
+        self.input("fritzbox_address", Config.fritzbox_address)
+        self.write("</td>")
+        self.write("</tr>")
+        self.write("<tr><th>API Port</th>")
+        self.write("<td>")
+        self.input("fritzbox_port", Config.fritzbox_port)
+        self.write("</td>")
+        self.write("</tr>")
+        self.write("<tr><th>Username</th>")
+        self.write("<td>")
+        self.input("fritzbox_username", Config.fritzbox_username)
+        self.write("</td>")
+        self.write("</tr>")
+        self.write("<tr><th>Password</th>")
+        self.write("<td>")
+        self.password("fritzbox_password")
         self.write("</td>")
         self.write("</tr>")
         self.write("</table>")
@@ -1880,6 +2280,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
         self.ccu           = None
         self.event_manager = EventManager(self)
+        self.residents     = ManagerResidents()
 
         self.event_history = EventHistory()
         self.scheduler = Scheduler(self)
@@ -1910,13 +2311,13 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         self._register_for_ccu_events()
 
         # Reload the schedules to update the CCU dependent conditions
-        self.scheduler.load()
+        self.scheduler.load(default=[])
 
 
     @property
     def ccu_initialized(self):
         """Whether or not a connection with the CCU has been initialized."""
-        return self.ccu != None
+        return self.ccu != None and self.ccu.api.initialized
 
 
     def _register_for_ccu_events(self):
@@ -2127,7 +2528,63 @@ class EventHistory(object):
 
 
 
-class Scheduler(threading.Thread, utils.LogMixin):
+class PersistentConfig(object):
+    _config_file = None
+    _name        = None
+
+
+    def load(self, default=None):
+        try:
+            self.clear()
+            try:
+                fh = open(os.path.join(Config.config_path, self._config_file))
+                config = json.load(fh)
+            except IOError as e:
+                # a non existing file is allowed.
+                if e.errno == 2:
+                    config = default
+                else:
+                    raise
+
+            self.from_config(config)
+        except Exception:
+            self.logger.error("Failed to load %s. Terminating." % self._name, exc_info=True)
+            sys.exit(1)
+
+
+    def save(self):
+        json_config = json.dumps(self.to_config())
+        open(os.path.join(Config.config_path, self._config_file), "w").write(json_config + "\n")
+
+
+    def clear(self):
+        raise NotImplementedError()
+
+
+    def to_config(self):
+        raise NotImplementedError()
+
+
+    def from_config(self):
+        raise NotImplementedError()
+
+
+
+
+class ManagerResidents(Residents, PersistentConfig, utils.LogMixin):
+    _config_file = "manager.residents"
+    _name        = "residents"
+
+    def __init__(self):
+        super(ManagerResidents, self).__init__()
+        self.load(default={})
+
+
+
+class Scheduler(threading.Thread, utils.LogMixin, PersistentConfig):
+    _config_file = "manager.schedules"
+    _name        = "schedules"
+
     def __init__(self, manager):
         threading.Thread.__init__(self)
         self.daemon = True
@@ -2135,10 +2592,11 @@ class Scheduler(threading.Thread, utils.LogMixin):
         self._manager = manager
         self._schedules = []
 
-        self._on_startup_executed = False
+        self._on_startup_executed  = False
         self._on_ccu_init_executed = False
+        self._next_presence_update = None
 
-        self.load()
+        PersistentConfig.__init__(self)
 
 
     def run(self):
@@ -2158,6 +2616,7 @@ class Scheduler(threading.Thread, utils.LogMixin):
                     self._on_ccu_init_executed = True
 
                 self._execute_timed_schedules()
+                self._execute_presence_update()
             except Exception:
                 self.logger.error("Exception in Scheduler", exc_info=True)
 
@@ -2165,6 +2624,17 @@ class Scheduler(threading.Thread, utils.LogMixin):
             time.sleep(1)
 
         self.logger.debug("Stopped Scheduler")
+
+
+    def _execute_presence_update(self):
+        """Updates the presence information of residents in the configured interval. When no
+        resident is configured, this method is doing nothing."""
+        if not self._manager.residents.enabled:
+            return
+
+        if self._next_presence_update == None or self._next_presence_update < time.time():
+            self._manager.residents.update()
+            self._next_presence_update = time.time() + Config.presence_update_interval
 
 
     def _execute_timed_schedules(self):
@@ -2271,36 +2741,18 @@ class Scheduler(threading.Thread, utils.LogMixin):
             pass
 
 
-    def load(self):
-        try:
-            self.clear()
-            try:
-                fh = open(Config.config_path + "/manager.schedules")
-                schedule_config = json.load(fh)
-            except IOError as e:
-                # a non existing file is allowed.
-                if e.errno == 2:
-                    schedule_config = []
-                else:
-                    raise
-
-            for schedule_cfg in schedule_config:
-                schedule = Schedule(self._manager)
-                schedule.from_config(schedule_cfg)
-                self.add(schedule)
-
-        except Exception:
-            self.logger.error("Failed to load schedules. Terminating.", exc_info=True)
-            sys.exit(1)
+    def from_config(self, schedule_config):
+        for schedule_cfg in schedule_config:
+            schedule = Schedule(self._manager)
+            schedule.from_config(schedule_cfg)
+            self.add(schedule)
 
 
-    def save(self):
+    def to_config(self):
         schedule_config = []
         for schedule in self._schedules:
             schedule_config.append(schedule.to_config())
-
-        json_config = json.dumps(schedule_config)
-        open(Config.config_path + "/manager.schedules", "w").write(json_config + "\n")
+        return schedule_config
 
 
 
@@ -2550,7 +3002,7 @@ class ConditionOnDeviceEvent(Condition, utils.LogMixin):
 
 
     def _device_choices(self):
-        if not self._loaded:
+        if not self._loaded and self.device:
             yield self.device.address, self.device.address
             return
 
@@ -2559,7 +3011,7 @@ class ConditionOnDeviceEvent(Condition, utils.LogMixin):
 
 
     def _channel_choices(self):
-        if not self._loaded:
+        if not self._loaded and self.channel:
             yield self.channel.address, self.channel.address
             return
 
@@ -2571,7 +3023,7 @@ class ConditionOnDeviceEvent(Condition, utils.LogMixin):
 
 
     def _param_choices(self):
-        if not self._loaded:
+        if not self._loaded and self.param:
             yield self.param.id, self.param.id
             return
 

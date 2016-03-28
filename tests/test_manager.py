@@ -230,8 +230,14 @@ class TestConfig(object):
             "log_level",
             "log_file",
             "event_history_length",
+            "presence_update_interval",
             "pushover_api_token",
             "pushover_user_token",
+            "fritzbox_enabled",
+            "fritzbox_address",
+            "fritzbox_port",
+            "fritzbox_username",
+            "fritzbox_password",
         ]
 
         for key in Config.__dict__.keys():

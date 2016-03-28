@@ -92,29 +92,47 @@ class TestResidents(object):
         assert "TEST" in str(e)
 
 
-    def test_add_resident(self, p):
+    def test_add(self, p):
         assert p.residents == []
-        p.add_resident(Resident(p))
+        p.add(Resident(p))
         assert len(p.residents) == 1
         assert isinstance(p.residents[0], Resident)
 
 
-    def test_resident_exists(self, p):
+    def test_exists(self, p):
         assert p.residents == []
-        assert p.resident_exists(0) == False
-        p.add_resident(Resident(p))
-        assert p.resident_exists(0) == True
-        assert p.resident_exists(1) == False
+        assert p.exists(0) == False
+        p.add(Resident(p))
+        assert p.exists(0) == True
+        assert p.exists(1) == False
 
 
-    def test_get_resident(self, p):
+    def test_get(self, p):
         assert p.residents == []
         with pytest.raises(IndexError):
-            assert p.get_resident(0)
-        p.add_resident(Resident(p))
-        assert isinstance(p.get_resident(0), Resident)
+            assert p.get(0)
+        p.add(Resident(p))
+        assert isinstance(p.get(0), Resident)
         with pytest.raises(IndexError):
-            assert p.get_resident(1)
+            assert p.get(1)
+
+
+    def test_get_by_name(self, p):
+        assert p.residents == []
+        assert p.get_by_name("Harry") == None
+        self._add_resident(p)
+        r = p.get_by_name("Lars")
+        assert isinstance(r, Resident)
+        r.name == "Lars"
+
+
+    def test_remove(self, p):
+        assert p.residents == []
+        p.remove(0)
+        self._add_resident(p)
+        assert len(p.residents) == 1
+        p.remove(0)
+        assert p.residents == []
 
 
     def test_clear(self, p):
