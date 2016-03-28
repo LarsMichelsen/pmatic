@@ -668,7 +668,7 @@ class TestDevice(lib.TestCCUClassWide):
 
 
     def test_has_pending_config(self, d):
-        d.has_pending_config == False
+        assert d.has_pending_config == False
 
         d.maintenance.values["CONFIG_PENDING"]._value = True
         assert d.has_pending_config == True
@@ -685,7 +685,7 @@ class TestDevice(lib.TestCCUClassWide):
 
 
     def test_has_pending_update(self, d):
-        d.has_pending_update == False
+        assert d.has_pending_update == False
 
         d.maintenance.values["UPDATE_PENDING"]._value = True
         assert d.has_pending_update == True

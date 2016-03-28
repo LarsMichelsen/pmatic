@@ -188,7 +188,7 @@ class TestConditionOnTime(object):
         assert txt.startswith("based on time: monthly on day 1 of month, at 00:00")
 
 
-    def test_unknown_interval_type(self, c, monkeypatch):
+    def test_unknown_interval_type(self, c):
         c.interval_type = "xyztype"
         assert c._next_time == None
         with pytest.raises(NotImplementedError):

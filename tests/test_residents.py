@@ -215,7 +215,7 @@ class TestResident(object):
         assert len(p.devices) == 1
 
 
-    def test_update_presence(self, p, monkeypatch):
+    def test_update_presence(self, p):
         assert p.devices == []
         p.update_presence() # Should not change anything
 
