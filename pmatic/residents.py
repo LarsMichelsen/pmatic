@@ -24,6 +24,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import re
 import time
 
 import pmatic.utils as utils
@@ -38,20 +39,15 @@ except ImportError as e:
         raise
 
 
-class Presence(object):
-    """This class is meant to detect presence of residents. It is using
-    a modularized collection of possible plugins which can be used
-    to detect the presence. For example there is one plugin to detect
-    the presence of users by asking a local fritz!Box for the current
-    active devices. The devices are then matched with the configuration
-    of residents."""
+class Residents(utils.LogMixin):
+    """This class is meant to manage your residents and the presence of them."""
     def __init__(self):
-        super(Presence, self).__init__()
+        super(Residents, self).__init__()
         self.residents = []
 
 
     def from_config(self, cfg):
-        """Build the presence object, residents and devices from a persisted
+        """Build the Residents object, residents and devices from a persisted
         configuration dictionary."""
         self.clear()
         for resident_cfg in cfg.get("residents", []):
@@ -61,26 +57,47 @@ class Presence(object):
 
 
     def to_config(self):
-        """Returns a dictionary representing the whole presence configuration.
+        """Returns a dictionary representing the whole residents configuration.
         This dictionary can be saved somewhere, for example in a file, loaded
         afterwards and handed over to :meth:`from_config` to reconstruct the
-        current presence object."""
+        current Residents object."""
         return {
             "residents": [ p.to_config() for p in self.residents ],
         }
+
+
+    @property
+    def enabled(self):
+        """Is set to ``True`` when the presence detection shal be enabled."""
+        return bool(self.residents)
 
 
     def update(self):
         """Call this to update the presence information of all configured residents
         and their devices. This normally calls the presence plugins to update the
         presence information from the connected data source."""
+        self.logger.debug("Updating presence information")
         for resident in self.residents:
             resident.update_presence()
 
 
-    def add_resident(self, p):
+    def add_resident(self, r):
         """Add a :class:`Resident` object to the presence detection."""
-        self.residents.append(p)
+        num = len(self.residents)
+        r.id = num
+        self.residents.append(r)
+
+
+    def resident_exists(self, resident_id):
+        """Returns ``True`` when a resident with the given id exists.
+        Otherwise ``False`` is returned."""
+        return resident_id < len(self.residents)
+
+
+    def get_resident(self, resident_id):
+        """Returns the resident matching the given ``resident_id``. Raises an
+        ``IndexError`` when this resident does not exist."""
+        return self.residents[resident_id]
 
 
     def clear(self):
@@ -93,8 +110,13 @@ class Resident(utils.LogMixin):
     def __init__(self, presence):
         super(Resident, self).__init__()
         self._presence = presence
-        self.name      = "Mr. X"
+        self.id        = None
         self.devices   = []
+
+        self.name      = "Mr. X"
+        self.email     = ""
+        self.mobile    = ""
+        self.pushover_token = ""
 
         self._presence_updated = None
         self._presence_changed = None
@@ -115,7 +137,10 @@ class Resident(utils.LogMixin):
 
 
     def from_config(self, cfg):
-        self.name = cfg["name"]
+        self.name    = cfg["name"]
+        self.email   = cfg["email"]
+        self.mobile  = cfg["mobile"]
+        self.pushover_token = cfg["pushover_token"]
 
         self.devices = []
         for device_cfg in cfg.get("devices", []):
@@ -131,7 +156,10 @@ class Resident(utils.LogMixin):
 
     def to_config(self):
         return {
-            "name"    : self.name,
+            "name"           : self.name,
+            "email"          : self.email,
+            "mobile"         : self.mobile,
+            "pushover_token" : self.pushover_token,
             "devices" : [ d.to_config() for d in self.devices ],
         }
 
@@ -175,6 +203,11 @@ class Resident(utils.LogMixin):
         self._present = new_value
         if new_value != old_value:
             self._presence_changed = now
+
+
+    def clear_devices(self):
+        """Resets the device list to it's initial state."""
+        self.devices = []
 
 
 
@@ -272,6 +305,26 @@ class PersonalDeviceFritzBoxHost(PersonalDevice):
         super(PersonalDeviceFritzBoxHost, self).__init__()
         self._name       = "fritz!Box Device"
         self._ip_address = None
+        self._mac        = None
+
+
+    @property
+    def mac(self):
+        """Provides the MAC address of this device."""
+        return self._mac
+
+
+    @mac.setter
+    def mac(self, mac):
+        if not re.match("^([0-9A-Fa-f]{2}:){5}([0-9A-Fa-f]{2})$", mac):
+            raise PMUserError("The given MAC address ins not valid.")
+        self._mac = mac
+
+
+    def to_config(self):
+        cfg = super(PersonalDeviceFritzBoxHost, self).to_config()
+        cfg["mac"] = self.mac
+        return cfg
 
 
     def _update_host_info(self):

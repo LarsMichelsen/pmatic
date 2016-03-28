@@ -29,16 +29,16 @@ import pytest
 
 from simpletr64.actions.lan import Lan, HostDetails
 
-import pmatic.presence
-from pmatic.presence import Presence, Resident, PersonalDevice, \
+import pmatic.residents
+from pmatic.residents import Residents, Resident, PersonalDevice, \
                             PersonalDeviceFritzBoxHost
 from pmatic.exceptions import PMUserError, PMException
 
 
-class TestPresence(object):
+class TestResidents(object):
     @pytest.fixture(scope="function")
     def p(self):
-        return Presence()
+        return Residents()
 
 
     def _add_resident(self, pr):
@@ -46,6 +46,9 @@ class TestPresence(object):
             "residents": [
                 {
                     "name": "Lars",
+                    "email": "",
+                    "mobile": "",
+                    "pushover_token": "",
                     "devices" : [
                         {
                             "type_name": "fritz_box_host",
@@ -96,6 +99,24 @@ class TestPresence(object):
         assert isinstance(p.residents[0], Resident)
 
 
+    def test_resident_exists(self, p):
+        assert p.residents == []
+        assert p.resident_exists(0) == False
+        p.add_resident(Resident(p))
+        assert p.resident_exists(0) == True
+        assert p.resident_exists(1) == False
+
+
+    def test_get_resident(self, p):
+        assert p.residents == []
+        with pytest.raises(IndexError):
+            assert p.get_resident(0)
+        p.add_resident(Resident(p))
+        assert isinstance(p.get_resident(0), Resident)
+        with pytest.raises(IndexError):
+            assert p.get_resident(1)
+
+
     def test_clear(self, p):
         self._add_resident(p)
         assert len(p.residents) == 1
@@ -107,8 +128,8 @@ class TestPresence(object):
 class TestResident(object):
     @pytest.fixture(scope="function")
     def p(self):
-        presence = Presence()
-        return Resident(presence)
+        residents = Residents()
+        return Resident(residents)
 
 
     def test_init(self, p):
@@ -122,6 +143,9 @@ class TestResident(object):
     def _from_config(self, resident):
         resident.from_config({
             "name": "Lars",
+            "email": "",
+            "mobile": "",
+            "pushover_token": "",
             "devices" : [
                 {
                     "type_name": "fritz_box_host",
@@ -140,6 +164,9 @@ class TestResident(object):
         with pytest.raises(PMUserError) as e:
             p.from_config({
                 "name": "Lars",
+                "email": "",
+                "mobile": "",
+                "pushover_token": "",
                 "devices" : [
                     {
                         "type_name": "invalid_type",
@@ -211,6 +238,13 @@ class TestResident(object):
         assert p.last_changed == p.last_updated
 
 
+    def test_clear_devices(self, p):
+        self._from_config(p)
+        assert len(p.devices) == 1
+        p.clear_devices()
+        assert p.devices == []
+
+
 
 class TestPersonalDevice(object):
     def test_types(self):
@@ -251,7 +285,6 @@ class TestPersonalDeviceFritzBoxHost(object):
     def test_cls(self):
         assert PersonalDeviceFritzBoxHost.type_name == "fritz_box_host"
         assert PersonalDeviceFritzBoxHost.type_title == "fritz!Box Host"
-        assert PersonalDeviceFritzBoxHost.connection == None
 
     def test_configure(self):
         assert PersonalDeviceFritzBoxHost._address  == "fritz.box"
@@ -277,7 +310,7 @@ class TestPersonalDeviceFritzBoxHost(object):
 
 
     def test_connect(self, monkeypatch):
-        monkeypatch.setattr(pmatic.presence, "SimpleTR64Lan", None)
+        monkeypatch.setattr(pmatic.residents, "SimpleTR64Lan", None)
         with pytest.raises(PMException) as e:
             PersonalDeviceFritzBoxHost._connect()
         assert "simpletr64.actions.lan.Lan" in str(e)
