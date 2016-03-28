@@ -1344,6 +1344,7 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
             Config.log_level = None
         else:
             Config.log_level = log_level_name
+        pmatic.logging(Config.log_level)
 
         self._save_ccu_config()
         self._save_fritzbox_config()

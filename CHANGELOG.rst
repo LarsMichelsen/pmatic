@@ -17,6 +17,7 @@ Unreleased (Use snapshot builds to get these changes)
 * Manager: Schedules that rely on devices can now be edited even when the
   manager is currently not connected with the CCU.
 * Manager: Improved handling of deleted scripts in schedules
+* Manager: Changing the log level is now applied instantly
 * Windows: Made CCU detection platform independent
 * Windows: Made setup.py more platform independent
 * Better linking from addon page to the manager page
