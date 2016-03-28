@@ -75,7 +75,19 @@ class TestPresence(object):
         assert len(p.to_config()) == 1
 
 
-    # FIXME: def test_update():
+    def test_update(self, p):
+        assert p.residents == []
+        p.update()
+
+        def x():
+            raise PMException("TEST")
+
+        self._add_resident(p)
+        p.residents[0].update_presence = x
+        with pytest.raises(PMException) as e:
+            p.update()
+        assert "TEST" in str(e)
+
 
     def test_add_resident(self, p):
         assert p.residents == []
@@ -158,7 +170,20 @@ class TestResident(object):
         assert len(p.devices) == 1
 
 
-    # FIXME: def test_update_presence(self, p)
+    def test_update_presence(self, p, monkeypatch):
+        assert p.devices == []
+        p.update_presence() # Should not change anything
+
+        self._from_config(p)
+        p.devices[0]._active = False
+        p.update_presence()
+        assert p.present == False
+
+        d = PersonalDevice()
+        d._active = True
+        p.add_device(d)
+        p.update_presence()
+        assert p.present == True
 
 
     def test_set_presence(self, p):
