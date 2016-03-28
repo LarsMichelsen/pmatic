@@ -11,7 +11,7 @@ Contents:
    pmatic_module.rst
    pmatic_devices.rst
    pmatic_notify.rst
-   pmatic_presence.rst
+   pmatic_residents.rst
    pmatic_manager.rst
    advanced.rst
    about_and_license.rst

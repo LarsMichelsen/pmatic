@@ -1,3 +1,12 @@
+Manage your Residents
+=====================
+
+You can manage your residents either in your own scripts by using the :class:`pmatic.residents`
+class or within the manager by configuring your residents using the GUI and then access the
+residents configured attributes like email address, mobile number or pushover tokens from your
+own pmatic scripts. Another interesting topic is the presence detection of your residents, take
+a look at that chapter below.
+
 .. _presence_detection:
 
 Presence detection with pmatic
@@ -17,6 +26,6 @@ To make it even more comfortable the pmatic Manager has a dedicated GUI to confi
 users and devices. Within the manager you can even trigger scripts when a user arrives or
 leaves.
 
-.. automodule:: pmatic.presence
+.. automodule:: pmatic.residents
     :members:
     :undoc-members:

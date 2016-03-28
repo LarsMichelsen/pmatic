@@ -25,21 +25,24 @@
 # a persons availability by a device which is connected withe a fritz!Box
 # in your local network.
 
-from pmatic.presence import Presence
+from pmatic.residents import Residents
 
 # Basic configuration for the connection with your fritz!Box.
 # Other available parameters are port=49000, user="username".
 from pmatic.presence import PersonalDeviceFritzBoxHost
 PersonalDeviceFritzBoxHost.configure("fritz.box", password="EPIC-SECRET-PW")
 
-# Now create a presence manager instance and configure it. Currently the easiest
+# Now create a residents manager instance and configure it. Currently the easiest
 # way is to use it is to use the from_config() method with the following data:
-p = Presence()
-p.from_config({
-    "persons": [
+r = Residents()
+r.from_config({
+    "residents": [
         {
-            "name": "Lars",
-            "devices" : [
+            "name"           : "Lars",
+            "email"          : "",
+            "mobile"         : "",
+            "pushover_token" : "",
+            "devices": [
                 {
                     "type_name": "fritz_box_host",
                     "mac": "30:10:E6:10:D4:B2",
@@ -49,11 +52,11 @@ p.from_config({
     ],
 })
 
-# After initialization you can run either .update() on the presence instance
-# or .update_presence() on a specific person to update the presence information
+# After initialization you can run either .update() on the residents instance
+# or .update_presence() on a specific resident to update the presence information
 # from the data source, in this case the fritz!Box.
-p.update()
+r.update()
 
-for person in p.persons:
-    #person.update_presence()
-    print(person.name + " " + (person.present and "is at home" or "is not at home"))
+for resident in r.residents:
+    #resident.update_presence()
+    print(resident.name + " " + (resident.present and "is at home" or "is not at home"))
