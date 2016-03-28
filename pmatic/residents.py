@@ -43,6 +43,7 @@ class Residents(utils.LogMixin):
     """This class is meant to manage your residents and the presence of them."""
     def __init__(self):
         super(Residents, self).__init__()
+        self._next_resident_id = 0
         self.residents = []
 
 
@@ -50,6 +51,8 @@ class Residents(utils.LogMixin):
         """Build the Residents object, residents and devices from a persisted
         configuration dictionary."""
         self.clear()
+
+        self._next_resident_id = cfg.get("next_resident_id", 0)
         for resident_cfg in cfg.get("residents", []):
             p = Resident(self)
             p.from_config(resident_cfg)
@@ -62,6 +65,7 @@ class Residents(utils.LogMixin):
         afterwards and handed over to :meth:`from_config` to reconstruct the
         current Residents object."""
         return {
+            "next_resident_id": self._next_resident_id,
             "residents": [ p.to_config() for p in self.residents ],
         }
 
@@ -83,8 +87,8 @@ class Residents(utils.LogMixin):
 
     def add(self, r):
         """Add a :class:`Resident` object to the presence detection."""
-        num = len(self.residents)
-        r.id = num
+        r.id = self._next_resident_id
+        self._next_resident_id += 1
         self.residents.append(r)
 
 
@@ -95,9 +99,11 @@ class Residents(utils.LogMixin):
 
 
     def get(self, resident_id):
-        """Returns the :class:`Resident` matching the given ``resident_id``. Raises an
-        ``IndexError`` when this resident does not exist."""
-        return self.residents[resident_id]
+        """Returns the :class:`Resident` matching the given ``resident_id``. Returns None
+        when this resident does not exist."""
+        for resident in self.residents:
+            if resident.id == resident_id:
+                return resident
 
 
     def get_by_name(self, resident_name):
@@ -120,6 +126,7 @@ class Residents(utils.LogMixin):
 
     def clear(self):
         """Resets the Persence object to it's initial state."""
+        self._next_resident_id = 0
         self.residents = []
 
 
@@ -155,6 +162,7 @@ class Resident(utils.LogMixin):
 
 
     def from_config(self, cfg):
+        self.id      = cfg["id"]
         self.name    = cfg["name"]
         self.email   = cfg["email"]
         self.mobile  = cfg["mobile"]
@@ -174,6 +182,7 @@ class Resident(utils.LogMixin):
 
     def to_config(self):
         return {
+            "id"             : self.id,
             "name"           : self.name,
             "email"          : self.email,
             "mobile"         : self.mobile,

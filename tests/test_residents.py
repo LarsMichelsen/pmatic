@@ -45,6 +45,7 @@ class TestResidents(object):
         pr.from_config({
             "residents": [
                 {
+                    "id": 0,
                     "name": "Lars",
                     "email": "",
                     "mobile": "",
@@ -71,11 +72,11 @@ class TestResidents(object):
 
 
     def test_to_config(self, p):
-        assert p.to_config() == {"residents": []}
+        assert p.to_config() == {"residents": [], "next_resident_id": 0}
 
         self._add_resident(p)
         assert isinstance(p.to_config(), dict)
-        assert len(p.to_config()) == 1
+        assert len(p.to_config()["residents"]) == 1
 
 
     def test_update(self, p):
@@ -96,6 +97,7 @@ class TestResidents(object):
         assert p.residents == []
         p.add(Resident(p))
         assert len(p.residents) == 1
+        assert p.residents[0].id == 0
         assert isinstance(p.residents[0], Resident)
 
 
@@ -109,12 +111,10 @@ class TestResidents(object):
 
     def test_get(self, p):
         assert p.residents == []
-        with pytest.raises(IndexError):
-            assert p.get(0)
+        assert p.get(0) == None
         p.add(Resident(p))
         assert isinstance(p.get(0), Resident)
-        with pytest.raises(IndexError):
-            assert p.get(1)
+        assert p.get(1) == None
 
 
     def test_get_by_name(self, p):
@@ -160,6 +160,7 @@ class TestResident(object):
 
     def _from_config(self, resident):
         resident.from_config({
+            "id": 0,
             "name": "Lars",
             "email": "",
             "mobile": "",
@@ -181,6 +182,7 @@ class TestResident(object):
 
         with pytest.raises(PMUserError) as e:
             p.from_config({
+                "id": 0,
                 "name": "Lars",
                 "email": "",
                 "mobile": "",
