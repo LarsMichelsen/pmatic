@@ -1179,7 +1179,7 @@ class ManagerPersonalDevice(object):
     def set_submitted_vars(page, device, varprefix):
         pass
 
-    
+
     @staticmethod
     def display(device):
         return ""
@@ -2468,7 +2468,7 @@ class EventManager(threading.Thread, utils.LogMixin):
         self._is_initialized = True
 
 
-    def _on_value_updated(self, updated_param):
+    def _on_value_updated(self, event_listener, updated_param):
         self._manager.event_history.add_event({
             "time"           : updated_param.last_updated,
             "time_changed"   : updated_param.last_changed,
@@ -2545,6 +2545,7 @@ class PersistentConfig(object):
 
             self.from_config(config)
         except Exception:
+            raise
             self.logger.error("Failed to load %s. Terminating." % self._name, exc_info=True)
             sys.exit(1)
 
@@ -3311,3 +3312,94 @@ class ConditionOnTime(Condition):
                                   "between 1 and 31.")
 
             self.day_of_month = day_of_month
+
+
+
+class ConditionOnResidentPresence(Condition):
+    type_name = "on_resident_presence"
+    type_title = "on resident presence"
+
+    _event_types = [
+        ("arrival",   "Arrival"),
+        ("departure", "Departure"),
+        ("change",    "Arrival or departure"),
+    ]
+
+    def __init__(self, manager):
+        super(ConditionOnResidentPresence, self).__init__(manager)
+        self.resident   = None
+        self.event_type = None
+
+
+    def display(self):
+        txt = super(ConditionOnResidentPresence, self).display()
+        choices = dict(self._event_types)
+        txt += ": %s of %s" % (choices.get(self.event_type, self.event_type),
+                               self.resident.name if self.resident else "UNKNOWN")
+        return txt
+
+
+    def from_config(self, cfg):
+        super(ConditionOnResidentPresence, self).from_config(cfg)
+
+        resident = self._manager.residents.get(cfg["resident_id"])
+        if resident:
+            self.resident = resident
+
+
+    def to_config(self):
+        cfg = super(ConditionOnResidentPresence, self).to_config()
+        cfg.update({
+            "resident_id" : self.resident.id,
+            "event_type"  : self.event_type,
+        })
+        return cfg
+
+
+    def input_parameters(self, page, varprefix):
+        page.write("<table><tr><td>")
+        page.write("Event type: ")
+        page.write("</td><td>")
+        page.select(varprefix+"event_type", self._event_types,
+                    self.event_type, onchange="this.form.submit()")
+        page.write("</td></tr>")
+
+        if not self.event_type:
+            page.write("</table>")
+            return
+
+        page.write("<tr><td>")
+        page.write("Resident: ")
+        page.write("</td><td>")
+        page.select(varprefix+"resident_id",
+                    self._resident_choices(), self.resident and self.resident.id)
+        page.write("</td></tr>")
+        page.write("</table>")
+
+
+    def _resident_choices(self):
+        return sorted([ (r.id, r.name) for r in self._manager.residents.residents ],
+                      key=lambda r: r[1])
+
+
+    def set_submitted_vars(self, page, varprefix):
+        event_type = page.vars.getvalue(varprefix+"event_type")
+
+        if page.is_action() and not event_type:
+            raise PMUserError("You need to configure an event type.")
+
+        if event_type:
+            if event_type not in dict(self._event_types):
+                raise PMUserError("Invalid event type given.")
+            self.event_type = event_type
+
+        resident_id = page.vars.getvalue(varprefix+"resident_id")
+        if not resident_id:
+            raise PMUserError("You need to choose a resident.")
+        resident_id = int(resident_id)
+
+        resident = self._manager.residents.get(resident_id)
+        if resident == None:
+            raise PMUserError("Invalid resident given.")
+
+        self.resident = resident

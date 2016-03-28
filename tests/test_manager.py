@@ -52,6 +52,7 @@ class TestCondition(object):
         names = sorted(["ConditionOnStartup",
                         "ConditionOnCCUInitialized",
                         "ConditionOnDeviceEvent",
+                        "ConditionOnResidentPresence",
                         "ConditionOnTime"])
         assert types == names
 
@@ -201,7 +202,6 @@ class TestManager(object):
     def manager(self, monkeypatch):
         monkeypatch.setattr(pmatic.api, 'init', lambda **kwargs: None)
         return pmatic.manager.Manager(("127.0.0.1", 1337))
-
 
 
     # FIXME: Also test SIGINT, SIGQUIT

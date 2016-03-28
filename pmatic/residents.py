@@ -54,9 +54,9 @@ class Residents(utils.LogMixin):
 
         self._next_resident_id = cfg.get("next_resident_id", 0)
         for resident_cfg in cfg.get("residents", []):
-            p = Resident(self)
-            p.from_config(resident_cfg)
-            self.add(p)
+            r = Resident(self)
+            r.from_config(resident_cfg)
+            self.residents.append(r)
 
 
     def to_config(self):
@@ -86,7 +86,9 @@ class Residents(utils.LogMixin):
 
 
     def add(self, r):
-        """Add a :class:`Resident` object to the presence detection."""
+        """Add a :class:`Resident` object to the collection. This method automatically
+        generates a new resident id for the object and stores this key within the object.
+        """
         r.id = self._next_resident_id
         self._next_resident_id += 1
         self.residents.append(r)

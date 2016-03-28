@@ -21,7 +21,6 @@ Todos:
   * Tests for the manager
   * Events: Close on shutdown when registered?
   * Make editing of scheules only possible when not currently running?
-  * Schedule: Delete condition
   * Add resident arrive / leave as event for schedules
   * Add resident arrive / leave as event to the event log
 * Cleanup: set_submitted_vars() shows: Cleanup access to channel by address to

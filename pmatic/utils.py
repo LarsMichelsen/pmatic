@@ -34,6 +34,9 @@ import sys
 import logging
 import platform
 
+from pmatic.exceptions import PMException
+
+
 class LogMixin(object):
     """Inherit from this class to provide logging support.
 
@@ -54,6 +57,49 @@ class LogMixin(object):
         if not cls._cls_logger:
             cls._cls_logger = logging.getLogger('.'.join([__name__, cls.__name__]))
         return cls._cls_logger
+
+
+
+class CallbackMixin(object):
+    """Manages callbacks which can be registered on an object inheriting from this class."""
+
+    def __init__(self):
+        self._callbacks = {}
+
+
+    def _init_callbacks(self, cb_names):
+        for cb_name in cb_names:
+            self._callbacks[cb_name] = []
+
+
+    def _get_callbacks(self, cb_name):
+        try:
+            return self._callbacks[cb_name]
+        except KeyError:
+            raise PMException("Invalid callback %s specified (Available: %s)" %
+                                    (cb_name, ", ".join(self._callbacks.keys())))
+
+
+    def register_callback(self, cb_name, func):
+        """Register func to be executed as callback."""
+        self._get_callbacks(cb_name).append(func)
+
+
+    def remove_callback(self, cb_name, func):
+        """Remove the specified callback func."""
+        try:
+            self._get_callbacks(cb_name).remove(func)
+        except ValueError:
+            pass # allow deletion of non registered function
+
+
+    def _callback(self, cb_name, *args, **kwargs):
+        """Execute all registered callbacks for this event."""
+        for callback in self._get_callbacks(cb_name):
+            try:
+                callback(self, *args, **kwargs)
+            except Exception as e:
+                raise PMException("Exception in callback (%s - %s): %s" % (cb_name, callback, e))
 
 
 

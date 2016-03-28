@@ -201,10 +201,10 @@ class TestEventListener(lib.TestCCUClassWide):
 
 
     def test_callback(self, listener):
-        def add_element(liste):
+        def add_element(obj, liste):
             liste.append("hi")
 
-        def raise_exc():
+        def raise_exc(obj):
             raise Exception("GRÜN!")
 
         listener.register_callback("value_updated", add_element)
@@ -225,7 +225,7 @@ class TestEventListener(lib.TestCCUClassWide):
 
 
     def test_on_value_changed(self, listener):
-        def add_element(liste):
+        def add_element(obj, liste):
             liste.append("hi")
 
         listener.on_value_changed(add_element)
@@ -237,7 +237,7 @@ class TestEventListener(lib.TestCCUClassWide):
 
 
     def test_on_value_updated(self, listener):
-        def add_element(liste):
+        def add_element(obj, liste):
             liste.append("ho")
 
         listener.on_value_updated(add_element)

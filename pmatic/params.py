@@ -28,11 +28,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-try:
-    from builtins import object # pylint:disable=redefined-builtin
-except ImportError:
-    pass
-
 import time
 
 import pmatic.entities
@@ -40,7 +35,7 @@ from pmatic import utils
 from pmatic.exceptions import PMException, PMActionFailed
 
 
-class Parameter(object):
+class Parameter(utils.CallbackMixin):
     datatype = "string"
 
     _transform_attributes = {
@@ -56,17 +51,14 @@ class Parameter(object):
         assert isinstance(channel, pmatic.entities.Channel), \
                      "channel is not a Channel: %r" % channel
         assert isinstance(spec, dict), "spec is not a dictionary: %r" % spec
+        super(Parameter, self).__init__()
         self.channel = channel
         self._init_attributes(spec)
+        self._init_callbacks(["value_updated", "value_changed"])
 
         self._value_updated = None
         self._value_changed = None
         self._value = self.default
-
-        self._callbacks = {
-            "value_updated": [],
-            "value_changed": [],
-        }
 
 
     def _init_attributes(self, spec):
@@ -293,36 +285,6 @@ class Parameter(object):
     def __unicode__(self):
         """Returns the formated value as unicode string. Only relevant for Python 2."""
         return self.formated()
-
-
-    def _get_callbacks(self, cb_name):
-        try:
-            return self._callbacks[cb_name]
-        except KeyError:
-            raise PMException("Invalid callback %s specified (Available: %s)" %
-                                    (cb_name, ", ".join(self._callbacks.keys())))
-
-
-    def register_callback(self, cb_name, func):
-        """Register func to be executed as callback."""
-        self._get_callbacks(cb_name).append(func)
-
-
-    def remove_callback(self, cb_name, func):
-        """Remove the specified callback func."""
-        try:
-            self._get_callbacks(cb_name).remove(func)
-        except ValueError:
-            pass # allow deletion of non registered function
-
-
-    def _callback(self, cb_name):
-        """Execute all registered callbacks for this event."""
-        for callback in self._get_callbacks(cb_name):
-            try:
-                callback(self)
-            except Exception as e:
-                raise PMException("Exception in callback (%s - %s): %s" % (cb_name, callback, e))
 
 
 

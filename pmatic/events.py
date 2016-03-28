@@ -101,7 +101,7 @@ class EventXMLRPCRequestHandler(SimpleXMLRPCRequestHandler, utils.LogMixin):
 
 
 
-class EventListener(utils.LogMixin):
+class EventListener(utils.LogMixin, utils.CallbackMixin):
     """Manages events received from the CCU XML-RPC API.
 
     This class can tell the CCU to send status update events to pmatic
@@ -142,14 +142,11 @@ class EventListener(utils.LogMixin):
 
 
     def __init__(self, ccu, listen_address=None, interface_id=None):
+        super(EventListener, self).__init__()
         self._ccu         = ccu
         self._server      = None
         self._initialized = False
-        self._callbacks   = {
-            "value_updated": [],
-            "value_changed": [],
-        }
-
+        self._init_callbacks(["value_updated", "value_changed"])
         self._init_listen_address(listen_address)
         self._init_interface_id(interface_id)
 
@@ -323,34 +320,9 @@ class EventListener(utils.LogMixin):
         self.register_callback("value_updated", func)
 
 
-    def _get_callbacks(self, cb_name):
-        try:
-            return self._callbacks[cb_name]
-        except KeyError:
-            raise PMException("Invalid callback %s specified (Available: %s)" %
-                                    (cb_name, ", ".join(self._callbacks.keys())))
-
-
-    def register_callback(self, cb_name, func):
-        """Register func to be executed as callback."""
-        self._get_callbacks(cb_name).append(func)
-
-
-    def remove_callback(self, cb_name, func):
-        """Remove the specified callback func."""
-        try:
-            self._get_callbacks(cb_name).remove(func)
-        except ValueError:
-            pass # allow deletion of non registered function
-
-
     def callback(self, cb_name, *args, **kwargs):
         """Execute all registered callbacks for this event."""
-        for callback in self._get_callbacks(cb_name):
-            try:
-                callback(*args, **kwargs)
-            except Exception as e:
-                raise PMException("Exception in callback (%s - %s): %s" % (cb_name, callback, e))
+        self._callback(cb_name, *args, **kwargs)
 
 
 
