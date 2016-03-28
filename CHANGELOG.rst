@@ -18,6 +18,8 @@ Unreleased (Use snapshot builds to get these changes)
   manager is currently not connected with the CCU.
 * Manager: Improved handling of deleted scripts in schedules
 * Manager: Changing the log level is now applied instantly
+* Manager: Added "status" target to init script
+* Manager: Fixed "restart" target of init script
 * Windows: Made CCU detection platform independent
 * Windows: Made setup.py more platform independent
 * Better linking from addon page to the manager page
