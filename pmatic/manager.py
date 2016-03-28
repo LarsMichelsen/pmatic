@@ -1353,12 +1353,20 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
         event_history_length = self._vars.getvalue("event_history_length")
         try:
             event_history_length = int(event_history_length)
-            if event_history_length < 1:
-                raise PMUserError("The minimum event history length is 1.")
-            Config.event_history_length = event_history_length
-
         except ValueError:
             raise PMUserError("Invalid event history length given.")
+        if event_history_length < 1:
+            raise PMUserError("The minimum event history length is 1.")
+        Config.event_history_length = event_history_length
+
+        presence_update_interval = self._vars.getvalue("presence_update_interval")
+        try:
+            presence_update_interval = int(presence_update_interval)
+        except ValueError:
+            raise PMUserError("Invalid presence update interval given.")
+        if presence_update_interval < 1:
+            raise PMUserError("The minimum presence update interval is 1 second.")
+        Config.presence_update_interval = presence_update_interval
 
         Config.save()
         self.success("The configuration has been updated.")
