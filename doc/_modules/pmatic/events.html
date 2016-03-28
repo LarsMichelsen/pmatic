@@ -155,7 +155,7 @@
 
 
 
-<div class="viewcode-block" id="EventListener"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.events.EventListener">[docs]</a><span class="k">class</span> <span class="nc">EventListener</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">LogMixin</span><span class="p">):</span>
+<div class="viewcode-block" id="EventListener"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.events.EventListener">[docs]</a><span class="k">class</span> <span class="nc">EventListener</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">LogMixin</span><span class="p">,</span> <span class="n">utils</span><span class="o">.</span><span class="n">CallbackMixin</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Manages events received from the CCU XML-RPC API.</span>
 
 <span class="sd">    This class can tell the CCU to send status update events to pmatic</span>
@@ -196,14 +196,11 @@
 
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">,</span> <span class="n">listen_address</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">interface_id</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">EventListener</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span>         <span class="o">=</span> <span class="n">ccu</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_server</span>      <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span>   <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;value_updated&quot;</span><span class="p">:</span> <span class="p">[],</span>
-            <span class="s2">&quot;value_changed&quot;</span><span class="p">:</span> <span class="p">[],</span>
-        <span class="p">}</span>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_callbacks</span><span class="p">([</span><span class="s2">&quot;value_updated&quot;</span><span class="p">,</span> <span class="s2">&quot;value_changed&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_listen_address</span><span class="p">(</span><span class="n">listen_address</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_interface_id</span><span class="p">(</span><span class="n">interface_id</span><span class="p">)</span>
 
@@ -377,34 +374,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">register_callback</span><span class="p">(</span><span class="s2">&quot;value_updated&quot;</span><span class="p">,</span> <span class="n">func</span><span class="p">)</span></div>
 
 
-    <span class="k">def</span> <span class="nf">_get_callbacks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cb_name</span><span class="p">):</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="p">[</span><span class="n">cb_name</span><span class="p">]</span>
-        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Invalid callback </span><span class="si">%s</span><span class="s2"> specified (Available: </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span>
-                                    <span class="p">(</span><span class="n">cb_name</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_callbacks</span><span class="o">.</span><span class="n">keys</span><span class="p">())))</span>
-
-
-<div class="viewcode-block" id="EventListener.register_callback"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.events.EventListener.register_callback">[docs]</a>    <span class="k">def</span> <span class="nf">register_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cb_name</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Register func to be executed as callback.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_get_callbacks</span><span class="p">(</span><span class="n">cb_name</span><span class="p">)</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">func</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="EventListener.remove_callback"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.events.EventListener.remove_callback">[docs]</a>    <span class="k">def</span> <span class="nf">remove_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cb_name</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Remove the specified callback func.&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_get_callbacks</span><span class="p">(</span><span class="n">cb_name</span><span class="p">)</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-            <span class="k">pass</span> <span class="c1"># allow deletion of non registered function</span></div>
-
-
 <div class="viewcode-block" id="EventListener.callback"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.events.EventListener.callback">[docs]</a>    <span class="k">def</span> <span class="nf">callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cb_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Execute all registered callbacks for this event.&quot;&quot;&quot;</span>
-        <span class="k">for</span> <span class="n">callback</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_callbacks</span><span class="p">(</span><span class="n">cb_name</span><span class="p">):</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">callback</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Exception in callback (</span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">cb_name</span><span class="p">,</span> <span class="n">callback</span><span class="p">,</span> <span class="n">e</span><span class="p">))</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="n">cb_name</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div></div>
 
 
 

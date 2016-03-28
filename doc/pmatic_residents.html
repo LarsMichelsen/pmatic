@@ -113,7 +113,8 @@ presence information from the connected data source.</p>
 <dl class="method">
 <dt id="pmatic.residents.Residents.add">
 <code class="descname">add</code><span class="sig-paren">(</span><em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Residents.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents.add" title="Permalink to this definition">¶</a></dt>
-<dd><p>Add a <a class="reference internal" href="#pmatic.residents.Resident" title="pmatic.residents.Resident"><code class="xref py py-class docutils literal"><span class="pre">Resident</span></code></a> object to the presence detection.</p>
+<dd><p>Add a <a class="reference internal" href="#pmatic.residents.Resident" title="pmatic.residents.Resident"><code class="xref py py-class docutils literal"><span class="pre">Resident</span></code></a> object to the collection. This method automatically
+generates a new resident id for the object and stores this key within the object.</p>
 </dd></dl>
 
 <dl class="method">
@@ -126,8 +127,8 @@ Otherwise <code class="docutils literal"><span class="pre">False</span></code> i
 <dl class="method">
 <dt id="pmatic.residents.Residents.get">
 <code class="descname">get</code><span class="sig-paren">(</span><em>resident_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Residents.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents.get" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns the <a class="reference internal" href="#pmatic.residents.Resident" title="pmatic.residents.Resident"><code class="xref py py-class docutils literal"><span class="pre">Resident</span></code></a> matching the given <code class="docutils literal"><span class="pre">resident_id</span></code>. Raises an
-<code class="docutils literal"><span class="pre">IndexError</span></code> when this resident does not exist.</p>
+<dd><p>Returns the <a class="reference internal" href="#pmatic.residents.Resident" title="pmatic.residents.Resident"><code class="xref py py-class docutils literal"><span class="pre">Resident</span></code></a> matching the given <code class="docutils literal"><span class="pre">resident_id</span></code>. Returns None
+when this resident does not exist.</p>
 </dd></dl>
 
 <dl class="method">
@@ -205,6 +206,22 @@ the resident is treated to be present.</p>
 <dd><p>Resets the device list to it&#8217;s initial state.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pmatic.residents.Resident.on_presence_updated">
+<code class="descname">on_presence_updated</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.on_presence_updated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.on_presence_updated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a function to be called each time the presence of this resident is updated.</p>
+<p>The function must accept a single argument which is the the current <a class="reference internal" href="#pmatic.residents.Resident" title="pmatic.residents.Resident"><code class="xref py py-class docutils literal"><span class="pre">Resident</span></code></a>
+object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Resident.on_presence_changed">
+<code class="descname">on_presence_changed</code><span class="sig-paren">(</span><em>func</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.on_presence_changed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.on_presence_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Register a function to be called each time the presence of this resident is changed.</p>
+<p>The function must accept a single argument which is the the current <a class="reference internal" href="#pmatic.residents.Resident" title="pmatic.residents.Resident"><code class="xref py py-class docutils literal"><span class="pre">Resident</span></code></a>
+object.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -242,6 +259,13 @@ or <code class="docutils literal"><span class="pre">None</span></code> if there 
 <dt id="pmatic.residents.PersonalDevice.to_config">
 <code class="descname">to_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDevice.to_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDevice.to_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.PersonalDevice.update_presence">
+<code class="descname">update_presence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDevice.update_presence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDevice.update_presence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Can be overridden by specific personal device classes to update the
+information of this device.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="pmatic.residents.PersonalDevice.name">
@@ -290,6 +314,12 @@ or <code class="docutils literal"><span class="pre">None</span></code> if there 
 <dt id="pmatic.residents.PersonalDeviceFritzBoxHost.to_config">
 <code class="descname">to_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDeviceFritzBoxHost.to_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost.to_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.PersonalDeviceFritzBoxHost.update_presence">
+<code class="descname">update_presence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDeviceFritzBoxHost.update_presence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost.update_presence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update the presence information of this device.</p>
+</dd></dl>
 
 </dd></dl>
 
