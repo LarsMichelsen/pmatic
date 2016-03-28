@@ -2277,14 +2277,14 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         self.set_app(self._request_handler)
 
         self.ccu           = None
-        self.residents     = None
         self.event_manager = EventManager(self)
-
         self.event_history = EventHistory()
-        self.scheduler = Scheduler(self)
-        self.scheduler.start()
+        self.scheduler     = Scheduler(self)
+        self.residents     = ManagerResidents(self)
 
-        self.residents = ManagerResidents(self)
+
+    def init_scheduler(self):
+        self.scheduler.start()
 
 
     # FIXME: When running the manager from remote:
@@ -2636,7 +2636,7 @@ class Scheduler(threading.Thread, utils.LogMixin, PersistentConfig):
     def _execute_presence_update(self):
         """Updates the presence information of residents in the configured interval. When no
         resident is configured, this method is doing nothing."""
-        if not self._manager.residents or not self._manager.residents.enabled:
+        if not self._manager.residents.enabled:
             self.logger.debug("Not updating presence information (not enabled)")
             return
 

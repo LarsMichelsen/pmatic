@@ -177,6 +177,7 @@ except socket.error as e:
 if not args.foreground:
     manager.daemonize()
 
+manager.init_scheduler()
 manager.register_signal_handlers()
 manager.init_ccu()
 
