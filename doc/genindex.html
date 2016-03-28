@@ -3,7 +3,7 @@
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 
-<html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
@@ -109,15 +109,9 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDevice.active">active (pmatic.presence.PersonalDevice attribute)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDevice.active">active (pmatic.residents.PersonalDevice attribute)</a>
   </dt>
 
-      <dd><dl>
-        
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDeviceFritzBoxHost.active">(pmatic.presence.PersonalDeviceFritzBoxHost attribute)</a>
-  </dt>
-
-      </dl></dd>
       
   <dt><a href="pmatic_module.html#pmatic.entities.Devices.add">add() (pmatic.entities.Devices method)</a>
   </dt>
@@ -127,15 +121,15 @@
   <dt><a href="pmatic_module.html#pmatic.entities.Rooms.add">(pmatic.entities.Rooms method)</a>
   </dt>
 
-      </dl></dd>
-      
-  <dt><a href="pmatic_presence.html#pmatic.presence.Resident.add_device">add_device() (pmatic.presence.Resident method)</a>
+        
+  <dt><a href="pmatic_residents.html#pmatic.residents.Residents.add">(pmatic.residents.Residents method)</a>
   </dt>
 
+      </dl></dd>
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.Presence.add_resident">add_resident() (pmatic.presence.Presence method)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.Resident.add_device">add_device() (pmatic.residents.Resident method)</a>
   </dt>
 
       
@@ -216,12 +210,12 @@
   <dt><a href="pmatic_devices.html#pmatic.entities.ChannelConditionVoltage">ChannelConditionVoltage (class in pmatic.entities)</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pmatic_devices.html#pmatic.entities.ChannelKey">ChannelKey (class in pmatic.entities)</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pmatic_devices.html#pmatic.entities.ChannelMaintenance">ChannelMaintenance (class in pmatic.entities)</a>
   </dt>
@@ -268,10 +262,14 @@
   </dt>
 
         
-  <dt><a href="pmatic_presence.html#pmatic.presence.Presence.clear">(pmatic.presence.Presence method)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.Residents.clear">(pmatic.residents.Residents method)</a>
   </dt>
 
       </dl></dd>
+      
+  <dt><a href="pmatic_residents.html#pmatic.residents.Resident.clear_devices">clear_devices() (pmatic.residents.Resident method)</a>
+  </dt>
+
       
   <dt><a href="pmatic_module.html#pmatic.CCU.close">close() (pmatic.CCU method)</a>
   </dt>
@@ -283,11 +281,11 @@
 
       </dl></dd>
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDeviceFritzBoxHost.configure">configure() (pmatic.presence.PersonalDeviceFritzBoxHost class method)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDeviceFritzBoxHost.configure">configure() (pmatic.residents.PersonalDeviceFritzBoxHost class method)</a>
   </dt>
 
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDeviceFritzBoxHost.connection">connection (pmatic.presence.PersonalDeviceFritzBoxHost attribute)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDeviceFritzBoxHost.connection">connection (pmatic.residents.PersonalDeviceFritzBoxHost attribute)</a>
   </dt>
 
       
@@ -337,15 +335,19 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pmatic_module.html#pmatic.events.EventListener">EventListener (class in pmatic.events)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.Residents.enabled">enabled (pmatic.residents.Residents attribute)</a>
   </dt>
 
       
-  <dt><a href="pmatic_module.html#pmatic.CCU.events">events (pmatic.CCU attribute)</a>
+  <dt><a href="pmatic_module.html#pmatic.events.EventListener">EventListener (class in pmatic.events)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="pmatic_module.html#pmatic.CCU.events">events (pmatic.CCU attribute)</a>
+  </dt>
+
       
   <dt><a href="pmatic_module.html#pmatic.entities.Devices.exists">exists() (pmatic.entities.Devices method)</a>
   </dt>
@@ -353,6 +355,10 @@
       <dd><dl>
         
   <dt><a href="pmatic_module.html#pmatic.entities.Rooms.exists">(pmatic.entities.Rooms method)</a>
+  </dt>
+
+        
+  <dt><a href="pmatic_residents.html#pmatic.residents.Residents.exists">(pmatic.residents.Residents method)</a>
   </dt>
 
       </dl></dd>
@@ -367,16 +373,16 @@
   </dt>
 
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDevice.from_config">from_config() (pmatic.presence.PersonalDevice method)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDevice.from_config">from_config() (pmatic.residents.PersonalDevice method)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="pmatic_presence.html#pmatic.presence.Presence.from_config">(pmatic.presence.Presence method)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.Resident.from_config">(pmatic.residents.Resident method)</a>
   </dt>
 
         
-  <dt><a href="pmatic_presence.html#pmatic.presence.Resident.from_config">(pmatic.presence.Resident method)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.Residents.from_config">(pmatic.residents.Residents method)</a>
   </dt>
 
       </dl></dd>
@@ -402,10 +408,18 @@
   </dt>
 
         
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDevice.get">(pmatic.presence.PersonalDevice class method)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDevice.get">(pmatic.residents.PersonalDevice class method)</a>
+  </dt>
+
+        
+  <dt><a href="pmatic_residents.html#pmatic.residents.Residents.get">(pmatic.residents.Residents method)</a>
   </dt>
 
       </dl></dd>
+      
+  <dt><a href="pmatic_residents.html#pmatic.residents.Residents.get_by_name">get_by_name() (pmatic.residents.Residents method)</a>
+  </dt>
+
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
@@ -501,11 +515,11 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.Resident.last_changed">last_changed (pmatic.presence.Resident attribute)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.Resident.last_changed">last_changed (pmatic.residents.Resident attribute)</a>
   </dt>
 
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.Resident.last_updated">last_updated (pmatic.presence.Resident attribute)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.Resident.last_updated">last_updated (pmatic.residents.Resident attribute)</a>
   </dt>
 
   </dl></td>
@@ -520,6 +534,10 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDeviceFritzBoxHost.mac">mac (pmatic.residents.PersonalDeviceFritzBoxHost attribute)</a>
+  </dt>
+
       
   <dt><a href="pmatic_module.html#pmatic.entities.Device.maintenance">maintenance (pmatic.entities.Device attribute)</a>
   </dt>
@@ -537,15 +555,9 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDevice.name">name (pmatic.presence.PersonalDevice attribute)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDevice.name">name (pmatic.residents.PersonalDevice attribute)</a>
   </dt>
 
-      <dd><dl>
-        
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDeviceFritzBoxHost.name">(pmatic.presence.PersonalDeviceFritzBoxHost attribute)</a>
-  </dt>
-
-      </dl></dd>
   </dl></td>
 </tr></table>
 
@@ -597,11 +609,11 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDevice">PersonalDevice (class in pmatic.presence)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDevice">PersonalDevice (class in pmatic.residents)</a>
   </dt>
 
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDeviceFritzBoxHost">PersonalDeviceFritzBoxHost (class in pmatic.presence)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDeviceFritzBoxHost">PersonalDeviceFritzBoxHost (class in pmatic.residents)</a>
   </dt>
 
       
@@ -617,7 +629,7 @@
   </dt>
 
       
-  <dt><a href="pmatic_presence.html#module-pmatic.presence">pmatic.presence (module)</a>
+  <dt><a href="pmatic_residents.html#module-pmatic.residents">pmatic.residents (module)</a>
   </dt>
 
       
@@ -628,22 +640,18 @@
   <dt><a href="pmatic_module.html#pmatic.PMDeviceOffline">PMDeviceOffline</a>
   </dt>
 
+  </dl></td>
+  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pmatic_module.html#pmatic.PMException">PMException</a>
   </dt>
 
-  </dl></td>
-  <td style="width: 33%" valign="top"><dl>
       
   <dt><a href="pmatic_module.html#pmatic.PMUserError">PMUserError</a>
   </dt>
 
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.Presence">Presence (class in pmatic.presence)</a>
-  </dt>
-
-      
-  <dt><a href="pmatic_presence.html#pmatic.presence.Resident.present">present (pmatic.presence.Resident attribute)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.Resident.present">present (pmatic.residents.Resident attribute)</a>
   </dt>
 
       
@@ -693,19 +701,27 @@
   </dt>
 
       
+  <dt><a href="pmatic_residents.html#pmatic.residents.Residents.remove">remove() (pmatic.residents.Residents method)</a>
+  </dt>
+
+      
   <dt><a href="pmatic_module.html#pmatic.events.EventListener.remove_callback">remove_callback() (pmatic.events.EventListener method)</a>
   </dt>
 
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.Resident">Resident (class in pmatic.presence)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.Resident">Resident (class in pmatic.residents)</a>
   </dt>
 
       
-  <dt><a href="pmatic_module.html#pmatic.entities.Room">Room (class in pmatic.entities)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.Residents">Residents (class in pmatic.residents)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
+      
+  <dt><a href="pmatic_module.html#pmatic.entities.Room">Room (class in pmatic.entities)</a>
+  </dt>
+
       
   <dt><a href="pmatic_module.html#pmatic.entities.Rooms">Rooms (class in pmatic.entities)</a>
   </dt>
@@ -827,16 +843,20 @@
   </dt>
 
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDevice.to_config">to_config() (pmatic.presence.PersonalDevice method)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDevice.to_config">to_config() (pmatic.residents.PersonalDevice method)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="pmatic_presence.html#pmatic.presence.Presence.to_config">(pmatic.presence.Presence method)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDeviceFritzBoxHost.to_config">(pmatic.residents.PersonalDeviceFritzBoxHost method)</a>
   </dt>
 
         
-  <dt><a href="pmatic_presence.html#pmatic.presence.Resident.to_config">(pmatic.presence.Resident method)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.Resident.to_config">(pmatic.residents.Resident method)</a>
+  </dt>
+
+        
+  <dt><a href="pmatic_residents.html#pmatic.residents.Residents.to_config">(pmatic.residents.Residents method)</a>
   </dt>
 
       </dl></dd>
@@ -851,27 +871,27 @@
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDevice.type_name">type_name (pmatic.presence.PersonalDevice attribute)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDevice.type_name">type_name (pmatic.residents.PersonalDevice attribute)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDeviceFritzBoxHost.type_name">(pmatic.presence.PersonalDeviceFritzBoxHost attribute)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDeviceFritzBoxHost.type_name">(pmatic.residents.PersonalDeviceFritzBoxHost attribute)</a>
   </dt>
 
       </dl></dd>
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDevice.type_title">type_title (pmatic.presence.PersonalDevice attribute)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDevice.type_title">type_title (pmatic.residents.PersonalDevice attribute)</a>
   </dt>
 
       <dd><dl>
         
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDeviceFritzBoxHost.type_title">(pmatic.presence.PersonalDeviceFritzBoxHost attribute)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDeviceFritzBoxHost.type_title">(pmatic.residents.PersonalDeviceFritzBoxHost attribute)</a>
   </dt>
 
       </dl></dd>
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.PersonalDevice.types">types() (pmatic.presence.PersonalDevice class method)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.PersonalDevice.types">types() (pmatic.residents.PersonalDevice class method)</a>
   </dt>
 
   </dl></td>
@@ -881,13 +901,13 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.Presence.update">update() (pmatic.presence.Presence method)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.Residents.update">update() (pmatic.residents.Residents method)</a>
   </dt>
 
   </dl></td>
   <td style="width: 33%" valign="top"><dl>
       
-  <dt><a href="pmatic_presence.html#pmatic.presence.Resident.update_presence">update_presence() (pmatic.presence.Resident method)</a>
+  <dt><a href="pmatic_residents.html#pmatic.residents.Resident.update_presence">update_presence() (pmatic.residents.Resident method)</a>
   </dt>
 
   </dl></td>
@@ -937,9 +957,6 @@
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
     </form>
-    <p class="searchtip" style="font-size: 90%">
-    Enter search terms or a module, class or function name.
-    </p>
 </div>
 <script type="text/javascript">$('#searchbox').show(0);</script>
         </div>
@@ -960,7 +977,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2016, Lars Michelsen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.3.6.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.
     </div>
   </body>
 </html>

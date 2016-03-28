@@ -1,0 +1,363 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Manage your Residents &mdash; pmatic 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/sphinxcontrib-images/LightBox2/lightbox2/css/lightbox.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/sphinxcontrib-images/LightBox2/lightbox2/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="_static/sphinxcontrib-images/LightBox2/lightbox2/js/lightbox.min.js"></script>
+    <script type="text/javascript" src="_static/sphinxcontrib-images/LightBox2/lightbox2-customize/jquery-noconflict.js"></script>
+    <link rel="top" title="pmatic 0.1 documentation" href="index.html" />
+    <link rel="next" title="The pmatic Manager" href="pmatic_manager.html" />
+    <link rel="prev" title="Send Notifications with pmatic" href="pmatic_notify.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pmatic_manager.html" title="The pmatic Manager"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="pmatic_notify.html" title="Send Notifications with pmatic"
+             accesskey="P">previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pmatic 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="manage-your-residents">
+<h1>Manage your Residents<a class="headerlink" href="#manage-your-residents" title="Permalink to this headline">¶</a></h1>
+<p>You can manage your residents either in your own scripts by using the <a class="reference internal" href="#module-pmatic.residents" title="pmatic.residents"><code class="xref py py-class docutils literal"><span class="pre">pmatic.residents</span></code></a>
+class or within the manager by configuring your residents using the GUI and then access the
+residents configured attributes like email address, mobile number or pushover tokens from your
+own pmatic scripts. Another interesting topic is the presence detection of your residents, take
+a look at that chapter below.</p>
+<div class="section" id="presence-detection-with-pmatic">
+<span id="presence-detection"></span><h2>Presence detection with pmatic<a class="headerlink" href="#presence-detection-with-pmatic" title="Permalink to this headline">¶</a></h2>
+<p>An important task in home automation is to detect whether or not someone is at home or not.
+I personally use the presence information to route notifications to the different residents,
+for example to close a window when it is open for too long.</p>
+<p>Currently pmatic comes with one presence plugin which uses the fritz!Box connected devices
+list (Home Network) to detect whether or not a device (person) is present. It explicitly does
+not use a direct ping to any device because it is not possible to detect e.g. the iPhone in
+the LAN by using ping by default. But the list of the fritz!Box works like a charm for any
+mobile phone I tested.</p>
+<p>To make it even more comfortable the pmatic Manager has a dedicated GUI to configure your
+users and devices. Within the manager you can even trigger scripts when a user arrives or
+leaves.</p>
+<span class="target" id="module-pmatic.residents"></span><dl class="class">
+<dt id="pmatic.residents.Residents">
+<em class="property">class </em><code class="descclassname">pmatic.residents.</code><code class="descname">Residents</code><a class="reference internal" href="_modules/pmatic/residents.html#Residents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is meant to manage your residents and the presence of them.</p>
+<dl class="method">
+<dt id="pmatic.residents.Residents.from_config">
+<code class="descname">from_config</code><span class="sig-paren">(</span><em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Residents.from_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents.from_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build the Residents object, residents and devices from a persisted
+configuration dictionary.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Residents.to_config">
+<code class="descname">to_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Residents.to_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents.to_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a dictionary representing the whole residents configuration.
+This dictionary can be saved somewhere, for example in a file, loaded
+afterwards and handed over to <a class="reference internal" href="#pmatic.residents.Residents.from_config" title="pmatic.residents.Residents.from_config"><code class="xref py py-meth docutils literal"><span class="pre">from_config()</span></code></a> to reconstruct the
+current Residents object.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.residents.Residents.enabled">
+<code class="descname">enabled</code><a class="headerlink" href="#pmatic.residents.Residents.enabled" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is set to <code class="docutils literal"><span class="pre">True</span></code> when the presence detection shal be enabled.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Residents.update">
+<code class="descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Residents.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call this to update the presence information of all configured residents
+and their devices. This normally calls the presence plugins to update the
+presence information from the connected data source.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Residents.add">
+<code class="descname">add</code><span class="sig-paren">(</span><em>r</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Residents.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents.add" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add a <a class="reference internal" href="#pmatic.residents.Resident" title="pmatic.residents.Resident"><code class="xref py py-class docutils literal"><span class="pre">Resident</span></code></a> object to the presence detection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Residents.exists">
+<code class="descname">exists</code><span class="sig-paren">(</span><em>resident_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Residents.exists"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents.exists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <code class="docutils literal"><span class="pre">True</span></code> when a resident with the given id exists.
+Otherwise <code class="docutils literal"><span class="pre">False</span></code> is returned.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Residents.get">
+<code class="descname">get</code><span class="sig-paren">(</span><em>resident_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Residents.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the <a class="reference internal" href="#pmatic.residents.Resident" title="pmatic.residents.Resident"><code class="xref py py-class docutils literal"><span class="pre">Resident</span></code></a> matching the given <code class="docutils literal"><span class="pre">resident_id</span></code>. Raises an
+<code class="docutils literal"><span class="pre">IndexError</span></code> when this resident does not exist.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Residents.get_by_name">
+<code class="descname">get_by_name</code><span class="sig-paren">(</span><em>resident_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Residents.get_by_name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents.get_by_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the first <a class="reference internal" href="#pmatic.residents.Resident" title="pmatic.residents.Resident"><code class="xref py py-class docutils literal"><span class="pre">Resident</span></code></a> matching the given <code class="docutils literal"><span class="pre">resident_name</span></code>. Returns
+<code class="docutils literal"><span class="pre">None</span></code> when there is no resident with this name.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Residents.remove">
+<code class="descname">remove</code><span class="sig-paren">(</span><em>resident_id</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Residents.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents.remove" title="Permalink to this definition">¶</a></dt>
+<dd><p>Removes the resident with the given <code class="docutils literal"><span class="pre">resident_id</span></code> from the Residents. Tolerates non
+existing resident ids.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Residents.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Residents.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the Persence object to it&#8217;s initial state.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pmatic.residents.Resident">
+<em class="property">class </em><code class="descclassname">pmatic.residents.</code><code class="descname">Resident</code><span class="sig-paren">(</span><em>presence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="pmatic.residents.Resident.last_updated">
+<code class="descname">last_updated</code><a class="headerlink" href="#pmatic.residents.Resident.last_updated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is set to the unix timestamp of the last update or <code class="docutils literal"><span class="pre">None</span></code> when not updated yet.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.residents.Resident.last_changed">
+<code class="descname">last_changed</code><a class="headerlink" href="#pmatic.residents.Resident.last_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is set to the unix timestamp of the last presence
+change or <code class="docutils literal"><span class="pre">None</span></code> when not updated yet.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Resident.from_config">
+<code class="descname">from_config</code><span class="sig-paren">(</span><em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.from_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.from_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Resident.to_config">
+<code class="descname">to_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.to_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.to_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.residents.Resident.present">
+<code class="descname">present</code><a class="headerlink" href="#pmatic.residents.Resident.present" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is <code class="docutils literal"><span class="pre">True</span></code> when the user is present and <code class="docutils literal"><span class="pre">False</span></code> when not.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Resident.add_device">
+<code class="descname">add_device</code><span class="sig-paren">(</span><em>device</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.add_device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.add_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds a <a class="reference internal" href="#pmatic.residents.PersonalDevice" title="pmatic.residents.PersonalDevice"><code class="xref py py-class docutils literal"><span class="pre">PersonalDevice</span></code></a> object to the resident. Please note that
+you need to use a specific class inherited from <a class="reference internal" href="#pmatic.residents.PersonalDevice" title="pmatic.residents.PersonalDevice"><code class="xref py py-class docutils literal"><span class="pre">PersonalDevice</span></code></a>,
+for example the <a class="reference internal" href="#pmatic.residents.PersonalDeviceFritzBoxHost" title="pmatic.residents.PersonalDeviceFritzBoxHost"><code class="xref py py-class docutils literal"><span class="pre">PersonalDeviceFritzBoxHost</span></code></a> class.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Resident.update_presence">
+<code class="descname">update_presence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.update_presence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.update_presence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the presence of this resident. When at least one device is active,
+the resident is treated to be present.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Resident.clear_devices">
+<code class="descname">clear_devices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.clear_devices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.clear_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the device list to it&#8217;s initial state.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pmatic.residents.PersonalDevice">
+<em class="property">class </em><code class="descclassname">pmatic.residents.</code><code class="descname">PersonalDevice</code><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDevice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDevice" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="pmatic.residents.PersonalDevice.type_name">
+<code class="descname">type_name</code><em class="property"> = u''</em><a class="headerlink" href="#pmatic.residents.PersonalDevice.type_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.residents.PersonalDevice.type_title">
+<code class="descname">type_title</code><em class="property"> = u''</em><a class="headerlink" href="#pmatic.residents.PersonalDevice.type_title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pmatic.residents.PersonalDevice.types">
+<em class="property">classmethod </em><code class="descname">types</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDevice.types"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDevice.types" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of all available specific PersonalDevice classes</p>
+</dd></dl>
+
+<dl class="classmethod">
+<dt id="pmatic.residents.PersonalDevice.get">
+<em class="property">classmethod </em><code class="descname">get</code><span class="sig-paren">(</span><em>type_name</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDevice.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDevice.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the subclass of PersonalDevice which matches the given <a class="reference internal" href="#pmatic.residents.PersonalDevice.type_name" title="pmatic.residents.PersonalDevice.type_name"><code class="xref py py-attr docutils literal"><span class="pre">type_name</span></code></a>
+or <code class="docutils literal"><span class="pre">None</span></code> if there is no match.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.PersonalDevice.from_config">
+<code class="descname">from_config</code><span class="sig-paren">(</span><em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDevice.from_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDevice.from_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.PersonalDevice.to_config">
+<code class="descname">to_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDevice.to_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDevice.to_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.residents.PersonalDevice.name">
+<code class="descname">name</code><a class="headerlink" href="#pmatic.residents.PersonalDevice.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the name of this device.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.residents.PersonalDevice.active">
+<code class="descname">active</code><a class="headerlink" href="#pmatic.residents.PersonalDevice.active" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether or not this device is currently active.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="pmatic.residents.PersonalDeviceFritzBoxHost">
+<em class="property">class </em><code class="descclassname">pmatic.residents.</code><code class="descname">PersonalDeviceFritzBoxHost</code><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDeviceFritzBoxHost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="attribute">
+<dt id="pmatic.residents.PersonalDeviceFritzBoxHost.type_name">
+<code class="descname">type_name</code><em class="property"> = u'fritz_box_host'</em><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost.type_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.residents.PersonalDeviceFritzBoxHost.type_title">
+<code class="descname">type_title</code><em class="property"> = u'fritz!Box Host'</em><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost.type_title" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.residents.PersonalDeviceFritzBoxHost.connection">
+<code class="descname">connection</code><em class="property"> = None</em><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost.connection" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="classmethod">
+<dt id="pmatic.residents.PersonalDeviceFritzBoxHost.configure">
+<em class="property">classmethod </em><code class="descname">configure</code><span class="sig-paren">(</span><em>address=None</em>, <em>protocol=None</em>, <em>port=None</em>, <em>user=None</em>, <em>password=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDeviceFritzBoxHost.configure"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost.configure" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.residents.PersonalDeviceFritzBoxHost.mac">
+<code class="descname">mac</code><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost.mac" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the MAC address of this device.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.PersonalDeviceFritzBoxHost.to_config">
+<code class="descname">to_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDeviceFritzBoxHost.to_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost.to_config" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Manage your Residents</a><ul>
+<li><a class="reference internal" href="#presence-detection-with-pmatic">Presence detection with pmatic</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="pmatic_notify.html"
+                        title="previous chapter">Send Notifications with pmatic</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="pmatic_manager.html"
+                        title="next chapter">The pmatic Manager</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/pmatic_residents.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="pmatic_manager.html" title="The pmatic Manager"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="pmatic_notify.html" title="Send Notifications with pmatic"
+             >previous</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">pmatic 0.1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Lars Michelsen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.
+    </div>
+  </body>
+</html>
