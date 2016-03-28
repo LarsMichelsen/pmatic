@@ -419,7 +419,6 @@ class PageHandler(utils.LogMixin):
     @classmethod
     def _is_authenticated(self, environ):
         value = self._get_auth_cookie_value(environ)
-        self.cls_logger().debug(repr(value))
         if not value or value.count(":") != 1:
             return False
 
@@ -432,8 +431,6 @@ class PageHandler(utils.LogMixin):
         if not utils.is_py2():
             to_hash = to_hash.encode("utf-8")
         correct_hash = sha256(to_hash).hexdigest()
-
-        #.decode("utf-8")
 
         return salted_hash == correct_hash
 
