@@ -2630,6 +2630,7 @@ class Scheduler(threading.Thread, utils.LogMixin, PersistentConfig):
         """Updates the presence information of residents in the configured interval. When no
         resident is configured, this method is doing nothing."""
         if not self._manager.residents.enabled:
+            self.logger.debug("Not updating presence information (not enabled)")
             return
 
         if self._next_presence_update == None or self._next_presence_update < time.time():

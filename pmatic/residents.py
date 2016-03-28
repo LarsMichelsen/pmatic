@@ -204,6 +204,7 @@ class Resident(utils.LogMixin):
 
         new_value = False
         for device in self.devices:
+            device.update_presence()
             if device.active:
                 new_value = True
                 break
@@ -264,6 +265,12 @@ class PersonalDevice(object):
         return {
             "type_name": self.type_name,
         }
+
+
+    def update_presence(self):
+        """Can be overridden by specific personal device classes to update the
+        information of this device."""
+        pass
 
 
     @property
@@ -343,6 +350,11 @@ class PersonalDeviceFritzBoxHost(PersonalDevice):
         cfg = super(PersonalDeviceFritzBoxHost, self).to_config()
         cfg["mac"] = self.mac
         return cfg
+
+
+    def update_presence(self):
+        """Update the presence information of this device."""
+        self._update_host_info()
 
 
     def _update_host_info(self):
