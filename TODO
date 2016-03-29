@@ -29,6 +29,7 @@ Todos:
 * Doc: Document the parameter classes and parameter types
 * Renew CCU connection when credentials have changed or connection has been enabled/disabled
 * pmatic-manager.log - Rotation einrichten.
+* Improve error handling of TCL errors like in https://github.com/LarsMichelsen/pmatic/issues/7
 
 Optimizations:
 * Ship precompiled *.pyc files for faster startups even on first load?
