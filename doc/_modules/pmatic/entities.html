@@ -282,21 +282,26 @@
 <span class="sd">        This method is called on the first access to the values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">param_spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">interface_get_paramset_description</span><span class="p">(</span><span class="n">interface</span><span class="o">=</span><span class="s2">&quot;BidCos-RF&quot;</span><span class="p">,</span>
+        <span class="k">for</span> <span class="n">value_spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">interface_get_paramset_description</span><span class="p">(</span><span class="n">interface</span><span class="o">=</span><span class="s2">&quot;BidCos-RF&quot;</span><span class="p">,</span>
                                                     <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">paramsetType</span><span class="o">=</span><span class="s2">&quot;VALUES&quot;</span><span class="p">):</span>
-            <span class="n">param_id</span> <span class="o">=</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span>
-            <span class="n">class_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_class_name_of_param_spec</span><span class="p">(</span><span class="n">param_spec</span><span class="p">)</span>
-
-            <span class="n">cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pmatic</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">cls</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: Skipping unknown parameter </span><span class="si">%s</span><span class="s2"> of type </span><span class="si">%s</span><span class="s2">, unit </span><span class="si">%s</span><span class="s2">. &quot;</span>
-                                    <span class="s2">&quot;Class </span><span class="si">%s</span><span class="s2"> not implemented.&quot;</span> <span class="o">%</span>
-                            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_type</span><span class="p">,</span> <span class="n">param_id</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;TYPE&quot;</span><span class="p">],</span>
-                             <span class="n">param_spec</span><span class="p">[</span><span class="s2">&quot;UNIT&quot;</span><span class="p">],</span> <span class="n">class_name</span><span class="p">))</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">param_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_init_value_spec</span><span class="p">(</span><span class="n">value_spec</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_register_saved_callbacks</span><span class="p">()</span>
+
+
+    <span class="k">def</span> <span class="nf">_init_value_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value_spec</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initializes a single value of this channel.&quot;&quot;&quot;</span>
+        <span class="n">value_id</span> <span class="o">=</span> <span class="n">value_spec</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span>
+        <span class="n">class_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_class_name_of_param_spec</span><span class="p">(</span><span class="n">value_spec</span><span class="p">)</span>
+
+        <span class="n">cls</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">pmatic</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="n">class_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">cls</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">: Skipping unknown parameter </span><span class="si">%s</span><span class="s2"> of type </span><span class="si">%s</span><span class="s2">, unit </span><span class="si">%s</span><span class="s2">. &quot;</span>
+                                <span class="s2">&quot;Class </span><span class="si">%s</span><span class="s2"> not implemented.&quot;</span> <span class="o">%</span>
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channel_type</span><span class="p">,</span> <span class="n">value_id</span><span class="p">,</span> <span class="n">value_spec</span><span class="p">[</span><span class="s2">&quot;TYPE&quot;</span><span class="p">],</span>
+                         <span class="n">value_spec</span><span class="p">[</span><span class="s2">&quot;UNIT&quot;</span><span class="p">],</span> <span class="n">class_name</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="p">[</span><span class="n">value_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">cls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value_spec</span><span class="p">)</span>
 
 
     <span class="k">def</span> <span class="nf">_get_class_name_of_param_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">param_spec</span><span class="p">):</span>
@@ -339,7 +344,7 @@
 
         <span class="k">try</span><span class="p">:</span>
             <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">interface_get_paramset</span><span class="p">(</span><span class="n">interface</span><span class="o">=</span><span class="s2">&quot;BidCos-RF&quot;</span><span class="p">,</span>
-                                         <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span><span class="n">paramsetKey</span><span class="o">=</span><span class="s2">&quot;VALUES&quot;</span><span class="p">)</span>
+                                         <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">paramsetKey</span><span class="o">=</span><span class="s2">&quot;VALUES&quot;</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">PMException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="c1"># FIXME: Clean this 601 in &quot;%s&quot; up!</span>
             <span class="k">if</span> <span class="s2">&quot;601&quot;</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">is_online</span><span class="p">:</span>
@@ -686,6 +691,21 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">None</span>
+
+
+
+<span class="c1"># Devices:</span>
+<span class="c1">#  HM-TC-IT-WM-W-EU</span>
+<span class="k">class</span> <span class="nc">ChannelThermalControlTransmit</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;THERMALCONTROL_TRANSMIT&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_init_value_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value_spec</span><span class="p">):</span>
+        <span class="c1"># The value PARTY_MODE_SUBMIT seems to be declared to be readable by</span>
+        <span class="c1"># the CCU which is wrong. This value can not be read.</span>
+        <span class="c1"># See &lt;https://github.com/LarsMichelsen/pmatic/issues/7&gt;.</span>
+        <span class="k">if</span> <span class="n">value_spec</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;PARTY_MODE_SUBMIT&quot;</span><span class="p">:</span>
+            <span class="n">value_spec</span><span class="p">[</span><span class="s2">&quot;OPERATIONS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;2&quot;</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ChannelThermalControlTransmit</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_init_value_spec</span><span class="p">(</span><span class="n">value_spec</span><span class="p">)</span>
 
 
 
