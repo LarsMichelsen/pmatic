@@ -32,6 +32,9 @@ Devices
   * ``device.set_temperature_lowering()``
   * ``device.valve_state``
 
+* HM-TC-IT-WM-W-EU: Fixed "JSONRPCError: TCL error (601)" when trying to get
+  the summary state of this device
+
 Manager
 ```````
 * The manager can now be used with Python 3 (testing in progress)

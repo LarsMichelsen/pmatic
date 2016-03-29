@@ -389,6 +389,123 @@ class TestChannel(lib.TestCCUClassWide):
 
 
 
+class TestChannelThermalControlTransmit(lib.TestCCUClassWide):
+    def test_party_mode_fix(self, ccu):
+        d = Device(ccu, {
+            'address': u'LEQ0079034',
+            'available_firmware': '1.3',
+            'firmware': '1.3',
+            'flags': 1,
+            'interface': 'MEQ0835974',
+            'paramsets': ['MASTER'],
+            'roaming': False,
+            'type': 'HM-TC-IT-WM-W-E',
+            'updatable': '1',
+            'version': 21,
+            'children': ['LEQ0079034:0',
+                          'LEQ0079034:1',
+                          'LEQ0079034:2',
+                          'LEQ0079034:3',
+                          'LEQ0079034:6',
+                          'LEQ0079034:7'],
+            'channels': [
+                {'address': 'LEQ0079034:0',
+                 'aes_active': False,
+                 'direction': 0,
+                 'flags': 3,
+                 'index': 0,
+                 'link_source_roles': [],
+                 'link_target_roles': [],
+                 'paramsets': ['MASTER', 'VALUES'],
+                 'parent': 'LEQ0079034',
+                 'parent_type': 'HM-TC-IT-WM-W-E',
+                 'type': 'MAINTENANCE',
+                 'version': 21},
+                {'address': 'LEQ0079034:1',
+                 'aes_active': False,
+                 'direction': 1,
+                 'flags': 1,
+                 'index': 1,
+                 'link_source_roles': ['WEATHER_TH'],
+                 'link_target_roles': [],
+                 'paramsets': ['LINK', 'VALUES'],
+                 'parent': 'LEQ0079034',
+                 'parent_type': 'HM-TC-IT-WM-W-E',
+                 'type': 'WEATHER_TRANSMIT',
+                 'version': 21},
+                {'address': 'LEQ0079034:2',
+                 'aes_active': False,
+                 'direction': 1,
+                 'flags': 1,
+                 'index': 2,
+                 'link_source_roles': ['THERMALCONTROL_TC'],
+                 'link_target_roles': [],
+                 'paramsets': ['LINK', 'VALUES'],
+                 'parent': 'LEQ0079034',
+                 'parent_type': 'HM-TC-IT-WM-W-E',
+                 'type': 'THERMALCONTROL_TRANSMIT',
+                 'version': 21},
+                {'address': 'LEQ0079034:3',
+                 'aes_active': False,
+                 'direction': 2,
+                 'flags': 1,
+                 'index': 3,
+                 'link_source_roles': [],
+                 'link_target_roles': ['WINDOW_SWITCH_RECEIVER',
+                                        'WINDOW_SWITCH_RECEIVER_V2'],
+                 'paramsets': ['LINK', 'MASTER', 'VALUES'],
+                 'parent': 'LEQ0079034',
+                 'parent_type': 'HM-TC-IT-WM-W-E',
+                 'type': 'WINDOW_SWITCH_RECEIVER',
+                 'version': 21},
+                {'address': 'LEQ0079034:6',
+                 'aes_active': False,
+                 'direction': 2,
+                 'flags': 1,
+                 'index': 6,
+                 'link_source_roles': [],
+                 'link_target_roles': ['REMOTECONTROL_RECEIVER'],
+                 'paramsets': ['LINK', 'MASTER', 'VALUES'],
+                 'parent': 'LEQ0079034',
+                 'parent_type': 'HM-TC-IT-WM-W-E',
+                 'type': 'REMOTECONTROL_RECEIVER',
+                 'version': 21},
+                {'address': 'LEQ0079034:7',
+                 'aes_active': False,
+                 'direction': 1,
+                 'flags': 1,
+                 'index': 7,
+                 'link_source_roles': ['SWITCH'],
+                 'link_target_roles': [],
+                 'paramsets': ['LINK', 'MASTER', 'VALUES'],
+                 'parent': 'LEQ0079034',
+                 'parent_type': 'HM-TC-IT-WM-W-E',
+                 'type': 'SWITCH_TRANSMIT',
+                 'version': 21}
+            ],
+        })
+
+        c = d.channels[2]
+        # Just the value spec we like to test
+        c._init_value_spec({
+             "NAME":"PARTY_MODE_SUBMIT",
+             "CONTROL":"NONE",
+             "DEFAULT":"",
+             "FLAGS":"1",
+             "ID":"PARTY_MODE_SUBMIT",
+             "MAX":"",
+             "MIN":"",
+             "OPERATIONS":"3",
+             "TAB_ORDER":"14",
+             "TYPE":"STRING",
+             "UNIT":""
+        })
+        assert c.values["PARTY_MODE_SUBMIT"].readable == False
+        assert c.values["PARTY_MODE_SUBMIT"].writable == True
+        assert c.values["PARTY_MODE_SUBMIT"].supports_events == False
+
+
+
 class TestDevices(lib.TestCCUClassWide):
     @pytest.fixture(scope="function")
     def devices(self, ccu):

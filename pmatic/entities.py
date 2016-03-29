@@ -228,21 +228,26 @@ class Channel(utils.LogMixin, Entity):
         This method is called on the first access to the values.
         """
         self._values.clear()
-        for param_spec in self._ccu.api.interface_get_paramset_description(interface="BidCos-RF",
+        for value_spec in self._ccu.api.interface_get_paramset_description(interface="BidCos-RF",
                                                     address=self.address, paramsetType="VALUES"):
-            param_id = param_spec["ID"]
-            class_name = self._get_class_name_of_param_spec(param_spec)
-
-            cls = getattr(pmatic.params, class_name)
-            if not cls:
-                self.logger.warning("%s: Skipping unknown parameter %s of type %s, unit %s. "
-                                    "Class %s not implemented." %
-                            (self.channel_type, param_id, param_spec["TYPE"],
-                             param_spec["UNIT"], class_name))
-            else:
-                self._values[param_id] = cls(self, param_spec)
+            self._init_value_spec(value_spec)
 
         self._register_saved_callbacks()
+
+
+    def _init_value_spec(self, value_spec):
+        """Initializes a single value of this channel."""
+        value_id = value_spec["ID"]
+        class_name = self._get_class_name_of_param_spec(value_spec)
+
+        cls = getattr(pmatic.params, class_name)
+        if not cls:
+            self.logger.warning("%s: Skipping unknown parameter %s of type %s, unit %s. "
+                                "Class %s not implemented." %
+                        (self.channel_type, value_id, value_spec["TYPE"],
+                         value_spec["UNIT"], class_name))
+        else:
+            self._values[value_id] = cls(self, value_spec)
 
 
     def _get_class_name_of_param_spec(self, param_spec):
@@ -285,7 +290,7 @@ class Channel(utils.LogMixin, Entity):
 
         try:
             values = self._ccu.api.interface_get_paramset(interface="BidCos-RF",
-                                         address=self.address,paramsetKey="VALUES")
+                                         address=self.address, paramsetKey="VALUES")
         except PMException as e:
             # FIXME: Clean this 601 in "%s" up!
             if "601" in ("%s" % e) and not self.device.is_online:
@@ -632,6 +637,21 @@ class ChannelRemoteControlReceiver(Channel):
     @property
     def summary_state(self):
         return None
+
+
+
+# Devices:
+#  HM-TC-IT-WM-W-EU
+class ChannelThermalControlTransmit(Channel):
+    type_name = "THERMALCONTROL_TRANSMIT"
+
+    def _init_value_spec(self, value_spec):
+        # The value PARTY_MODE_SUBMIT seems to be declared to be readable by
+        # the CCU which is wrong. This value can not be read.
+        # See <https://github.com/LarsMichelsen/pmatic/issues/7>.
+        if value_spec["ID"] == "PARTY_MODE_SUBMIT":
+            value_spec["OPERATIONS"] = "2"
+        super(ChannelThermalControlTransmit, self)._init_value_spec(value_spec)
 
 
 
