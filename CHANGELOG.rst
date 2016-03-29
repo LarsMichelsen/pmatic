@@ -3,28 +3,47 @@ The pmatic Changelog
 
 Unreleased (Use snapshot builds to get these changes)
 -----------------------------------------------------
-* Started implementation of ``pmatic.presence`` which can be used to
-  manage the presence of your residents and make your scripts do different
-  things depending on the presence of them. Take a look at the docs for
-  details.
-* HM-CC-RT-DN: Fixed low battery detection via ``device.is_battery_low``
-* HM-CC-RT-DN: Added specific attributes/methods: ``device.temperature``,
-  ``device.set_temperature``, ``device.is_off``, ``device.turn_off()``,
-  ``device.control_mode``, ``device.battery_state``, ``device.boost_duration``,
-  ``device.set_temperature_comfort()``, ``device.set_temperature_lowering()``,
-  ``device.valve_state``
-* Manager: The manager can now be used with Python 3 (testing in progress)
-* Manager: Schedules that rely on devices can now be edited even when the
-  manager is currently not connected with the CCU.
-* Manager: Improved handling of deleted scripts in schedules
-* Manager: Changing the log level is now applied instantly
-* Manager: Added "status" target to init script
-* Manager: Fixed "restart" target of init script
+
+General
+```````
+
+* Added new resident management module ``pmatic.residents`` which can be used to
+  manage residents and their attributes. An important feature of this module 
+  is to detect the presence of your residents and make your scripts do different
+  things depending on the presence of them. Take a look at the docs for details.
 * Windows: Made CCU detection platform independent
 * Windows: Made setup.py more platform independent
-* Better linking from addon page to the manager page
+* CCU: Better linking from addon page to the manager page
 
-Incompatible (possible manual changes needed):
+Devices
+```````
+
+* HM-CC-RT-DN: Fixed low battery detection via ``device.is_battery_low``
+* HM-CC-RT-DN: Added specific attributes/methods:
+
+  * ``device.temperature``
+  * ``device.set_temperature``
+  * ``device.is_off``
+  * ``device.turn_off()``
+  * ``device.control_mode``
+  * ``device.battery_state``
+  * ``device.boost_duration``
+  * ``device.set_temperature_comfort()``
+  * ``device.set_temperature_lowering()``
+  * ``device.valve_state``
+
+Manager
+```````
+* The manager can now be used with Python 3 (testing in progress)
+* Schedules that rely on devices can now be edited even when the
+  manager is currently not connected with the CCU.
+* Improved handling of deleted scripts in schedules
+* Changing the log level is now applied instantly
+* Added "status" target to init script
+* Fixed "restart" target of init script
+
+Incompatible (possible manual changes needed)
+`````````````````````````````````````````````
 
 * ``Device.maintenance`` now provides access to the ``ChannelMaintenance``
   object instead of only the maintenance values. If you want to access the
