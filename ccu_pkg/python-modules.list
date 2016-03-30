@@ -94,6 +94,7 @@ lib/python2.7/hmac.py
 lib/python2.7/uuid.py
 lib/python2.7/email/*.py
 lib/python2.7/email/*/*.py
+lib/python2.7/uu.py
 lib/python2.7/shlex.py
 lib/python2.7/quopri.py
 lib/python2.7/cookielib.py
