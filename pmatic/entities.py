@@ -289,8 +289,7 @@ class Channel(utils.LogMixin, Entity):
             raise PMException("The value parameters are not yet initialized.")
 
         try:
-            values = self._ccu.api.interface_get_paramset(interface="BidCos-RF",
-                                         address=self.address, paramsetKey="VALUES")
+            values = self._get_values()
         except PMException as e:
             # FIXME: Clean this 601 in "%s" up!
             if "601" in ("%s" % e) and not self.device.is_online:
@@ -300,6 +299,31 @@ class Channel(utils.LogMixin, Entity):
 
         for param_id, value in values.items():
             self._values[param_id].set_from_api(value)
+
+
+    def _get_values(self):
+        """This method returns all values of this channel. It is overridden by some
+        specific devices to e.g. not fetch all values at once because some ar bugged."""
+        return self._get_values_bulk()
+
+
+    def _get_values_bulk(self):
+        """Fetches all values of this channel at once. This is the default method to
+        fetch the values."""
+        return self._ccu.api.interface_get_paramset(interface="BidCos-RF",
+                                         address=self.address, paramsetKey="VALUES")
+
+
+    def _get_values_single(self):
+        """Fetches all values known to be readable one by one. One should always
+        use :meth:`_get_values_bulked` when possible. This is only used for buggy
+        devices."""
+        values = {}
+        for param_id, value in self._values.items():
+            if value.readable:
+                values[value.id] = self._ccu.api.interface_get_value(interface="BidCos-RF",
+                                         address=self.address, valueKey=value.internal_name)
+        return values
 
 
     @property
@@ -652,6 +676,12 @@ class ChannelThermalControlTransmit(Channel):
         if value_spec["ID"] == "PARTY_MODE_SUBMIT":
             value_spec["OPERATIONS"] = "2"
         super(ChannelThermalControlTransmit, self)._init_value_spec(value_spec)
+
+
+    def _get_values(self):
+        # This is needed to not let the CCU decide which values to be read from
+        # the device because of the bug mentioned above.
+        return self._get_values_single()
 
 
 
