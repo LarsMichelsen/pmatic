@@ -685,6 +685,27 @@ class ChannelThermalControlTransmit(Channel):
 
 
 
+# Devices:
+#  HM-TC-IT-WM-W-EU
+class ChannelSwitchTransmit(Channel):
+    type_name = "SWITCH_TRANSMIT"
+
+    def _init_value_spec(self, value_spec):
+        # The value SWITCH_TRANSMIT seems to be declared to be readable by
+        # the CCU which is wrong. This value can not be read.
+        # See <https://github.com/LarsMichelsen/pmatic/issues/7>.
+        if value_spec["ID"] == "DECISION_VALUE":
+            value_spec["OPERATIONS"] = "4" # only supports events
+        super(ChannelSwitchTransmit, self)._init_value_spec(value_spec)
+
+
+    def _get_values(self):
+        # This is needed to not let the CCU decide which values to be read from
+        # the device because of the bug mentioned above.
+        return self._get_values_single()
+
+
+
 class Devices(object):
     """Manages a collection of CCU devices."""
 

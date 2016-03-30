@@ -125,7 +125,7 @@ class AbstractAPI(utils.LogMixin):
         atexit.register(self.close)
 
 
-    def _parse_api_response(self, method_name_int, body):
+    def _parse_api_response(self, method_name_int, kwargs, body):
         # FIXME: The ccu is performing wrong encoding at least for output of
         # executed rega scripts. But maybe this is a generic problem. Let's see
         # and only fix the known issues for the moment.
@@ -144,10 +144,11 @@ class AbstractAPI(utils.LogMixin):
                                   "the CCU has just been started, please wait some time "
                                   "and retry.")
             else:
-                raise PMException("[%s] %s: %s (%s)" % (method_name_int,
+                raise PMException("[%s] %s: %s (Code: %s, Request: %r)" % (method_name_int,
                                                         msg["error"]["name"],
                                                         msg["error"]["message"],
-                                                        msg["error"]["code"]))
+                                                        msg["error"]["code"],
+                                                        kwargs))
 
         return msg["result"]
 
@@ -490,7 +491,7 @@ class RemoteAPI(AbstractAPI):
                                     (http_status, url, response_txt))
 
         self.logger.debug("  RESPONSE: %s", response_txt)
-        return self._parse_api_response(method_name_int, response_txt)
+        return self._parse_api_response(method_name_int, kwargs, response_txt)
 
 
     @property
@@ -641,7 +642,7 @@ class LocalAPI(AbstractAPI):
         body = response_txt.split("\n\n", 1)[1]
 
         try:
-            return self._parse_api_response(method_name_int, body)
+            return self._parse_api_response(method_name_int, kwargs, body)
         except PMException:
             self.logger.warning("Exception in API call.")
             self.logger.warning("  TCL: %r", tcl)
