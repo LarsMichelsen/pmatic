@@ -739,6 +739,27 @@
 
 
 
+<span class="c1"># Devices:</span>
+<span class="c1">#  HM-TC-IT-WM-W-EU</span>
+<span class="k">class</span> <span class="nc">ChannelSwitchTransmit</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;SWITCH_TRANSMIT&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_init_value_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value_spec</span><span class="p">):</span>
+        <span class="c1"># The value SWITCH_TRANSMIT seems to be declared to be readable by</span>
+        <span class="c1"># the CCU which is wrong. This value can not be read.</span>
+        <span class="c1"># See &lt;https://github.com/LarsMichelsen/pmatic/issues/7&gt;.</span>
+        <span class="k">if</span> <span class="n">value_spec</span><span class="p">[</span><span class="s2">&quot;ID&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DECISION_VALUE&quot;</span><span class="p">:</span>
+            <span class="n">value_spec</span><span class="p">[</span><span class="s2">&quot;OPERATIONS&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;4&quot;</span> <span class="c1"># only supports events</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">ChannelSwitchTransmit</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_init_value_spec</span><span class="p">(</span><span class="n">value_spec</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_get_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># This is needed to not let the CCU decide which values to be read from</span>
+        <span class="c1"># the device because of the bug mentioned above.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_single</span><span class="p">()</span>
+
+
+
 <div class="viewcode-block" id="Devices"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Devices">[docs]</a><span class="k">class</span> <span class="nc">Devices</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Manages a collection of CCU devices.&quot;&quot;&quot;</span>
 
