@@ -390,7 +390,8 @@ class TestChannel(lib.TestCCUClassWide):
 
 
 class TestChannelThermalControlTransmit(lib.TestCCUClassWide):
-    def test_party_mode_fix(self, ccu):
+    @pytest.fixture(scope="function")
+    def device(self, ccu):
         d = Device(ccu, {
             'address': u'LEQ0079034',
             'available_firmware': '1.3',
@@ -485,9 +486,8 @@ class TestChannelThermalControlTransmit(lib.TestCCUClassWide):
             ],
         })
 
-        c = d.channels[2]
         # Just the value spec we like to test
-        c._init_value_spec({
+        d.channels[2]._init_value_spec({
              "NAME":"PARTY_MODE_SUBMIT",
              "CONTROL":"NONE",
              "DEFAULT":"",
@@ -500,9 +500,21 @@ class TestChannelThermalControlTransmit(lib.TestCCUClassWide):
              "TYPE":"STRING",
              "UNIT":""
         })
+        return d
+
+
+    def test_party_mode_fix(self, device):
+        c = device.channels[2]
         assert c.values["PARTY_MODE_SUBMIT"].readable == False
         assert c.values["PARTY_MODE_SUBMIT"].writable == True
         assert c.values["PARTY_MODE_SUBMIT"].supports_events == False
+
+
+    def test_party_mode_fix_fetch_values(self, device, monkeypatch):
+        c = device.channels[2]
+        monkeypatch.setattr(c, "_get_values_single", lambda: "SINGLE")
+        assert c._get_values() == "SINGLE"
+
 
 
 
