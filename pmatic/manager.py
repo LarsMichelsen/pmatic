@@ -51,7 +51,6 @@ import traceback
 import threading
 import contextlib
 import subprocess
-from wsgiref.handlers import SimpleHandler
 import wsgiref.simple_server
 from hashlib import sha256
 
@@ -2259,9 +2258,18 @@ class PMServerHandler(wsgiref.simple_server.ServerHandler, utils.LogMixin):
     server_software = 'pmatic-manager'
 
     # Hook into ServerHandler to be able to catch exceptions about disconnected clients
-    def _server_handler_write(self, data):
+    def finish_response(self):
         try:
-            SimpleHandler.write(self, data)
+            super(PMServerHandler, self).finish_response()
+        except socket.error as e:
+            # Client disconnected while answering it's request.
+            if e.errno != 32:
+                raise
+
+
+    def send_preamble(self):
+        try:
+            super(PMServerHandler, self).send_preamble()
         except socket.error as e:
             # Client disconnected while answering it's request.
             if e.errno != 32:
