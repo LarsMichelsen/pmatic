@@ -14,6 +14,7 @@ General
 * Windows: Made CCU detection platform independent
 * Windows: Made setup.py more platform independent
 * CCU: Better linking from addon page to the manager page
+* FIX: Fixed API call ``room_get_all()`` failing when meta names like "${roomKitchen}" are used.
 
 Devices
 ```````

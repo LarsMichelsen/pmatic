@@ -129,7 +129,8 @@ class AbstractAPI(utils.LogMixin):
         # FIXME: The ccu is performing wrong encoding at least for output of
         # executed rega scripts. But maybe this is a generic problem. Let's see
         # and only fix the known issues for the moment.
-        if method_name_int in [ "rega_run_script", "interface_get_paramset_description" ]:
+        if method_name_int in [ "rega_run_script", "interface_get_paramset_description",
+                                "room_get_all" ]:
             body = AbstractAPI._replace_wrong_encoded_json(body)
 
         try:
