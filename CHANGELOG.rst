@@ -15,6 +15,8 @@ General
 * Windows: Made setup.py more platform independent
 * CCU: Better linking from addon page to the manager page
 * FIX: Fixed API call ``room_get_all()`` failing when meta names like "${roomKitchen}" are used.
+* FIX: Improved generic error handling for values which are reported to be readable
+  but can currently not be read
 
 Devices
 ```````

@@ -298,7 +298,11 @@ class Channel(utils.LogMixin, Entity):
                 raise
 
         for param_id, value in values.items():
-            self._values[param_id].set_from_api(value)
+            if param_id in self._values:
+                self._values[param_id].set_from_api(value)
+            else:
+                self.logger.info("%s (%s - %s): Skipping received value of unknown parameter %s.",
+                                    self.address, self.device.name, self.name, param_id)
 
 
     def _get_values(self):
