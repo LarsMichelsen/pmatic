@@ -356,9 +356,30 @@
 
 
     <span class="k">def</span> <span class="nf">_get_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;This method returns all values of this channel. It is overridden by some</span>
-<span class="sd">        specific devices to e.g. not fetch all values at once because some ar bugged.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_bulk</span><span class="p">()</span>
+        <span class="sd">&quot;&quot;&quot;This method returns all values of this channel.</span>
+
+<span class="sd">        Normally it is using the API call Interface.getParamset() to fetch all values of</span>
+<span class="sd">        the channel at once. But there are devices which have bugged values which are reported</span>
+<span class="sd">        to be readable, but can not be read in fact.</span>
+
+<span class="sd">        The default way to deal with it is to catch the exectpion from the bulk get and then</span>
+<span class="sd">        fetch the values one by one, again while catching the exceptions of these calls which</span>
+<span class="sd">        which are raised when a value is not readable.</span>
+
+<span class="sd">        In some cases where it is known to be an issue with specific values the channels in</span>
+<span class="sd">        question have a specific class which overrides this method to fetch the single values</span>
+<span class="sd">        one by one but skips the failing values explicitly.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_bulk</span><span class="p">()</span>
+        <span class="k">except</span> <span class="n">PMException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Can not check is_online for maintenance channels here (no values yet)</span>
+            <span class="k">if</span> <span class="s2">&quot;601&quot;</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span> \
+               <span class="ow">and</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ChannelMaintenance</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">is_online</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2">. Falling back to single value fetching.&quot;</span><span class="p">,</span>
+                                    <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_single</span><span class="p">(</span><span class="n">skip_invalid_values</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span>
 
 
     <span class="k">def</span> <span class="nf">_get_values_bulk</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -368,15 +389,33 @@
                                          <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">paramsetKey</span><span class="o">=</span><span class="s2">&quot;VALUES&quot;</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">_get_values_single</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_values_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_invalid_values</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Fetches all values known to be readable one by one. One should always</span>
 <span class="sd">        use :meth:`_get_values_bulked` when possible. This is only used for buggy</span>
-<span class="sd">        devices.&quot;&quot;&quot;</span>
+<span class="sd">        devices.</span>
+
+<span class="sd">        The function can be called with the `skip_invalid_values` argument set to `True`</span>
+<span class="sd">        to only log exceptions of single values and continue with the next value.&quot;&quot;&quot;</span>
         <span class="n">values</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">param_id</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="k">if</span> <span class="n">value</span><span class="o">.</span><span class="n">readable</span><span class="p">:</span>
-                <span class="n">values</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">interface_get_value</span><span class="p">(</span><span class="n">interface</span><span class="o">=</span><span class="s2">&quot;BidCos-RF&quot;</span><span class="p">,</span>
-                                         <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">valueKey</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">internal_name</span><span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">values</span><span class="p">[</span><span class="n">value</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">interface_get_value</span><span class="p">(</span>
+                                                        <span class="n">interface</span><span class="o">=</span><span class="s2">&quot;BidCos-RF&quot;</span><span class="p">,</span>
+                                                        <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
+                                                        <span class="n">valueKey</span><span class="o">=</span><span class="n">value</span><span class="o">.</span><span class="n">internal_name</span><span class="p">)</span>
+                <span class="k">except</span> <span class="n">PMException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_invalid_values</span><span class="p">:</span>
+                        <span class="k">raise</span>
+
+                    <span class="k">if</span> <span class="s2">&quot;601&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">):</span>
+                        <span class="k">raise</span>
+
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ChannelMaintenance</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">is_online</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">param_id</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">raise</span>
         <span class="k">return</span> <span class="n">values</span>
 
 
