@@ -144,18 +144,6 @@ class Config(utils.LogMixin):
 
 
 
-# FIXME This handling is only for testing purposes and will be cleaned up soon
-#if not utils.is_ccu():
-#    Config.script_path = "/tmp/pmatic-scripts"
-#    Config.static_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) \
-#                         + "/manager_static"
-#    Config.config_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) \
-#                         + "/etc"
-#    Config.ccu_address = "http://192.168.1.26"
-#    Config.ccu_credentials = ("Admin", "EPIC-SECRET-PW")
-
-
-
 class Html(object):
     html_escape_table = {
         "&": "&amp;",
