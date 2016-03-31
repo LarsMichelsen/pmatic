@@ -18,6 +18,7 @@ Fixes:
     Mar 27 00:43:00 homematic-ccu2 user.info homematic: started pmatic manger
 
 Todos:
+* Tests für _get_values() Fallback
 * Manager:
   * Tests for the manager
   * Events: Close on shutdown when registered?

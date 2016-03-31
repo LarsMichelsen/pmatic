@@ -302,9 +302,30 @@ class Channel(utils.LogMixin, Entity):
 
 
     def _get_values(self):
-        """This method returns all values of this channel. It is overridden by some
-        specific devices to e.g. not fetch all values at once because some ar bugged."""
-        return self._get_values_bulk()
+        """This method returns all values of this channel.
+
+        Normally it is using the API call Interface.getParamset() to fetch all values of
+        the channel at once. But there are devices which have bugged values which are reported
+        to be readable, but can not be read in fact.
+
+        The default way to deal with it is to catch the exectpion from the bulk get and then
+        fetch the values one by one, again while catching the exceptions of these calls which
+        which are raised when a value is not readable.
+
+        In some cases where it is known to be an issue with specific values the channels in
+        question have a specific class which overrides this method to fetch the single values
+        one by one but skips the failing values explicitly."""
+        try:
+            return self._get_values_bulk()
+        except PMException as e:
+            # Can not check is_online for maintenance channels here (no values yet)
+            if "601" in ("%s" % e) \
+               and (isinstance(self, ChannelMaintenance) or self.device.is_online):
+                self.logger.info("%s (%s - %s): %s. Falling back to single value fetching.",
+                                    self.address, self.device.name, self.name, e)
+                return self._get_values_single(skip_invalid_values=True)
+            else:
+                raise
 
 
     def _get_values_bulk(self):
@@ -314,15 +335,33 @@ class Channel(utils.LogMixin, Entity):
                                          address=self.address, paramsetKey="VALUES")
 
 
-    def _get_values_single(self):
+    def _get_values_single(self, skip_invalid_values=False):
         """Fetches all values known to be readable one by one. One should always
         use :meth:`_get_values_bulked` when possible. This is only used for buggy
-        devices."""
+        devices.
+
+        The function can be called with the `skip_invalid_values` argument set to `True`
+        to only log exceptions of single values and continue with the next value."""
         values = {}
         for param_id, value in self._values.items():
             if value.readable:
-                values[value.id] = self._ccu.api.interface_get_value(interface="BidCos-RF",
-                                         address=self.address, valueKey=value.internal_name)
+                try:
+                    values[value.id] = self._ccu.api.interface_get_value(
+                                                        interface="BidCos-RF",
+                                                        address=self.address,
+                                                        valueKey=value.internal_name)
+                except PMException as e:
+                    if not skip_invalid_values:
+                        raise
+
+                    if "601" not in ("%s" % e):
+                        raise
+
+                    if isinstance(self, ChannelMaintenance) or self.device.is_online:
+                        self.logger.info("%s (%s - %s - %s): %s",
+                                self.address, self.device.name, self.name, param_id, e)
+                    else:
+                        raise
         return values
 
 
