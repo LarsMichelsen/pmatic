@@ -1,7 +1,0 @@
-{
-    "method": "Session.login",
-    "params": {
-        "password": "EPIC-SECRET-PW",
-        "username": "Admin"
-    }
-}

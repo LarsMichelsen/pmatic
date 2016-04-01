@@ -1,7 +1,0 @@
-{
-    "method": "Interface.listDevices",
-    "params": {
-        "_session_id_": "xxxxxxxxxx",
-        "interface": "BidCos-RF"
-    }
-}
