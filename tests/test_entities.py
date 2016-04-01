@@ -286,7 +286,7 @@ class TestChannel(lib.TestCCUClassWide):
 
 
     def test_value_update_needed(self, channel):
-        assert channel._values == {}
+        channel._values = {}
         assert len(channel.values) == 5
 
         p = channel.values["STATE"]
@@ -306,7 +306,7 @@ class TestChannel(lib.TestCCUClassWide):
 
 
     def test_fetch_values(self, channel):
-        assert channel._values == {}
+        channel._values = {}
         with pytest.raises(PMException) as e:
             channel._fetch_values()
         assert "not yet initialized" in str(e)
@@ -316,7 +316,7 @@ class TestChannel(lib.TestCCUClassWide):
 
 
     def test_get_values_single_fallback(self, device, channel, monkeypatch):
-        assert channel._values == {}
+        channel._values = {}
 
         def raise_invalid_value():
             raise PMException("blabla 601 bla")
@@ -336,7 +336,7 @@ class TestChannel(lib.TestCCUClassWide):
 
 
     def test_get_values_single(self, channel):
-        assert channel._values == {}
+        channel._values = {}
         channel._init_value_specs()
 
         raw_values = channel._get_values_single()
@@ -348,7 +348,7 @@ class TestChannel(lib.TestCCUClassWide):
 
 
     def test_get_values_single_with_invalid(self, channel, device, monkeypatch):
-        assert channel._values == {}
+        channel._values = {}
         channel._init_value_specs()
         maintenance = device.channels[0]
 
@@ -372,7 +372,7 @@ class TestChannel(lib.TestCCUClassWide):
 
 
     def test_get_values_single_with_invalid_offline(self, channel, device, monkeypatch):
-        assert channel._values == {}
+        channel._values = {}
         channel._init_value_specs()
         maintenance = device.channels[0]
 
@@ -399,7 +399,7 @@ class TestChannel(lib.TestCCUClassWide):
 
 
     def test_get_values_single_with_random_exc(self, channel, device, monkeypatch):
-        assert channel._values == {}
+        channel._values = {}
         channel._init_value_specs()
         maintenance = device.channels[0]
         maintenance._init_value_specs()
@@ -423,7 +423,7 @@ class TestChannel(lib.TestCCUClassWide):
         with pytest.raises(Exception) as e:
             maintenance._get_values_single(skip_invalid_values=True)
         assert "blub" in "%s" % e
-        
+
 
     def test_summary_state(self, ccu):
         device = list(ccu.devices.query(device_type="HM-ES-PMSw1-Pl"))[0]

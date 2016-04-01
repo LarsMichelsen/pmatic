@@ -347,8 +347,9 @@ class CCUDevices(Devices):
 
     def clear(self):
         """Remove all objects from this devices collection."""
-        self._devices.clear()
-        self._initialized = False
+        if self._initialized:
+            self._devices.clear()
+            self._initialized = False
 
 
     @property
