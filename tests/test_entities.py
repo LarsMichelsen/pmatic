@@ -125,43 +125,15 @@ class TestEntity(lib.TestCCUClassWide):
 
 class TestChannel(lib.TestCCUClassWide):
     @pytest.fixture(scope="function")
-    def channel(self, ccu):
-        device = Device(ccu, {
-            'address': 'KEQ0970393',
-            #'children': ['KEQ0970393:0',
-            #             'KEQ0970393:1',
-            #             'KEQ0970393:2',
-            #             'KEQ0970393:3',
-            #             'KEQ0970393:4',
-            #             'KEQ0970393:5',
-            #             'KEQ0970393:6',
-            'firmware': '1.4',
-            'flags': 1,
-            'interface': 'KEQ0714972',
-            #'paramsets': ['MASTER'],
-            'roaming': False,
-            'type': 'HM-ES-PMSw1-Pl',
-            'updatable': '1',
-            'version': 1,
-            'channels': [],
-        })
+    def device(self, ccu):
+        ccu.devices.clear() # don't let the CCUDevices() collection cache the object.
+        device = list(ccu.devices.query(device_address="KEQ0970393"))[0]
+        return device
 
-        return Channel(device, {
-            'address': 'KEQ0970393:1',
-            'direction': 1,
-            'flags': 1,
-            'index': 1,
-            'link_source_roles': [
-                'KEYMATIC',
-                'SWITCH',
-                'WINDOW_SWITCH_RECEIVER',
-                'WINMATIC'
-            ],
-            'link_target_roles': [],
-            'paramsets': ['LINK', 'MASTER', 'VALUES'],
-            'type': 'SHUTTER_CONTACT',
-            'version': 15,
-        })
+
+    @pytest.fixture(scope="function")
+    def channel(self, device):
+        return device.channels[1]
 
 
     def test_init(self, channel):
@@ -342,6 +314,116 @@ class TestChannel(lib.TestCCUClassWide):
         assert len(channel.values) == 5
         channel._fetch_values()
 
+
+    def test_get_values_single_fallback(self, device, channel, monkeypatch):
+        assert channel._values == {}
+
+        def raise_invalid_value():
+            raise PMException("blabla 601 bla")
+
+        def catch_get_values_single(skip_invalid_values):
+            assert skip_invalid_values == True
+            raise Exception("YEP!")
+
+        monkeypatch.setattr(channel, "_get_values_bulk", raise_invalid_value)
+        monkeypatch.setattr(channel, "_get_values_single", catch_get_values_single)
+
+        channel._init_value_specs()
+
+        with pytest.raises(Exception) as e:
+            channel._fetch_values()
+        assert "YEP!" in "%s" % e
+
+
+    def test_get_values_single(self, channel):
+        assert channel._values == {}
+        channel._init_value_specs()
+
+        raw_values = channel._get_values_single()
+        assert len(raw_values) == 3
+
+        assert "INHIBIT" in raw_values
+        assert "WORKING" in raw_values
+        assert "STATE" in raw_values
+
+
+    def test_get_values_single_with_invalid(self, channel, device, monkeypatch):
+        assert channel._values == {}
+        channel._init_value_specs()
+        maintenance = device.channels[0]
+
+        def raise_invalid_value(*args, **kwargs):
+            raise PMException("bla 601 bla")
+        monkeypatch.setattr(channel._ccu.api, "interface_get_value", raise_invalid_value)
+
+        with pytest.raises(PMException) as e:
+            channel._get_values_single()
+        assert "bla 601 bla" in "%s" % e
+
+        raw_values = channel._get_values_single(skip_invalid_values=True)
+        assert raw_values == {}
+
+        with pytest.raises(PMException) as e:
+            maintenance._get_values_single()
+        assert "bla 601 bla" in "%s" % e
+
+        raw_values = maintenance._get_values_single(skip_invalid_values=True)
+        assert raw_values == {}
+
+
+    def test_get_values_single_with_invalid_offline(self, channel, device, monkeypatch):
+        assert channel._values == {}
+        channel._init_value_specs()
+        maintenance = device.channels[0]
+
+        monkeypatch.setattr(maintenance.values["UNREACH"], "_value", True)
+
+        def raise_invalid_value(*args, **kwargs):
+            raise PMException("bla 601 bla")
+        monkeypatch.setattr(channel._ccu.api, "interface_get_value", raise_invalid_value)
+
+        with pytest.raises(PMException) as e:
+            channel._get_values_single()
+        assert "bla 601 bla" in "%s" % e
+
+        with pytest.raises(PMException) as e:
+            channel._get_values_single(skip_invalid_values=True)
+        assert "bla 601 bla" in "%s" % e
+
+        with pytest.raises(PMException) as e:
+            maintenance._get_values_single()
+        assert "bla 601 bla" in "%s" % e
+
+        raw_values = maintenance._get_values_single(skip_invalid_values=True)
+        assert raw_values == {}
+
+
+    def test_get_values_single_with_random_exc(self, channel, device, monkeypatch):
+        assert channel._values == {}
+        channel._init_value_specs()
+        maintenance = device.channels[0]
+        maintenance._init_value_specs()
+
+        def raise_random_exception(*args, **kwargs):
+            raise Exception("blub")
+        monkeypatch.setattr(channel._ccu.api, "interface_get_value", raise_random_exception)
+
+        with pytest.raises(Exception) as e:
+            channel._get_values_single()
+        assert "blub" in "%s" % e
+
+        with pytest.raises(Exception) as e:
+            channel._get_values_single(skip_invalid_values=True)
+        assert "blub" in "%s" % e
+
+        with pytest.raises(Exception) as e:
+            maintenance._get_values_single()
+        assert "blub" in "%s" % e
+
+        with pytest.raises(Exception) as e:
+            maintenance._get_values_single(skip_invalid_values=True)
+        assert "blub" in "%s" % e
+        
 
     def test_summary_state(self, ccu):
         device = list(ccu.devices.query(device_type="HM-ES-PMSw1-Pl"))[0]
