@@ -24,8 +24,6 @@ Todos:
   * Make editing of scheules only possible when not currently running?
 * Residents / presence:
   * Add resident arrive / leave as event to the event log
-  * how to use residents in inline and non inline scripts?
-    * must be accessible from "ccu.
 * Cleanup: set_submitted_vars() shows: Cleanup access to channel by address to
   have an API equal to getting a device from devices or param from channel.
 * Doc: Document the parameter classes and parameter types

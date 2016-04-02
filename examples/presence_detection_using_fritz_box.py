@@ -25,19 +25,20 @@
 # a persons availability by a device which is connected withe a fritz!Box
 # in your local network.
 
-from pmatic.residents import Residents
+import pmatic
+ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
-# Basic configuration for the connection with your fritz!Box.
-# Other available parameters are port=49000, user="username".
-from pmatic.presence import PersonalDeviceFritzBoxHost
+# Maybe you need to configure your fritz!Box credentials to be able to fetch the
+# presence information of the configured devices.
+from pmatic.residents import PersonalDeviceFritzBoxHost
 PersonalDeviceFritzBoxHost.configure("fritz.box", password="EPIC-SECRET-PW")
 
 # Now create a residents manager instance and configure it. Currently the easiest
 # way is to use it is to use the from_config() method with the following data:
-r = Residents()
-r.from_config({
+ccu.residents.from_config({
     "residents": [
         {
+            "id"             : 0,
             "name"           : "Lars",
             "email"          : "",
             "mobile"         : "",
@@ -52,11 +53,14 @@ r.from_config({
     ],
 })
 
+# You may use ccu.residents.load(config_file="...") and the counterpart
+# ccu.residents.load(config_file="...") to load and store your resident config.
+
 # After initialization you can run either .update() on the residents instance
 # or .update_presence() on a specific resident to update the presence information
 # from the data source, in this case the fritz!Box.
-r.update()
+ccu.residents.update()
 
-for resident in r.residents:
+for resident in ccu.residents.residents:
     #resident.update_presence()
     print(resident.name + " " + (resident.present and "is at home" or "is not at home"))

@@ -27,5 +27,6 @@ users and devices. Within the manager you can even trigger scripts when a user a
 leaves.
 
 .. automodule:: pmatic.residents
+    :show-inheritance:
     :members:
     :undoc-members:

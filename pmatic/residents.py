@@ -292,11 +292,14 @@ class PersonalDevice(object):
 
 
     def from_config(self, cfg):
+        """Restores the object attributes from the persisted configuration."""
         for key, val in cfg.items():
             setattr(self, "_" + key, val)
 
 
     def to_config(self):
+        """Creates a dictionary which can be persisted and later loaded with :meth:`from_config`
+        to reconstruct this object again."""
         return {
             "type_name": self.type_name,
         }
@@ -382,6 +385,8 @@ class PersonalDeviceFritzBoxHost(PersonalDevice):
 
 
     def to_config(self):
+        """Creates a dictionary which can be persisted and later loaded with :meth:`from_config`
+        to reconstruct this object again."""
         cfg = super(PersonalDeviceFritzBoxHost, self).to_config()
         cfg["mac"] = self.mac
         return cfg

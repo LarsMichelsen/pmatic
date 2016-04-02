@@ -43,6 +43,7 @@ import pmatic.api
 import pmatic.events
 import pmatic.utils as utils
 from pmatic.entities import Devices, Device, Rooms, Room
+from pmatic.residents import Residents
 
 
 class CCU(object):
@@ -78,6 +79,7 @@ class CCU(object):
         self._devices = None
         self._events = None
         self._rooms = None
+        self._residents = None
 
 
     def __new__(cls, **kwargs):
@@ -137,6 +139,15 @@ class CCU(object):
         if self._rooms == None:
             self._rooms = CCURooms(self)
         return self._rooms
+
+
+    @property
+    def residents(self):
+        """Provides access to the resident and presence management functionality of pmatic.
+        See :class:`pmatic.residents.Residents` for details."""
+        if self._residents == None:
+            self._residents = Residents()
+        return self._residents
 
 
     @property

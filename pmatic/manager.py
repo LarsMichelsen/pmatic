@@ -1009,10 +1009,10 @@ class PageEditResident(PageHandler, Html, utils.LogMixin):
             raise PMUserError("You need to provide a <tt>resident_id</tt>.")
         resident_id = int(resident_id)
 
-        if not self._manager.residents.exists(resident_id):
+        if not self._manager.ccu.residents.exists(resident_id):
             raise PMUserError("The schedule you are trying to edit does not exist.")
 
-        return self._manager.residents.get(resident_id)
+        return self._manager.ccu.residents.get(resident_id)
 
 
     def _get_device_types(self):
@@ -1072,9 +1072,9 @@ class PageEditResident(PageHandler, Html, utils.LogMixin):
         self._set_submitted_vars(resident, submit=True)
 
         if self._get_mode() == "new":
-            self._manager.residents.add(resident)
+            self._manager.ccu.residents.add(resident)
 
-        self._manager.residents.save()
+        self._manager.ccu.residents.save()
         self.success("The resident has been saved. Opening the resident list now.")
         self.redirect(2, "/residents")
 
@@ -1148,7 +1148,7 @@ class PageAddResident(PageEditResident, PageHandler):
 
 
     def _get_resident(self):
-        return Resident(self._manager.residents)
+        return Resident(self._manager.ccu.residents)
 
 
     def title(self):
@@ -1217,14 +1217,14 @@ class PageResidents(PageHandler, Html, utils.LogMixin):
             raise PMUserError("You need to provide a resident to delete.")
         resident_id = int(resident_id)
 
-        if not self._manager.residents.exists(resident_id):
+        if not self._manager.ccu.residents.exists(resident_id):
             raise PMUserError("This resident does not exist.")
 
         if not self.confirm("Do you really want to delete this resident?"):
             return False
 
-        self._manager.residents.remove(resident_id)
-        self._manager.residents.save()
+        self._manager.ccu.residents.remove(resident_id)
+        self._manager.ccu.residents.save()
         self.success("The resident has been deleted.")
 
 
@@ -1249,7 +1249,7 @@ class PageResidents(PageHandler, Html, utils.LogMixin):
         self.write("<tr><th>Actions</th><th>Name</th><th>Devices</th>"
                    "<th>Last update</th><th>Last change</th><th>Present</th>")
         self.write("</tr>")
-        for resident in self._manager.residents.residents:
+        for resident in self._manager.ccu.residents.residents:
             self.write("<tr>")
             self.write("<td>")
             self.icon_button("edit", "/edit_resident?resident_id=%d" % resident.id,
@@ -2312,6 +2312,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         else:
             self.logger.info("Connection with CCU is disabled")
 
+        self._patch_manager_residents()
         self._register_for_ccu_events()
 
         # Reload the schedules to update the CCU dependent conditions
@@ -2322,6 +2323,12 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
     def ccu_initialized(self):
         """Whether or not a connection with the CCU has been initialized."""
         return self.ccu != None and self.ccu.api.initialized
+
+
+    def _patch_manager_residents(self):
+        """Patches the manager specific subclass of :class:`pmatic.residents.Residents`
+        into the CCU object. This prevents loading the default `Residents` class."""
+        self.ccu._residents = ManagerResidents(self)
 
 
     def _register_for_ccu_events(self):
@@ -2532,58 +2539,18 @@ class EventHistory(object):
 
 
 
-class PersistentConfig(object):
-    _config_file = None
-    _name        = None
-
-
-    def load(self, default=None):
-        try:
-            self.clear()
-            try:
-                fh = open(os.path.join(Config.config_path, self._config_file))
-                config = json.load(fh)
-            except IOError as e:
-                # a non existing file is allowed.
-                if e.errno == 2:
-                    config = default
-                else:
-                    raise
-
-            self.from_config(config)
-        except Exception:
-            raise
-            self.logger.error("Failed to load %s. Terminating." % self._name, exc_info=True)
-            sys.exit(1)
-
-
-    def save(self):
-        json_config = json.dumps(self.to_config())
-        open(os.path.join(Config.config_path, self._config_file), "w").write(json_config + "\n")
-
-
-    def clear(self):
-        raise NotImplementedError()
-
-
-    def to_config(self):
-        raise NotImplementedError()
-
-
-    def from_config(self, config):
-        raise NotImplementedError()
-
-
-
-
-class ManagerResidents(Residents, PersistentConfig, utils.LogMixin):
-    _config_file = "manager.residents"
-    _name        = "residents"
+class ManagerResidents(Residents, utils.PersistentConfigMixin, utils.LogMixin):
+    _name = "residents"
 
     def __init__(self, manager):
         super(ManagerResidents, self).__init__()
         self._manager = manager
         self.load(default={})
+
+
+    @property
+    def config_file(self):
+        return os.path.join(Config.config_path, "manager.residents")
 
 
     def _add(self, r):
@@ -2592,9 +2559,8 @@ class ManagerResidents(Residents, PersistentConfig, utils.LogMixin):
 
 
 
-class Scheduler(threading.Thread, utils.LogMixin, PersistentConfig):
-    _config_file = "manager.schedules"
-    _name        = "schedules"
+class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin):
+    _name = "schedules"
 
     def __init__(self, manager):
         threading.Thread.__init__(self)
@@ -2607,7 +2573,7 @@ class Scheduler(threading.Thread, utils.LogMixin, PersistentConfig):
         self._on_ccu_init_executed = False
         self._next_presence_update = None
 
-        PersistentConfig.__init__(self)
+        utils.PersistentConfigMixin.__init__(self)
 
 
     def run(self):
@@ -2640,12 +2606,16 @@ class Scheduler(threading.Thread, utils.LogMixin, PersistentConfig):
     def _execute_presence_update(self):
         """Updates the presence information of residents in the configured interval. When no
         resident is configured, this method is doing nothing."""
-        if not self._manager.residents.enabled:
+        if not self._manager.ccu_initialized:
+            self.logger.debug("Not updating presence information (CCU not initialized yet)")
+            return
+
+        if not self._manager.ccu.residents.enabled:
             self.logger.debug("Not updating presence information (not enabled)")
             return
 
         if self._next_presence_update == None or self._next_presence_update < time.time():
-            self._manager.residents.update()
+            self._manager.ccu.residents.update()
             self._next_presence_update = time.time() + Config.presence_update_interval
 
 
@@ -2723,6 +2693,11 @@ class Scheduler(threading.Thread, utils.LogMixin, PersistentConfig):
             return
 
         schedule.execute()
+
+
+    @property
+    def config_file(self):
+        return os.path.join(Config.config_path, "manager.schedules")
 
 
     @property
@@ -3375,7 +3350,7 @@ class ConditionOnResidentPresence(Condition):
     def from_config(self, cfg):
         super(ConditionOnResidentPresence, self).from_config(cfg)
 
-        resident = self._manager.residents.get(cfg["resident_id"])
+        resident = self._manager.ccu.residents.get(cfg["resident_id"])
         if resident:
             self.resident = resident
 
@@ -3411,7 +3386,7 @@ class ConditionOnResidentPresence(Condition):
 
 
     def _resident_choices(self):
-        return sorted([ (r.id, r.name) for r in self._manager.residents.residents ],
+        return sorted([ (r.id, r.name) for r in self._manager.ccu.residents.residents ],
                       key=lambda r: r[1])
 
 
@@ -3431,7 +3406,7 @@ class ConditionOnResidentPresence(Condition):
             raise PMUserError("You need to choose a resident.")
         resident_id = int(resident_id)
 
-        resident = self._manager.residents.get(resident_id)
+        resident = self._manager.ccu.residents.get(resident_id)
         if resident == None:
             raise PMUserError("Invalid resident given.")
 

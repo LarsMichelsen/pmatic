@@ -31,6 +31,7 @@ except ImportError:
 
 import re
 import sys
+import json
 import logging
 import platform
 
@@ -100,6 +101,59 @@ class CallbackMixin(object):
                 callback(self, *args, **kwargs)
             except Exception as e:
                 raise PMException("Exception in callback (%s - %s): %s" % (cb_name, callback, e))
+
+
+
+class PersistentConfigMixin(object):
+    """This class provides the option to persist data structures in a file."""
+    _name = None
+
+    def load(self, default=None, config_file=None):
+        if config_file is None:
+            config_file = self.config_file
+
+        try:
+            self.clear()
+            try:
+                fh = open(config_file)
+                config = json.load(fh)
+            except IOError as e:
+                # a non existing file is allowed.
+                if e.errno == 2:
+                    config = default
+                else:
+                    raise
+
+            self.from_config(config)
+        except Exception:
+            raise
+            self.logger.error("Failed to load %s. Terminating." % self._name, exc_info=True)
+            sys.exit(1)
+
+
+    def save(self, config_file=None):
+        if config_file is None:
+            config_file = self.config_file
+
+        json_config = json.dumps(self.to_config())
+        open(config_file, "w").write(json_config + "\n")
+
+
+    @property
+    def config_file(self):
+        raise NotImplementedError()
+
+
+    def clear(self):
+        raise NotImplementedError()
+
+
+    def to_config(self):
+        raise NotImplementedError()
+
+
+    def from_config(self, config):
+        raise NotImplementedError()
 
 
 
