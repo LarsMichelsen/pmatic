@@ -135,7 +135,8 @@ class PersistentConfigMixin(object):
         if config_file is None:
             config_file = self.config_file
 
-        json_config = json.dumps(self.to_config())
+        json_config = json.dumps(self.to_config(), sort_keys=True,
+                                 indent=4, separators=(',', ': '))
         open(config_file, "w").write(json_config + "\n")
 
 
