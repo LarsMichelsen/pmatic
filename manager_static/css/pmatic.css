@@ -245,6 +245,7 @@ table tr th.toplabel {
 
 form table input.day_of_week,
 form table input.day_of_month,
+form table input.interval_inp,
 form table input.time_of_day {
     width: 30px;
 }

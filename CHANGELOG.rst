@@ -46,6 +46,7 @@ Manager
 * Improved handling of deleted scripts in schedules
 * Changing the log level is now applied instantly
 * Added "status" target to init script
+* Added time interval to "based on time" condition
 * Fixed "restart" target of init script
 
 Incompatible (possible manual changes needed)

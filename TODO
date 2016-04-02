@@ -1,6 +1,8 @@
 Fixes:
 * Windows: Output encoding? (see output of list_thermostats.py)
 * Output encoding when piping e.g. examples/list_available_methods.py to less or grep
+* Schedules might be executed/rescheduled multiple times while editing
+  -> need to track the last execution time somewhere
 * Exception beim manager startup:
     Mar 27 00:42:56 homematic-ccu2 user.info homematic: 2016-03-27 00:42:56,871 [INFO] ------------------------------------------
     Mar 27 00:42:56 homematic-ccu2 user.info homematic: 2016-03-27 00:42:56,926 [INFO] Starting up (Version 0.1)

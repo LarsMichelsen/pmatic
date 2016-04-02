@@ -3105,9 +3105,16 @@ class ConditionOnTime(Condition):
     type_title = "based on time"
 
     _interval_choices = [
+        ("timed",   "Time interval"),
         ("daily",   "Daily"),
         ("weekly",  "Weekly"),
         ("monthly", "Monthly"),
+    ]
+
+    _interval_units = [
+        ("seconds", "seconds"),
+        ("minutes", "minutes"),
+        ("hours",   "hours"),
     ]
 
     def __init__(self, manager):
@@ -3116,6 +3123,8 @@ class ConditionOnTime(Condition):
         self.day_of_week   = 1
         self.day_of_month  = 1
         self.time_of_day   = (13, 00)
+        self.interval_sec  = 0
+        self.interval_unit = None
 
         self._next_time = None
 
@@ -3129,6 +3138,16 @@ class ConditionOnTime(Condition):
 
     def calculate_next_time(self):
         """From now, calculate the next unix timestamp matching this condition."""
+
+        if self.interval_type == "timed":
+            if self._next_time is None:
+                # Execute timed scripts on startup of manager and then in the
+                # configured intervals. Would be good to persist the last execution
+                # one day to prevent too early re-execution after startup.
+                self._next_time = time.time()
+            else:
+                self._next_time = time.time() + self.interval_sec
+            return
 
         # Initialize vars to be used as indices for timeparts
         year, month, mday, hour, minute, second, wday = range(7)
@@ -3186,8 +3205,14 @@ class ConditionOnTime(Condition):
     def display(self):
         txt = super(ConditionOnTime, self).display()
         txt += ": %s" % self.interval_type
-        if self.interval_type == "weekly":
+        if self.interval_type == "timed":
+            txt += " each %d %s" % (self._formated_interval_sec(),
+                                    dict(self._interval_units)[self.interval_unit])
+            return txt
+
+        elif self.interval_type == "weekly":
             txt += " on day %d of week" % self.day_of_week
+
         elif self.interval_type == "monthly":
             txt += " on day %d of month" % self.day_of_month
 
@@ -3200,6 +3225,14 @@ class ConditionOnTime(Condition):
         super(ConditionOnTime, self).from_config(cfg)
         self.time_of_day = tuple(self.time_of_day)
 
+        if self.interval_type == "timed":
+            if self.interval_sec % 3600 == 0:
+                self.interval_unit = "hours"
+            elif self.interval_sec % 60 == 0:
+                self.interval_unit = "minutes"
+            else:
+                self.interval_unit = "seconds"
+
 
     def to_config(self):
         cfg = super(ConditionOnTime, self).to_config()
@@ -3208,7 +3241,9 @@ class ConditionOnTime(Condition):
             "time_of_day"   : self.time_of_day,
         })
 
-        if self.interval_type == "weekly":
+        if self.interval_type == "timed":
+            cfg["interval_sec"] = self.interval_sec
+        elif self.interval_type == "weekly":
             cfg["day_of_week"] = self.day_of_week
         elif self.interval_type == "monthly":
             cfg["day_of_month"] = self.day_of_month
@@ -3223,7 +3258,15 @@ class ConditionOnTime(Condition):
         page.select(varprefix+"interval_type", self._interval_choices,
                     self.interval_type, onchange="this.form.submit()")
 
-        if self.interval_type == "weekly":
+        if self.interval_type == "timed":
+            page.write("Execute each: ")
+
+            page.input(varprefix+"interval_inp", "%d" % self._formated_interval_sec(),
+                       cls="interval_inp")
+            page.select(varprefix+"interval_unit", self._interval_units,
+                        self.interval_unit, onchange="this.form.submit()")
+
+        elif self.interval_type == "weekly":
             page.write("Day of week: ")
             page.input(varprefix+"day_of_week", "%d" % self.day_of_week, cls="day_of_week")
 
@@ -3232,12 +3275,23 @@ class ConditionOnTime(Condition):
             page.input(varprefix+"day_of_month", "%d" % self.day_of_month, cls="day_of_month")
         page.write("</td></tr>")
 
-        page.write("<tr><td>")
-        page.write("Time (24h format): ")
-        page.write("</td><td>")
-        page.input(varprefix+"time_of_day", "%02d:%02d" % self.time_of_day, cls="time_of_day")
-        page.write("</td></tr>")
+        if self.interval_type != "timed":
+            page.write("<tr><td>")
+            page.write("Time (24h format): ")
+            page.write("</td><td>")
+            page.input(varprefix+"time_of_day", "%02d:%02d" % self.time_of_day, cls="time_of_day")
+            page.write("</td></tr>")
+
         page.write("</table>")
+
+
+    def _formated_interval_sec(self):
+        val = self.interval_sec
+        if self.interval_unit == "hours":
+            val = val / 3600
+        elif self.interval_unit == "minutes":
+            val = val / 60
+        return val
 
 
     def set_submitted_vars(self, page, varprefix):
@@ -3250,6 +3304,10 @@ class ConditionOnTime(Condition):
             if interval_type not in dict(self._interval_choices):
                 raise PMUserError("Invalid interval given.")
             self.interval_type = interval_type
+
+        if self.interval_type == "timed":
+            self._set_timed_vars(page, varprefix)
+            return
 
         self._set_time_of_day(page, varprefix)
 
@@ -3282,6 +3340,36 @@ class ConditionOnTime(Condition):
             raise PMUserError("The minutes need to be between 00 and 59.")
 
         self.time_of_day = time_parts
+
+
+    def _set_timed_vars(self, page, varprefix):
+        interval_unit = page.vars.getvalue(varprefix+"interval_unit")
+        raw_interval = page.vars.getvalue(varprefix+"interval_inp")
+
+        if page.is_action():
+            if not interval_unit:
+                raise PMUserError("You need to configure the interval unit.")
+            if not raw_interval:
+                raise PMUserError("You need to configure the interval.")
+
+        if raw_interval and interval_unit:
+            if interval_unit not in dict(self._interval_units):
+                raise PMUserError("Invalid interval unit given.")
+            self.interval_unit = interval_unit
+
+            try:
+                raw_interval = int(raw_interval)
+            except ValueError:
+                raise PMUserError("Invalid interval given.")
+
+            if self.interval_unit == "hours":
+                interval = raw_interval * 3600
+            elif self.interval_unit == "minutes":
+                interval = raw_interval * 60
+            else:
+                interval = raw_interval
+
+            self.interval_sec = interval
 
 
     def _set_weekly_vars(self, page, varprefix):
