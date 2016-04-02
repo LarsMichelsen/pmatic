@@ -100,6 +100,20 @@ Another important option is to listen for events of specific devices and make th
 manager execute scripts when either a value is updated or changed. For this you need
 to choose the device, channel, parameter and the event type.
 
+
+Manage your Residents
+------------------------------
+
+You can manage your residents by configuring your residents using the GUI and then access the
+residents configured attributes like email address, mobile number or pushover tokens from your
+own pmatic scripts. You can use external sources like the fritz!Box to update the presence of
+your users.
+
+.. thumbnail:: _static/images/residents_presence.png
+   :title: Residents in the pmatic Manager
+
+You can find more details about this in the :ref:`presence_detection` chapter.
+
 View Device Events
 ------------------
 
@@ -147,5 +161,3 @@ the Manager process.
 
 The script is located at ``/etc/init.d/S55pmatic``. So if you like you can use
 ``/etc/init.d/S55pmatic restart`` to restart the pmatic Manager process.
-
-

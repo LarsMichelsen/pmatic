@@ -76,10 +76,69 @@ mobile phone I tested.</p>
 <p>To make it even more comfortable the pmatic Manager has a dedicated GUI to configure your
 users and devices. Within the manager you can even trigger scripts when a user arrives or
 leaves.</p>
-<span class="target" id="module-pmatic.residents"></span><dl class="class">
+<div class="section" id="example-logging-presence-every-5-minutes">
+<h3>Example: Logging presence every 5 minutes<a class="headerlink" href="#example-logging-presence-every-5-minutes" title="Permalink to this headline">¶</a></h3>
+<p>To make it comfortable the pmatic Manager has a dedicated GUI to configure your
+users and devices. Within the manager you can even trigger scripts when a user arrives or
+leaves.</p>
+<p>When executing scripts from the manager using inline scripts, you can access the residents
+configured via the manager by using the residents instance of the globally available CCU
+object. You don&#8217;t need to care for updating the data on your own or loading the residents.
+And you even don&#8217;t need to configure the fritz!Box credentials within the script as they
+are already configured within the manager.</p>
+<p>You can simply start with the logic you like to implement. If you add a schedule that is
+being executed every 5 minutes, you get a log file in the path <cite>/tmp/presence-test.log</cite>
+which contains one entry for each resident which contains it&#8217;s name and presence status.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/python</span>
+<span class="kn">import</span> <span class="nn">pmatic</span><span class="o">,</span> <span class="nn">time</span>
+<span class="n">ccu</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">CCU</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="s2">&quot;http://192.168.1.26&quot;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Admin&quot;</span><span class="p">,</span> <span class="s2">&quot;EPIC-SECRET-PW&quot;</span><span class="p">))</span>
+
+<span class="k">for</span> <span class="n">resident</span> <span class="ow">in</span> <span class="n">ccu</span><span class="o">.</span><span class="n">residents</span><span class="o">.</span><span class="n">residents</span><span class="p">:</span>
+    <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;/tmp/presence-test.log&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M:%S&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span>
+        <span class="n">resident</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="p">(</span><span class="n">resident</span><span class="o">.</span><span class="n">present</span> <span class="ow">and</span> <span class="s2">&quot;is at home</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="ow">or</span> <span class="s2">&quot;is not at home</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>However, it even possible to make your script being executed upon user arrival or departure
+using the &#8220;on resident presence&#8221; condition. This lets you get rid of the timed polling and
+you&#8217;ll have a log which only contains the changes in presence.</p>
+</div>
+<div class="section" id="example-accessing-resident-properties">
+<h3>Example: Accessing resident properties<a class="headerlink" href="#example-accessing-resident-properties" title="Permalink to this headline">¶</a></h3>
+<p>Once you have configured your residents, you can use their attributes like phone number,
+pushover token or email address in your scripts. Please take a look at this example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/python</span>
+<span class="kn">import</span> <span class="nn">pmatic</span>
+<span class="n">ccu</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">CCU</span><span class="p">(</span><span class="n">address</span><span class="o">=</span><span class="s2">&quot;http://192.168.1.26&quot;</span><span class="p">,</span> <span class="n">credentials</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;Admin&quot;</span><span class="p">,</span> <span class="s2">&quot;EPIC-SECRET-PW&quot;</span><span class="p">))</span>
+
+<span class="n">lars</span> <span class="o">=</span> <span class="n">ccu</span><span class="o">.</span><span class="n">residents</span><span class="o">.</span><span class="n">get_by_name</span><span class="p">(</span><span class="s2">&quot;Lars&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">lars</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;You don&#39;t have a resident </span><span class="se">\&quot;</span><span class="s2">Lars</span><span class="se">\&quot;</span><span class="s2">. Feeling sorry.&quot;</span><span class="p">)</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Mail           : </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">lars</span><span class="o">.</span><span class="n">email</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Phone Phone    : </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">lars</span><span class="o">.</span><span class="n">phone</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s2">&quot;Pushover Token : </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">lars</span><span class="o">.</span><span class="n">pushover_token</span><span class="p">)</span>
+
+<span class="c1"># And now? Maybe send a notification using pmatic.notify?</span>
+<span class="c1"># from pmatic.notify import Pushover</span>
+<span class="c1"># Pushover.send(&quot;Hallo Lars :-)&quot;, user_token=lars.pushover_token, api_token=&quot;...&quot;)</span>
+</pre></div>
+</div>
+<p>This script will output something like this when you have a resident called Lars:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>Mail           : lm@larsmichelsen.com
+Mobile Phone   : +4912312312312
+Pushover Token : KLAH:AWHFlawfkawjd<span class="p">;</span>kawjd<span class="p">;</span>lajw
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="module-pmatic.residents">
+<span id="the-pmatic-residents-module"></span><h2>The pmatic.residents module<a class="headerlink" href="#module-pmatic.residents" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
 <dt id="pmatic.residents.Residents">
 <em class="property">class </em><code class="descclassname">pmatic.residents.</code><code class="descname">Residents</code><a class="reference internal" href="_modules/pmatic/residents.html#Residents"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents" title="Permalink to this definition">¶</a></dt>
-<dd><p>This class is meant to manage your residents and the presence of them.</p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pmatic.utils.LogMixin</span></code></p>
+<p>This class is meant to manage your residents and the presence of them.</p>
 <dl class="method">
 <dt id="pmatic.residents.Residents.from_config">
 <code class="descname">from_config</code><span class="sig-paren">(</span><em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Residents.from_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents.from_config" title="Permalink to this definition">¶</a></dt>
@@ -156,7 +215,49 @@ existing resident ids.</p>
 <dl class="class">
 <dt id="pmatic.residents.Resident">
 <em class="property">class </em><code class="descclassname">pmatic.residents.</code><code class="descname">Resident</code><span class="sig-paren">(</span><em>presence</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="attribute">
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pmatic.utils.LogMixin</span></code>, <code class="xref py py-class docutils literal"><span class="pre">pmatic.utils.CallbackMixin</span></code></p>
+<dl class="attribute">
+<dt id="pmatic.residents.Resident.id">
+<code class="descname">id</code><a class="headerlink" href="#pmatic.residents.Resident.id" title="Permalink to this definition">¶</a></dt>
+<dd><p>The internal ID of the user. This must be a unique number within all residents.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.residents.Resident.name">
+<code class="descname">name</code><a class="headerlink" href="#pmatic.residents.Resident.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>The name of the resident. This can be any kind of string you like to name your
+resident.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.residents.Resident.email">
+<code class="descname">email</code><a class="headerlink" href="#pmatic.residents.Resident.email" title="Permalink to this definition">¶</a></dt>
+<dd><p>The email address of the resident. You may use this to send mails to the resident
+from your scripts.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.residents.Resident.mobile">
+<code class="descname">mobile</code><a class="headerlink" href="#pmatic.residents.Resident.mobile" title="Permalink to this definition">¶</a></dt>
+<dd><p>The mobile number of the resident. You may use this to send SMS to the resident
+from your scripts.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.residents.Resident.pushover_token">
+<code class="descname">pushover_token</code><a class="headerlink" href="#pmatic.residents.Resident.pushover_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>The pushover token of this resident. You may use this to send pushover messages
+to the resident from your scripts. Please take a look at the pmatic notification
+documentation (<a class="reference internal" href="pmatic_notify.html#module-pmatic.notify" title="pmatic.notify"><code class="xref py py-mod docutils literal"><span class="pre">pmatic.notify</span></code></a>) for details.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.residents.Resident.present">
+<code class="descname">present</code><a class="headerlink" href="#pmatic.residents.Resident.present" title="Permalink to this definition">¶</a></dt>
+<dd><p>Is <code class="docutils literal"><span class="pre">True</span></code> when the user is present and <code class="docutils literal"><span class="pre">False</span></code> when not.</p>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="pmatic.residents.Resident.last_updated">
 <code class="descname">last_updated</code><a class="headerlink" href="#pmatic.residents.Resident.last_updated" title="Permalink to this definition">¶</a></dt>
 <dd><p>Is set to the unix timestamp of the last update or <code class="docutils literal"><span class="pre">None</span></code> when not updated yet.</p>
@@ -179,12 +280,6 @@ change or <code class="docutils literal"><span class="pre">None</span></code> wh
 <code class="descname">to_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.to_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.to_config" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="attribute">
-<dt id="pmatic.residents.Resident.present">
-<code class="descname">present</code><a class="headerlink" href="#pmatic.residents.Resident.present" title="Permalink to this definition">¶</a></dt>
-<dd><p>Is <code class="docutils literal"><span class="pre">True</span></code> when the user is present and <code class="docutils literal"><span class="pre">False</span></code> when not.</p>
-</dd></dl>
-
 <dl class="method">
 <dt id="pmatic.residents.Resident.add_device">
 <code class="descname">add_device</code><span class="sig-paren">(</span><em>device</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.add_device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.add_device" title="Permalink to this definition">¶</a></dt>
@@ -194,16 +289,16 @@ for example the <a class="reference internal" href="#pmatic.residents.PersonalDe
 </dd></dl>
 
 <dl class="method">
+<dt id="pmatic.residents.Resident.clear_devices">
+<code class="descname">clear_devices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.clear_devices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.clear_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the device list to it&#8217;s initial state.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="pmatic.residents.Resident.update_presence">
 <code class="descname">update_presence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.update_presence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.update_presence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Updates the presence of this resident. When at least one device is active,
 the resident is treated to be present.</p>
-</dd></dl>
-
-<dl class="method">
-<dt id="pmatic.residents.Resident.clear_devices">
-<code class="descname">clear_devices</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.clear_devices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.clear_devices" title="Permalink to this definition">¶</a></dt>
-<dd><p>Resets the device list to it&#8217;s initial state.</p>
 </dd></dl>
 
 <dl class="method">
@@ -227,7 +322,8 @@ object.</p>
 <dl class="class">
 <dt id="pmatic.residents.PersonalDevice">
 <em class="property">class </em><code class="descclassname">pmatic.residents.</code><code class="descname">PersonalDevice</code><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDevice"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDevice" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="attribute">
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2.7/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<dl class="attribute">
 <dt id="pmatic.residents.PersonalDevice.type_name">
 <code class="descname">type_name</code><em class="property"> = u''</em><a class="headerlink" href="#pmatic.residents.PersonalDevice.type_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -253,12 +349,15 @@ or <code class="docutils literal"><span class="pre">None</span></code> if there 
 <dl class="method">
 <dt id="pmatic.residents.PersonalDevice.from_config">
 <code class="descname">from_config</code><span class="sig-paren">(</span><em>cfg</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDevice.from_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDevice.from_config" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Restores the object attributes from the persisted configuration.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pmatic.residents.PersonalDevice.to_config">
 <code class="descname">to_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDevice.to_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDevice.to_config" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates a dictionary which can be persisted and later loaded with <a class="reference internal" href="#pmatic.residents.PersonalDevice.from_config" title="pmatic.residents.PersonalDevice.from_config"><code class="xref py py-meth docutils literal"><span class="pre">from_config()</span></code></a>
+to reconstruct this object again.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pmatic.residents.PersonalDevice.update_presence">
@@ -284,7 +383,8 @@ information of this device.</p>
 <dl class="class">
 <dt id="pmatic.residents.PersonalDeviceFritzBoxHost">
 <em class="property">class </em><code class="descclassname">pmatic.residents.</code><code class="descname">PersonalDeviceFritzBoxHost</code><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDeviceFritzBoxHost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="attribute">
+<dd><p>Bases: <a class="reference internal" href="#pmatic.residents.PersonalDevice" title="pmatic.residents.PersonalDevice"><code class="xref py py-class docutils literal"><span class="pre">pmatic.residents.PersonalDevice</span></code></a></p>
+<dl class="attribute">
 <dt id="pmatic.residents.PersonalDeviceFritzBoxHost.type_name">
 <code class="descname">type_name</code><em class="property"> = u'fritz_box_host'</em><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost.type_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -313,7 +413,9 @@ information of this device.</p>
 <dl class="method">
 <dt id="pmatic.residents.PersonalDeviceFritzBoxHost.to_config">
 <code class="descname">to_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDeviceFritzBoxHost.to_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost.to_config" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Creates a dictionary which can be persisted and later loaded with <code class="xref py py-meth docutils literal"><span class="pre">from_config()</span></code>
+to reconstruct this object again.</p>
+</dd></dl>
 
 <dl class="method">
 <dt id="pmatic.residents.PersonalDeviceFritzBoxHost.update_presence">
@@ -335,7 +437,12 @@ information of this device.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Manage your Residents</a><ul>
-<li><a class="reference internal" href="#presence-detection-with-pmatic">Presence detection with pmatic</a></li>
+<li><a class="reference internal" href="#presence-detection-with-pmatic">Presence detection with pmatic</a><ul>
+<li><a class="reference internal" href="#example-logging-presence-every-5-minutes">Example: Logging presence every 5 minutes</a></li>
+<li><a class="reference internal" href="#example-accessing-resident-properties">Example: Accessing resident properties</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-pmatic.residents">The pmatic.residents module</a></li>
 </ul>
 </li>
 </ul>

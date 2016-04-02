@@ -197,17 +197,83 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">Resident</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_callbacks</span><span class="p">([</span><span class="s2">&quot;presence_updated&quot;</span><span class="p">,</span> <span class="s2">&quot;presence_changed&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_presence</span> <span class="o">=</span> <span class="n">presence</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">id</span>        <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">devices</span>   <span class="o">=</span> <span class="p">[]</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span>      <span class="o">=</span> <span class="s2">&quot;Mr. X&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">email</span>     <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mobile</span>    <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pushover_token</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>        <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>      <span class="o">=</span> <span class="s2">&quot;Mr. X&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_email</span>     <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mobile</span>    <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pushover_token</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_presence_updated</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_presence_changed</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_present</span>          <span class="o">=</span> <span class="bp">False</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The internal ID of the user. This must be a unique number within all residents.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>
+
+
+    <span class="nd">@id.setter</span>
+    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="nb">id</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="nb">id</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The name of the resident. This can be any kind of string you like to name your</span>
+<span class="sd">        resident.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>
+
+
+    <span class="nd">@name.setter</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="n">name</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">email</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The email address of the resident. You may use this to send mails to the resident</span>
+<span class="sd">        from your scripts.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_email</span>
+
+
+    <span class="nd">@email.setter</span>
+    <span class="k">def</span> <span class="nf">email</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">email</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_email</span> <span class="o">=</span> <span class="n">email</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mobile</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The mobile number of the resident. You may use this to send SMS to the resident</span>
+<span class="sd">        from your scripts.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mobile</span>
+
+
+    <span class="nd">@mobile.setter</span>
+    <span class="k">def</span> <span class="nf">mobile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mobile</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mobile</span> <span class="o">=</span> <span class="n">mobile</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">pushover_token</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The pushover token of this resident. You may use this to send pushover messages</span>
+<span class="sd">        to the resident from your scripts. Please take a look at the pmatic notification</span>
+<span class="sd">        documentation (:mod:`pmatic.notify`) for details.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pushover_token</span>
+
+
+    <span class="nd">@pushover_token.setter</span>
+    <span class="k">def</span> <span class="nf">pushover_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pushover_token</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pushover_token</span> <span class="o">=</span> <span class="n">pushover_token</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">present</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Is ``True`` when the user is present and ``False`` when not.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_present</span>
 
 
     <span class="nd">@property</span>
@@ -224,11 +290,11 @@
 
 
 <div class="viewcode-block" id="Resident.from_config"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Resident.from_config">[docs]</a>    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">id</span>      <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span>    <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">email</span>   <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">mobile</span>  <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;mobile&quot;</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pushover_token</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;pushover_token&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>      <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>    <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_email</span>   <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;email&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mobile</span>  <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;mobile&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_pushover_token</span> <span class="o">=</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;pushover_token&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">devices</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">device_cfg</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;devices&quot;</span><span class="p">,</span> <span class="p">[]):</span>
@@ -244,19 +310,13 @@
 
 <div class="viewcode-block" id="Resident.to_config"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Resident.to_config">[docs]</a>    <span class="k">def</span> <span class="nf">to_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;id&quot;</span>             <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
-            <span class="s2">&quot;name&quot;</span>           <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="s2">&quot;email&quot;</span>          <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">email</span><span class="p">,</span>
-            <span class="s2">&quot;mobile&quot;</span>         <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mobile</span><span class="p">,</span>
-            <span class="s2">&quot;pushover_token&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">pushover_token</span><span class="p">,</span>
+            <span class="s2">&quot;id&quot;</span>             <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span>           <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span>
+            <span class="s2">&quot;email&quot;</span>          <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_email</span><span class="p">,</span>
+            <span class="s2">&quot;mobile&quot;</span>         <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mobile</span><span class="p">,</span>
+            <span class="s2">&quot;pushover_token&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_pushover_token</span><span class="p">,</span>
             <span class="s2">&quot;devices&quot;</span> <span class="p">:</span> <span class="p">[</span> <span class="n">d</span><span class="o">.</span><span class="n">to_config</span><span class="p">()</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">devices</span> <span class="p">],</span>
         <span class="p">}</span></div>
-
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">present</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Is ``True`` when the user is present and ``False`` when not.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_present</span>
 
 
 <div class="viewcode-block" id="Resident.add_device"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Resident.add_device">[docs]</a>    <span class="k">def</span> <span class="nf">add_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
@@ -264,6 +324,11 @@
 <span class="sd">        you need to use a specific class inherited from :class:`PersonalDevice`,</span>
 <span class="sd">        for example the :class:`PersonalDeviceFritzBoxHost` class.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">device</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Resident.clear_devices"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Resident.clear_devices">[docs]</a>    <span class="k">def</span> <span class="nf">clear_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Resets the device list to it&#39;s initial state.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">devices</span> <span class="o">=</span> <span class="p">[]</span></div>
 
 
 <div class="viewcode-block" id="Resident.update_presence"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Resident.update_presence">[docs]</a>    <span class="k">def</span> <span class="nf">update_presence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -295,11 +360,6 @@
         <span class="k">if</span> <span class="n">new_value</span> <span class="o">!=</span> <span class="n">old_value</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_presence_changed</span> <span class="o">=</span> <span class="n">now</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="s2">&quot;presence_changed&quot;</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="Resident.clear_devices"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Resident.clear_devices">[docs]</a>    <span class="k">def</span> <span class="nf">clear_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Resets the device list to it&#39;s initial state.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">devices</span> <span class="o">=</span> <span class="p">[]</span></div>
 
 
 <div class="viewcode-block" id="Resident.on_presence_updated"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Resident.on_presence_updated">[docs]</a>    <span class="k">def</span> <span class="nf">on_presence_updated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
@@ -346,11 +406,14 @@
 
 
 <div class="viewcode-block" id="PersonalDevice.from_config"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.PersonalDevice.from_config">[docs]</a>    <span class="k">def</span> <span class="nf">from_config</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cfg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Restores the object attributes from the persisted configuration.&quot;&quot;&quot;</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PersonalDevice.to_config"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.PersonalDevice.to_config">[docs]</a>    <span class="k">def</span> <span class="nf">to_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a dictionary which can be persisted and later loaded with :meth:`from_config`</span>
+<span class="sd">        to reconstruct this object again.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s2">&quot;type_name&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type_name</span><span class="p">,</span>
         <span class="p">}</span></div>
@@ -436,6 +499,8 @@
 
 
 <div class="viewcode-block" id="PersonalDeviceFritzBoxHost.to_config"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.PersonalDeviceFritzBoxHost.to_config">[docs]</a>    <span class="k">def</span> <span class="nf">to_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Creates a dictionary which can be persisted and later loaded with :meth:`from_config`</span>
+<span class="sd">        to reconstruct this object again.&quot;&quot;&quot;</span>
         <span class="n">cfg</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PersonalDeviceFritzBoxHost</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_config</span><span class="p">()</span>
         <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;mac&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mac</span>
         <span class="k">return</span> <span class="n">cfg</span></div>

@@ -97,6 +97,7 @@
 <span class="kn">import</span> <span class="nn">pmatic.events</span>
 <span class="kn">import</span> <span class="nn">pmatic.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
 <span class="kn">from</span> <span class="nn">pmatic.entities</span> <span class="kn">import</span> <span class="n">Devices</span><span class="p">,</span> <span class="n">Device</span><span class="p">,</span> <span class="n">Rooms</span><span class="p">,</span> <span class="n">Room</span>
+<span class="kn">from</span> <span class="nn">pmatic.residents</span> <span class="kn">import</span> <span class="n">Residents</span>
 
 
 <div class="viewcode-block" id="CCU"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCU">[docs]</a><span class="k">class</span> <span class="nc">CCU</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -132,6 +133,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="bp">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_residents</span> <span class="o">=</span> <span class="bp">None</span>
 
 
     <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -191,6 +193,15 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">=</span> <span class="n">CCURooms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">residents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides access to the resident and presence management functionality of pmatic.</span>
+<span class="sd">        See :class:`pmatic.residents.Residents` for details.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_residents</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_residents</span> <span class="o">=</span> <span class="n">Residents</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_residents</span>
 
 
     <span class="nd">@property</span>
