@@ -143,17 +143,83 @@ class Resident(utils.LogMixin, utils.CallbackMixin):
         super(Resident, self).__init__()
         self._init_callbacks(["presence_updated", "presence_changed"])
         self._presence = presence
-        self.id        = None
         self.devices   = []
 
-        self.name      = "Mr. X"
-        self.email     = ""
-        self.mobile    = ""
-        self.pushover_token = ""
+        self._id        = None
+        self._name      = "Mr. X"
+        self._email     = ""
+        self._mobile    = ""
+        self._pushover_token = ""
 
         self._presence_updated = None
         self._presence_changed = None
         self._present          = False
+
+
+    @property
+    def id(self):
+        """The internal ID of the user. This must be a unique number within all residents."""
+        return self._id
+
+
+    @id.setter
+    def id(self, id):
+        self._id = id
+
+
+    @property
+    def name(self):
+        """The name of the resident. This can be any kind of string you like to name your
+        resident."""
+        return self._name
+
+
+    @name.setter
+    def name(self, name):
+        self._name = name
+
+
+    @property
+    def email(self):
+        """The email address of the resident. You may use this to send mails to the resident
+        from your scripts."""
+        return self._email
+
+
+    @email.setter
+    def email(self, email):
+        self._email = email
+
+
+    @property
+    def mobile(self):
+        """The mobile number of the resident. You may use this to send SMS to the resident
+        from your scripts."""
+        return self._mobile
+
+
+    @mobile.setter
+    def mobile(self, mobile):
+        self._mobile = mobile
+
+
+    @property
+    def pushover_token(self):
+        """The pushover token of this resident. You may use this to send pushover messages
+        to the resident from your scripts. Please take a look at the pmatic notification
+        documentation (:mod:`pmatic.notify`) for details."""
+        return self._pushover_token
+
+
+    @pushover_token.setter
+    def pushover_token(self, pushover_token):
+        self._pushover_token = pushover_token
+
+
+    @property
+    def present(self):
+        """Is ``True`` when the user is present and ``False`` when not."""
+        return self._present
 
 
     @property
@@ -170,11 +236,11 @@ class Resident(utils.LogMixin, utils.CallbackMixin):
 
 
     def from_config(self, cfg):
-        self.id      = cfg["id"]
-        self.name    = cfg["name"]
-        self.email   = cfg["email"]
-        self.mobile  = cfg["mobile"]
-        self.pushover_token = cfg["pushover_token"]
+        self._id      = cfg["id"]
+        self._name    = cfg["name"]
+        self._email   = cfg["email"]
+        self._mobile  = cfg["mobile"]
+        self._pushover_token = cfg["pushover_token"]
 
         self.devices = []
         for device_cfg in cfg.get("devices", []):
@@ -190,19 +256,13 @@ class Resident(utils.LogMixin, utils.CallbackMixin):
 
     def to_config(self):
         return {
-            "id"             : self.id,
-            "name"           : self.name,
-            "email"          : self.email,
-            "mobile"         : self.mobile,
-            "pushover_token" : self.pushover_token,
+            "id"             : self._id,
+            "name"           : self._name,
+            "email"          : self._email,
+            "mobile"         : self._mobile,
+            "pushover_token" : self._pushover_token,
             "devices" : [ d.to_config() for d in self.devices ],
         }
-
-
-    @property
-    def present(self):
-        """Is ``True`` when the user is present and ``False`` when not."""
-        return self._present
 
 
     def add_device(self, device):
@@ -210,6 +270,11 @@ class Resident(utils.LogMixin, utils.CallbackMixin):
         you need to use a specific class inherited from :class:`PersonalDevice`,
         for example the :class:`PersonalDeviceFritzBoxHost` class."""
         self.devices.append(device)
+
+
+    def clear_devices(self):
+        """Resets the device list to it's initial state."""
+        self.devices = []
 
 
     def update_presence(self):
@@ -241,11 +306,6 @@ class Resident(utils.LogMixin, utils.CallbackMixin):
         if new_value != old_value:
             self._presence_changed = now
             self._callback("presence_changed")
-
-
-    def clear_devices(self):
-        """Resets the device list to it's initial state."""
-        self.devices = []
 
 
     def on_presence_updated(self, func):

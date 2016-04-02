@@ -25,41 +25,40 @@
 # a persons availability by a device which is connected withe a fritz!Box
 # in your local network.
 
-import pmatic
+import pmatic, sys
 ccu = pmatic.CCU(address="http://192.168.1.26", credentials=("Admin", "EPIC-SECRET-PW"))
 
-# Maybe you need to configure your fritz!Box credentials to be able to fetch the
-# presence information of the configured devices.
-from pmatic.residents import PersonalDeviceFritzBoxHost
-PersonalDeviceFritzBoxHost.configure("fritz.box", password="EPIC-SECRET-PW")
+# Now load some resident data. When executed from the manager as inline script, you
+# will automatically have the residents configured in the manager loaded. Otherwise
+# you have to use ccu.residents.load(config_file="...") or do something like this:
+#ccu.residents.from_config({
+#    "residents": [
+#        {
+#            "id"             : 0,
+#            "name"           : "Lars",
+#            "email"          : "lm@larsmichelsen.com",
+#            "mobile"         : "+4912312312312",
+#            "pushover_token" : "KLAH:AWHFlawfkawjd;kawjd;lajw",
+#            "devices": [
+#                {
+#                    "type_name": "fritz_box_host",
+#                    "mac": "30:10:E6:10:D4:B2",
+#                },
+#            ]
+#        }
+#    ],
+#})
 
-# Now load some resident data.
-ccu.residents.from_config({
-    "residents": [
-        {
-            "id"             : 0,
-            "name"           : "Lars",
-            "email"          : "",
-            "mobile"         : "",
-            "pushover_token" : "",
-            "devices": [
-                {
-                    "type_name": "fritz_box_host",
-                    "mac": "30:10:E6:10:D4:B2",
-                },
-            ]
-        }
-    ],
-})
+lars = ccu.residents.get_by_name("Lars")
+if lars is None:
+    print("You don't have a resident \"Lars\". Feeling sorry.")
+    sys.exit(1)
 
-# You may use ccu.residents.load(config_file="...") and the counterpart
-# ccu.residents.load(config_file="...") to load and store your resident config.
+print("Mail           : %s" % lars.email)
+print("Mobile Phone   : %s" % lars.mobile)
+print("Pushover Token : %s" % lars.pushover_token)
 
-# After initialization you can run either .update() on the residents instance
-# or .update_presence() on a specific resident to update the presence information
-# from the data source, in this case the fritz!Box.
-ccu.residents.update()
+# And now? Maybe send a notification using pmatic.notify?
+# from pmatic.notify import Pushover
+# Pushover.send("Hallo Lars :-)", user_token=lars.pushover_token, api_token="...")
 
-for resident in ccu.residents.residents:
-    #resident.update_presence()
-    print(resident.name + " " + (resident.present and "is at home" or "is not at home"))
