@@ -241,7 +241,7 @@ which contains one entry for each resident which contains it's name and presence
 
     for resident in ccu.residents.residents:
         open("/tmp/presence-test.log", "a").write(
-            resident.name + " " + (resident.present and "is at home" or "is not at home"))
+            resident.name + " " + (resident.present and "is at home\n" or "is not at home\n"))
 
 Some use cases
 --------------
