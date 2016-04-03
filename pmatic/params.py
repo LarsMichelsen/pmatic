@@ -253,6 +253,9 @@ class Parameter(utils.CallbackMixin):
 
 
     def _formated(self, value_format="%s"):
+        if not self.readable:
+            return "[NOT READABLE]"
+
         if self.unit:
             if self.unit == "%":
                 return (value_format+"%%") % self.value

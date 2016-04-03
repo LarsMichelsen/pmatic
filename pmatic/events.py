@@ -375,11 +375,13 @@ class EventHandler(utils.LogMixin, object):
             self.logger.info("[EVENT] %s Ignoring event for unknown device" % address)
             return True
 
-        value_changed = obj.values[value_key].set_from_api(value)
+        param = obj.values[value_key]
 
-        self.listener.callback("value_updated", obj.values[value_key])
+        value_changed = param.set_from_api(value)
+
+        self.listener.callback("value_updated", param)
         if value_changed:
-            self.listener.callback("value_changed", obj.values[value_key])
+            self.listener.callback("value_changed", param)
 
         return True
 
