@@ -368,7 +368,12 @@ class EventHandler(utils.LogMixin, object):
     def event(self, interface_id, address, value_key, value): # pylint:disable=unused-argument
         """Receives an event from the CCU and applies the update."""
         self.logger.debug("[EVENT] %s %s = %r", address, value_key, value)
-        obj = self._ccu.devices.get_device_or_channel_by_address(address)
+
+        try:
+            obj = self._ccu.devices.get_device_or_channel_by_address(address)
+        except KeyError:
+            self.logger.info("[EVENT] %s Ignoring event for unknown device" % address)
+            return True
 
         value_changed = obj.values[value_key].set_from_api(value)
 
