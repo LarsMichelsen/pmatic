@@ -181,7 +181,8 @@ class AbstractAPI(utils.LogMixin):
         """
         with self._api_lock:
             self._initialize()
-            return lambda **kwargs: self._call(method_name_int, **kwargs)
+
+        return lambda **kwargs: self._call(method_name_int, **kwargs)
 
 
     # is called in locked context
@@ -253,7 +254,7 @@ class AbstractAPI(utils.LogMixin):
         return self._fail_exc
 
 
-    # is called in locked context
+    # is called in unlocked context
     def _call(self, method_name_int, **kwargs): # pylint:disable=unused-argument
         """Realizes the API calls.
 
@@ -435,52 +436,57 @@ class RemoteAPI(AbstractAPI):
             self._session_id = None
 
 
-    # is called in locked context
+    # is called in unlocked context
     def _call(self, method_name_int, **kwargs):
         """Runs the provided method, which needs to be one of the methods which are available
         on the device (with the given arguments) on the CCU."""
         with self._api_lock:
-            method = self._get_method(method_name_int)
-            args   = self._get_arguments(method, kwargs)
+            return self._do_call(method_name_int, **kwargs)
 
-            self.logger.debug("CALL: %s ARGS: %r", method["NAME"], args)
-            #import traceback
-            #stack = "" #("".join(traceback.format_stack()[:-1])).encode("utf-8")
-            #print(b"".join(traceback.format_stack()[:-1]))
-            #self.logger.debug("  Callstack: %s\n" % stack)
 
-            json_data = json.dumps({
-                "method": method["NAME"],
-                "params": args,
-            })
-            url = "%s/api/homematic.cgi" % self._address
+    # is called in locked context
+    def _do_call(self, method_name_int, **kwargs):
+        method = self._get_method(method_name_int)
+        args   = self._get_arguments(method, kwargs)
 
-            try:
-                self.logger.debug("  URL: %s DATA: %s", url, json_data)
-                handle = urlopen(url, data=json_data.encode("utf-8"),
-                                 timeout=self._connect_timeout)
-            except Exception as e:
-                if isinstance(e, URLError):
-                    msg = e.reason
-                elif isinstance(e, BadStatusLine):
-                    msg = "Request terminated. Is the device rebooting?"
-                else:
-                    msg = e
-                raise PMConnectionError("Unable to open \"%s\" [%s]: %s" % (url, type(e).__name__, msg))
+        self.logger.debug("CALL: %s ARGS: %r", method["NAME"], args)
+        #import traceback
+        #stack = "" #("".join(traceback.format_stack()[:-1])).encode("utf-8")
+        #print(b"".join(traceback.format_stack()[:-1]))
+        #self.logger.debug("  Callstack: %s\n" % stack)
 
-            response_txt = ""
-            for line in handle.readlines():
-                response_txt += line.decode("utf-8")
+        json_data = json.dumps({
+            "method": method["NAME"],
+            "params": args,
+        })
+        url = "%s/api/homematic.cgi" % self._address
 
-            http_status = handle.getcode()
+        try:
+            self.logger.debug("  URL: %s DATA: %s", url, json_data)
+            handle = urlopen(url, data=json_data.encode("utf-8"),
+                             timeout=self._connect_timeout)
+        except Exception as e:
+            if isinstance(e, URLError):
+                msg = e.reason
+            elif isinstance(e, BadStatusLine):
+                msg = "Request terminated. Is the device rebooting?"
+            else:
+                msg = e
+            raise PMConnectionError("Unable to open \"%s\" [%s]: %s" % (url, type(e).__name__, msg))
 
-            self.logger.debug("  HTTP-STATUS: %d", http_status)
-            if http_status != 200:
-                raise PMException("Error %d opening \"%s\" occured: %s" %
-                                        (http_status, url, response_txt))
+        response_txt = ""
+        for line in handle.readlines():
+            response_txt += line.decode("utf-8")
 
-            self.logger.debug("  RESPONSE: %s", response_txt)
-            return self._parse_api_response(method_name_int, kwargs, response_txt)
+        http_status = handle.getcode()
+
+        self.logger.debug("  HTTP-STATUS: %d", http_status)
+        if http_status != 200:
+            raise PMException("Error %d opening \"%s\" occured: %s" %
+                                    (http_status, url, response_txt))
+
+        self.logger.debug("  RESPONSE: %s", response_txt)
+        return self._parse_api_response(method_name_int, kwargs, response_txt)
 
 
     # is called in locked context
@@ -577,26 +583,26 @@ class LocalAPI(AbstractAPI):
         return open(self._methods_file).read().decode("latin-1").split("\r\n")
 
 
-    # is called in locked context
+    # is called in unlocked context
     def _call(self, method_name_int, **kwargs):
         """Runs the given API method directly on the CCU using a tclsh process.
 
         The API method needs to be one of the methods which are available
         on the device (with the given arguments)."""
-        try:
-            response = self._do_call(method_name_int, **kwargs)
-            return response
-        except PMException:
-            raise
+        with self._api_lock:
+            try:
+                return self._do_call(method_name_int, **kwargs)
+            except PMException:
+                raise
 
-        except IOError as e:
-            # Try to restart in case of issues with the tclsh process. This seem to often happen
-            # after 601 (TCL error) responses. Try to deal with it.
-            self.logger.warning("Exception in API call (%s). Restarting tclsh "
-                                "and retrying this API call.", e)
-            self._init_tclsh()
-            response = self._do_call(method_name_int, **kwargs)
-            return response
+            except IOError as e:
+                # Try to restart in case of issues with the tclsh process. This seem to often happen
+                # after 601 (TCL error) responses. Try to deal with it.
+                self.logger.warning("Exception in API call (%s). Restarting tclsh "
+                                    "and retrying this API call.", e)
+                self._init_tclsh()
+                response = self._do_call(method_name_int, **kwargs)
+                return response
 
 
     # is called in locked context
@@ -692,13 +698,12 @@ class CachedAPICall(dict):
 
 
     def _update_data(self):
-        self._lock.acquire()
-        if self._last_update is None \
-           or self._last_update + self._max_cache_age < time.time():
-            self.clear()
-            self._update()
-            self._last_update = time.time()
-        self._lock.release()
+        with self._lock:
+            if self._last_update is None \
+               or self._last_update + self._max_cache_age < time.time():
+                self.clear()
+                self._update()
+                self._last_update = time.time()
 
 
     def __getitem__(self, key):

@@ -29,6 +29,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import time
+import threading
 
 try:
     from builtins import object # pylint:disable=redefined-builtin
@@ -170,6 +171,7 @@ class Channel(utils.LogMixin, Entity):
             raise PMException("Device object is not a Device derived class: %r" % device)
         self.device = device
         self._values = {}
+        self._values_lock = threading.RLock()
 
         self._callbacks_to_register = {
             "value_updated": [],
@@ -209,13 +211,14 @@ class Channel(utils.LogMixin, Entity):
 
         The values are provided as dictionary where the name of the parameter is used as key
         and some kind of specific :class:`.params.Parameter` instance is the value."""
-        if not self._values:
-            self._init_value_specs()
+        with self._values_lock:
+            if not self._values:
+                self._init_value_specs()
 
-        if self._value_update_needed():
-            self._fetch_values()
+            if self._value_update_needed():
+                self._fetch_values()
 
-        return self._values
+            return self._values
 
 
     def _init_value_specs(self):

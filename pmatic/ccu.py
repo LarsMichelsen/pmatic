@@ -38,6 +38,7 @@ except ImportError:
     import builtins
 
 import re
+import threading
 
 import pmatic.api
 import pmatic.events
@@ -214,16 +215,19 @@ class CCUDevices(Devices):
         super(CCUDevices, self).__init__(ccu)
         self._device_specs = pmatic.api.DeviceSpecs(ccu.api)
         self._device_logic = pmatic.api.DeviceLogic(ccu.api)
+
         self._initialized = False
+        self._init_lock   = threading.RLock()
 
 
     @property
     def _devices(self):
         """Optional initializer of the devices data structure, called on first access."""
-        if not self._initialized:
-            self._init_all_devices()
-            self._initialized = True
-        return self._device_dict
+        with self._init_lock:
+            if not self._initialized:
+                self._init_all_devices()
+                self._initialized = True
+            return self._device_dict
 
 
     @property
@@ -387,16 +391,18 @@ class CCURooms(Rooms):
     def __init__(self, ccu):
         super(CCURooms, self).__init__(ccu)
         self._initialized = False
+        self._init_lock = threading.RLock()
 
 
     @property
     def _rooms(self):
         """Optional initializer of the rooms data structure, called on first access."""
-        if not self._initialized:
-            self._room_dict = {}
-            self._init_all_rooms()
-            self._initialized = True
-        return self._room_dict
+        with self._init_lock:
+            if not self._initialized:
+                self._room_dict = {}
+                self._init_all_rooms()
+                self._initialized = True
+            return self._room_dict
 
 
     def _add_without_init(self, room):
