@@ -13,6 +13,7 @@ General
   things depending on the presence of them. Take a look at the docs for details.
 * Windows: Made CCU detection platform independent
 * Windows: Made setup.py more platform independent
+* OS X: Made setup.py and tests work on OS X. Pmatic should be usable on this platform too.
 * CCU: Better linking from addon page to the manager page
 * FIX: Fixed API call ``room_get_all()`` failing when meta names like "${roomKitchen}" are used.
 * FIX: Improved generic error handling for values which are reported to be readable

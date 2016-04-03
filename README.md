@@ -75,14 +75,21 @@ the documentation for screenshots and more details.
 
 ## Requirements
 
-pmatic is currently not expecting any special Python modules. pmatic is
-supported with Python 2.7, 3.4 and newer. Older versions of Python are not
-supported.
+Pmatic is currently not expecting any special Python modules. pmatic is
+supported with Python 2.7, 3.4 and newer. Older versions of Python are
+not supported.
 
-Potentially pmatic could even be used on Windows systems which have a
+There are some which are already use pmatic on Windows systems which have a
 Python interpreter installed. But I did not test it and I am pretty sure
-there are some changes needed to make it work. But maybe someone wants
-to make this work. Should not be too much work.
+there are some changes needed to make it completely work. At least the
+pmatic Manager will not work without some changes.
+
+At least the basic functionality of Pmatic has also been tested on OS X
+using Python 2.7 and 3.4 from MacPorts. But as for Windows the pmatic Manager
+has not been tested on OS X yet.
+
+I am always open to support more platforms. So if one likes to add support
+for more, please let me know.
 
 ## Installation
 

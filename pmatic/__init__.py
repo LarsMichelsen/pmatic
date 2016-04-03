@@ -41,9 +41,12 @@ __author__    = 'Lars Michelsen'
 __license__   = 'GPLv2'
 __copyright__ = 'Copyright 2016 Lars Michelsen'
 
+import sys
+import codecs
 import logging as _logging
 
 from pmatic.ccu import CCU # noqa
+import pmatic.utils as utils # noqa
 from pmatic.exceptions import PMException, PMConnectionError, \
                               PMDeviceOffline, PMActionFailed, PMUserError # noqa
 

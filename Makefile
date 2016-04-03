@@ -7,6 +7,23 @@ DIST_PATH         ?= $(shell pwd)/dist
 CCU_PKG_PATH      ?= $(DIST_PATH)/ccu
 CCU_HOST          ?= ccu
 
+# On OS X with macports coverage has no "coverage" link
+COVERAGE2_CHOICES = coverage2 coverage-2.7 coverage
+COVERAGE2 := $(foreach exec,$(COVERAGE2_CHOICES),\
+        $(if $(shell which $(exec)),$(exec),))
+
+ifeq (, $(COVERAGE2))
+    $(error "Python 2 coverage is missing")
+endif
+
+COVERAGE3_CHOICES = coverage3 coverage-3.4
+COVERAGE3 := $(foreach exec,$(COVERAGE3_CHOICES),\
+        $(if $(shell which $(exec)),$(exec),))
+
+ifeq (, $(COVERAGE3))
+    $(error "Python 3 coverage is missing")
+endif
+
 .PHONY: chroot dist
 
 help:
@@ -51,6 +68,9 @@ setup:
 	sudo pip install pytest_flakes pytest_runner coverage beautifulsoup4 \
 			sphinxcontrib-images pypandoc twine
 	sudo pip3 install pytest_flakes pytest_runner coverage beautifulsoup4
+	# port install py-coverage py34-coverage \
+	# 	       py-setuptools py34-setuptools \
+	# 	       py-pytest py34-pytest
 
 release: dist
 	twine register dist/pmatic-$(VERSION).tar.gz
@@ -120,8 +140,8 @@ dist-ccu-step2:
 	@echo "Created dist/pmatic-$(VERSION)_ccu.tar.gz"
 
 test:
-	coverage2 run --include='pmatic/*' --source=pmatic setup.py test
-	coverage3 run -a --include='pmatic/*' --source=pmatic setup.py test
+	$(COVERAGE2) run --include='pmatic/*' --source=pmatic setup.py test
+	$(COVERAGE3) run -a --include='pmatic/*' --source=pmatic setup.py test
 	$(MAKE) coverage coverage-html
 
 test-python3:
@@ -131,14 +151,16 @@ test-with-ccu:
 	TEST_WITH_CCU=1 $(MAKE) test
 
 coverage:
-	coverage report
+	$(COVERAGE2) report
 
 coverage-html:
-	coverage html
+	$(COVERAGE2) html
 
 install:
 	sudo python setup.py install
-	sudo python3 setup.py install
+	if type python3 >/dev/null 2>&1 ; then \
+	    sudo python3 setup.py install ; \
+	fi
 
 install-ccu: install-ccu-python install-ccu-pmatic install-ccu-scripts
 
@@ -187,6 +209,7 @@ setversion:
 clean: clean-chroot clean-dist clean-test
 
 clean-test:
+	rm -rf tests/__pycache__ || true
 	rm -rf pmatic.egg-info || true
 	rm -rf *.egg || true
 	rm -rf .coverage htmlcov || true

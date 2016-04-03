@@ -4,6 +4,7 @@ MANIFEST
 build
 chroot
 *.egg
+.eggs
 pmatic.egg-info
 .coverage
 htmlcov
