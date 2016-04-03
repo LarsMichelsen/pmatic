@@ -58,7 +58,7 @@ def test_init_address_invalid():
 
 def test_init_address_missing_proto(monkeypatch):
     # Disable API calls of constructor
-    monkeypatch.setattr(pmatic.api.RemoteAPI, 'login', lambda x: None)
+    monkeypatch.setattr(pmatic.api.RemoteAPI, '_login', lambda x: None)
     monkeypatch.setattr(pmatic.api.RemoteAPI, '_init_methods', lambda x: None)
 
     api = pmatic.api.RemoteAPI(address="127.0.0.1", credentials=("", ""))
@@ -67,7 +67,7 @@ def test_init_address_missing_proto(monkeypatch):
 
 def test_init_credentials_invalid(monkeypatch):
     # Disable API calls of constructor
-    monkeypatch.setattr(pmatic.api.RemoteAPI, 'login', lambda x: None)
+    monkeypatch.setattr(pmatic.api.RemoteAPI, '_login', lambda x: None)
     monkeypatch.setattr(pmatic.api.RemoteAPI, '_init_methods', lambda x: None)
 
     with pytest.raises(PMException) as e:
@@ -93,7 +93,7 @@ def test_init_credentials_invalid(monkeypatch):
 
 def test_init_timeout_invalid(monkeypatch):
     # Disable API calls of constructor
-    monkeypatch.setattr(pmatic.api.RemoteAPI, 'login', lambda x: None)
+    monkeypatch.setattr(pmatic.api.RemoteAPI, '_login', lambda x: None)
     monkeypatch.setattr(pmatic.api.RemoteAPI, '_init_methods', lambda x: None)
 
     with pytest.raises(PMException) as e:
@@ -120,7 +120,7 @@ class TestRemoteAPILowLevel(lib.TestRemoteAPI):
     def test_double_login(self, API):
         assert len(API._session_id) == 10
         with pytest.raises(PMException) as e:
-            API.login()
+            API._login()
         assert "Already logged in" in str(e)
 
 

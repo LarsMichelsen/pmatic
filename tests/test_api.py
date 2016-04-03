@@ -62,8 +62,14 @@ def test_explicit_wrong_init():
 
 
 class SpecificAPI(pmatic.api.AbstractAPI):
+    def __init__(self):
+        super(SpecificAPI, self).__init__()
+        self._constructed = True
+
+
     def _get_methods_config(self):
         return []
+
 
     def close(self):
         pass
@@ -93,7 +99,7 @@ class TestAbstractAPI(object):
             if method_name_int == "rega_is_present":
                 return True
 
-        monkeypatch.setattr(API, "call", call_rega_present)
+        monkeypatch.setattr(API, "_call", call_rega_present)
         with pytest.raises(PMException) as e:
             API._parse_api_response("dingdong", {},
               "{\"error\": {\"code\": 501, \"name\": \"xxx\", \"message\": \"asd\"}}")
@@ -103,7 +109,7 @@ class TestAbstractAPI(object):
             if method_name_int == "rega_is_present":
                 return False
 
-        monkeypatch.setattr(API, "call", call_rega_not_present)
+        monkeypatch.setattr(API, "_call", call_rega_not_present)
         with pytest.raises(PMException) as e:
             API._parse_api_response("dingdong", {},
               "{\"error\": {\"code\": 501, \"name\": \"xxx\", \"message\": \"asd\"}}")
@@ -114,7 +120,7 @@ class TestAbstractAPI(object):
         def call(method_name_int, **kwargs): # pylint:disable=unused-argument
             API._get_method(method_name_int)
 
-        monkeypatch.setattr(API, "call", call)
+        monkeypatch.setattr(API, "_call", call)
 
         with pytest.raises(PMException) as e:
             API.dingdong_piff()
@@ -145,7 +151,7 @@ class TestAbstractAPI(object):
             pmatic.api.AbstractAPI._get_methods_config(API)
 
         with pytest.raises(NotImplementedError):
-            API.call("bla")
+            API._call("bla")
 
         with pytest.raises(NotImplementedError):
             pmatic.api.AbstractAPI.close(API)

@@ -103,6 +103,7 @@ class AbstractAPI(utils.LogMixin):
     This is the base class for all specific API classes, which are currently
     LocalAPI() and RemoteAPI().
     """
+    _constructed = False
 
     @classmethod
     def _replace_wrong_encoded_json(self, text):
@@ -115,8 +116,13 @@ class AbstractAPI(utils.LogMixin):
         super(AbstractAPI, self).__init__()
         self._methods = {}
         self._fail_exc = None
+        self._initialized = False
+
+        # For simplicity we only allow one thread to perform API calls at the time
+        self._api_lock = threading.RLock()
 
 
+    # is called in locked context
     def _register_atexit_handler(self):
         """Can be called to register a cleanup handler on interpreter exit.
 
@@ -125,6 +131,7 @@ class AbstractAPI(utils.LogMixin):
         atexit.register(self.close)
 
 
+    # is called in locked context
     def _parse_api_response(self, method_name_int, kwargs, body):
         # FIXME: The ccu is performing wrong encoding at least for output of
         # executed rega scripts. But maybe this is a generic problem. Let's see
@@ -140,7 +147,7 @@ class AbstractAPI(utils.LogMixin):
                                                     (method_name_int, e, body))
 
         if msg["error"] is not None:
-            if msg["error"]["code"] == 501 and not self.call('rega_is_present'):
+            if msg["error"]["code"] == 501 and not self._call('rega_is_present'):
                 raise PMConnectionError("The logic layer (ReGa) is not available (yet). When "
                                   "the CCU has just been started, please wait some time "
                                   "and retry.")
@@ -154,11 +161,14 @@ class AbstractAPI(utils.LogMixin):
         return msg["result"]
 
 
+    # is called from unlocked context
     def __del__(self):
         """When object is removed, the close() method is called."""
-        self.close()
+        if self._constructed:
+            self.close()
 
 
+    # is called from unlocked context
     def __getattr__(self, method_name_int):
         """Realizes dynamic methods based on the methods supported by the API.
 
@@ -169,15 +179,26 @@ class AbstractAPI(utils.LogMixin):
         by the _to_internal_name() method. For details take a look at that
         function.
         """
-        if not self.initialized:
-            self._fail_exc = None
-            try:
-                self._initialize()
-            except Exception as e:
-                self._fail_exc = e
-                raise
+        with self._api_lock:
+            self._initialize()
+            return lambda **kwargs: self._call(method_name_int, **kwargs)
 
-        return lambda **kwargs: self.call(method_name_int, **kwargs)
+
+    # is called in locked context
+    def _initialize(self):
+        if self.initialized:
+            return
+
+        self._fail_exc = None
+        self.logger.debug("[API] Initializing...")
+        try:
+            self._initialize_api()
+            self._initialized = True
+            self.logger.debug("[API] Initialized")
+        except Exception as e:
+            self._initialized = False
+            self._fail_exc = e
+            raise
 
 
     def _to_internal_name(self, method_name_api):
@@ -208,7 +229,7 @@ class AbstractAPI(utils.LogMixin):
         raise NotImplementedError()
 
 
-    def _initialize(self):
+    def _initialize_api(self):
         """Initializes the connection with the CCU. This may fail and is allowed to
         be called a second time to retry the initialization.
 
@@ -216,13 +237,13 @@ class AbstractAPI(utils.LogMixin):
         return NotImplementedError()
 
 
+    # is called in unlocked context
     @property
     def initialized(self):
         """Tells the caller whether or not the "connection" with the CCU is ready
-        for other API calls.
-
-        Has to be implemented by the specific API class."""
-        return NotImplementedError()
+        for other API calls."""
+        with self._api_lock:
+            return self._initialized
 
 
     @property
@@ -232,7 +253,8 @@ class AbstractAPI(utils.LogMixin):
         return self._fail_exc
 
 
-    def call(self, method_name, **kwargs): # pylint:disable=unused-argument
+    # is called in locked context
+    def _call(self, method_name_int, **kwargs): # pylint:disable=unused-argument
         """Realizes the API calls.
 
         Has to be implemented by the specific API class."""
@@ -252,7 +274,7 @@ class AbstractAPI(utils.LogMixin):
         This information has been fetched from the CCU before. This might be useful
         for working with the API to gather infos about the available calls.
         """
-        if not self.initialized:
+        with self._api_lock:
             self._initialize()
 
         line_format = "%-60s %s\n"
@@ -264,6 +286,7 @@ class AbstractAPI(utils.LogMixin):
             sys.stdout.write(line_format % (call_txt, method["INFO"]))
 
 
+    # is called in locked context
     def _init_methods(self):
         """Parses the method configuration read from the CCU.
 
@@ -315,8 +338,6 @@ class AbstractAPI(utils.LogMixin):
 
 class RemoteAPI(AbstractAPI):
     """Provides API access via HTTP to the CCU."""
-    _session_id = None
-
     def __init__(self, address, credentials, connect_timeout=10):
         self._session_id      = None
         self._address         = None
@@ -328,12 +349,7 @@ class RemoteAPI(AbstractAPI):
         self._set_address(address)
         self._set_credentials(credentials)
         self._set_connect_timeout(connect_timeout)
-
-
-    def _initialize(self):
-        self.login()
-        self._init_methods()
-        self._register_atexit_handler()
+        self._constructed = True
 
 
     def _set_address(self, address):
@@ -367,10 +383,30 @@ class RemoteAPI(AbstractAPI):
         self._connect_timeout = timeout
 
 
+    # is called in unlocked context
+    @property
+    def address(self):
+        return self._address
+
+
+    # is called in unlocked context
+    def close(self):
+        with self._api_lock:
+            self._logout()
+
+
+    # is called in locked context
+    def _initialize_api(self):
+        self._login()
+        self._init_methods()
+        self._register_atexit_handler()
+
+
+    # is called in locked context
     def _get_methods_config(self):
         # Can not use API.rega_run_script() here since the method infos are not yet
         # available. User code should use API.rega_run_script().
-        response = self.call("rega_run_script",
+        response = self._call("rega_run_script",
             _session_id_=self._session_id,
             script="string stderr;\n"
                    "string stdout;\n"
@@ -380,44 +416,77 @@ class RemoteAPI(AbstractAPI):
         return response.split("\r\n")
 
 
-    @property
-    def initialized(self):
-        """Tells the caller whether or not the "connection" with the CCU is ready
-        for other API calls."""
-        return self._session_id is not None
-
-
-    def login(self):
-        if self._session_id:
+    # is called in locked context
+    def _login(self):
+        if self._session_id is not None:
             raise PMException("Already logged in.")
 
-        response = self.call("session_login", username=self._credentials[0],
+        response = self._call("session_login", username=self._credentials[0],
                                               password=self._credentials[1])
         if response is None:
             raise PMException("Login failed: Got no session id.")
         self._session_id = response
 
 
-    def logout(self):
-        if self._session_id:
-            self.call("session_logout", _session_id_=self._session_id)
+    # is called in locked context
+    def _logout(self):
+        if self._session_id is not None:
+            self._call("session_logout", _session_id_=self._session_id)
             self._session_id = None
 
 
-    def close(self):
-        self.logout()
+    # is called in locked context
+    def _call(self, method_name_int, **kwargs):
+        """Runs the provided method, which needs to be one of the methods which are available
+        on the device (with the given arguments) on the CCU."""
+        with self._api_lock:
+            method = self._get_method(method_name_int)
+            args   = self._get_arguments(method, kwargs)
+
+            self.logger.debug("CALL: %s ARGS: %r", method["NAME"], args)
+            #import traceback
+            #stack = "" #("".join(traceback.format_stack()[:-1])).encode("utf-8")
+            #print(b"".join(traceback.format_stack()[:-1]))
+            #self.logger.debug("  Callstack: %s\n" % stack)
+
+            json_data = json.dumps({
+                "method": method["NAME"],
+                "params": args,
+            })
+            url = "%s/api/homematic.cgi" % self._address
+
+            try:
+                self.logger.debug("  URL: %s DATA: %s", url, json_data)
+                handle = urlopen(url, data=json_data.encode("utf-8"),
+                                 timeout=self._connect_timeout)
+            except Exception as e:
+                if isinstance(e, URLError):
+                    msg = e.reason
+                elif isinstance(e, BadStatusLine):
+                    msg = "Request terminated. Is the device rebooting?"
+                else:
+                    msg = e
+                raise PMConnectionError("Unable to open \"%s\" [%s]: %s" % (url, type(e).__name__, msg))
+
+            response_txt = ""
+            for line in handle.readlines():
+                response_txt += line.decode("utf-8")
+
+            http_status = handle.getcode()
+
+            self.logger.debug("  HTTP-STATUS: %d", http_status)
+            if http_status != 200:
+                raise PMException("Error %d opening \"%s\" occured: %s" %
+                                        (http_status, url, response_txt))
+
+            self.logger.debug("  RESPONSE: %s", response_txt)
+            return self._parse_api_response(method_name_int, kwargs, response_txt)
 
 
-    def get_arguments(self, method, args):
-        if "_session_id_" in method["ARGUMENTS"] and self._session_id:
-            args["_session_id_"] = self._session_id
-        return args
-
-
-    # The following wrapper allows specific API calls which are needed
-    # before the real list of methods is available, so allow
-    # it to be not validated and fake the method response.
+    # is called in locked context
     def _get_method(self, method_name_int):
+        """This wrapper allows specific API calls which are needed before the real list of
+        methods is available, so allow it to be not validated and fake the method response."""
         try:
             return super(RemoteAPI, self)._get_method(method_name_int)
         except PMException:
@@ -449,55 +518,11 @@ class RemoteAPI(AbstractAPI):
                 raise
 
 
-    # Runs the provided method, which needs to be one of the methods which are available
-    # on the device (with the given arguments) on the CCU.
-    def call(self, method_name_int, **kwargs):
-        method = self._get_method(method_name_int)
-        args   = self.get_arguments(method, kwargs)
-
-        self.logger.debug("CALL: %s ARGS: %r", method["NAME"], args)
-        #import traceback
-        #stack = "" #("".join(traceback.format_stack()[:-1])).encode("utf-8")
-        #print(b"".join(traceback.format_stack()[:-1]))
-        #self.logger.debug("  Callstack: %s\n" % stack)
-
-        json_data = json.dumps({
-            "method": method["NAME"],
-            "params": args,
-        })
-        url = "%s/api/homematic.cgi" % self._address
-
-        try:
-            self.logger.debug("  URL: %s DATA: %s", url, json_data)
-            handle = urlopen(url, data=json_data.encode("utf-8"),
-                             timeout=self._connect_timeout)
-        except Exception as e:
-            if isinstance(e, URLError):
-                msg = e.reason
-            elif isinstance(e, BadStatusLine):
-                msg = "Request terminated. Is the device rebooting?"
-            else:
-                msg = e
-            raise PMConnectionError("Unable to open \"%s\" [%s]: %s" % (url, type(e).__name__, msg))
-
-        response_txt = ""
-        for line in handle.readlines():
-            response_txt += line.decode("utf-8")
-
-        http_status = handle.getcode()
-
-        self.logger.debug("  HTTP-STATUS: %d", http_status)
-        if http_status != 200:
-            raise PMException("Error %d opening \"%s\" occured: %s" %
-                                    (http_status, url, response_txt))
-
-        self.logger.debug("  RESPONSE: %s", response_txt)
-        return self._parse_api_response(method_name_int, kwargs, response_txt)
-
-
-    @property
-    def address(self):
-        return self._address
+    # is called in locked context
+    def _get_arguments(self, method, args):
+        if "_session_id_" in method["ARGUMENTS"] and self._session_id:
+            args["_session_id_"] = self._session_id
+        return args
 
 
 
@@ -508,17 +533,18 @@ class LocalAPI(AbstractAPI):
     def __init__(self):
         super(LocalAPI, self).__init__()
         self._tclsh = None
-        self._tclsh_lock = threading.RLock()
+        self._constructed = True
 
 
-    def _initialize(self):
+    # is called in locked context
+    def _initialize_api(self):
         self._init_tclsh()
         self._init_methods()
         self._register_atexit_handler()
 
 
+    # is called in locked context
     def _init_tclsh(self):
-        self._tclsh_lock.acquire()
         try:
             self._tclsh = subprocess.Popen(["/bin/tclsh"],
                 stdin=subprocess.PIPE,
@@ -526,7 +552,6 @@ class LocalAPI(AbstractAPI):
                 cwd="/www/api",
                 shell=False)
         except OSError as e:
-            self._tclsh_lock.release()
             if e.errno == 2:
                 raise PMException("Could not find /bin/tclsh. Maybe running local API on "
                                   "non CCU device?")
@@ -545,45 +570,20 @@ class LocalAPI(AbstractAPI):
             "array set INTERFACE_LIST [ipc_getInterfaces]\n"
             "array set METHOD_LIST  [file_load %s]\n" % self._methods_file
         )
-        self._tclsh_lock.release()
 
 
+    # is called in locked context
     def _get_methods_config(self):
         return open(self._methods_file).read().decode("latin-1").split("\r\n")
 
 
-    def _get_args(self, method, args):
-        args_parsed = "[list "
-        for arg_name in method["ARGUMENTS"]:
-            try:
-                if arg_name == "_session_id_" and arg_name not in args:
-                    val = "\"\"" # Fake default session id. Not needed for local API
-                else:
-                    val = args[arg_name]
-                    if val is None:
-                        val = "\"\""
-
-                args_parsed += arg_name + " " + val + " "
-            except KeyError:
-                raise PMException("Missing argument \"%s\". Needs: %s" %
-                                (arg_name, ", ".join(method["ARGUMENTS"])))
-        return args_parsed.rstrip(" ") + "]"
-
-
-    @property
-    def initialized(self):
-        """Tells the caller whether or not the "connection" with the CCU is ready
-        for other API calls."""
-        return self._tclsh is not None
-
-
-    def call(self, method_name_int, **kwargs):
+    # is called in locked context
+    def _call(self, method_name_int, **kwargs):
         """Runs the given API method directly on the CCU using a tclsh process.
 
         The API method needs to be one of the methods which are available
         on the device (with the given arguments)."""
         try:
-            self._tclsh_lock.acquire()
             response = self._do_call(method_name_int, **kwargs)
             return response
         except PMException:
@@ -597,10 +597,9 @@ class LocalAPI(AbstractAPI):
             self._init_tclsh()
             response = self._do_call(method_name_int, **kwargs)
             return response
-        finally:
-            self._tclsh_lock.release()
 
 
+    # is called in locked context
     def _do_call(self, method_name_int, **kwargs):
         method = self._get_method(method_name_int)
         parsed_args = self._get_args(method, kwargs)
@@ -651,13 +650,32 @@ class LocalAPI(AbstractAPI):
             raise
 
 
+    # is called in locked context
+    def _get_args(self, method, args):
+        args_parsed = "[list "
+        for arg_name in method["ARGUMENTS"]:
+            try:
+                if arg_name == "_session_id_" and arg_name not in args:
+                    val = "\"\"" # Fake default session id. Not needed for local API
+                else:
+                    val = args[arg_name]
+                    if val is None:
+                        val = "\"\""
+
+                args_parsed += arg_name + " " + val + " "
+            except KeyError:
+                raise PMException("Missing argument \"%s\". Needs: %s" %
+                                (arg_name, ", ".join(method["ARGUMENTS"])))
+        return args_parsed.rstrip(" ") + "]"
+
+
+    # is called from unlocked context
     def close(self):
         """Closes the "connection" with the CCU. In fact it terminates the tclsh process."""
-        self._tclsh_lock.acquire()
-        if self._tclsh:
-            self._tclsh.kill()
-            self._tclsh = None
-        self._tclsh_lock.release()
+        with self._api_lock:
+            if self._tclsh:
+                self._tclsh.kill()
+                self._tclsh = None
 
 
 

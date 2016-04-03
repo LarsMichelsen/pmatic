@@ -132,27 +132,7 @@ for device in Device.get_devices(API):
 
 sys.exit(1)
 
-##
-# API Examples
-##
-
-
-# Executes a homematic script and prints "HI THERE" (the output) of the script
-#print API.ReGa_runScript(script="Write(\"HI THERE\")")
-
-#print API.call("Room.listAll")
-#print API.call("CCU.getSSHState")
-#print API.call("system.listMethods")
-#print API.call("system.describe")
-
-#for room_id in API.Room_listAll():
-#    room_dict = API.Room_get(id=room_id)
-#    # {u'description': u'Badezimmer', u'channelIds': [u'1977', u'1930', u'1433', u'1551', u'1554', u'1559'], u'id': u'1228', u'name': u'Bad'}
-#    for channel_id in room_dict["channelIds"]:
-#        print "Channel ID:", channel_id, "Value:", API.Channel_getValue(id=channel_id)
-
 import pprint
-
 
 def Device_listDetailByType(ty):
     device = []
