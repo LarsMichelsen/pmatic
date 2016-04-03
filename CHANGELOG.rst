@@ -18,6 +18,7 @@ General
 * FIX: Fixed API call ``room_get_all()`` failing when meta names like "${roomKitchen}" are used.
 * FIX: Improved generic error handling for values which are reported to be readable
   but can currently not be read
+* FIX: Fixed possible wrong encoding when using ``Pushover.send()``
 
 Devices
 ```````
@@ -41,6 +42,7 @@ Devices
 
 Manager
 ```````
+
 * The manager can now be used with Python 3 (testing in progress)
 * Schedules that rely on devices can now be edited even when the
   manager is currently not connected with the CCU.
@@ -48,6 +50,8 @@ Manager
 * Changing the log level is now applied instantly
 * Added "status" target to init script
 * Added time interval to "based on time" condition
+* Improved error handling of inline executed scripts
+* Fixed exception when doing API calls (caused by wrong locking of local TCL API)
 * Fixed "restart" target of init script
 
 Incompatible (possible manual changes needed)
