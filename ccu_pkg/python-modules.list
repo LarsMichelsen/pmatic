@@ -23,7 +23,6 @@ lib/python2.7/platform.py
 
 lib/python2.7/subprocess.py
 lib/python2.7/pickle.py
-lib/python2.7/pickle.py
 lib/python2.7/*struct.py
 lib/python2.7/json/*.py
 lib/python2.7/codecs.py
@@ -54,6 +53,8 @@ lib/python2.7/tempfile.py
 lib/python2.7/random.py
 lib/python2.7/rfc822.py
 lib/python2.7/urllib.py
+lib/python2.7/ssl.py
+lib/python2.7/lib-dynload/_ssl*.so
 lib/python2.7/string.py
 lib/python2.7/smtplib.py
 
