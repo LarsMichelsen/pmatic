@@ -2211,8 +2211,9 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
         except SystemExit as e:
             exit_code = e.code
         except Exception as e:
-            self.logger.debug("Exception in inline script %s", script_path, exc_info=True)
+            self.logger.error("Exception in inline script %s", script_path, exc_info=True)
             self.output.write("%s" % e)
+            self.output.write("%s" % traceback.format_exc())
             exit_code = 1
 
         return exit_code
