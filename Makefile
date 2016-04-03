@@ -8,17 +8,16 @@ CCU_PKG_PATH      ?= $(DIST_PATH)/ccu
 CCU_HOST          ?= ccu
 
 # On OS X with macports coverage has no "coverage" link
-COVERAGE2_CHOICES = coverage2 coverage-2.7 coverage
-COVERAGE2 := $(foreach exec,$(COVERAGE2_CHOICES),\
-        $(if $(shell which $(exec)),$(exec),))
+COVERAGE2 := $(shell if which coverage2 >/dev/null 2>&1; then echo coverage2; \
+		   elif which coverage-2.7 >/dev/null 2>&1; then echo coverage-2.7; \
+		   elif which coverage >/dev/null 2>&1; then echo coverage; fi)
 
 ifeq (, $(COVERAGE2))
     $(error "Python 2 coverage is missing")
 endif
 
-COVERAGE3_CHOICES = coverage3 coverage-3.4
-COVERAGE3 := $(foreach exec,$(COVERAGE3_CHOICES),\
-        $(if $(shell which $(exec)),$(exec),))
+COVERAGE3 := $(shell if which coverage3 >/dev/null 2>&1; then echo coverage3; \
+		   elif which coverage-3.4 >/dev/null 2>&1; then echo coverage-3.4; fi)
 
 ifeq (, $(COVERAGE3))
     $(error "Python 3 coverage is missing")
