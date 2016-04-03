@@ -29,6 +29,13 @@ try:
 except ImportError:
     pass
 
+try:
+    # Python 2.x
+    import __builtin__ as builtins
+except ImportError:
+    # Python 3+
+    import builtins
+
 import re
 import sys
 import json
@@ -207,3 +214,8 @@ def fmt_percentage_int(perc):
 def is_ccu():
     """Returns True when executed on a CCU device. Otherwise False is being returned."""
     return ".ccu" in platform.uname()[2]
+
+
+def is_manager_inline():
+    """Returns ``True`` when executed within the manager as inline script."""
+    return hasattr(builtins, "manager_ccu")

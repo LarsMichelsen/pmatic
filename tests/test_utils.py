@@ -24,6 +24,13 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+try:
+    # Python 2.x
+    import __builtin__ as builtins
+except ImportError:
+    # Python 3+
+    import builtins
+
 import pytest
 import sys
 import platform
@@ -143,3 +150,10 @@ def test_is_ccu(monkeypatch):
         'Linux', 'ccu2', '3.4.11.ccu2',
         '#1 PREEMPT Wed Dec 16 09:23:30 CET 2015', 'armv5tejl'))
     assert utils.is_ccu() == True
+
+
+def test_is_manager_inline():
+    assert utils.is_manager_inline() == False
+
+    builtins.manager_ccu = True
+    assert utils.is_manager_inline() == True
