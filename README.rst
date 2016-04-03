@@ -80,17 +80,17 @@ Pmatic is currently not expecting any special Python modules. pmatic is
 supported with Python 2.7, 3.4 and newer. Older versions of Python are
 not supported.
 
-There are some which are already use pmatic on Windows systems which have a
-Python interpreter installed. But I did not test it and I am pretty sure
-there are some changes needed to make it completely work. At least the
-pmatic Manager will not work without some changes.
+There are some which are already use pmatic on Windows systems which
+have a Python interpreter installed. But I did not test it and I am
+pretty sure there are some changes needed to make it completely work. At
+least the pmatic Manager will not work without some changes.
 
 At least the basic functionality of Pmatic has also been tested on OS X
-using Python 2.7 and 3.4 from MacPorts. But as for Windows the pmatic Manager
-has not been tested on OS X yet.
+using Python 2.7 and 3.4 from MacPorts. But as for Windows the pmatic
+Manager has not been tested on OS X yet.
 
-I am always open to support more platforms. So if one likes to add support
-for more, please let me know.
+I am always open to support more platforms. So if one likes to add
+support for more, please let me know.
 
 Installation
 ------------
@@ -128,6 +128,27 @@ What is planned?
 ----------------
 
 Please take a look at the issue tracker and the TODO file.
+
+What really is needed is specific support for the different Homematic
+devices. I added some specific classes for devices I have to the
+``pmatic/devices.py`` but have not added properties and methods to
+reflect their individual features. And there are also a lot of devices I
+don't own. It would be really helpful if you could help out adding more
+devices to pmatic.
+
+This will make it a lot easier to use pmatic. Because, for example
+calling ``device.is_battery_low`` is a lot more comfortable than digging
+into the details of a device and find out you have to call
+``self.channels[4].values["FAULT_REPORTING"].formated() == "LOWBAT"``.
+
+So please help adding more devices!
+
+Changes
+-------
+
+Please take a look at the
+```CHANGELOG.rst`` <https://github.com/LarsMichelsen/pmatic/blob/master/CHANGELOG.rst>`__
+file for a detailed list of changes.
 
 Reporting Bugs, Feature Requests
 --------------------------------
