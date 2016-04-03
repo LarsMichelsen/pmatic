@@ -86,9 +86,9 @@ class Pushover(utils.LogMixin):
             raise PMUserError("The message exceeds the maximum length of 1024 characters.")
 
         msg = [
-            ("token",   api_token),
-            ("user",    user_token),
-            ("message", message),
+            ("token",   api_token.encode("utf-8")),
+            ("user",    user_token.encode("utf-8")),
+            ("message", encoded_msg),
         ]
 
         if title != None:
@@ -98,7 +98,7 @@ class Pushover(utils.LogMixin):
             encoded_title = title.encode("utf-8")
             if len(encoded_title) > 250:
                 raise PMUserError("The title exceeds the maximum length of 250 characters.")
-            msg.append(("title", title))
+            msg.append(("title", encoded_title))
 
         handle = urlopen("https://api.pushover.net/1/messages.json",
                          data=urlencode(msg).encode("utf-8"))
