@@ -421,20 +421,52 @@ class EventHandler(utils.LogMixin, object):
         """The CCU informs about new devices. Creates objects known for them."""
         self.logger.debug("[NEW DEVICES] Got %d new devices/channels", len(dev_descriptions))
 
-        # Incoming dict keys are upper case.
-        # The dict keys are directly handed over to the device/channel objects. So they
-        # need ot be equalized and with internal naming specs just like the also different
-        # keys from the XML-RPC messages.
-        def normalize_dict_keys(d):
-            for k in d:
-                d[k.lower()] = d.pop(k)
+        # Perform the following steps to make the data equal to the ccu.devices._device_specs
+        # dict data structure which is fetched by the JSON API. To make the internal code of
+        # pmatic simpler it is better to normalize this here where it is clear where which kind
+        # of data comes from.
+        #
+        # The goal is to make this data totally equal (TODO Create a test for this):
+        #import pprint
+        #file("/tmp/event-devices.txt", "w").write(pprint.pformat(sorted(devices.items())))
+        #specs = self._ccu.api.DeviceSpecs(self._ccu.api)
+        #file("/tmp/api-devices.txt", "w").write(pprint.pformat(sorted(specs.items())))
+        def normalize_spec(d):
+            for key in d.keys():
+                val = d.pop(key)
+                if isinstance(val, list):
+                    for index in range(len(val)):
+                        val[index] = val[index].decode("utf-8")
+
+                elif utils.is_byte_string(val):
+                    val = val.decode("utf-8")
+
+                new_key = key.lower().decode("utf-8")
+
+                if new_key in [ "aes_active", "roaming" ]:
+                    val = val == 1
+
+                elif new_key == "updatable":
+                    val = "%d" % val
+
+                elif new_key in [ "link_source_roles", "link_target_roles" ]:
+                    val = val.split()
+
+                elif new_key in [ "rf_address", "rx_mode" ]:
+                    continue
+
+                d[new_key] = val
             return d
 
         devices = {}
 
         for spec in dev_descriptions:
-            spec = normalize_dict_keys(spec)
+            spec = normalize_spec(spec)
             if not spec.get("parent"):
+                try:
+                    del spec["parent"]
+                except KeyError:
+                    pass
                 devices[spec["address"]] = spec
             else:
                 channels = devices[spec["parent"]].setdefault("channels", [])
