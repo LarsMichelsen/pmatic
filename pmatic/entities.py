@@ -478,7 +478,7 @@ class ChannelMaintenance(Channel):
     @property
     def maintenance_state(self):
         """Provides the formated maintenance state of the associated device."""
-        return super(self, ChannelMaintenance).summary_state
+        return super(ChannelMaintenance, self).summary_state
 
 
 

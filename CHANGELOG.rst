@@ -39,6 +39,7 @@ Devices
 
 * HM-TC-IT-WM-W-EU: Fixed "JSONRPCError: TCL error (601)" when trying to get
   the summary state of this device
+* Maintenance channel: Fixed broken ``maintenance_state`` property
 
 Manager
 ```````
