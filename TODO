@@ -37,26 +37,9 @@ Optimizations:
 * Events: Only register when there is at least one script asking for events
 
 Ideas:
-* Talk directly with Rega (8181)
+* Use better APIs?:
+  - Talk directly with Rega (8181)?
+  - Get rid of json API, use XML / XML-BIN-APi?
+  - Use rfd or whatever low level APIs?
 * Provide standard way to store data on the local system
 * Create Object based access to the system variables of the CCU
-
-t       
-
-Found low batteries: Zentrale, Wohnzimmer-Licht, Wohnzimmer-Lichtspiel, Büro-Lampe
-Traceback (most recent call last):
-  File "/etc/config/addons/pmatic/scripts/examples/send_pushover_for_low_battery_devices.py", line 76, in <module>
-    user_token=lars.pushover_token)
-  File "/usr/local/etc/config/addons/pmatic/python/lib/python2.7/pmatic/notify.py", line 104, in send
-    data=urlencode(msg).encode("utf-8"))
-  File "/usr/local/etc/config/addons/pmatic/python/lib/python2.7/urllib2.py", line 127, in urlopen
-    return _opener.open(url, data, timeout)
-  File "/usr/local/etc/config/addons/pmatic/python/lib/python2.7/urllib2.py", line 401, in open
-    response = self._open(req, data)
-  File "/usr/local/etc/config/addons/pmatic/python/lib/python2.7/urllib2.py", line 424, in _open
-    'unknown_open', req)
-  File "/usr/local/etc/config/addons/pmatic/python/lib/python2.7/urllib2.py", line 379, in _call_chain
-    result = func(*args)
-  File "/usr/local/etc/config/addons/pmatic/python/lib/python2.7/urllib2.py", line 1244, in unknown_open
-    raise URLError('unknown url type: %s' % type)
-URLError: <urlopen error unknown url type: https>
