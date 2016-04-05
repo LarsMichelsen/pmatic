@@ -21,6 +21,7 @@ Fixes:
     Mar 27 00:43:00 homematic-ccu2 user.info homematic: started pmatic manger
 
 Todos:
+* Create test for ChannelMaintenance.maintenance_state
 * Manager:
   * Tests for the manager
   * Events: Close on shutdown when registered?

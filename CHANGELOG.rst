@@ -19,6 +19,7 @@ General
 * FIX: Improved generic error handling for values which are reported to be readable
   but can currently not be read
 * FIX: Fixed possible wrong encoding when using ``Pushover.send()``
+* FIX: Fixed wrong type for boolean parameter default value
 
 Devices
 ```````
