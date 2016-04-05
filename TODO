@@ -23,6 +23,8 @@ Fixes:
 Todos:
 * Create test for ChannelMaintenance.maintenance_state
 * Manager:
+  * persist states to keep them during restarts
+  * Transaction-IDs einbauen, so dass man nicht aus Versehen Aktionen doppelt ausführt.
   * Tests for the manager
   * Events: Close on shutdown when registered?
   * Make editing of scheules only possible when not currently running?
