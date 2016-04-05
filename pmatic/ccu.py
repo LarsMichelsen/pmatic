@@ -297,7 +297,7 @@ class CCUDevices(Devices):
             filters["device_type"] = [filters["device_type"]]
 
         for address, spec in self._device_specs.items():
-            # First try to get an olready created room object from the central
+            # First try to get an already created room object from the central
             # CCU room collection. Otherwise create the room object and add it
             # to the central collection and this collection.
             device = self._device_dict.get(address)
