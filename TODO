@@ -1,6 +1,4 @@
 Fixes:
-* Windows: Output encoding? (see output of list_thermostats.py)
-* Output encoding when piping e.g. examples/list_available_methods.py to less or grep
 * Schedules might be executed/rescheduled multiple times while editing
   -> need to track the last execution time somewhere
 * Verify: Is schedule really deleted and not executed anymore when deleting via GUI?
