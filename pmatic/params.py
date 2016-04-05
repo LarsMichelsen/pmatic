@@ -405,6 +405,12 @@ class ParameterFLOAT(ParameterNUMERIC):
 class ParameterBOOL(Parameter):
     datatype = "boolean"
 
+    _transform_attributes = dict(Parameter._transform_attributes,
+        DEFAULT=lambda v: bool(int(v)),
+        MAX=lambda v: bool(int(v)),
+        MIN=lambda v: bool(int(v)),
+    )
+
     def _from_api_value(self, value):
         """ "1" comes from JSON API and True from XML-RPC. Later one would not need
         this transform method."""
