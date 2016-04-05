@@ -621,6 +621,7 @@ class LocalAPI(AbstractAPI):
         # cleaned up here. If this is too much trouble, switch to start/stop new
         # tclsh processes per call.
         tcl += "if { [info exists device] } {unset device}\n"
+        tcl += "if { [info exists description] } {unset description}\n"
 
         # \0\n is written to stdout of the tclsh process to mark and detect the
         # end of the output of the API call.
