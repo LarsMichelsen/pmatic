@@ -41,8 +41,11 @@ __author__    = 'Lars Michelsen'
 __license__   = 'GPLv2'
 __copyright__ = 'Copyright 2016 Lars Michelsen'
 
+import sys
+import codecs
 import logging as _logging
 
+from pmatic.ccu import utils
 from pmatic.ccu import CCU # noqa
 from pmatic.exceptions import PMException, PMConnectionError, \
                               PMDeviceOffline, PMActionFailed, PMUserError # noqa
@@ -120,5 +123,18 @@ def logging(log_level=None):
     logger_default_handler = ch
 
 
+def fix_python2_pipe_encoding():
+    """When using Python 2.7 and piping the output to a command like less or
+    grep the sys.stdout/stderr encoding is not set correctly so printing the
+    unicode strings will fail. Workaround this."""
+    if utils.is_py2():
+        if sys.stdout.encoding == None:
+            sys.stdout = codecs.getwriter("utf-8")(sys.stdout)
+        if sys.stderr.encoding == None:
+            sys.stderr = codecs.getwriter("utf-8")(sys.stderr)
+
+
 # Initialize logging with default log level (WARNING)
 logging()
+
+fix_python2_pipe_encoding()

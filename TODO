@@ -21,7 +21,9 @@ Fixes:
 Todos:
 * Create test for ChannelMaintenance.maintenance_state
 * Manager:
-  * persist states to keep them during restarts
+  * persist things to keep them during restarts
+    * resident states
+    * schedule states (last trigger, last result)
   * Transaction-IDs einbauen, so dass man nicht aus Versehen Aktionen doppelt ausführt.
   * Tests for the manager
   * Events: Close on shutdown when registered?
@@ -30,7 +32,9 @@ Todos:
   * Add resident arrive / leave as event to the event log
 * Cleanup: set_submitted_vars() shows: Cleanup access to channel by address to
   have an API equal to getting a device from devices or param from channel.
-* Doc: Document the parameter classes and parameter types
+* Docs:
+  * pmatic.utils
+  * The parameter classes and parameter types
 * Improve error handling of TCL errors like in https://github.com/LarsMichelsen/pmatic/issues/7
 
 Optimizations:

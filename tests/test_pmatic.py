@@ -24,6 +24,9 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import sys
+import codecs
+import pytest
 import logging
 
 import pmatic
@@ -73,3 +76,18 @@ def test_unlogged_log(capfd):
     out, err = capfd.readouterr()
     assert "Dingelingpiffpaff" not in err
     assert out == ""
+
+
+@pytest.mark.skipif(sys.version_info >= (3,0),
+                    reason="requires python2.7")
+def test_fix_python2_pipe_encoding(monkeypatch):
+    null = codecs.open("/dev/null", "w", encoding=None)
+    monkeypatch.setattr(sys, "stdout", null)
+    monkeypatch.setattr(sys, "stderr", null)
+    assert sys.stdout == null
+    assert sys.stderr == null
+
+    pmatic.fix_python2_pipe_encoding()
+
+    assert "utf_8.StreamWriter" in repr(sys.stdout.__class__)
+    assert "utf_8.StreamWriter" in repr(sys.stderr.__class__)
