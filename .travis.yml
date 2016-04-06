@@ -34,7 +34,7 @@ script:
     - cd $TRAVIS_BUILD_DIR
     - coverage run --source=pmatic setup.py test
 
-after_success:
+after_build:
     # Upload coverage
     - coveralls
     # eventually run snapshot build
