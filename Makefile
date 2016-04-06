@@ -12,16 +12,8 @@ COVERAGE2 := $(shell if which coverage2 >/dev/null 2>&1; then echo coverage2; \
 		   elif which coverage-2.7 >/dev/null 2>&1; then echo coverage-2.7; \
 		   elif which coverage >/dev/null 2>&1; then echo coverage; fi)
 
-ifeq (, $(COVERAGE2))
-    $(error "Python 2 coverage is missing")
-endif
-
 COVERAGE3 := $(shell if which coverage3 >/dev/null 2>&1; then echo coverage3; \
 		   elif which coverage-3.4 >/dev/null 2>&1; then echo coverage-3.4; fi)
-
-ifeq (, $(COVERAGE3))
-    $(error "Python 3 coverage is missing")
-endif
 
 .PHONY: chroot dist
 
@@ -139,7 +131,15 @@ dist-ccu-step2:
 	@echo "Created dist/pmatic-$(VERSION)_ccu.tar.gz"
 
 test:
+	@if [ -z "$(COVERAGE2)" ]; then \
+	    echo "Python 2 coverage is missing" ; \
+	    exit 1 ; \
+	fi
 	$(COVERAGE2) run --include='pmatic/*' --source=pmatic setup.py test
+	@if [ -z "$(COVERAGE3)" ]; then \
+	    echo "Python 3 coverage is missing" ; \
+	    exit 1 ; \
+	fi
 	$(COVERAGE3) run -a --include='pmatic/*' --source=pmatic setup.py test
 	$(MAKE) coverage coverage-html
 
