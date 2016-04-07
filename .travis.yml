@@ -38,7 +38,7 @@ after_success:
     # Upload coverage
     - coveralls
 
-after_build:
+after_script:
     # eventually run snapshot build. Make the whole build fail when it fails
     - if [ $TRAVIS_TEST_RESULT == 0 ] && [ $TRAVIS_PYTHON_VERSION = '2.7' ] && [ $TRAVIS_BRANCH = 'master' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then make travis-build travis-doc; fi
 
