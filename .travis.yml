@@ -34,11 +34,13 @@ script:
     - cd $TRAVIS_BUILD_DIR
     - coverage run --source=pmatic setup.py test
 
-after_build:
+after_success:
     # Upload coverage
     - coveralls
-    # eventually run snapshot build
-    - if [ $TRAVIS_PYTHON_VERSION = '2.7' ] && [ $TRAVIS_BRANCH = 'master' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then make travis-build travis-doc; fi
+
+after_build:
+    # eventually run snapshot build. Make the whole build fail when it fails
+    - if [ $TRAVIS_TEST_RESULT == 0 ] && [ $TRAVIS_PYTHON_VERSION = '2.7' ] && [ $TRAVIS_BRANCH = 'master' ] && [ $TRAVIS_PULL_REQUEST = 'false' ]; then make travis-build travis-doc; fi
 
 # Secret for uploading snapshot builds
 env:
