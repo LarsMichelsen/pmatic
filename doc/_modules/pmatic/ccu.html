@@ -92,6 +92,7 @@
     <span class="kn">import</span> <span class="nn">builtins</span>
 
 <span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">threading</span>
 
 <span class="kn">import</span> <span class="nn">pmatic.api</span>
 <span class="kn">import</span> <span class="nn">pmatic.events</span>
@@ -268,16 +269,19 @@
         <span class="nb">super</span><span class="p">(</span><span class="n">CCUDevices</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ccu</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_device_specs</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">DeviceSpecs</span><span class="p">(</span><span class="n">ccu</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_device_logic</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">DeviceLogic</span><span class="p">(</span><span class="n">ccu</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_lock</span>   <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_devices</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Optional initializer of the devices data structure, called on first access.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_init_all_devices</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_init_all_devices</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span>
 
 
     <span class="nd">@property</span>
@@ -347,7 +351,7 @@
             <span class="n">filters</span><span class="p">[</span><span class="s2">&quot;device_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">filters</span><span class="p">[</span><span class="s2">&quot;device_type&quot;</span><span class="p">]]</span>
 
         <span class="k">for</span> <span class="n">address</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_specs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="c1"># First try to get an olready created room object from the central</span>
+            <span class="c1"># First try to get an already created room object from the central</span>
             <span class="c1"># CCU room collection. Otherwise create the room object and add it</span>
             <span class="c1"># to the central collection and this collection.</span>
             <span class="n">device</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
@@ -441,16 +445,18 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CCURooms</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ccu</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">_rooms</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Optional initializer of the rooms data structure, called on first access.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_room_dict</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_init_all_rooms</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">True</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_room_dict</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_lock</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_room_dict</span> <span class="o">=</span> <span class="p">{}</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_init_all_rooms</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_room_dict</span>
 
 
     <span class="k">def</span> <span class="nf">_add_without_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room</span><span class="p">):</span>

@@ -422,13 +422,20 @@
     <span class="k">def</span> <span class="nf">event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">value_key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span> <span class="c1"># pylint:disable=unused-argument</span>
         <span class="sd">&quot;&quot;&quot;Receives an event from the CCU and applies the update.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[EVENT] </span><span class="si">%s</span><span class="s2"> </span><span class="si">%s</span><span class="s2"> = </span><span class="si">%r</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">value_key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-        <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">get_device_or_channel_by_address</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
 
-        <span class="n">value_changed</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">value_key</span><span class="p">]</span><span class="o">.</span><span class="n">set_from_api</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">get_device_or_channel_by_address</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[EVENT] </span><span class="si">%s</span><span class="s2"> Ignoring event for unknown device&quot;</span> <span class="o">%</span> <span class="n">address</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">True</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">listener</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="s2">&quot;value_updated&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">value_key</span><span class="p">])</span>
+        <span class="n">param</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">value_key</span><span class="p">]</span>
+
+        <span class="n">value_changed</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">set_from_api</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">listener</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="s2">&quot;value_updated&quot;</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">value_changed</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">listener</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="s2">&quot;value_changed&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">value_key</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">listener</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="s2">&quot;value_changed&quot;</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">True</span>
 
@@ -468,20 +475,52 @@
         <span class="sd">&quot;&quot;&quot;The CCU informs about new devices. Creates objects known for them.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[NEW DEVICES] Got </span><span class="si">%d</span><span class="s2"> new devices/channels&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">dev_descriptions</span><span class="p">))</span>
 
-        <span class="c1"># Incoming dict keys are upper case.</span>
-        <span class="c1"># The dict keys are directly handed over to the device/channel objects. So they</span>
-        <span class="c1"># need ot be equalized and with internal naming specs just like the also different</span>
-        <span class="c1"># keys from the XML-RPC messages.</span>
-        <span class="k">def</span> <span class="nf">normalize_dict_keys</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
-            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">d</span><span class="p">:</span>
-                <span class="n">d</span><span class="p">[</span><span class="n">k</span><span class="o">.</span><span class="n">lower</span><span class="p">()]</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="c1"># Perform the following steps to make the data equal to the ccu.devices._device_specs</span>
+        <span class="c1"># dict data structure which is fetched by the JSON API. To make the internal code of</span>
+        <span class="c1"># pmatic simpler it is better to normalize this here where it is clear where which kind</span>
+        <span class="c1"># of data comes from.</span>
+        <span class="c1">#</span>
+        <span class="c1"># The goal is to make this data totally equal (TODO Create a test for this):</span>
+        <span class="c1">#import pprint</span>
+        <span class="c1">#file(&quot;/tmp/event-devices.txt&quot;, &quot;w&quot;).write(pprint.pformat(sorted(devices.items())))</span>
+        <span class="c1">#specs = self._ccu.api.DeviceSpecs(self._ccu.api)</span>
+        <span class="c1">#file(&quot;/tmp/api-devices.txt&quot;, &quot;w&quot;).write(pprint.pformat(sorted(specs.items())))</span>
+        <span class="k">def</span> <span class="nf">normalize_spec</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">d</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                    <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)):</span>
+                        <span class="n">val</span><span class="p">[</span><span class="n">index</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span><span class="p">[</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+                <span class="k">elif</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_byte_string</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+                <span class="n">new_key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">new_key</span> <span class="ow">in</span> <span class="p">[</span> <span class="s2">&quot;aes_active&quot;</span><span class="p">,</span> <span class="s2">&quot;roaming&quot;</span> <span class="p">]:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">val</span> <span class="o">==</span> <span class="mi">1</span>
+
+                <span class="k">elif</span> <span class="n">new_key</span> <span class="o">==</span> <span class="s2">&quot;updatable&quot;</span><span class="p">:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">val</span>
+
+                <span class="k">elif</span> <span class="n">new_key</span> <span class="ow">in</span> <span class="p">[</span> <span class="s2">&quot;link_source_roles&quot;</span><span class="p">,</span> <span class="s2">&quot;link_target_roles&quot;</span> <span class="p">]:</span>
+                    <span class="n">val</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">split</span><span class="p">()</span>
+
+                <span class="k">elif</span> <span class="n">new_key</span> <span class="ow">in</span> <span class="p">[</span> <span class="s2">&quot;rf_address&quot;</span><span class="p">,</span> <span class="s2">&quot;rx_mode&quot;</span> <span class="p">]:</span>
+                    <span class="k">continue</span>
+
+                <span class="n">d</span><span class="p">[</span><span class="n">new_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
             <span class="k">return</span> <span class="n">d</span>
 
         <span class="n">devices</span> <span class="o">=</span> <span class="p">{}</span>
 
         <span class="k">for</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">dev_descriptions</span><span class="p">:</span>
-            <span class="n">spec</span> <span class="o">=</span> <span class="n">normalize_dict_keys</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+            <span class="n">spec</span> <span class="o">=</span> <span class="n">normalize_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">spec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;parent&quot;</span><span class="p">):</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">del</span> <span class="n">spec</span><span class="p">[</span><span class="s2">&quot;parent&quot;</span><span class="p">]</span>
+                <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                    <span class="k">pass</span>
                 <span class="n">devices</span><span class="p">[</span><span class="n">spec</span><span class="p">[</span><span class="s2">&quot;address&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">spec</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">channels</span> <span class="o">=</span> <span class="n">devices</span><span class="p">[</span><span class="n">spec</span><span class="p">[</span><span class="s2">&quot;parent&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;channels&quot;</span><span class="p">,</span> <span class="p">[])</span>
