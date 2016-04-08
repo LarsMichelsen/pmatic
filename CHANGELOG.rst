@@ -12,6 +12,9 @@ Manager
   persistant on the CCU. So the resident and schedule states will be reset on reboot.
 * FIX: Fixed custom config via command line not setting new defaults for the argument parsing
   (e.g. ccu_enabled could not be changed to ``False`` using a config file provided by (``-o``).
+* FIX: Fixed startup error when connection to CCU is not possible
+* FIX: Fixed error during saving of manager config/state files when base directory not
+  exists. Trying to create the directory now.
 
 Version 0.2 (2016-04-07)
 ------------------------

@@ -135,6 +135,9 @@ class Config(utils.LogMixin):
                and not inspect.isroutine(val):
                 config[key] = val
 
+        if not os.path.exists(os.path.dirname(cls._config_path())):
+            os.makedirs(os.path.dirname(cls._config_path()))
+
         json_config = json.dumps(config)
         open(cls._config_path(), "w").write(json_config + "\n")
 
@@ -2310,8 +2313,12 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
         if Config.ccu_enabled:
             self.logger.info("Initializing connection with CCU...")
-            self.ccu = pmatic.CCU(address=Config.ccu_address,
+            try:
+                self.ccu = pmatic.CCU(address=Config.ccu_address,
                                   credentials=Config.ccu_credentials)
+            except PMException as e:
+                self.logger.error("Failed to initialize CCU connection: %s", e)
+                return
         else:
             self.logger.info("Connection with CCU is disabled")
             return

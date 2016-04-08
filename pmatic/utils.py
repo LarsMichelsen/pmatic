@@ -135,6 +135,8 @@ class PersistentStore(object):
 
     def _save(self, path, data):
         json_data = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
+        if not os.path.exists(os.path.dirname(path)):
+            os.makedirs(os.path.dirname(path))
         open(path, "w").write(json_data + "\n")
 
 
