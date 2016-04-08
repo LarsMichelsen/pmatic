@@ -82,6 +82,11 @@ def parse_args():
         help="Specify the location to the pmatic Manager config directory. "
              "The default directory is \"/etc/config/addons/pmatic/etc\".",
         default=pmatic.manager.Config.config_path)
+    parser.add_argument('-e',
+        dest="state_path",
+        help="Specify the location to the pmatic Manager state directory. "
+             "The default directory is \"/var/lib/pmatic\".",
+        default=pmatic.manager.Config.state_path)
     parser.add_argument('-r',
         dest="script_path",
         help="Specify the location to the pmatic script directory. "
@@ -157,6 +162,7 @@ file_logger.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(messag
 # Apply other paths
 pmatic.manager.Config.script_path = args.script_path
 pmatic.manager.Config.static_path = args.static_path
+pmatic.manager.Config.state_path  = args.state_path
 
 logger.addHandler(file_logger)
 

@@ -83,6 +83,7 @@ g_runner = None
 
 class Config(utils.LogMixin):
     config_path = "/etc/config/addons/pmatic/etc"
+    state_path  = "/var/lib/pmatic" # not reboot persistent!
     script_path = "/etc/config/addons/pmatic/scripts"
     static_path = "/etc/config/addons/pmatic/manager_static"
 
@@ -2289,6 +2290,7 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
 
 
     def init_scheduler(self):
+        self.scheduler.load()
         self.scheduler.start()
 
 
@@ -2312,12 +2314,13 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
                                   credentials=Config.ccu_credentials)
         else:
             self.logger.info("Connection with CCU is disabled")
+            return
 
         self._patch_manager_residents()
         self._register_for_ccu_events()
 
         # Reload the schedules to update the CCU dependent conditions
-        self.scheduler.load(default=[])
+        self.scheduler.load()
 
 
     @property
@@ -2540,18 +2543,40 @@ class EventHistory(object):
 
 
 
-class ManagerResidents(Residents, utils.PersistentConfigMixin, utils.LogMixin):
+class ManagerResidents(Residents, utils.PersistentConfigMixin,
+                       utils.PersistentStateMixin, utils.LogMixin):
     _name = "residents"
 
     def __init__(self, manager):
         super(ManagerResidents, self).__init__()
         self._manager = manager
-        self.load(default={})
+        self.load()
+
+
+    def load(self):
+        self.load_config(default={})
+        self.load_state(default=[])
+        print(self.residents)
+
+
+    def save(self):
+        self.save_state()
+        self.save_config()
 
 
     @property
     def config_file(self):
         return os.path.join(Config.config_path, "manager.residents")
+
+
+    @property
+    def state_file(self):
+        return os.path.join(Config.state_path, "manager.residents")
+
+
+    def update(self):
+        super(ManagerResidents, self).update()
+        self.save_state()
 
 
     def _add(self, r):
@@ -2560,7 +2585,8 @@ class ManagerResidents(Residents, utils.PersistentConfigMixin, utils.LogMixin):
 
 
 
-class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin):
+class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
+                utils.PersistentStateMixin):
     _name = "schedules"
 
     def __init__(self, manager):
@@ -2572,6 +2598,7 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin):
 
         self._on_startup_executed  = False
         self._on_ccu_init_executed = False
+
         self._next_presence_update = None
 
         utils.PersistentConfigMixin.__init__(self)
@@ -2607,17 +2634,15 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin):
     def _execute_presence_update(self):
         """Updates the presence information of residents in the configured interval. When no
         resident is configured, this method is doing nothing."""
-        if not self._manager.ccu_initialized:
-            self.logger.debug("Not updating presence information (CCU not initialized yet)")
-            return
-
         if not self._manager.residents.enabled:
             self.logger.debug("Not updating presence information (not enabled)")
             return
 
         if self._next_presence_update == None or self._next_presence_update < time.time():
+            self.logger.debug("Updating presence information")
             self._manager.residents.update()
             self._next_presence_update = time.time() + Config.presence_update_interval
+            self.save_state()
 
 
     def _execute_timed_schedules(self):
@@ -2696,9 +2721,24 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin):
         schedule.execute()
 
 
+    def load(self):
+        self.load_config(default=[])
+        self.load_state()
+
+
+    def save(self):
+        self.save_state()
+        self.save_config()
+
+
     @property
     def config_file(self):
         return os.path.join(Config.config_path, "manager.schedules")
+
+
+    @property
+    def state_file(self):
+        return os.path.join(Config.state_path, "manager.schedules")
 
 
     @property
@@ -2761,6 +2801,21 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin):
         for schedule in self._schedules:
             schedule_config.append(schedule.to_config())
         return schedule_config
+
+
+    def from_state(self, state):
+        if state is None:
+            return # on default, do nothing
+        self._next_presence_update = state["next_presence_update"]
+        for schedule, schedule_state in zip(self._schedules, state["schedules"]):
+            schedule.from_state(schedule_state)
+
+
+    def to_state(self):
+        return {
+            "next_presence_update" : self._next_presence_update,
+            "schedules"            : [ s.to_state() for s in self._schedules ],
+        }
 
 
 
@@ -2842,6 +2897,21 @@ class Schedule(object):
         }
 
 
+    def from_state(self, state):
+        for key, val in state.items():
+            setattr(self, key, val)
+
+        for index, c in enumerate(self.conditions):
+            c.from_state(state["conditions"][index])
+
+
+    def to_state(self):
+        return {
+            "last_triggered" : self.last_triggered,
+            "conditions"     : [ c.to_state() for c in self.conditions ],
+        }
+
+
     def save(self):
         self._manager.scheduler.add(self)
         self._manager.scheduler.save()
@@ -2878,6 +2948,15 @@ class Condition(object):
         return {
             "type_name": self.type_name,
         }
+
+
+    def from_state(self, cfg):
+        for key, val in cfg.items():
+            setattr(self, key, val)
+
+
+    def to_state(self):
+        return {}
 
 
     def display(self):
@@ -3250,6 +3329,12 @@ class ConditionOnTime(Condition):
             cfg["day_of_month"] = self.day_of_month
 
         return cfg
+
+
+    def to_state(self):
+        state = super(ConditionOnTime, self).to_state()
+        state["_next_time"] = self._next_time
+        return state
 
 
     def input_parameters(self, page, varprefix):

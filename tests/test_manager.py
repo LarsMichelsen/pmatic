@@ -222,6 +222,7 @@ class TestConfig(object):
     def test_default_config(self):
         config_options = [
             "config_path",
+            "state_path",
             "static_path",
             "script_path",
             "ccu_enabled",

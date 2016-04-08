@@ -4,6 +4,7 @@ Fixes:
   * ConditionOnDeviceEvent implement to_state()
 
 Todos:
+* Reboot peristent state_dir?
 * Create test for ChannelMaintenance.maintenance_state
 * Manager:
   * persist things to keep them during restarts

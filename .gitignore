@@ -10,5 +10,5 @@ pmatic.egg-info
 htmlcov
 .cache
 dumps
-etc
+manager
 start-manager

@@ -26,6 +26,7 @@ from __future__ import unicode_literals
 
 import re
 import time
+import requests.exceptions
 
 import pmatic.utils as utils
 from pmatic.exceptions import PMUserError, PMException
@@ -65,9 +66,22 @@ class Residents(utils.LogMixin):
         afterwards and handed over to :meth:`from_config` to reconstruct the
         current Residents object."""
         return {
-            "next_resident_id": self._next_resident_id,
-            "residents": [ p.to_config() for p in self.residents ],
+            "next_resident_id" : self._next_resident_id,
+            "residents"        : [ p.to_config() for p in self.residents ],
         }
+
+
+    def from_state(self, state):
+        """Updates the variable state data which can change during runtime on the
+        current resident object."""
+        for resident, resident_state in zip(self.residents, state):
+            resident.from_state(resident_state)
+
+
+    def to_state(self):
+        """Returns a list of resident states. Each entry represents the state of
+        a configured resident gathered with :meth:`Resident.to_state`."""
+        return [ r.to_state() for r in self.residents ]
 
 
     @property
@@ -265,6 +279,24 @@ class Resident(utils.LogMixin, utils.CallbackMixin):
         }
 
 
+    def from_state(self, state):
+        self._presence_updated = state["presence_updated"]
+        self._presence_changed = state["presence_changed"]
+        self._present          = state["present"]
+
+        for device, device_state in zip(self.devices, state["devices"]):
+            device.from_state(device_state)
+
+
+    def to_state(self):
+        return {
+            "presence_updated" : self._presence_updated,
+            "presence_changed" : self._presence_changed,
+            "present"          : self._present,
+            "devices"          : [ d.to_state() for d in self.devices ],
+        }
+
+
     def add_device(self, device):
         """Adds a :class:`PersonalDevice` object to the resident. Please note that
         you need to use a specific class inherited from :class:`PersonalDevice`,
@@ -365,6 +397,18 @@ class PersonalDevice(object):
         }
 
 
+    def from_state(self, state):
+        for key, val in state.items():
+            setattr(self, "_" + key, val)
+
+
+    def to_state(self):
+        return {
+            "active" : self._active,
+            "name"   : self._name,
+        }
+
+
     def update_presence(self):
         """Can be overridden by specific personal device classes to update the
         information of this device."""
@@ -384,7 +428,7 @@ class PersonalDevice(object):
 
 
 
-class PersonalDeviceFritzBoxHost(PersonalDevice):
+class PersonalDeviceFritzBoxHost(PersonalDevice, utils.LogMixin):
     type_name = "fritz_box_host"
     type_title = "fritz!Box Host"
 
@@ -452,6 +496,13 @@ class PersonalDeviceFritzBoxHost(PersonalDevice):
         return cfg
 
 
+    def to_state(self):
+        """Returns the variable aspects of this object which can change during runtime."""
+        state = super(PersonalDeviceFritzBoxHost, self).to_state()
+        state["ipaddress"] = self._ip_address
+        return state
+
+
     def update_presence(self):
         """Update the presence information of this device."""
         self._update_host_info()
@@ -467,6 +518,10 @@ class PersonalDeviceFritzBoxHost(PersonalDevice):
                 return
             else:
                 raise
+        except requests.exceptions.RequestException as e:
+            self.logger.info("Failed to update the host info: %s" % e)
+            self.logger.debug("Traceback:", exc_info=True)
+            return
 
         self._ip_address = result.ipaddress
         self._name       = result.hostname

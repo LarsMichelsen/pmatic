@@ -111,48 +111,51 @@ class CallbackMixin(object):
 
 
 
-class PersistentConfigMixin(object):
+class PersistentStore(object):
     """This class provides the option to persist data structures in a file."""
     _name = None
 
-    def load(self, default=None, config_file=None):
-        if config_file is None:
-            config_file = self.config_file
-
+    def _load(self, path, default=None):
         try:
-            self.clear()
             try:
-                fh = open(config_file)
-                config = json.load(fh)
+                fh = open(path)
+                data = json.load(fh)
             except IOError as e:
                 # a non existing file is allowed.
                 if e.errno == 2:
-                    config = default
+                    data = default
                 else:
                     raise
 
-            self.from_config(config)
+            return data
         except Exception:
-            raise
             self.logger.error("Failed to load %s. Terminating." % self._name, exc_info=True)
             sys.exit(1)
 
 
-    def save(self, config_file=None):
+    def _save(self, path, data):
+        json_data = json.dumps(data, sort_keys=True, indent=4, separators=(',', ': '))
+        open(path, "w").write(json_data + "\n")
+
+
+
+class PersistentConfigMixin(PersistentStore):
+    def load_config(self, config_file=None, default=None):
         if config_file is None:
             config_file = self.config_file
+        data = super(PersistentConfigMixin, self)._load(config_file, default=default)
+        self.clear()
+        self.from_config(data)
 
-        json_config = json.dumps(self.to_config(), sort_keys=True,
-                                 indent=4, separators=(',', ': '))
-        open(config_file, "w").write(json_config + "\n")
+
+    def save_config(self, config_file=None):
+        if config_file is None:
+            config_file = self.config_file
+        super(PersistentConfigMixin, self)._save(config_file, self.to_config())
 
 
     @property
     def config_file(self):
-        raise NotImplementedError()
-
-
-    def clear(self):
         raise NotImplementedError()
 
 
@@ -161,6 +164,34 @@ class PersistentConfigMixin(object):
 
 
     def from_config(self, config):
+        raise NotImplementedError()
+
+
+
+class PersistentStateMixin(PersistentStore):
+    def load_state(self, state_file=None, default=None):
+        if state_file is None:
+            state_file = self.state_file
+        data = super(PersistentStateMixin, self)._load(state_file, default=default)
+        self.from_state(data)
+
+
+    def save_state(self, state_file=None):
+        if state_file is None:
+            state_file = self.state_file
+        super(PersistentStateMixin, self)._save(state_file, self.to_state())
+
+
+    @property
+    def state_file(self):
+        raise NotImplementedError()
+
+
+    def to_state(self):
+        raise NotImplementedError()
+
+
+    def from_state(self, state):
         raise NotImplementedError()
 
 
