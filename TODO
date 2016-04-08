@@ -1,22 +1,7 @@
 Fixes:
 * Schedules might be executed/rescheduled multiple times while editing
   -> need to track the last execution time somewhere
-* Verify: Is schedule really deleted and not executed anymore when deleting via GUI?
-* Exception beim manager startup:
-    Mar 27 00:42:56 homematic-ccu2 user.info homematic: 2016-03-27 00:42:56,871 [INFO] ------------------------------------------
-    Mar 27 00:42:56 homematic-ccu2 user.info homematic: 2016-03-27 00:42:56,926 [INFO] Starting up (Version 0.1)
-    Mar 27 00:42:56 homematic-ccu2 user.info homematic: 2016-03-27 00:42:56,944 [INFO] ------------------------------------------
-    Mar 27 00:42:59 homematic-ccu2 user.info homematic: Exception in thread Thread-2 (most likely raised during interpreter shutdown):
-    Mar 27 00:42:59 homematic-ccu2 user.info homematic: Traceback (most recent call last):
-    Mar 27 00:42:59 homematic-ccu2 user.info homematic:   File "/usr/local/etc/config/addons/pmatic/python/lib/python2.7/threading.py", line 552, in __bootstrap_inner
-    Mar 27 00:42:59 homematic-ccu2 user.info homematic:   File "/usr/local/etc/config/addons/pmatic/python/lib/python2.7/pmatic/manager.py", line 2151, in run
-    Mar 27 00:42:59 homematic-ccu2 user.info homematic:   File "/usr/local/etc/config/addons/pmatic/python/lib/python2.7/pmatic/manager.py", line 2212, in execute
-    Mar 27 00:42:59 homematic-ccu2 user.info homematic:   File "/usr/local/etc/config/addons/pmatic/python/lib/python2.7/logging/__init__.py", line 1148, in info
-    Mar 27 00:42:59 homematic-ccu2 user.info homematic:   File "/usr/local/etc/config/addons/pmatic/python/lib/python2.7/logging/__init__.py", line 1266, in _log
-    Mar 27 00:42:59 homematic-ccu2 user.info homematic:   File "/usr/local/etc/config/addons/pmatic/python/lib/python2.7/logging/__init__.py", line 1240, in makeRecord
-    Mar 27 00:42:59 homematic-ccu2 user.info homematic:   File "/usr/local/etc/config/addons/pmatic/python/lib/python2.7/logging/__init__.py", line 271, in __init__
-    Mar 27 00:42:59 homematic-ccu2 user.info homematic: <type 'exceptions.TypeError'>: 'NoneType' object is not callable
-    Mar 27 00:43:00 homematic-ccu2 user.info homematic: started pmatic manger
+  * ConditionOnDeviceEvent implement to_state()
 
 Todos:
 * Create test for ChannelMaintenance.maintenance_state
