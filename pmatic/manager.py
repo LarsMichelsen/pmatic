@@ -2556,7 +2556,6 @@ class ManagerResidents(Residents, utils.PersistentConfigMixin,
     def load(self):
         self.load_config(default={})
         self.load_state(default=[])
-        print(self.residents)
 
 
     def save(self):
@@ -2899,10 +2898,11 @@ class Schedule(object):
 
     def from_state(self, state):
         for key, val in state.items():
-            setattr(self, key, val)
+            if key != "conditions":
+                setattr(self, key, val)
 
-        for index, c in enumerate(self.conditions):
-            c.from_state(state["conditions"][index])
+        for condition, condition_state in zip(self.conditions, state["conditions"]):
+            condition.from_state(condition_state)
 
 
     def to_state(self):
