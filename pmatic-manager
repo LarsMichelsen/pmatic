@@ -62,76 +62,87 @@ from pmatic.exceptions import SignalReceived
 
 pmatic.manager.Config.load()
 
-parser = argparse.ArgumentParser()
-parser.add_argument('-a',
-    dest="address",
-    default="",
-    help="Specify another host address than the default (all) to listen on.")
-parser.add_argument('-p',
-    dest="port",
-    default="9120",
-    type=int,
-    help="Specify another TCP port than the default one (9120) to listen on.")
-parser.add_argument('-g',
-    dest="foreground",
-    action="store_true",
-    help="Execute the pmatic manager in foreground instead of daemonizing.")
-parser.add_argument('-o',
-    dest="config_path",
-    help="Specify the location to the pmatic Manager config directory. "
-         "The default directory is \"/etc/config/addons/pmatic/etc\".",
-    default=pmatic.manager.Config.config_path)
-parser.add_argument('-r',
-    dest="script_path",
-    help="Specify the location to the pmatic script directory. "
-         "The default directory is \"/etc/config/addons/pmatic/scripts\".",
-    default=pmatic.manager.Config.script_path)
-parser.add_argument('-t',
-    dest="static_path",
-    help="Specify the location to the pmatic static file (images, ...) directory. "
-         "The default directory is \"/etc/config/addons/pmatic/manager_static\".",
-    default=pmatic.manager.Config.static_path)
-parser.add_argument('-l',
-    dest="log_level",
-    help="Specify the log level (defaults to INFO). You can choose from the following: "
-         "CRITICAL, ERROR, WARNING, INFO, DEBUG.",
-    default=pmatic.manager.Config.log_level or "INFO",
-    choices=pmatic.log_level_names)
-parser.add_argument('-f',
-    dest="log_file",
-    help="Configure the location of the file to write log entries to. When "
-         "the log file reaches a size of ~5MB, it is rotated to LOG_FILE.1, "
-         "then to LOG_FILE.2 and then deleted. The default log file is "
-         "\"/var/log/pmatic-manager.log\".",
-    default=pmatic.manager.Config.log_file)
-parser.add_argument('-c',
-    dest="ccu_address",
-    help="When the pmatic manager is executed on another host than the CCU, "
-         "you need to configure the address and credentials to access the "
-         "CCU. When executed on the CCU, these options are ignored.",
-    default=pmatic.manager.Config.ccu_address)
-parser.add_argument('-u',
-    dest="ccu_username",
-    help="When the pmatic manager is executed on another host than the CCU, "
-         "you need to configure the username to access the CCU. When executed "
-         "on the CCU, these options are ignored.",
-    default=pmatic.manager.Config.ccu_credentials[0]
-                if pmatic.manager.Config.ccu_credentials else "")
-parser.add_argument('-s',
-    dest="ccu_password",
-    help="When the pmatic manager is executed on another host than the CCU, "
-         "you need to configure the password of the given username to access "
-         "the CCU. When executed on the CCU, these options are ignored.",
-    default=pmatic.manager.Config.ccu_credentials[1]
-                if pmatic.manager.Config.ccu_credentials else "")
-parser.add_argument('-n',
-    dest="ccu_enabled",
-    action="store_false",
-    help="Disable the connection with the CCU. This may be useful when "
-         "testing/using the pmatic Manager without a CCU.",
-    default=pmatic.manager.Config.ccu_enabled)
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-a',
+        dest="address",
+        default="",
+        help="Specify another host address than the default (all) to listen on.")
+    parser.add_argument('-p',
+        dest="port",
+        default="9120",
+        type=int,
+        help="Specify another TCP port than the default one (9120) to listen on.")
+    parser.add_argument('-g',
+        dest="foreground",
+        action="store_true",
+        help="Execute the pmatic manager in foreground instead of daemonizing.")
+    parser.add_argument('-o',
+        dest="config_path",
+        help="Specify the location to the pmatic Manager config directory. "
+             "The default directory is \"/etc/config/addons/pmatic/etc\".",
+        default=pmatic.manager.Config.config_path)
+    parser.add_argument('-r',
+        dest="script_path",
+        help="Specify the location to the pmatic script directory. "
+             "The default directory is \"/etc/config/addons/pmatic/scripts\".",
+        default=pmatic.manager.Config.script_path)
+    parser.add_argument('-t',
+        dest="static_path",
+        help="Specify the location to the pmatic static file (images, ...) directory. "
+             "The default directory is \"/etc/config/addons/pmatic/manager_static\".",
+        default=pmatic.manager.Config.static_path)
+    parser.add_argument('-l',
+        dest="log_level",
+        help="Specify the log level (defaults to INFO). You can choose from the following: "
+             "CRITICAL, ERROR, WARNING, INFO, DEBUG.",
+        default=pmatic.manager.Config.log_level or "INFO",
+        choices=pmatic.log_level_names)
+    parser.add_argument('-f',
+        dest="log_file",
+        help="Configure the location of the file to write log entries to. When "
+             "the log file reaches a size of ~5MB, it is rotated to LOG_FILE.1, "
+             "then to LOG_FILE.2 and then deleted. The default log file is "
+             "\"/var/log/pmatic-manager.log\".",
+        default=pmatic.manager.Config.log_file)
+    parser.add_argument('-c',
+        dest="ccu_address",
+        help="When the pmatic manager is executed on another host than the CCU, "
+             "you need to configure the address and credentials to access the "
+             "CCU. When executed on the CCU, these options are ignored.",
+        default=pmatic.manager.Config.ccu_address)
+    parser.add_argument('-u',
+        dest="ccu_username",
+        help="When the pmatic manager is executed on another host than the CCU, "
+             "you need to configure the username to access the CCU. When executed "
+             "on the CCU, these options are ignored.",
+        default=pmatic.manager.Config.ccu_credentials[0]
+                    if pmatic.manager.Config.ccu_credentials else "")
+    parser.add_argument('-s',
+        dest="ccu_password",
+        help="When the pmatic manager is executed on another host than the CCU, "
+             "you need to configure the password of the given username to access "
+             "the CCU. When executed on the CCU, these options are ignored.",
+        default=pmatic.manager.Config.ccu_credentials[1]
+                    if pmatic.manager.Config.ccu_credentials else "")
+    parser.add_argument('-n',
+        dest="ccu_enabled",
+        action="store_false",
+        help="Disable the connection with the CCU. This may be useful when "
+             "testing/using the pmatic Manager without a CCU.",
+        default=pmatic.manager.Config.ccu_enabled)
 
-args = parser.parse_args()
+    args = parser.parse_args()
+    return args
+
+args = parse_args()
+
+# If the config_path changed, load the new config. Then load the args
+# again because the new config might have changed the arg defaults
+if pmatic.manager.Config.config_path != args.config_path:
+    pmatic.manager.Config.config_path = args.config_path
+    pmatic.manager.Config.load()
+    args = parse_args()
 
 # Set log level according to user supplied arguments
 pmatic.logging(getattr(pmatic, args.log_level))
@@ -147,11 +158,6 @@ file_logger.setFormatter(logging.Formatter('%(asctime)s [%(levelname)s] %(messag
 pmatic.manager.Config.script_path = args.script_path
 pmatic.manager.Config.static_path = args.static_path
 
-# If the config_path changed, load the new config
-if pmatic.manager.Config.config_path != args.config_path:
-    pmatic.manager.Config.config_path = args.config_path
-    pmatic.manager.Config.load()
-
 logger.addHandler(file_logger)
 
 # Set CCU address / credentials when provided by user to override the configuration
@@ -163,6 +169,7 @@ if args.ccu_username and args.ccu_password:
 logger.info("------------------------------------------")
 logger.info("Starting up (Version %s)" % pmatic.__version__)
 logger.info("------------------------------------------")
+
 
 try:
     manager = pmatic.manager.Manager((args.address, args.port))
