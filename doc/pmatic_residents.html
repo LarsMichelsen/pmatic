@@ -155,6 +155,20 @@ afterwards and handed over to <a class="reference internal" href="#pmatic.reside
 current Residents object.</p>
 </dd></dl>
 
+<dl class="method">
+<dt id="pmatic.residents.Residents.from_state">
+<code class="descname">from_state</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Residents.from_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents.from_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Updates the variable state data which can change during runtime on the
+current resident object.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Residents.to_state">
+<code class="descname">to_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Residents.to_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Residents.to_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a list of resident states. Each entry represents the state of
+a configured resident gathered with <a class="reference internal" href="#pmatic.residents.Resident.to_state" title="pmatic.residents.Resident.to_state"><code class="xref py py-meth docutils literal"><span class="pre">Resident.to_state()</span></code></a>.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="pmatic.residents.Residents.enabled">
 <code class="descname">enabled</code><a class="headerlink" href="#pmatic.residents.Residents.enabled" title="Permalink to this definition">¶</a></dt>
@@ -281,6 +295,16 @@ change or <code class="docutils literal"><span class="pre">None</span></code> wh
 <dd></dd></dl>
 
 <dl class="method">
+<dt id="pmatic.residents.Resident.from_state">
+<code class="descname">from_state</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.from_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.from_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.Resident.to_state">
+<code class="descname">to_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.to_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.to_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="pmatic.residents.Resident.add_device">
 <code class="descname">add_device</code><span class="sig-paren">(</span><em>device</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#Resident.add_device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.Resident.add_device" title="Permalink to this definition">¶</a></dt>
 <dd><p>Adds a <a class="reference internal" href="#pmatic.residents.PersonalDevice" title="pmatic.residents.PersonalDevice"><code class="xref py py-class docutils literal"><span class="pre">PersonalDevice</span></code></a> object to the resident. Please note that
@@ -360,6 +384,16 @@ to reconstruct this object again.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="pmatic.residents.PersonalDevice.from_state">
+<code class="descname">from_state</code><span class="sig-paren">(</span><em>state</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDevice.from_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDevice.from_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.PersonalDevice.to_state">
+<code class="descname">to_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDevice.to_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDevice.to_state" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
 <dt id="pmatic.residents.PersonalDevice.update_presence">
 <code class="descname">update_presence</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDevice.update_presence"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDevice.update_presence" title="Permalink to this definition">¶</a></dt>
 <dd><p>Can be overridden by specific personal device classes to update the
@@ -383,7 +417,7 @@ information of this device.</p>
 <dl class="class">
 <dt id="pmatic.residents.PersonalDeviceFritzBoxHost">
 <em class="property">class </em><code class="descclassname">pmatic.residents.</code><code class="descname">PersonalDeviceFritzBoxHost</code><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDeviceFritzBoxHost"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pmatic.residents.PersonalDevice" title="pmatic.residents.PersonalDevice"><code class="xref py py-class docutils literal"><span class="pre">pmatic.residents.PersonalDevice</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pmatic.residents.PersonalDevice" title="pmatic.residents.PersonalDevice"><code class="xref py py-class docutils literal"><span class="pre">pmatic.residents.PersonalDevice</span></code></a>, <code class="xref py py-class docutils literal"><span class="pre">pmatic.utils.LogMixin</span></code></p>
 <dl class="attribute">
 <dt id="pmatic.residents.PersonalDeviceFritzBoxHost.type_name">
 <code class="descname">type_name</code><em class="property"> = u'fritz_box_host'</em><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost.type_name" title="Permalink to this definition">¶</a></dt>
@@ -415,6 +449,12 @@ information of this device.</p>
 <code class="descname">to_config</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDeviceFritzBoxHost.to_config"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost.to_config" title="Permalink to this definition">¶</a></dt>
 <dd><p>Creates a dictionary which can be persisted and later loaded with <code class="xref py py-meth docutils literal"><span class="pre">from_config()</span></code>
 to reconstruct this object again.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.residents.PersonalDeviceFritzBoxHost.to_state">
+<code class="descname">to_state</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/residents.html#PersonalDeviceFritzBoxHost.to_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.residents.PersonalDeviceFritzBoxHost.to_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the variable aspects of this object which can change during runtime.</p>
 </dd></dl>
 
 <dl class="method">

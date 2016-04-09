@@ -80,6 +80,7 @@
 
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">requests.exceptions</span>
 
 <span class="kn">import</span> <span class="nn">pmatic.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
 <span class="kn">from</span> <span class="nn">pmatic.exceptions</span> <span class="kn">import</span> <span class="n">PMUserError</span><span class="p">,</span> <span class="n">PMException</span>
@@ -119,9 +120,22 @@
 <span class="sd">        afterwards and handed over to :meth:`from_config` to reconstruct the</span>
 <span class="sd">        current Residents object.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;next_resident_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_resident_id</span><span class="p">,</span>
-            <span class="s2">&quot;residents&quot;</span><span class="p">:</span> <span class="p">[</span> <span class="n">p</span><span class="o">.</span><span class="n">to_config</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">residents</span> <span class="p">],</span>
+            <span class="s2">&quot;next_resident_id&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_next_resident_id</span><span class="p">,</span>
+            <span class="s2">&quot;residents&quot;</span>        <span class="p">:</span> <span class="p">[</span> <span class="n">p</span><span class="o">.</span><span class="n">to_config</span><span class="p">()</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">residents</span> <span class="p">],</span>
         <span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="Residents.from_state"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Residents.from_state">[docs]</a>    <span class="k">def</span> <span class="nf">from_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Updates the variable state data which can change during runtime on the</span>
+<span class="sd">        current resident object.&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">resident</span><span class="p">,</span> <span class="n">resident_state</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">residents</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+            <span class="n">resident</span><span class="o">.</span><span class="n">from_state</span><span class="p">(</span><span class="n">resident_state</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Residents.to_state"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Residents.to_state">[docs]</a>    <span class="k">def</span> <span class="nf">to_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns a list of resident states. Each entry represents the state of</span>
+<span class="sd">        a configured resident gathered with :meth:`Resident.to_state`.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span> <span class="n">r</span><span class="o">.</span><span class="n">to_state</span><span class="p">()</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">residents</span> <span class="p">]</span></div>
 
 
     <span class="nd">@property</span>
@@ -319,6 +333,24 @@
         <span class="p">}</span></div>
 
 
+<div class="viewcode-block" id="Resident.from_state"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Resident.from_state">[docs]</a>    <span class="k">def</span> <span class="nf">from_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_presence_updated</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;presence_updated&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_presence_changed</span> <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;presence_changed&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_present</span>          <span class="o">=</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;present&quot;</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">device</span><span class="p">,</span> <span class="n">device_state</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">devices</span><span class="p">,</span> <span class="n">state</span><span class="p">[</span><span class="s2">&quot;devices&quot;</span><span class="p">]):</span>
+            <span class="n">device</span><span class="o">.</span><span class="n">from_state</span><span class="p">(</span><span class="n">device_state</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Resident.to_state"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Resident.to_state">[docs]</a>    <span class="k">def</span> <span class="nf">to_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;presence_updated&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_presence_updated</span><span class="p">,</span>
+            <span class="s2">&quot;presence_changed&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_presence_changed</span><span class="p">,</span>
+            <span class="s2">&quot;present&quot;</span>          <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_present</span><span class="p">,</span>
+            <span class="s2">&quot;devices&quot;</span>          <span class="p">:</span> <span class="p">[</span> <span class="n">d</span><span class="o">.</span><span class="n">to_state</span><span class="p">()</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">devices</span> <span class="p">],</span>
+        <span class="p">}</span></div>
+
+
 <div class="viewcode-block" id="Resident.add_device"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Resident.add_device">[docs]</a>    <span class="k">def</span> <span class="nf">add_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Adds a :class:`PersonalDevice` object to the resident. Please note that</span>
 <span class="sd">        you need to use a specific class inherited from :class:`PersonalDevice`,</span>
@@ -419,6 +451,18 @@
         <span class="p">}</span></div>
 
 
+<div class="viewcode-block" id="PersonalDevice.from_state"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.PersonalDevice.from_state">[docs]</a>    <span class="k">def</span> <span class="nf">from_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PersonalDevice.to_state"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.PersonalDevice.to_state">[docs]</a>    <span class="k">def</span> <span class="nf">to_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;active&quot;</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_active</span><span class="p">,</span>
+            <span class="s2">&quot;name&quot;</span>   <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_name</span><span class="p">,</span>
+        <span class="p">}</span></div>
+
+
 <div class="viewcode-block" id="PersonalDevice.update_presence"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.PersonalDevice.update_presence">[docs]</a>    <span class="k">def</span> <span class="nf">update_presence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Can be overridden by specific personal device classes to update the</span>
 <span class="sd">        information of this device.&quot;&quot;&quot;</span>
@@ -438,7 +482,7 @@
 
 
 
-<div class="viewcode-block" id="PersonalDeviceFritzBoxHost"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.PersonalDeviceFritzBoxHost">[docs]</a><span class="k">class</span> <span class="nc">PersonalDeviceFritzBoxHost</span><span class="p">(</span><span class="n">PersonalDevice</span><span class="p">):</span>
+<div class="viewcode-block" id="PersonalDeviceFritzBoxHost"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.PersonalDeviceFritzBoxHost">[docs]</a><span class="k">class</span> <span class="nc">PersonalDeviceFritzBoxHost</span><span class="p">(</span><span class="n">PersonalDevice</span><span class="p">,</span> <span class="n">utils</span><span class="o">.</span><span class="n">LogMixin</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;fritz_box_host&quot;</span>
     <span class="n">type_title</span> <span class="o">=</span> <span class="s2">&quot;fritz!Box Host&quot;</span>
 
@@ -506,6 +550,13 @@
         <span class="k">return</span> <span class="n">cfg</span></div>
 
 
+<div class="viewcode-block" id="PersonalDeviceFritzBoxHost.to_state"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.PersonalDeviceFritzBoxHost.to_state">[docs]</a>    <span class="k">def</span> <span class="nf">to_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the variable aspects of this object which can change during runtime.&quot;&quot;&quot;</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">PersonalDeviceFritzBoxHost</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">to_state</span><span class="p">()</span>
+        <span class="n">state</span><span class="p">[</span><span class="s2">&quot;ipaddress&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ip_address</span>
+        <span class="k">return</span> <span class="n">state</span></div>
+
+
 <div class="viewcode-block" id="PersonalDeviceFritzBoxHost.update_presence"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.PersonalDeviceFritzBoxHost.update_presence">[docs]</a>    <span class="k">def</span> <span class="nf">update_presence</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Update the presence information of this device.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_host_info</span><span class="p">()</span></div>
@@ -521,6 +572,10 @@
                 <span class="k">return</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span>
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Failed to update the host info: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Traceback:&quot;</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+            <span class="k">return</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_ip_address</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">ipaddress</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_name</span>       <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">hostname</span>
