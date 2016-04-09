@@ -91,7 +91,7 @@ class Config(utils.LogMixin):
     ccu_address     = None
     ccu_credentials = None
 
-    log_level = None
+    log_level = "INFO"
     log_file  = "/var/log/pmatic-manager.log"
 
     event_history_length     = 1000
@@ -2031,7 +2031,10 @@ class PageState(PageHandler, Html, utils.LogMixin):
         self.write("<td class=\"%s\">%s" % (cls, text))
         self.write("</td></tr>")
 
-        devices = self._manager.ccu.devices
+        if self._manager.ccu.api.initialized:
+            devices = self._manager.ccu.devices
+        else:
+            devices = []
         self.write("<tr><th>Number of Devices</th>")
         self.write("<td>%s</td></tr>" % len(devices))
 
