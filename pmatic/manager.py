@@ -1712,7 +1712,7 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
             raise PMUserError("The configured script does not exist.")
 
         schedule.execute()
-
+        self._manager.scheduler.save_state()
         self.success("The schedule has been started.")
 
 
