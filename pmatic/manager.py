@@ -1237,6 +1237,7 @@ class PageResidents(PageHandler, Html, utils.LogMixin):
 
 
     def process(self):
+        self.ensure_password_is_set()
         self.h2("Residents & Presence detection")
         self.p("This page lets you either configure your residents and the presence detection "
                "of them. Once configured and detected you can make your schedules execute "
@@ -1716,6 +1717,7 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
 
 
     def process(self):
+        self.ensure_password_is_set()
         self.h2("Schedule your pmatic Scripts")
         self.p("This page shows you all currently existing script schedules. A schedule controls "
                "in which situations a script is being executed.")
@@ -1843,6 +1845,7 @@ class PageEditSchedule(PageHandler, Html, utils.LogMixin):
 
 
     def action(self):
+        self.ensure_password_is_set()
         schedule = self._get_schedule()
         self._set_submitted_vars(schedule, submit=True)
         schedule.save()
@@ -1855,6 +1858,7 @@ class PageEditSchedule(PageHandler, Html, utils.LogMixin):
 
 
     def process(self):
+        self.ensure_password_is_set()
         self.h2(self.title())
 
         mode = self._get_mode()
@@ -2206,7 +2210,8 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
             # Make the ccu object available globally so that the __new__ method
             # of the CCU class can use and return this instead of creating a new
             # CCU object within the pmatic scripts.
-            builtins.manager_ccu = self._manager.ccu
+            if self._manager.ccu:
+                builtins.manager_ccu = self._manager.ccu
 
             # Catch stdout and stderr of the executed python script and write
             # it to the same StringIO() object.
@@ -2314,16 +2319,16 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
             self.ccu.close()
             self.ccu = None
 
-        if Config.ccu_enabled:
-            self.logger.info("Initializing connection with CCU...")
-            try:
-                self.ccu = pmatic.CCU(address=Config.ccu_address,
-                                  credentials=Config.ccu_credentials)
-            except PMException as e:
-                self.logger.error("Failed to initialize CCU connection: %s", e)
-                return
-        else:
+        if not Config.ccu_enabled:
             self.logger.info("Connection with CCU is disabled")
+            return
+
+        self.logger.info("Initializing connection with CCU...")
+        try:
+            self.ccu = pmatic.CCU(address=Config.ccu_address,
+                              credentials=Config.ccu_credentials)
+        except PMException as e:
+            self.logger.error("Failed to initialize CCU connection: %s", e)
             return
 
         self._patch_manager_residents()

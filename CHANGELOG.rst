@@ -10,6 +10,7 @@ Manager
 * Resident and schedule states are now persisted between manager restarts. Please note
   that the current default state directory is ``/var/lib/pmatic`` which is not reboot
   persistant on the CCU. So the resident and schedule states will be reset on reboot.
+* Schedule/Resident pages can now only be accessed after setting the manager password.
 * FIX: Fixed custom config via command line not setting new defaults for the argument parsing
   (e.g. ccu_enabled could not be changed to ``False`` using a config file provided by (``-o``).
 * FIX: Fixed startup error when connection to CCU is not possible

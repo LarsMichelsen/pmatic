@@ -36,6 +36,7 @@ except ImportError:
     # Python 3+
     import builtins
 
+import os
 import re
 import sys
 import json
