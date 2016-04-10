@@ -3170,6 +3170,8 @@ class ConditionOnDeviceEvent(Condition, utils.LogMixin):
             self.param   = list(self.channel.values.values())[0]
             return
 
+        self._loaded = True
+
         if device_address:
             self.device = self._manager.ccu.devices.query(
                                 device_address=device_address).get(device_address)
