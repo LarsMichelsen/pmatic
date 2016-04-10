@@ -4,7 +4,7 @@ Fixes:
   * ConditionOnDeviceEvent implement to_state()
 
 Todos:
-* Reboot peristent state_dir?
+* Change names of specific devices to use underscores
 * Create test for ChannelMaintenance.maintenance_state
 * Manager:
   * persist things to keep them during restarts
@@ -14,6 +14,7 @@ Todos:
   * Tests for the manager
   * Events: Close on shutdown when registered?
   * Make editing of scheules only possible when not currently running?
+  * Reboot peristent state_dir?
 * Residents / presence:
   * Add resident arrive / leave as event to the event log
 * Cleanup: set_submitted_vars() shows: Cleanup access to channel by address to

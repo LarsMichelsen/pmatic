@@ -8,6 +8,7 @@ General
 ```````
 
 * The local/remote detection (``utils.is_ccu()``) is now detecting "local" mode on LXCCU
+* Added specific device object for HM-WDS10-TH-O
 
 Manager
 ```````

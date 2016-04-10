@@ -604,6 +604,8 @@ class ChannelConditionFrequency(Channel):
 
 
 # FIXME: To be implemented.
+# Devices:
+#   HM-WDS10-TH-O
 class ChannelWeather(Channel):
     type_name = "WEATHER"
 
@@ -1130,7 +1132,6 @@ class Device(Entity):
 class HMCCRTDN(Device):
     type_name = "HM-CC-RT-DN"
 
-
     @property
     def temperature(self):
         """Provides the current temperature.
@@ -1269,9 +1270,33 @@ class HMCCRTDN(Device):
 
 
 
+# Funk-Temperatur-/Luftfeuchtesensor OTH
+class HM_WDS10_TH_O(Device):
+    type_name = "HM-WDS10-TH-O"
+
+    @property
+    def temperature(self):
+        """Provides the current temperature.
+
+        Returns an instance of :class:`ParameterFLOAT`.
+        """
+        return self.channels[1].values["TEMPERATURE"]
+
+
+    @property
+    def humidity(self):
+        """Provides the current humidity.
+
+        Returns an instance of :class:`ParameterFLOAT`.
+        """
+        return self.channels[1].values["HUMIDITY"]
+
+
+
 # Virtuelle Fernbedienung der CCU
 class HMRCV50(Device):
     type_name = "HM-RCV-50"
+
 
 
 # Funk-Tür-/ Fensterkontakt
