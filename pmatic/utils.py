@@ -247,7 +247,17 @@ def fmt_percentage_int(perc):
 
 def is_ccu():
     """Returns True when executed on a CCU device. Otherwise False is being returned."""
-    return ".ccu" in platform.uname()[2]
+    if ".ccu" in platform.uname()[2]:
+        return True
+
+    try:
+        for line in open("/etc/os-release"):
+            if line == "NAME=Buildroot\n":
+                return True
+    except IOError:
+        pass
+
+    return False
 
 
 def is_manager_inline():

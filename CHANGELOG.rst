@@ -4,6 +4,11 @@ The pmatic Changelog
 Unreleased (Use snapshot builds to get these changes)
 -----------------------------------------------------
 
+General
+```````
+
+* The local/remote detection (``utils.is_ccu()``) is now detecting "local" mode on LXCCU
+
 Manager
 ```````
 

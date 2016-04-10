@@ -36,6 +36,11 @@ import sys
 import platform
 from pmatic import utils
 
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
+
 
 def test_is_string():
     assert utils.is_string("x")
@@ -125,6 +130,37 @@ def test_fmt_percentage_int():
 
 
 def test_is_ccu(monkeypatch):
+    def no_ccu_os_release(x):
+        return StringIO(
+            "PRETTY_NAME=\"Debian GNU/Linux 8 (jessie)\"\n"
+            "NAME=\"Debian GNU/Linux\"\n"
+            "VERSION_ID=\"8\"\n"
+            "VERSION=\"8 (jessie)\"\n"
+            "ID=debian\n"
+            "HOME_URL=\"http://www.debian.org/\"\n"
+            "SUPPORT_URL=\"http://www.debian.org/support/\"\n"
+            "BUG_REPORT_URL=\"https://bugs.debian.org/\"\n"
+        )
+
+    def ccu_os_release(x):
+        return StringIO(
+            "NAME=Buildroot\n"
+            "VERSION=2015.08.1\n"
+            "ID=buildroot\n"
+            "VERSION_ID=2015.08.1\n"
+            "PRETTY_NAME=\"Buildroot 2015.08.1\""
+        )
+
+    def no_os_release(x):
+        raise IOError("bla")
+
+    monkeypatch.setattr(builtins, "open", no_os_release)
+    monkeypatch.setattr(platform, "uname", lambda: (
+        'Linux', 'dev', '3.16.0-4-amd64',
+        '#1 SMP Debian 3.16.7-ckt9-3~deb8u1 (2015-04-24)', 'x86_64'))
+    assert utils.is_ccu() == False
+
+    monkeypatch.setattr(builtins, "open", no_ccu_os_release)
     monkeypatch.setattr(platform, "uname", lambda: (
         'Linux', 'dev', '3.16.0-4-amd64',
         '#1 SMP Debian 3.16.7-ckt9-3~deb8u1 (2015-04-24)', 'x86_64'))
@@ -141,6 +177,7 @@ def test_is_ccu(monkeypatch):
         'Intel64 Family 6 Model 15 Stepping 11, GenuineIntel'))
     assert utils.is_ccu() == False
 
+    monkeypatch.setattr(builtins, "open", ccu_os_release)
     monkeypatch.setattr(platform, "uname", lambda: (
         'Linux', 'ccu', '3.4.11.ccu2',
         '#1 PREEMPT Fri Oct 16 10:43:35 CEST 2015', 'armv5tejl'))
