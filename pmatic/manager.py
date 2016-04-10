@@ -892,11 +892,13 @@ class PageRun(PageHandler, AbstractScriptProgressPage, utils.LogMixin):
         if script not in self._manager.get_scripts():
             raise PMUserError("You have to select a valid script.")
 
+        run_inline = self.is_checked("run_inline")
+
         if self._is_running():
             raise PMUserError("There is another script running. Wait for it to complete "
                             "or stop it to be able to execute another script.")
 
-        self._execute_script(script)
+        self._execute_script(script, run_inline)
         self.success("The script has been started.")
 
 
@@ -918,15 +920,18 @@ class PageRun(PageHandler, AbstractScriptProgressPage, utils.LogMixin):
         self.write("<div class=\"execute_form\">\n")
         self.begin_form()
         self.write_text("Select the script: ")
-        self.select("script", sorted([ (s, s) for s in self._manager.get_scripts() ]))
+        self.select("script", sorted([ (s, s) for s in self._manager.get_scripts() ]),
+                    deflt=self._vars.getvalue("script"))
+        self.write_text("Run inline: ")
+        self.checkbox("run_inline", self.is_checked("run_inline"))
         self.submit("Run script", "run")
         self.end_form()
         self.write("</div>\n")
 
 
-    def _execute_script(self, script):
+    def _execute_script(self, script, run_inline):
         global g_runner
-        g_runner = ScriptRunner(self._manager, script)
+        g_runner = ScriptRunner(self._manager, script, run_inline=run_inline)
         g_runner.start()
 
 
