@@ -156,8 +156,8 @@ class TestRooms(lib.TestCCUClassWide):
 
 
     def test_ids(self, rooms):
-        for id in rooms.ids:
-            assert isinstance(id, int)
+        for room_id in rooms.ids:
+            assert isinstance(room_id, int)
 
         assert len(rooms.ids) > 0
         assert len(rooms.ids) == len(rooms)

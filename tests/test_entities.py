@@ -1047,13 +1047,13 @@ class TestHMCCRTDN(lib.TestCCUClassWide):
 
     def test_temperature(self, d):
         assert type(d.temperature) == ParameterFLOAT
-        assert type(d.temperature.value) == float
+        assert isinstance(d.temperature.value, float)
         assert utils.is_string("%s" % d.temperature)
 
 
     def test_set_temperature(self, d):
         assert type(d.set_temperature) == ParameterFLOAT
-        assert type(d.set_temperature.value) == float
+        assert isinstance(d.set_temperature.value, float)
         assert utils.is_string("%s" % d.set_temperature)
 
 

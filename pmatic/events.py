@@ -435,8 +435,8 @@ class EventHandler(utils.LogMixin, object):
             for key in d.keys():
                 val = d.pop(key)
                 if isinstance(val, list):
-                    for index in range(len(val)):
-                        val[index] = val[index].decode("utf-8")
+                    for index, item in enumerate(val):
+                        val[index] = item.decode("utf-8")
 
                 elif utils.is_byte_string(val):
                     val = val.decode("utf-8")

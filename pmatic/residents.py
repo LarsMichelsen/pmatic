@@ -177,8 +177,8 @@ class Resident(utils.LogMixin, utils.CallbackMixin):
 
 
     @id.setter
-    def id(self, id):
-        self._id = id
+    def id(self, val):
+        self._id = val
 
 
     @property
