@@ -36,6 +36,13 @@ from pmatic.exceptions import PMException, PMActionFailed
 
 
 class Parameter(utils.CallbackMixin):
+    """Parameters are the objects which are encapusaling the individual values of the channels
+    and devices.
+
+    The Parameter objects are assigned to channels by their names. Which subtype of the
+    :class:`Parameter` class is used for a particular value is determined by the type
+    specified by the CCU."""
+
     datatype = "string"
 
     _transform_attributes = {
@@ -110,18 +117,24 @@ class Parameter(utils.CallbackMixin):
 
     @property
     def name(self):
-        """Returns the formated name of this parameter. This name is generated from the *name*
+        """Provides the formated name of this parameter. This name is generated from the ``name``
         attribute provided by the CCU, but slightly adapted to look better for humans in texts.
+        All underscores are replaced with spaces and the name is formated as title.
 
-        All underscores are replaced with spaces and the name is formated as title."""
+        If you want to get the CCU internal name, use the attribute :attr:`internal_name`."""
         return self.internal_name.title().replace("_", " ")
 
 
     @property
     def value(self):
-        """Returns the current value of this parameter.
+        """The current value of this paramter.
 
-        It raises a PMException when the parameter can not be read."""
+        :getter: Provides the current value of this parameter as reported by the CCU.
+                 It raises a :class:`PMException` when the parameter can not be read.
+        :setter: Specify the new value. Returns a :class:`PMException` when the parameter
+                 can not be written or a validation error occurs. It sets the value on
+                 the CCU. In case this fails a :class:`PMActionFailed` exception is raised.
+        """
         if not self.readable:
             raise PMException("The value can not be read.")
         return self._value
@@ -147,6 +160,9 @@ class Parameter(utils.CallbackMixin):
 
 
     def set(self, value):
+        """Set a new value for this parameter. This is equal to setting the property :attr:`value`
+        with the difference that this method returns ``True`` on success and ``False`` when a
+        :class:`PMActionFailed` exception would be raised."""
         try:
             self.value = value
             return True
@@ -193,16 +209,17 @@ class Parameter(utils.CallbackMixin):
 
 
     def set_to_default(self):
+        """Sets the value to the default value (reported by the CCU)."""
         self.value = self.default
 
 
     @property
     def last_updated(self):
-        """Returns the unix time when the value has been updated the last time.
+        """Provides the unix time when the value has been updated the last time.
 
         This is measured since the creation of the object (startup of pmatic).
 
-        It raises a PMException when the parameter can not be read."""
+        It raises a :class:`PMException` when the parameter can not be read."""
         if not self.readable:
             raise PMException("The value can not be read.")
         return self._value_updated
@@ -210,11 +227,11 @@ class Parameter(utils.CallbackMixin):
 
     @property
     def last_changed(self):
-        """Returns the unix time when the value has been changed the last time.
+        """Provides the unix time when the value has been changed the last time.
 
         This is measured since the creation of the object (startup of pmatic).
 
-        It raises a PMException when the parameter can not be read."""
+        It raises a :class:`PMException` when the parameter can not be read."""
         if not self.readable:
             raise PMException("The value can not be read.")
         return self._value_changed
@@ -265,6 +282,7 @@ class Parameter(utils.CallbackMixin):
 
 
     def formated(self):
+        """Formats the current value in a *human readable* way. Whatever that means."""
         return self._formated()
 
 
@@ -288,6 +306,11 @@ class Parameter(utils.CallbackMixin):
     def __unicode__(self):
         """Returns the formated value as unicode string. Only relevant for Python 2."""
         return self.formated()
+
+
+
+class ParameterSTRING(Parameter):
+    pass
 
 
 
@@ -348,12 +371,9 @@ class ParameterINTEGER(ParameterNUMERIC):
 
 
     def formated(self):
+        """Formats the current value with a ``%d`` format and adds a unit if
+        there is a unit reported by the CCU."""
         return super(ParameterINTEGER, self)._formated("%d")
-
-
-
-class ParameterSTRING(Parameter):
-    pass
 
 
 
@@ -398,6 +418,8 @@ class ParameterFLOAT(ParameterNUMERIC):
 
 
     def formated(self):
+        """Formats the current value with a ``%0.2f`` format and adds a unit if
+        there is a unit reported by the CCU."""
         return super(ParameterFLOAT, self)._formated("%0.2f")
 
 
@@ -429,6 +451,11 @@ class ParameterBOOL(Parameter):
 
 
 
+class ParameterACTION(ParameterBOOL):
+    pass
+
+
+
 # 'control': u'NONE', 'operations': 5, 'name': u'ERROR', 'min': 0, 'default': 0, 'max': 4,
 # '_value': 0, 'tab_order': 1, 'value_list': u'NO_ERROR VALVE_DRIVE_BLOCKED
 # VALVE_DRIVE_LOOSE ADJUSTING_RANGE_TO_SMALL LOWBAT', 'flags': 9, 'unit': u'',
@@ -441,19 +468,16 @@ class ParameterENUM(ParameterINTEGER):
 
     @property
     def possible_values(self):
-        """ Returns a python list of possible values.
+        """Provides a python list of possible values.
 
         The indexes in this list represent the digit to be used as value."""
         return self.value_list
 
 
     def formated(self):
+        """Returns the textual representation of the current value as also found in the
+        list provided by the :attr:`possible_values` property."""
         return self.value_list[self.value]
-
-
-
-class ParameterACTION(ParameterBOOL):
-    pass
 
 
 
@@ -464,6 +488,9 @@ class ParameterACTION(ParameterBOOL):
 
 class ParameterControlMode(ParameterENUM):
     def formated(self):
+        """Returns the current control mode while it is converting the CCU internal
+        naming scheme to the pmatic ones. It replaces the ``-MODE`` suffix and changes
+        ``MANU`` to ``MANUAL``."""
         formated = super(ParameterControlMode, self).formated()
         formated = formated.replace("-MODE", "").replace("MANU", "MANUAL")
         return formated

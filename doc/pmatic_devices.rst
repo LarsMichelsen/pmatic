@@ -55,6 +55,15 @@ HMPBI4FM - HM-PBI-4-FM (Funk-Tasterschnittstelle 4-fach)
     :undoc-members:
     :exclude-members: type_name
 
+HM-WDS10-TH-O (Funk-Temperatur-/Luftfeuchtesensor OTH)
+--------------------------------------------------------
+
+.. autoclass:: pmatic.entities.HM_WDS10_TH_O
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
 The Channels
 ------------
 

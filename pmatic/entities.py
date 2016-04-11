@@ -1004,9 +1004,10 @@ class Device(Entity):
     def inhibit(self):
         """The actual inhibit state of the device.
 
-        :getter: Whether or not the device is currently locked, provided as :class:`ParameterBOOL`.
+        :getter: Whether or not the device is currently locked, provided as
+                 :class:`params.ParameterBOOL`.
         :setter: Specify the new inhibit state as boolean.
-        :type: ParameterBOOL/bool
+        :type: :class:`params.ParameterBOOL`/bool
         """
         return self.maintenance.values["INHIBIT"]
 

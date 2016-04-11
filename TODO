@@ -21,7 +21,6 @@ Todos:
   have an API equal to getting a device from devices or param from channel.
 * Docs:
   * pmatic.utils
-  * The parameter classes and parameter types
 * Improve error handling of TCL errors like in https://github.com/LarsMichelsen/pmatic/issues/7
 
 Optimizations:

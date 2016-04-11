@@ -24,6 +24,11 @@ Manager
 * FIX: Fixed error during saving of manager config/state files when base directory not
   exists. Trying to create the directory now.
 
+Documentation
+`````````````
+
+* Added missing documentation of Parameter classes
+
 Version 0.2 (2016-04-07)
 ------------------------
 
