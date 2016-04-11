@@ -1,0 +1,591 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>pmatic.params &mdash; pmatic 0.1 documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/sphinxcontrib-images/LightBox2/lightbox2/css/lightbox.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <script type="text/javascript" src="../../_static/sphinxcontrib-images/LightBox2/lightbox2/js/jquery-1.11.0.min.js"></script>
+    <script type="text/javascript" src="../../_static/sphinxcontrib-images/LightBox2/lightbox2/js/lightbox.min.js"></script>
+    <script type="text/javascript" src="../../_static/sphinxcontrib-images/LightBox2/lightbox2-customize/jquery-noconflict.js"></script>
+    <link rel="top" title="pmatic 0.1 documentation" href="../../index.html" />
+    <link rel="up" title="pmatic" href="../pmatic.html" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pmatic 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../pmatic.html" accesskey="U">pmatic</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pmatic.params</h1><div class="highlight"><pre>
+<span></span><span class="ch">#!/usr/bin/env python</span>
+<span class="c1"># encoding: utf-8</span>
+<span class="c1">#</span>
+<span class="c1"># pmatic - A simple API to to the Homematic CCU2</span>
+<span class="c1"># Copyright (C) 2016 Lars Michelsen &lt;lm@larsmichelsen.com&gt;</span>
+<span class="c1">#</span>
+<span class="c1"># This program is free software; you can redistribute it and/or modify</span>
+<span class="c1"># it under the terms of the GNU General Public License as published by</span>
+<span class="c1"># the Free Software Foundation; either version 2 of the License, or</span>
+<span class="c1"># (at your option) any later version.</span>
+<span class="c1">#</span>
+<span class="c1"># This program is distributed in the hope that it will be useful,</span>
+<span class="c1"># but WITHOUT ANY WARRANTY; without even the implied warranty of</span>
+<span class="c1"># MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the</span>
+<span class="c1"># GNU General Public License for more details.</span>
+<span class="c1">#</span>
+<span class="c1"># You should have received a copy of the GNU General Public License along</span>
+<span class="c1"># with this program; if not, write to the Free Software Foundation, Inc.,</span>
+<span class="c1"># 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.</span>
+
+<span class="c1"># Relevant docs:</span>
+<span class="c1"># - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_Script_Teil_4_Datenpunkte_1_503.pdf</span>
+<span class="c1"># - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_XmlRpc_V1_502__2_.pdf</span>
+
+<span class="c1"># Add Python 3.x behaviour to 2.7</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">pmatic.entities</span>
+<span class="kn">from</span> <span class="nn">pmatic</span> <span class="kn">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pmatic.exceptions</span> <span class="kn">import</span> <span class="n">PMException</span><span class="p">,</span> <span class="n">PMActionFailed</span>
+
+
+<div class="viewcode-block" id="Parameter"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.Parameter">[docs]</a><span class="k">class</span> <span class="nc">Parameter</span><span class="p">(</span><span class="n">utils</span><span class="o">.</span><span class="n">CallbackMixin</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Parameters are the objects which are encapusaling the individual values of the channels</span>
+<span class="sd">    and devices.</span>
+
+<span class="sd">    The Parameter objects are assigned to channels by their names. Which subtype of the</span>
+<span class="sd">    :class:`Parameter` class is used for a particular value is determined by the type</span>
+<span class="sd">    specified by the CCU.&quot;&quot;&quot;</span>
+
+    <span class="n">datatype</span> <span class="o">=</span> <span class="s2">&quot;string&quot;</span>
+
+    <span class="n">_transform_attributes</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># mask: 1=Read, 2=Write, 4=Event</span>
+        <span class="s1">&#39;OPERATIONS&#39;</span> <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="s1">&#39;TAB_ORDER&#39;</span>  <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="c1"># mask: 1=visible, 2=internal, 4=transform, 8=service, 10=sticky-service</span>
+        <span class="s1">&#39;FLAGS&#39;</span>      <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">channel</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">channel</span><span class="p">,</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">entities</span><span class="o">.</span><span class="n">Channel</span><span class="p">),</span> \
+                     <span class="s2">&quot;channel is not a Channel: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">channel</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spec</span><span class="p">,</span> <span class="nb">dict</span><span class="p">),</span> <span class="s2">&quot;spec is not a dictionary: </span><span class="si">%r</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">spec</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">Parameter</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channel</span> <span class="o">=</span> <span class="n">channel</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_attributes</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_init_callbacks</span><span class="p">([</span><span class="s2">&quot;value_updated&quot;</span><span class="p">,</span> <span class="s2">&quot;value_changed&quot;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value_updated</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value_changed</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span>
+
+
+    <span class="k">def</span> <span class="nf">_init_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">spec</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Optionally convert values using the given transform functions</span>
+            <span class="c1"># for the specific object type</span>
+            <span class="n">trans_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_transform_attributes</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">trans_func</span><span class="p">:</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">trans_func</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+
+            <span class="c1"># Change the CCU internal &quot;name&quot; to internal_name</span>
+            <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span>
+                <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;internal_name&quot;</span>
+
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="n">val</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_from_api_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transforms the value coming from the API to the pmatic internal format.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+
+    <span class="k">def</span> <span class="nf">_to_api_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transforms the pmatic internal value to API format.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">value</span>
+
+
+    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">readable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Whether or not this value can be read.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span> <span class="o">&amp;</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">writable</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Whether or not this value can be set.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span> <span class="o">&amp;</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">2</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">supports_events</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Whether or not this value supports events.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span> <span class="o">&amp;</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">4</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the formated name of this parameter. This name is generated from the ``name``</span>
+<span class="sd">        attribute provided by the CCU, but slightly adapted to look better for humans in texts.</span>
+<span class="sd">        All underscores are replaced with spaces and the name is formated as title.</span>
+
+<span class="sd">        If you want to get the CCU internal name, use the attribute :attr:`internal_name`.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">internal_name</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;The current value of this paramter.</span>
+
+<span class="sd">        :getter: Provides the current value of this parameter as reported by the CCU.</span>
+<span class="sd">                 It raises a :class:`PMException` when the parameter can not be read.</span>
+<span class="sd">        :setter: Specify the new value. Returns a :class:`PMException` when the parameter</span>
+<span class="sd">                 can not be written or a validation error occurs. It sets the value on</span>
+<span class="sd">                 the CCU. In case this fails a :class:`PMActionFailed` exception is raised.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">readable</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;The value can not be read.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+
+    <span class="nd">@value.setter</span>
+    <span class="k">def</span> <span class="nf">value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">writable</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;The value can not be changed.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">interface_set_value</span><span class="p">(</span>
+            <span class="n">interface</span><span class="o">=</span><span class="s2">&quot;BidCos-RF&quot;</span><span class="p">,</span>
+            <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">channel</span><span class="o">.</span><span class="n">address</span><span class="p">,</span>
+            <span class="n">valueKey</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">datatype</span><span class="p">,</span>
+            <span class="n">value</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_to_api_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMActionFailed</span><span class="p">(</span><span class="s2">&quot;Failed to set the value in CCU.&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Parameter.set"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.Parameter.set">[docs]</a>    <span class="k">def</span> <span class="nf">set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set a new value for this parameter. This is equal to setting the property :attr:`value`</span>
+<span class="sd">        with the difference that this method returns ``True`` on success and ``False`` when a</span>
+<span class="sd">        :class:`PMActionFailed` exception would be raised.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">except</span> <span class="n">PMActionFailed</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span></div>
+
+
+    <span class="k">def</span> <span class="nf">set_from_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;pmatic internal method to set the parameter value.</span>
+
+<span class="sd">        Users: Don&#39;t use this method!</span>
+
+<span class="sd">        This method is used to set the parameter internally when the current</span>
+<span class="sd">        value has been fetched from the API or received as event. Setting only</span>
+<span class="sd">        the internal value in this object.</span>
+
+<span class="sd">        This method returns *True* when the value has changed compared to the</span>
+<span class="sd">        current value and *False* if not.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_set_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_from_api_value</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+
+    <span class="k">def</span> <span class="nf">_set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Internal helper to set the value and trigger dependent things</span>
+
+<span class="sd">        This is the place to trigger all other things which should be executed</span>
+<span class="sd">        when a value is set.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">old_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value</span>
+
+        <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value_updated</span> <span class="o">=</span> <span class="n">now</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_value</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">old_value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_value_changed</span> <span class="o">=</span> <span class="n">now</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="s2">&quot;value_updated&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">value</span> <span class="o">!=</span> <span class="n">old_value</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_callback</span><span class="p">(</span><span class="s2">&quot;value_changed&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">False</span>
+
+
+<div class="viewcode-block" id="Parameter.set_to_default"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.Parameter.set_to_default">[docs]</a>    <span class="k">def</span> <span class="nf">set_to_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sets the value to the default value (reported by the CCU).&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">default</span></div>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">last_updated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the unix time when the value has been updated the last time.</span>
+
+<span class="sd">        This is measured since the creation of the object (startup of pmatic).</span>
+
+<span class="sd">        It raises a :class:`PMException` when the parameter can not be read.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">readable</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;The value can not be read.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_updated</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">last_changed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the unix time when the value has been changed the last time.</span>
+
+<span class="sd">        This is measured since the creation of the object (startup of pmatic).</span>
+
+<span class="sd">        It raises a :class:`PMException` when the parameter can not be read.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">readable</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;The value can not be read.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_value_changed</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_visible_to_user</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Whether or not this parameter should be visible to the end-user.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="mi">1</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_internal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Whether or not this parameter is an internal flag.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="mi">2</span> <span class="o">==</span> <span class="mi">2</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_transformer</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Whether or not modifying this parameter changes behaviour of this channel.</span>
+
+<span class="sd">        Can only be changed when no links are configured for this channel.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="mi">4</span> <span class="o">==</span> <span class="mi">4</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_service</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Whether or not a maintenance message is available.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="mi">8</span> <span class="o">==</span> <span class="mi">8</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_service_sticky</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Whether or not there is a sticky maintenance message.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">flags</span> <span class="o">&amp;</span> <span class="mi">16</span> <span class="o">==</span> <span class="mi">16</span>
+
+
+    <span class="k">def</span> <span class="nf">_formated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value_format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">readable</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;[NOT READABLE]&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span> <span class="o">==</span> <span class="s2">&quot;%&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">value_format</span><span class="o">+</span><span class="s2">&quot;</span><span class="si">%%</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">value_format</span><span class="o">+</span><span class="s2">&quot; </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">unit</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value_format</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span>
+
+
+<div class="viewcode-block" id="Parameter.formated"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.Parameter.formated">[docs]</a>    <span class="k">def</span> <span class="nf">formated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Formats the current value in a *human readable* way. Whatever that means.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_formated</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Parameter.__str__"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.Parameter.__str__">[docs]</a>    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the formated value. Data type differs depending on Python version.</span>
+
+<span class="sd">        In Python 2 it returns an UTF-8 encoded string.</span>
+<span class="sd">        In Python 3+ it returns a unicode string of type str.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_py2</span><span class="p">():</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formated</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formated</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Parameter.__bytes__"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.Parameter.__bytes__">[docs]</a>    <span class="k">def</span> <span class="nf">__bytes__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the formated value UTF-8 encoded. Only relevant for Python 3.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formated</span><span class="p">()</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Parameter.__unicode__"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.Parameter.__unicode__">[docs]</a>    <span class="k">def</span> <span class="nf">__unicode__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the formated value as unicode string. Only relevant for Python 2.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">formated</span><span class="p">()</span></div></div>
+
+
+
+<div class="viewcode-block" id="ParameterSTRING"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterSTRING">[docs]</a><span class="k">class</span> <span class="nc">ParameterSTRING</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<div class="viewcode-block" id="ParameterNUMERIC"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterNUMERIC">[docs]</a><span class="k">class</span> <span class="nc">ParameterNUMERIC</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+<div class="viewcode-block" id="ParameterNUMERIC.__eq__"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterNUMERIC.__eq__">[docs]</a>    <span class="k">def</span> <span class="nf">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="n">other</span></div>
+
+
+<div class="viewcode-block" id="ParameterNUMERIC.__ne__"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterNUMERIC.__ne__">[docs]</a>    <span class="k">def</span> <span class="nf">__ne__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">!=</span> <span class="n">other</span></div>
+
+
+<div class="viewcode-block" id="ParameterNUMERIC.__gt__"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterNUMERIC.__gt__">[docs]</a>    <span class="k">def</span> <span class="nf">__gt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;</span> <span class="n">other</span></div>
+
+
+<div class="viewcode-block" id="ParameterNUMERIC.__lt__"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterNUMERIC.__lt__">[docs]</a>    <span class="k">def</span> <span class="nf">__lt__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;</span> <span class="n">other</span></div>
+
+
+<div class="viewcode-block" id="ParameterNUMERIC.__ge__"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterNUMERIC.__ge__">[docs]</a>    <span class="k">def</span> <span class="nf">__ge__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&gt;=</span> <span class="n">other</span></div>
+
+
+<div class="viewcode-block" id="ParameterNUMERIC.__le__"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterNUMERIC.__le__">[docs]</a>    <span class="k">def</span> <span class="nf">__le__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value</span> <span class="o">&lt;=</span> <span class="n">other</span></div></div>
+
+
+
+<div class="viewcode-block" id="ParameterINTEGER"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterINTEGER">[docs]</a><span class="k">class</span> <span class="nc">ParameterINTEGER</span><span class="p">(</span><span class="n">ParameterNUMERIC</span><span class="p">):</span>
+    <span class="n">datatype</span> <span class="o">=</span> <span class="s2">&quot;integer&quot;</span>
+
+    <span class="n">_transform_attributes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">Parameter</span><span class="o">.</span><span class="n">_transform_attributes</span><span class="p">,</span>
+        <span class="n">DEFAULT</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">MAX</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">MIN</span><span class="o">=</span><span class="nb">int</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_from_api_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_to_api_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">value</span>
+
+
+    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Invalid type. You need to provide an integer value.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Invalid value (Exceeds maximum of </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Invalid value (Exceeds minimum of </span><span class="si">%d</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">True</span>
+
+
+<div class="viewcode-block" id="ParameterINTEGER.formated"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterINTEGER.formated">[docs]</a>    <span class="k">def</span> <span class="nf">formated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Formats the current value with a ``%d`` format and adds a unit if</span>
+<span class="sd">        there is a unit reported by the CCU.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ParameterINTEGER</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_formated</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+
+
+
+<div class="viewcode-block" id="ParameterFLOAT"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterFLOAT">[docs]</a><span class="k">class</span> <span class="nc">ParameterFLOAT</span><span class="p">(</span><span class="n">ParameterNUMERIC</span><span class="p">):</span>
+    <span class="c1"># type to submit to CCU when setting this value. This has to be string. Strange.</span>
+    <span class="n">datatype</span> <span class="o">=</span> <span class="s2">&quot;string&quot;</span>
+
+    <span class="n">_transform_attributes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">Parameter</span><span class="o">.</span><span class="n">_transform_attributes</span><span class="p">,</span>
+        <span class="n">DEFAULT</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">MAX</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">MIN</span><span class="o">=</span><span class="nb">float</span>
+    <span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_from_api_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+
+    <span class="k">def</span> <span class="nf">_to_api_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Transforms the float value to an API value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="si">%0.6f</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">value</span>
+
+
+    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Invalid type. You need to provide a float value.&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Invalid value (Exceeds maximum of </span><span class="si">%0.2f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">max</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Invalid value (Exceeds minimum of </span><span class="si">%0.2f</span><span class="s2">)&quot;</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">min</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">True</span>
+
+
+    <span class="k">def</span> <span class="nf">_set_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setter to update the internal data structures. Allows integer, converts</span>
+<span class="sd">        them to float.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ParameterFLOAT</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_set_value</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">))</span>
+
+
+
+<div class="viewcode-block" id="ParameterFLOAT.formated"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterFLOAT.formated">[docs]</a>    <span class="k">def</span> <span class="nf">formated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Formats the current value with a ``%0.2f`` format and adds a unit if</span>
+<span class="sd">        there is a unit reported by the CCU.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">ParameterFLOAT</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_formated</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%0.2f</span><span class="s2">&quot;</span><span class="p">)</span></div></div>
+
+
+
+<div class="viewcode-block" id="ParameterBOOL"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterBOOL">[docs]</a><span class="k">class</span> <span class="nc">ParameterBOOL</span><span class="p">(</span><span class="n">Parameter</span><span class="p">):</span>
+    <span class="n">datatype</span> <span class="o">=</span> <span class="s2">&quot;boolean&quot;</span>
+
+    <span class="n">_transform_attributes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">Parameter</span><span class="o">.</span><span class="n">_transform_attributes</span><span class="p">,</span>
+        <span class="n">DEFAULT</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)),</span>
+        <span class="n">MAX</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)),</span>
+        <span class="n">MIN</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">v</span><span class="p">)),</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_from_api_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; &quot;1&quot; comes from JSON API and True from XML-RPC. Later one would not need</span>
+<span class="sd">        this transform method.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="ow">in</span> <span class="p">[</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="bp">True</span> <span class="p">]</span>
+
+
+    <span class="k">def</span> <span class="nf">_to_api_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span> <span class="ow">and</span> <span class="s2">&quot;true&quot;</span> <span class="ow">or</span> <span class="s2">&quot;false&quot;</span>
+
+
+    <span class="k">def</span> <span class="nf">_validate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">bool</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">PMException</span><span class="p">(</span><span class="s2">&quot;Invalid type. You need to provide a bool value.&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">True</span></div>
+
+
+
+<div class="viewcode-block" id="ParameterACTION"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterACTION">[docs]</a><span class="k">class</span> <span class="nc">ParameterACTION</span><span class="p">(</span><span class="n">ParameterBOOL</span><span class="p">):</span>
+    <span class="k">pass</span></div>
+
+
+
+<span class="c1"># &#39;control&#39;: u&#39;NONE&#39;, &#39;operations&#39;: 5, &#39;name&#39;: u&#39;ERROR&#39;, &#39;min&#39;: 0, &#39;default&#39;: 0, &#39;max&#39;: 4,</span>
+<span class="c1"># &#39;_value&#39;: 0, &#39;tab_order&#39;: 1, &#39;value_list&#39;: u&#39;NO_ERROR VALVE_DRIVE_BLOCKED</span>
+<span class="c1"># VALVE_DRIVE_LOOSE ADJUSTING_RANGE_TO_SMALL LOWBAT&#39;, &#39;flags&#39;: 9, &#39;unit&#39;: u&#39;&#39;,</span>
+<span class="c1"># &#39;type&#39;: u&#39;ENUM&#39;, &#39;id&#39;: u&#39;ERROR&#39;,</span>
+<span class="c1"># &#39;channel&#39;: &lt;pmatic.entities.ChannelClimaVentDrive object at 0x7fb7574b6750&gt;}</span>
+<div class="viewcode-block" id="ParameterENUM"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterENUM">[docs]</a><span class="k">class</span> <span class="nc">ParameterENUM</span><span class="p">(</span><span class="n">ParameterINTEGER</span><span class="p">):</span>
+    <span class="n">_transform_attributes</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">ParameterINTEGER</span><span class="o">.</span><span class="n">_transform_attributes</span><span class="p">,</span>
+        <span class="n">VALUE_LIST</span><span class="o">=</span><span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">possible_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides a python list of possible values.</span>
+
+<span class="sd">        The indexes in this list represent the digit to be used as value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_list</span>
+
+
+<div class="viewcode-block" id="ParameterENUM.formated"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterENUM.formated">[docs]</a>    <span class="k">def</span> <span class="nf">formated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the textual representation of the current value as also found in the</span>
+<span class="sd">        list provided by the :attr:`possible_values` property.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">value_list</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">value</span><span class="p">]</span></div></div>
+
+
+
+<span class="c1">#</span>
+<span class="c1"># DEVICE SPECIFIC PARAMETERS</span>
+<span class="c1">#</span>
+
+
+<div class="viewcode-block" id="ParameterControlMode"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterControlMode">[docs]</a><span class="k">class</span> <span class="nc">ParameterControlMode</span><span class="p">(</span><span class="n">ParameterENUM</span><span class="p">):</span>
+<div class="viewcode-block" id="ParameterControlMode.formated"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.params.ParameterControlMode.formated">[docs]</a>    <span class="k">def</span> <span class="nf">formated</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Returns the current control mode while it is converting the CCU internal</span>
+<span class="sd">        naming scheme to the pmatic ones. It replaces the ``-MODE`` suffix and changes</span>
+<span class="sd">        ``MANU`` to ``MANUAL``.&quot;&quot;&quot;</span>
+        <span class="n">formated</span> <span class="o">=</span> <span class="nb">super</span><span class="p">(</span><span class="n">ParameterControlMode</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">formated</span><span class="p">()</span>
+        <span class="n">formated</span> <span class="o">=</span> <span class="n">formated</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-MODE&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;MANU&quot;</span><span class="p">,</span> <span class="s2">&quot;MANUAL&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">formated</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="../../index.html">pmatic 0.1 documentation</a> &raquo;</li>
+          <li class="nav-item nav-item-1"><a href="../index.html" >Module code</a> &raquo;</li>
+          <li class="nav-item nav-item-2"><a href="../pmatic.html" >pmatic</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &copy; Copyright 2016, Lars Michelsen.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.
+    </div>
+  </body>
+</html>

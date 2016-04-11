@@ -382,11 +382,12 @@ Otherwise it is <code class="docutils literal"><span class="pre">False</span></c
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Getter:</th><td class="field-body">Whether or not the device is currently locked, provided as <code class="xref py py-class docutils literal"><span class="pre">ParameterBOOL</span></code>.</td>
+<tr class="field-odd field"><th class="field-name">Getter:</th><td class="field-body">Whether or not the device is currently locked, provided as
+<a class="reference internal" href="#pmatic.params.ParameterBOOL" title="pmatic.params.ParameterBOOL"><code class="xref py py-class docutils literal"><span class="pre">params.ParameterBOOL</span></code></a>.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Setter:</th><td class="field-body">Specify the new inhibit state as boolean.</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">ParameterBOOL/bool</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#pmatic.params.ParameterBOOL" title="pmatic.params.ParameterBOOL"><code class="xref py py-class docutils literal"><span class="pre">params.ParameterBOOL</span></code></a>/bool</td>
 </tr>
 </tbody>
 </table>
@@ -448,7 +449,7 @@ The dictionary uses the index of the channel (the channel id) as key for entries
 <code class="descname">values</code><a class="headerlink" href="#pmatic.entities.Channel.values" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides access to all value objects of this channel.</p>
 <p>The values are provided as dictionary where the name of the parameter is used as key
-and some kind of specific <code class="xref py py-class docutils literal"><span class="pre">params.Parameter</span></code> instance is the value.</p>
+and some kind of specific <a class="reference internal" href="#pmatic.params.Parameter" title="pmatic.params.Parameter"><code class="xref py py-class docutils literal"><span class="pre">params.Parameter</span></code></a> instance is the value.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -693,6 +694,314 @@ is still alive or <code class="docutils literal"><span class="pre">False</span><
 </dd></dl>
 
 </div>
+<div class="section" id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="parameter">
+<h3>Parameter<a class="headerlink" href="#parameter" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.params.Parameter">
+<em class="property">class </em><code class="descclassname">pmatic.params.</code><code class="descname">Parameter</code><span class="sig-paren">(</span><em>channel</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#Parameter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.Parameter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">pmatic.utils.CallbackMixin</span></code></p>
+<p>Parameters are the objects which are encapusaling the individual values of the channels
+and devices.</p>
+<p>The Parameter objects are assigned to channels by their names. Which subtype of the
+<code class="xref py py-class docutils literal"><span class="pre">Parameter</span></code> class is used for a particular value is determined by the type
+specified by the CCU.</p>
+<dl class="attribute">
+<dt id="pmatic.params.Parameter.datatype">
+<code class="descname">datatype</code><em class="property"> = u'string'</em><a class="headerlink" href="#pmatic.params.Parameter.datatype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.params.Parameter.readable">
+<code class="descname">readable</code><a class="headerlink" href="#pmatic.params.Parameter.readable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether or not this value can be read.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.params.Parameter.writable">
+<code class="descname">writable</code><a class="headerlink" href="#pmatic.params.Parameter.writable" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether or not this value can be set.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.params.Parameter.supports_events">
+<code class="descname">supports_events</code><a class="headerlink" href="#pmatic.params.Parameter.supports_events" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether or not this value supports events.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.params.Parameter.name">
+<code class="descname">name</code><a class="headerlink" href="#pmatic.params.Parameter.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the formated name of this parameter. This name is generated from the <code class="docutils literal"><span class="pre">name</span></code>
+attribute provided by the CCU, but slightly adapted to look better for humans in texts.
+All underscores are replaced with spaces and the name is formated as title.</p>
+<p>If you want to get the CCU internal name, use the attribute <code class="xref py py-attr docutils literal"><span class="pre">internal_name</span></code>.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.params.Parameter.value">
+<code class="descname">value</code><a class="headerlink" href="#pmatic.params.Parameter.value" title="Permalink to this definition">¶</a></dt>
+<dd><p>The current value of this paramter.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Getter:</th><td class="field-body">Provides the current value of this parameter as reported by the CCU.
+It raises a <a class="reference internal" href="#pmatic.PMException" title="pmatic.PMException"><code class="xref py py-class docutils literal"><span class="pre">PMException</span></code></a> when the parameter can not be read.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Setter:</th><td class="field-body">Specify the new value. Returns a <a class="reference internal" href="#pmatic.PMException" title="pmatic.PMException"><code class="xref py py-class docutils literal"><span class="pre">PMException</span></code></a> when the parameter
+can not be written or a validation error occurs. It sets the value on
+the CCU. In case this fails a <a class="reference internal" href="#pmatic.PMActionFailed" title="pmatic.PMActionFailed"><code class="xref py py-class docutils literal"><span class="pre">PMActionFailed</span></code></a> exception is raised.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.params.Parameter.set">
+<code class="descname">set</code><span class="sig-paren">(</span><em>value</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#Parameter.set"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.Parameter.set" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set a new value for this parameter. This is equal to setting the property <code class="xref py py-attr docutils literal"><span class="pre">value</span></code>
+with the difference that this method returns <code class="docutils literal"><span class="pre">True</span></code> on success and <code class="docutils literal"><span class="pre">False</span></code> when a
+<a class="reference internal" href="#pmatic.PMActionFailed" title="pmatic.PMActionFailed"><code class="xref py py-class docutils literal"><span class="pre">PMActionFailed</span></code></a> exception would be raised.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.params.Parameter.set_to_default">
+<code class="descname">set_to_default</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#Parameter.set_to_default"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.Parameter.set_to_default" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sets the value to the default value (reported by the CCU).</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.params.Parameter.last_updated">
+<code class="descname">last_updated</code><a class="headerlink" href="#pmatic.params.Parameter.last_updated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the unix time when the value has been updated the last time.</p>
+<p>This is measured since the creation of the object (startup of pmatic).</p>
+<p>It raises a <a class="reference internal" href="#pmatic.PMException" title="pmatic.PMException"><code class="xref py py-class docutils literal"><span class="pre">PMException</span></code></a> when the parameter can not be read.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.params.Parameter.last_changed">
+<code class="descname">last_changed</code><a class="headerlink" href="#pmatic.params.Parameter.last_changed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the unix time when the value has been changed the last time.</p>
+<p>This is measured since the creation of the object (startup of pmatic).</p>
+<p>It raises a <a class="reference internal" href="#pmatic.PMException" title="pmatic.PMException"><code class="xref py py-class docutils literal"><span class="pre">PMException</span></code></a> when the parameter can not be read.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.params.Parameter.is_visible_to_user">
+<code class="descname">is_visible_to_user</code><a class="headerlink" href="#pmatic.params.Parameter.is_visible_to_user" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether or not this parameter should be visible to the end-user.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.params.Parameter.is_internal">
+<code class="descname">is_internal</code><a class="headerlink" href="#pmatic.params.Parameter.is_internal" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether or not this parameter is an internal flag.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.params.Parameter.is_transformer">
+<code class="descname">is_transformer</code><a class="headerlink" href="#pmatic.params.Parameter.is_transformer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether or not modifying this parameter changes behaviour of this channel.</p>
+<p>Can only be changed when no links are configured for this channel.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.params.Parameter.is_service">
+<code class="descname">is_service</code><a class="headerlink" href="#pmatic.params.Parameter.is_service" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether or not a maintenance message is available.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="pmatic.params.Parameter.is_service_sticky">
+<code class="descname">is_service_sticky</code><a class="headerlink" href="#pmatic.params.Parameter.is_service_sticky" title="Permalink to this definition">¶</a></dt>
+<dd><p>Whether or not there is a sticky maintenance message.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.params.Parameter.formated">
+<code class="descname">formated</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#Parameter.formated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.Parameter.formated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats the current value in a <em>human readable</em> way. Whatever that means.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.params.Parameter.__str__">
+<code class="descname">__str__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#Parameter.__str__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.Parameter.__str__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the formated value. Data type differs depending on Python version.</p>
+<p>In Python 2 it returns an UTF-8 encoded string.
+In Python 3+ it returns a unicode string of type str.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.params.Parameter.__bytes__">
+<code class="descname">__bytes__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#Parameter.__bytes__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.Parameter.__bytes__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the formated value UTF-8 encoded. Only relevant for Python 3.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.params.Parameter.__unicode__">
+<code class="descname">__unicode__</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#Parameter.__unicode__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.Parameter.__unicode__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the formated value as unicode string. Only relevant for Python 2.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="parameterstring">
+<h3>ParameterSTRING<a class="headerlink" href="#parameterstring" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.params.ParameterSTRING">
+<em class="property">class </em><code class="descclassname">pmatic.params.</code><code class="descname">ParameterSTRING</code><span class="sig-paren">(</span><em>channel</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterSTRING"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterSTRING" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pmatic.params.Parameter" title="pmatic.params.Parameter"><code class="xref py py-class docutils literal"><span class="pre">pmatic.params.Parameter</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="parameternumeric">
+<h3>ParameterNUMERIC<a class="headerlink" href="#parameternumeric" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.params.ParameterNUMERIC">
+<em class="property">class </em><code class="descclassname">pmatic.params.</code><code class="descname">ParameterNUMERIC</code><span class="sig-paren">(</span><em>channel</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterNUMERIC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterNUMERIC" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pmatic.params.Parameter" title="pmatic.params.Parameter"><code class="xref py py-class docutils literal"><span class="pre">pmatic.params.Parameter</span></code></a></p>
+<dl class="method">
+<dt id="pmatic.params.ParameterNUMERIC.__eq__">
+<code class="descname">__eq__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterNUMERIC.__eq__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterNUMERIC.__eq__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmatic.params.ParameterNUMERIC.__ne__">
+<code class="descname">__ne__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterNUMERIC.__ne__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterNUMERIC.__ne__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmatic.params.ParameterNUMERIC.__gt__">
+<code class="descname">__gt__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterNUMERIC.__gt__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterNUMERIC.__gt__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmatic.params.ParameterNUMERIC.__lt__">
+<code class="descname">__lt__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterNUMERIC.__lt__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterNUMERIC.__lt__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmatic.params.ParameterNUMERIC.__ge__">
+<code class="descname">__ge__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterNUMERIC.__ge__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterNUMERIC.__ge__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmatic.params.ParameterNUMERIC.__le__">
+<code class="descname">__le__</code><span class="sig-paren">(</span><em>other</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterNUMERIC.__le__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterNUMERIC.__le__" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="parameterinteger">
+<h3>ParameterINTEGER<a class="headerlink" href="#parameterinteger" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.params.ParameterINTEGER">
+<em class="property">class </em><code class="descclassname">pmatic.params.</code><code class="descname">ParameterINTEGER</code><span class="sig-paren">(</span><em>channel</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterINTEGER"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterINTEGER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pmatic.params.ParameterNUMERIC" title="pmatic.params.ParameterNUMERIC"><code class="xref py py-class docutils literal"><span class="pre">pmatic.params.ParameterNUMERIC</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.params.ParameterINTEGER.datatype">
+<code class="descname">datatype</code><em class="property"> = u'integer'</em><a class="headerlink" href="#pmatic.params.ParameterINTEGER.datatype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmatic.params.ParameterINTEGER.formated">
+<code class="descname">formated</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterINTEGER.formated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterINTEGER.formated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats the current value with a <code class="docutils literal"><span class="pre">%d</span></code> format and adds a unit if
+there is a unit reported by the CCU.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="parameterfloat">
+<h3>ParameterFLOAT<a class="headerlink" href="#parameterfloat" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.params.ParameterFLOAT">
+<em class="property">class </em><code class="descclassname">pmatic.params.</code><code class="descname">ParameterFLOAT</code><span class="sig-paren">(</span><em>channel</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterFLOAT"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterFLOAT" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pmatic.params.ParameterNUMERIC" title="pmatic.params.ParameterNUMERIC"><code class="xref py py-class docutils literal"><span class="pre">pmatic.params.ParameterNUMERIC</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.params.ParameterFLOAT.datatype">
+<code class="descname">datatype</code><em class="property"> = u'string'</em><a class="headerlink" href="#pmatic.params.ParameterFLOAT.datatype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="pmatic.params.ParameterFLOAT.formated">
+<code class="descname">formated</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterFLOAT.formated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterFLOAT.formated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats the current value with a <code class="docutils literal"><span class="pre">%0.2f</span></code> format and adds a unit if
+there is a unit reported by the CCU.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="parameterenum">
+<h3>ParameterENUM<a class="headerlink" href="#parameterenum" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.params.ParameterENUM">
+<em class="property">class </em><code class="descclassname">pmatic.params.</code><code class="descname">ParameterENUM</code><span class="sig-paren">(</span><em>channel</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterENUM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterENUM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pmatic.params.ParameterINTEGER" title="pmatic.params.ParameterINTEGER"><code class="xref py py-class docutils literal"><span class="pre">pmatic.params.ParameterINTEGER</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.params.ParameterENUM.possible_values">
+<code class="descname">possible_values</code><a class="headerlink" href="#pmatic.params.ParameterENUM.possible_values" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides a python list of possible values.</p>
+<p>The indexes in this list represent the digit to be used as value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="pmatic.params.ParameterENUM.formated">
+<code class="descname">formated</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterENUM.formated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterENUM.formated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the textual representation of the current value as also found in the
+list provided by the <code class="xref py py-attr docutils literal"><span class="pre">possible_values</span></code> property.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="parameterbool">
+<h3>ParameterBOOL<a class="headerlink" href="#parameterbool" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.params.ParameterBOOL">
+<em class="property">class </em><code class="descclassname">pmatic.params.</code><code class="descname">ParameterBOOL</code><span class="sig-paren">(</span><em>channel</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterBOOL"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterBOOL" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pmatic.params.Parameter" title="pmatic.params.Parameter"><code class="xref py py-class docutils literal"><span class="pre">pmatic.params.Parameter</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.params.ParameterBOOL.datatype">
+<code class="descname">datatype</code><em class="property"> = u'boolean'</em><a class="headerlink" href="#pmatic.params.ParameterBOOL.datatype" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="parameteraction">
+<h3>ParameterACTION<a class="headerlink" href="#parameteraction" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.params.ParameterACTION">
+<em class="property">class </em><code class="descclassname">pmatic.params.</code><code class="descname">ParameterACTION</code><span class="sig-paren">(</span><em>channel</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterACTION"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterACTION" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pmatic.params.ParameterBOOL" title="pmatic.params.ParameterBOOL"><code class="xref py py-class docutils literal"><span class="pre">pmatic.params.ParameterBOOL</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="parametercontrolmode">
+<h3>ParameterControlMode<a class="headerlink" href="#parametercontrolmode" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.params.ParameterControlMode">
+<em class="property">class </em><code class="descclassname">pmatic.params.</code><code class="descname">ParameterControlMode</code><span class="sig-paren">(</span><em>channel</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterControlMode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterControlMode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pmatic.params.ParameterENUM" title="pmatic.params.ParameterENUM"><code class="xref py py-class docutils literal"><span class="pre">pmatic.params.ParameterENUM</span></code></a></p>
+<dl class="method">
+<dt id="pmatic.params.ParameterControlMode.formated">
+<code class="descname">formated</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/params.html#ParameterControlMode.formated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.params.ParameterControlMode.formated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the current control mode while it is converting the CCU internal
+naming scheme to the pmatic ones. It replaces the <code class="docutils literal"><span class="pre">-MODE</span></code> suffix and changes
+<code class="docutils literal"><span class="pre">MANU</span></code> to <code class="docutils literal"><span class="pre">MANUAL</span></code>.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
 </div>
 
 
@@ -713,6 +1022,18 @@ is still alive or <code class="docutils literal"><span class="pre">False</span><
 <li><a class="reference internal" href="#rooms-collections-of-rooms">Rooms - Collections of Rooms</a></li>
 <li><a class="reference internal" href="#room-a-configured-room">Room - A Configured Room</a></li>
 <li><a class="reference internal" href="#eventlistener-listen-for-ccu-events">EventListener - Listen for CCU Events</a></li>
+<li><a class="reference internal" href="#parameters">Parameters</a><ul>
+<li><a class="reference internal" href="#parameter">Parameter</a></li>
+<li><a class="reference internal" href="#parameterstring">ParameterSTRING</a></li>
+<li><a class="reference internal" href="#parameternumeric">ParameterNUMERIC</a></li>
+<li><a class="reference internal" href="#parameterinteger">ParameterINTEGER</a></li>
+<li><a class="reference internal" href="#parameterfloat">ParameterFLOAT</a></li>
+<li><a class="reference internal" href="#parameterenum">ParameterENUM</a></li>
+<li><a class="reference internal" href="#parameterbool">ParameterBOOL</a></li>
+<li><a class="reference internal" href="#parameteraction">ParameterACTION</a></li>
+<li><a class="reference internal" href="#parametercontrolmode">ParameterControlMode</a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
