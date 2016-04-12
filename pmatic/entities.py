@@ -326,7 +326,7 @@ class Channel(utils.LogMixin, Entity):
             return self._get_values_bulk()
         except PMException as e:
             # Can not check is_online for maintenance channels here (no values yet)
-            if "601" in ("%s" % e) \
+            if any(errorcode in ("%s" % e) for errorcode in ["501", "601"]) \
                and (isinstance(self, ChannelMaintenance) or self.device.is_online):
                 self.logger.info("%s (%s - %s): %s. Falling back to single value fetching.",
                                     self.address, self.device.name, self.name, e)
@@ -361,7 +361,7 @@ class Channel(utils.LogMixin, Entity):
                     if not skip_invalid_values:
                         raise
 
-                    if "601" not in ("%s" % e):
+                    if not any(errorcode in ("%s" % e) for errorcode in ["501", "601"]):
                         raise
 
                     if isinstance(self, ChannelMaintenance) or self.device.is_online:
