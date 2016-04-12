@@ -380,7 +380,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_bulk</span><span class="p">()</span>
         <span class="k">except</span> <span class="n">PMException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="c1"># Can not check is_online for maintenance channels here (no values yet)</span>
-            <span class="k">if</span> <span class="s2">&quot;601&quot;</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span> \
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">errorcode</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">errorcode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;501&quot;</span><span class="p">,</span> <span class="s2">&quot;601&quot;</span><span class="p">])</span> \
                <span class="ow">and</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ChannelMaintenance</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">is_online</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2">. Falling back to single value fetching.&quot;</span><span class="p">,</span>
                                     <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
@@ -415,7 +415,7 @@
                     <span class="k">if</span> <span class="ow">not</span> <span class="n">skip_invalid_values</span><span class="p">:</span>
                         <span class="k">raise</span>
 
-                    <span class="k">if</span> <span class="s2">&quot;601&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">errorcode</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">e</span><span class="p">)</span> <span class="k">for</span> <span class="n">errorcode</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;501&quot;</span><span class="p">,</span> <span class="s2">&quot;601&quot;</span><span class="p">]):</span>
                         <span class="k">raise</span>
 
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ChannelMaintenance</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">is_online</span><span class="p">:</span>
@@ -764,6 +764,17 @@
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">None</span>
 
+
+<span class="c1"># Devices:</span>
+<span class="c1">#  HM-TC-IT-WM-W-EU</span>
+<span class="k">class</span> <span class="nc">ChannelWeatherTransmit</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;WEATHER_TRANSMIT&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s2">&quot;Temperature: </span><span class="si">%s</span><span class="s2">, Humidity: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> \
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;TEMPERATURE&quot;</span><span class="p">],</span>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;HUMIDITY&quot;</span><span class="p">])</span>
 
 
 <span class="c1"># Devices:</span>
@@ -1365,6 +1376,12 @@
 
 
 
+<span class="c1"># Optischer Funk-Tür-/ Fensterkontakt</span>
+<span class="k">class</span> <span class="nc">HMSecSCo</span><span class="p">(</span><span class="n">HMSecSC</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-Sec-SCo&quot;</span>
+
+
+
 <span class="c1"># Funk-Schaltaktor mit Leistungsmessung</span>
 <div class="viewcode-block" id="HMESPMSw1Pl"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMESPMSw1Pl">[docs]</a><span class="k">class</span> <span class="nc">HMESPMSw1Pl</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-ES-PMSw1-Pl&quot;</span>
@@ -1599,7 +1616,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2016, Lars Michelsen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.1.
     </div>
   </body>
 </html>
