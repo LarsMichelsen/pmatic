@@ -677,6 +677,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the ventil state.&quot;&quot;&quot;</span>
         <span class="n">val</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SETPOINT&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">val</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
             <span class="k">return</span> <span class="s2">&quot;Ventil closed&quot;</span>
@@ -700,6 +701,8 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the actual and target temperature together with the valve state in</span>
+<span class="sd">        some readable format.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;Temperature: </span><span class="si">%s</span><span class="s2"> (Target: </span><span class="si">%s</span><span class="s2">, Valve: </span><span class="si">%s</span><span class="s2">)&quot;</span> <span class="o">%</span> \
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;ACTUAL_TEMPERATURE&quot;</span><span class="p">],</span>
                  <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">],</span>
@@ -714,72 +717,73 @@
 
 
 
-<span class="k">class</span> <span class="nc">ChannelWindowSwitchReceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelWindowSwitchReceiver"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelWindowSwitchReceiver">[docs]</a><span class="k">class</span> <span class="nc">ChannelWindowSwitchReceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;WINDOW_SWITCH_RECEIVER&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Has not any values&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">None</span>
+        <span class="sd">&quot;&quot;&quot;Provides ``None`` since the channel has not any values&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">None</span></div>
 
 
-<span class="k">class</span> <span class="nc">ChannelWeatherReceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelWeatherReceiver"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelWeatherReceiver">[docs]</a><span class="k">class</span> <span class="nc">ChannelWeatherReceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;WEATHER_RECEIVER&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Has not any values&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">None</span>
+        <span class="sd">&quot;&quot;&quot;Provides ``None`` since the channel has not any values&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">None</span></div>
 
 
 <span class="c1"># Devices:</span>
 <span class="c1">#  HM-CC-RT-DN</span>
-<span class="c1"># Has not any values</span>
-<span class="k">class</span> <span class="nc">ChannelClimateControlReceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelClimateControlReceiver"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelClimateControlReceiver">[docs]</a><span class="k">class</span> <span class="nc">ChannelClimateControlReceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CLIMATECONTROL_RECEIVER&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">None</span>
+        <span class="sd">&quot;&quot;&quot;Provides ``None`` since the channel has not any values&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">None</span></div>
 
 
 <span class="c1"># Devices:</span>
 <span class="c1">#  HM-CC-RT-DN</span>
-<span class="c1"># Has not any values</span>
-<span class="k">class</span> <span class="nc">ChannelClimateControlRTReceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelClimateControlRTReceiver"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelClimateControlRTReceiver">[docs]</a><span class="k">class</span> <span class="nc">ChannelClimateControlRTReceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CLIMATECONTROL_RT_RECEIVER&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">None</span>
+        <span class="sd">&quot;&quot;&quot;Provides ``None`` since the channel has not any values&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">None</span></div>
 
 
 <span class="c1"># Devices:</span>
 <span class="c1">#  HM-CC-RT-DN</span>
-<span class="c1"># Has not any values</span>
-<span class="k">class</span> <span class="nc">ChannelRemoteControlReceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelRemoteControlReceiver"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelRemoteControlReceiver">[docs]</a><span class="k">class</span> <span class="nc">ChannelRemoteControlReceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;REMOTECONTROL_RECEIVER&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">None</span>
+        <span class="sd">&quot;&quot;&quot;Provides ``None`` since the channel has not any values&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">None</span></div>
 
 
 <span class="c1"># Devices:</span>
 <span class="c1">#  HM-TC-IT-WM-W-EU</span>
-<span class="k">class</span> <span class="nc">ChannelWeatherTransmit</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelWeatherTransmit"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelWeatherTransmit">[docs]</a><span class="k">class</span> <span class="nc">ChannelWeatherTransmit</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;WEATHER_TRANSMIT&quot;</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the temperature and humidity in readable format.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;Temperature: </span><span class="si">%s</span><span class="s2">, Humidity: </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> \
                 <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;TEMPERATURE&quot;</span><span class="p">],</span>
-                 <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;HUMIDITY&quot;</span><span class="p">])</span>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;HUMIDITY&quot;</span><span class="p">])</span></div>
 
 
 <span class="c1"># Devices:</span>
 <span class="c1">#  HM-TC-IT-WM-W-EU</span>
-<span class="k">class</span> <span class="nc">ChannelThermalControlTransmit</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelThermalControlTransmit"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelThermalControlTransmit">[docs]</a><span class="k">class</span> <span class="nc">ChannelThermalControlTransmit</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;THERMALCONTROL_TRANSMIT&quot;</span>
 
     <span class="k">def</span> <span class="nf">_init_value_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value_spec</span><span class="p">):</span>
@@ -794,13 +798,13 @@
     <span class="k">def</span> <span class="nf">_get_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># This is needed to not let the CCU decide which values to be read from</span>
         <span class="c1"># the device because of the bug mentioned above.</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_single</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_single</span><span class="p">()</span></div>
 
 
 
 <span class="c1"># Devices:</span>
 <span class="c1">#  HM-TC-IT-WM-W-EU</span>
-<span class="k">class</span> <span class="nc">ChannelSwitchTransmit</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+<div class="viewcode-block" id="ChannelSwitchTransmit"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelSwitchTransmit">[docs]</a><span class="k">class</span> <span class="nc">ChannelSwitchTransmit</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;SWITCH_TRANSMIT&quot;</span>
 
     <span class="k">def</span> <span class="nf">_init_value_spec</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value_spec</span><span class="p">):</span>
@@ -815,7 +819,7 @@
     <span class="k">def</span> <span class="nf">_get_values</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="c1"># This is needed to not let the CCU decide which values to be read from</span>
         <span class="c1"># the device because of the bug mentioned above.</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_single</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_single</span><span class="p">()</span></div>
 
 
 
@@ -1377,8 +1381,8 @@
 
 
 <span class="c1"># Optischer Funk-Tür-/ Fensterkontakt</span>
-<span class="k">class</span> <span class="nc">HMSecSCo</span><span class="p">(</span><span class="n">HMSecSC</span><span class="p">):</span>
-    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-Sec-SCo&quot;</span>
+<div class="viewcode-block" id="HM_Sec_SCo"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_Sec_SCo">[docs]</a><span class="k">class</span> <span class="nc">HM_Sec_SCo</span><span class="p">(</span><span class="n">HMSecSC</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-Sec-SCo&quot;</span></div>
 
 
 

@@ -76,8 +76,8 @@ which should really not be neccessary.</p>
 there is the <a class="reference internal" href="#pmatic.entities.HMCCRTDN" title="pmatic.entities.HMCCRTDN"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.HMCCRTDN</span></code></a> which is automatically used for HM-CC-RT-DN devices.
 When working with such a device, you have access to the property <code class="docutils literal"><span class="pre">device.temperature</span></code> which gives
 you the same value as the code above. Now that should be clear. We need specific devices!</p>
-<div class="section" id="hmccrtdn-hm-cc-rt-dn-funk-heizkorperthermostat">
-<h2>HMCCRTDN - HM-CC-RT-DN (Funk-Heizkörperthermostat)<a class="headerlink" href="#hmccrtdn-hm-cc-rt-dn-funk-heizkorperthermostat" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="hm-cc-rt-dn-funk-heizkorperthermostat">
+<h2>HM-CC-RT-DN (Funk-Heizkörperthermostat)<a class="headerlink" href="#hm-cc-rt-dn-funk-heizkorperthermostat" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pmatic.entities.HMCCRTDN">
 <em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HMCCRTDN</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMCCRTDN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMCCRTDN" title="Permalink to this definition">¶</a></dt>
@@ -189,8 +189,8 @@ in boost mode. Otherwise it returns <code class="docutils literal"><span class="
 </dd></dl>
 
 </div>
-<div class="section" id="hmsecsc-hm-sec-sc-funk-tur-fensterkontakt">
-<h2>HMSecSC - HM-Sec-SC (Funk-Tür-/ Fensterkontakt)<a class="headerlink" href="#hmsecsc-hm-sec-sc-funk-tur-fensterkontakt" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="hm-sec-sc-funk-tur-fensterkontakt">
+<h2>HM-Sec-SC (Funk-Tür-/ Fensterkontakt)<a class="headerlink" href="#hm-sec-sc-funk-tur-fensterkontakt" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pmatic.entities.HMSecSC">
 <em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HMSecSC</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMSecSC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMSecSC" title="Permalink to this definition">¶</a></dt>
@@ -198,8 +198,17 @@ in boost mode. Otherwise it returns <code class="docutils literal"><span class="
 </dd></dl>
 
 </div>
-<div class="section" id="hmespmsw1pl-hm-es-pmsw1-pl-funk-schaltaktor-mit-leistungsmessung">
-<h2>HMESPMSw1Pl - HM-ES-PMSw1-Pl (Funk-Schaltaktor mit Leistungsmessung)<a class="headerlink" href="#hmespmsw1pl-hm-es-pmsw1-pl-funk-schaltaktor-mit-leistungsmessung" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="hm-sec-sco-optischer-funk-tur-fensterkontakt">
+<h2>HM-Sec-SCo (Optischer Funk-Tür-/ Fensterkontakt)<a class="headerlink" href="#hm-sec-sco-optischer-funk-tur-fensterkontakt" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="pmatic.entities.HM_Sec_SCo">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HM_Sec_SCo</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HM_Sec_SCo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HM_Sec_SCo" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#pmatic.entities.HMSecSC" title="pmatic.entities.HMSecSC"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.HMSecSC</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="hm-es-pmsw1-pl-funk-schaltaktor-mit-leistungsmessung">
+<h2>HM-ES-PMSw1-Pl (Funk-Schaltaktor mit Leistungsmessung)<a class="headerlink" href="#hm-es-pmsw1-pl-funk-schaltaktor-mit-leistungsmessung" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="pmatic.entities.HMESPMSw1Pl">
 <em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HMESPMSw1Pl</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMESPMSw1Pl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMESPMSw1Pl" title="Permalink to this definition">¶</a></dt>
@@ -480,7 +489,8 @@ default summary_state property.</p>
 <dl class="attribute">
 <dt id="pmatic.entities.ChannelClimaRegulator.summary_state">
 <code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.ChannelClimaRegulator.summary_state" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Provides the ventil state.</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -494,8 +504,118 @@ default summary_state property.</p>
 <dl class="attribute">
 <dt id="pmatic.entities.ChannelClimaRTTransceiver.summary_state">
 <code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.ChannelClimaRTTransceiver.summary_state" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Provides the actual and target temperature together with the valve state in
+some readable format.</p>
+</dd></dl>
 
+</dd></dl>
+
+</div>
+<div class="section" id="channelwindowswitchreceiver">
+<h3>ChannelWindowSwitchReceiver<a class="headerlink" href="#channelwindowswitchreceiver" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelWindowSwitchReceiver">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelWindowSwitchReceiver</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelWindowSwitchReceiver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelWindowSwitchReceiver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelWindowSwitchReceiver.summary_state">
+<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.ChannelWindowSwitchReceiver.summary_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides <code class="docutils literal"><span class="pre">None</span></code> since the channel has not any values</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="channelweatherreceiver">
+<h3>ChannelWeatherReceiver<a class="headerlink" href="#channelweatherreceiver" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelWeatherReceiver">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelWeatherReceiver</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelWeatherReceiver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelWeatherReceiver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelWeatherReceiver.summary_state">
+<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.ChannelWeatherReceiver.summary_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides <code class="docutils literal"><span class="pre">None</span></code> since the channel has not any values</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="channelclimatecontrolreceiver">
+<h3>ChannelClimateControlReceiver<a class="headerlink" href="#channelclimatecontrolreceiver" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelClimateControlReceiver">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelClimateControlReceiver</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelClimateControlReceiver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelClimateControlReceiver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelClimateControlReceiver.summary_state">
+<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.ChannelClimateControlReceiver.summary_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides <code class="docutils literal"><span class="pre">None</span></code> since the channel has not any values</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="channelclimatecontrolrtreceiver">
+<h3>ChannelClimateControlRTReceiver<a class="headerlink" href="#channelclimatecontrolrtreceiver" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelClimateControlRTReceiver">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelClimateControlRTReceiver</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelClimateControlRTReceiver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelClimateControlRTReceiver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelClimateControlRTReceiver.summary_state">
+<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.ChannelClimateControlRTReceiver.summary_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides <code class="docutils literal"><span class="pre">None</span></code> since the channel has not any values</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="channelremotecontrolreceiver">
+<h3>ChannelRemoteControlReceiver<a class="headerlink" href="#channelremotecontrolreceiver" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelRemoteControlReceiver">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelRemoteControlReceiver</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelRemoteControlReceiver"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelRemoteControlReceiver" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelRemoteControlReceiver.summary_state">
+<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.ChannelRemoteControlReceiver.summary_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides <code class="docutils literal"><span class="pre">None</span></code> since the channel has not any values</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="channelweathertransmit">
+<h3>ChannelWeatherTransmit<a class="headerlink" href="#channelweathertransmit" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelWeatherTransmit">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelWeatherTransmit</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelWeatherTransmit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelWeatherTransmit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+<dl class="attribute">
+<dt id="pmatic.entities.ChannelWeatherTransmit.summary_state">
+<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.ChannelWeatherTransmit.summary_state" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides the temperature and humidity in readable format.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="channelthermalcontroltransmit">
+<h3>ChannelThermalControlTransmit<a class="headerlink" href="#channelthermalcontroltransmit" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelThermalControlTransmit">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelThermalControlTransmit</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelThermalControlTransmit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelThermalControlTransmit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="channelswitchtransmit">
+<h3>ChannelSwitchTransmit<a class="headerlink" href="#channelswitchtransmit" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="pmatic.entities.ChannelSwitchTransmit">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">ChannelSwitchTransmit</code><span class="sig-paren">(</span><em>device</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#ChannelSwitchTransmit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.ChannelSwitchTransmit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Channel" title="pmatic.entities.Channel"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Channel</span></code></a></p>
 </dd></dl>
 
 </div>
@@ -511,9 +631,10 @@ default summary_state property.</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">Specific Devices</a><ul>
-<li><a class="reference internal" href="#hmccrtdn-hm-cc-rt-dn-funk-heizkorperthermostat">HMCCRTDN - HM-CC-RT-DN (Funk-Heizkörperthermostat)</a></li>
-<li><a class="reference internal" href="#hmsecsc-hm-sec-sc-funk-tur-fensterkontakt">HMSecSC - HM-Sec-SC (Funk-Tür-/ Fensterkontakt)</a></li>
-<li><a class="reference internal" href="#hmespmsw1pl-hm-es-pmsw1-pl-funk-schaltaktor-mit-leistungsmessung">HMESPMSw1Pl - HM-ES-PMSw1-Pl (Funk-Schaltaktor mit Leistungsmessung)</a></li>
+<li><a class="reference internal" href="#hm-cc-rt-dn-funk-heizkorperthermostat">HM-CC-RT-DN (Funk-Heizkörperthermostat)</a></li>
+<li><a class="reference internal" href="#hm-sec-sc-funk-tur-fensterkontakt">HM-Sec-SC (Funk-Tür-/ Fensterkontakt)</a></li>
+<li><a class="reference internal" href="#hm-sec-sco-optischer-funk-tur-fensterkontakt">HM-Sec-SCo (Optischer Funk-Tür-/ Fensterkontakt)</a></li>
+<li><a class="reference internal" href="#hm-es-pmsw1-pl-funk-schaltaktor-mit-leistungsmessung">HM-ES-PMSw1-Pl (Funk-Schaltaktor mit Leistungsmessung)</a></li>
 <li><a class="reference internal" href="#hmpbi4fm-hm-pbi-4-fm-funk-tasterschnittstelle-4-fach">HMPBI4FM - HM-PBI-4-FM (Funk-Tasterschnittstelle 4-fach)</a></li>
 <li><a class="reference internal" href="#hm-wds10-th-o-funk-temperatur-luftfeuchtesensor-oth">HM-WDS10-TH-O (Funk-Temperatur-/Luftfeuchtesensor OTH)</a></li>
 <li><a class="reference internal" href="#the-channels">The Channels</a><ul>
@@ -531,6 +652,14 @@ default summary_state property.</p>
 <li><a class="reference internal" href="#channelclimaventdrive">ChannelClimaVentDrive</a></li>
 <li><a class="reference internal" href="#channelclimaregulator">ChannelClimaRegulator</a></li>
 <li><a class="reference internal" href="#channelclimarttransceiver">ChannelClimaRTTransceiver</a></li>
+<li><a class="reference internal" href="#channelwindowswitchreceiver">ChannelWindowSwitchReceiver</a></li>
+<li><a class="reference internal" href="#channelweatherreceiver">ChannelWeatherReceiver</a></li>
+<li><a class="reference internal" href="#channelclimatecontrolreceiver">ChannelClimateControlReceiver</a></li>
+<li><a class="reference internal" href="#channelclimatecontrolrtreceiver">ChannelClimateControlRTReceiver</a></li>
+<li><a class="reference internal" href="#channelremotecontrolreceiver">ChannelRemoteControlReceiver</a></li>
+<li><a class="reference internal" href="#channelweathertransmit">ChannelWeatherTransmit</a></li>
+<li><a class="reference internal" href="#channelthermalcontroltransmit">ChannelThermalControlTransmit</a></li>
+<li><a class="reference internal" href="#channelswitchtransmit">ChannelSwitchTransmit</a></li>
 </ul>
 </li>
 </ul>
