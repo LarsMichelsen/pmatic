@@ -1323,7 +1323,7 @@ class HMSecSC(Device):
 
 
 # Optischer Funk-Tür-/ Fensterkontakt
-class HMSecSCo(HMSecSC):
+class HM_Sec_SCo(HMSecSC):
     type_name = "HM-Sec-SCo"
 
 
