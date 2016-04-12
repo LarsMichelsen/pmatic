@@ -99,5 +99,9 @@ setup(name='pmatic',
     ],
     data_files=data_files(),
     setup_requires=['pytest-runner'],
-    tests_require=test_requirements()
+    tests_require=test_requirements(),
+    install_requires=[
+        "requests",
+        "simpleTR64",
+    ],
 )

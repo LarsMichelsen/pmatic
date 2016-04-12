@@ -7,6 +7,7 @@ Unreleased (Use snapshot builds to get these changes)
 General
 ```````
 
+* Added missing install requirements to setup.py: requests, SimpleTR64
 * The local/remote detection (``utils.is_ccu()``) is now detecting "local" mode on LXCCU
 * Improved error handling of fetched values with the current CCU firmware (2.17.15)
   This firmware fails with error code 501 instead of 601 in case of values that can not
