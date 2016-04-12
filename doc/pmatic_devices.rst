@@ -19,7 +19,7 @@ there is the :class:`pmatic.entities.HMCCRTDN` which is automatically used for H
 When working with such a device, you have access to the property ``device.temperature`` which gives
 you the same value as the code above. Now that should be clear. We need specific devices!
 
-HMCCRTDN - HM-CC-RT-DN (Funk-Heizkörperthermostat)
+HM-CC-RT-DN (Funk-Heizkörperthermostat)
 --------------------------------------------------
 
 .. autoclass:: pmatic.entities.HMCCRTDN
@@ -28,7 +28,7 @@ HMCCRTDN - HM-CC-RT-DN (Funk-Heizkörperthermostat)
     :undoc-members:
     :exclude-members: type_name
 
-HMSecSC - HM-Sec-SC (Funk-Tür-/ Fensterkontakt)
+HM-Sec-SC (Funk-Tür-/ Fensterkontakt)
 -----------------------------------------------
 
 .. autoclass:: pmatic.entities.HMSecSC
@@ -37,7 +37,16 @@ HMSecSC - HM-Sec-SC (Funk-Tür-/ Fensterkontakt)
     :undoc-members:
     :exclude-members: type_name
 
-HMESPMSw1Pl - HM-ES-PMSw1-Pl (Funk-Schaltaktor mit Leistungsmessung)
+HM-Sec-SCo (Optischer Funk-Tür-/ Fensterkontakt)
+-------------------------------------------------------------
+
+.. autoclass:: pmatic.entities.HM_Sec_SCo
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
+HM-ES-PMSw1-Pl (Funk-Schaltaktor mit Leistungsmessung)
 --------------------------------------------------------------------
 
 .. autoclass:: pmatic.entities.HMESPMSw1Pl
@@ -192,6 +201,78 @@ ChannelClimaRTTransceiver
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: pmatic.entities.ChannelClimaRTTransceiver
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
+ChannelWindowSwitchReceiver
+^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: pmatic.entities.ChannelWindowSwitchReceiver
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
+ChannelWeatherReceiver
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: pmatic.entities.ChannelWeatherReceiver
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
+ChannelClimateControlReceiver
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: pmatic.entities.ChannelClimateControlReceiver
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
+ChannelClimateControlRTReceiver
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: pmatic.entities.ChannelClimateControlRTReceiver
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
+ChannelRemoteControlReceiver
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: pmatic.entities.ChannelRemoteControlReceiver
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
+ChannelWeatherTransmit
+^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: pmatic.entities.ChannelWeatherTransmit
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
+ChannelThermalControlTransmit
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: pmatic.entities.ChannelThermalControlTransmit
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
+ChannelSwitchTransmit
+^^^^^^^^^^^^^^^^^^^^^
+
+.. autoclass:: pmatic.entities.ChannelSwitchTransmit
     :show-inheritance:
     :members:
     :undoc-members:

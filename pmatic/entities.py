@@ -623,6 +623,7 @@ class ChannelClimaRegulator(Channel):
 
     @property
     def summary_state(self):
+        """Provides the ventil state."""
         val = self.values["SETPOINT"]
         if val == 0.0:
             return "Ventil closed"
@@ -646,6 +647,8 @@ class ChannelClimaRTTransceiver(Channel):
 
     @property
     def summary_state(self):
+        """Provides the actual and target temperature together with the valve state in
+        some readable format."""
         return "Temperature: %s (Target: %s, Valve: %s)" % \
                 (self.values["ACTUAL_TEMPERATURE"],
                  self.values["SET_TEMPERATURE"],
@@ -665,7 +668,7 @@ class ChannelWindowSwitchReceiver(Channel):
 
     @property
     def summary_state(self):
-        """Has not any values"""
+        """Provides ``None`` since the channel has not any values"""
         return None
 
 
@@ -674,40 +677,40 @@ class ChannelWeatherReceiver(Channel):
 
     @property
     def summary_state(self):
-        """Has not any values"""
+        """Provides ``None`` since the channel has not any values"""
         return None
 
 
 # Devices:
 #  HM-CC-RT-DN
-# Has not any values
 class ChannelClimateControlReceiver(Channel):
     type_name = "CLIMATECONTROL_RECEIVER"
 
     @property
     def summary_state(self):
+        """Provides ``None`` since the channel has not any values"""
         return None
 
 
 # Devices:
 #  HM-CC-RT-DN
-# Has not any values
 class ChannelClimateControlRTReceiver(Channel):
     type_name = "CLIMATECONTROL_RT_RECEIVER"
 
     @property
     def summary_state(self):
+        """Provides ``None`` since the channel has not any values"""
         return None
 
 
 # Devices:
 #  HM-CC-RT-DN
-# Has not any values
 class ChannelRemoteControlReceiver(Channel):
     type_name = "REMOTECONTROL_RECEIVER"
 
     @property
     def summary_state(self):
+        """Provides ``None`` since the channel has not any values"""
         return None
 
 
@@ -718,6 +721,7 @@ class ChannelWeatherTransmit(Channel):
 
     @property
     def summary_state(self):
+        """Provides the temperature and humidity in readable format."""
         return "Temperature: %s, Humidity: %s" % \
                 (self.values["TEMPERATURE"],
                  self.values["HUMIDITY"])
