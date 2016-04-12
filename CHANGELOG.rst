@@ -8,7 +8,16 @@ General
 ```````
 
 * The local/remote detection (``utils.is_ccu()``) is now detecting "local" mode on LXCCU
+* Improved error handling of fetched values with the current CCU firmware (2.17.15)
+  This firmware fails with error code 501 instead of 601 in case of values that can not
+  be fetched for some reason.
+
+Devices
+```````
+
 * Added specific device object for HM-WDS10-TH-O
+* Added specific device object for HM-Sec-SCo
+* HM-TC-IT-WM-W-EU: Added missing specific channel ``ChannelWeatherTransmit``
 
 Manager
 ```````
