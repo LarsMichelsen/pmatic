@@ -326,7 +326,7 @@ class Channel(utils.LogMixin, Entity):
             return self._get_values_bulk()
         except PMException as e:
             # Can not check is_online for maintenance channels here (no values yet)
-            if "601" in ("%s" % e) \
+            if any(errorcode in ("%s" % e) for errorcode in ["501", "601"]) \
                and (isinstance(self, ChannelMaintenance) or self.device.is_online):
                 self.logger.info("%s (%s - %s): %s. Falling back to single value fetching.",
                                     self.address, self.device.name, self.name, e)
@@ -361,7 +361,7 @@ class Channel(utils.LogMixin, Entity):
                     if not skip_invalid_values:
                         raise
 
-                    if "601" not in ("%s" % e):
+                    if not any(errorcode in ("%s" % e) for errorcode in ["501", "601"]):
                         raise
 
                     if isinstance(self, ChannelMaintenance) or self.device.is_online:
@@ -710,6 +710,17 @@ class ChannelRemoteControlReceiver(Channel):
     def summary_state(self):
         return None
 
+
+# Devices:
+#  HM-TC-IT-WM-W-EU
+class ChannelWeatherTransmit(Channel):
+    type_name = "WEATHER_TRANSMIT"
+
+    @property
+    def summary_state(self):
+        return "Temperature: %s, Humidity: %s" % \
+                (self.values["TEMPERATURE"],
+                 self.values["HUMIDITY"])
 
 
 # Devices:
@@ -1308,6 +1319,12 @@ class HMSecSC(Device):
     # Make methods of ChannelShutterContact() available
     def __getattr__(self, attr):
         return getattr(self.channels[1], attr)
+
+
+
+# Optischer Funk-Tür-/ Fensterkontakt
+class HMSecSCo(HMSecSC):
+    type_name = "HM-Sec-SCo"
 
 
 
