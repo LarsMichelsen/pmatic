@@ -1,6 +1,8 @@
-pmatic - A simple to use API to the Homematic CCU2
-==================================================
+pmatic
+======
 
+
+Python API for Homematic. Simple to use.
 
 The `pmatic <https://larsmichelsen.github.io/pmatic/>`__ module provides
 access to the Homematic CCU which operates as the central unit in

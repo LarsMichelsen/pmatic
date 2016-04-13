@@ -1,4 +1,4 @@
-# pmatic - A simple to use API to the Homematic CCU2
+# pmatic
 
 [![PyPI version](https://badge.fury.io/py/pmatic.svg)](https://badge.fury.io/py/pmatic)
 [![Build Status](https://travis-ci.org/LarsMichelsen/pmatic.svg?branch=master)](https://travis-ci.org/LarsMichelsen/pmatic)
@@ -6,7 +6,10 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/0b6d7874a5e248a2af685761cccc131c)](https://www.codacy.com/app/lm/pmatic)
 [![Code Health](https://landscape.io/github/LarsMichelsen/pmatic/master/landscape.svg?style=flat)](https://landscape.io/github/LarsMichelsen/pmatic/master)
 
-The [pmatic](https://larsmichelsen.github.io/pmatic/) module provides access to the Homematic CCU which operates as
+Python API for Homematic. Simple to use.
+
+The [pmatic](https://larsmichelsen.github.io/pmatic/) module provides
+access to the Homematic CCU which operates as
 the central unit in Homematic based home automation setups. You can use
 pmatic directly on the CCU or another system having Python installed.
 With pmatic you can write your own Python scripts to communicate with
