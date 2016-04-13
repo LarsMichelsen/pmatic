@@ -1,6 +1,17 @@
 pmatic
 ======
 
+.. |PyPI version| image:: https://badge.fury.io/py/pmatic.svg
+   :target: https://badge.fury.io/py/pmatic
+.. |Build Status| image:: https://travis-ci.org/LarsMichelsen/pmatic.svg?branch=master
+   :target: https://travis-ci.org/LarsMichelsen/pmatic
+.. |Coverage Status| image:: https://coveralls.io/repos/github/LarsMichelsen/pmatic/badge.svg?branch=master
+   :target: https://coveralls.io/github/LarsMichelsen/pmatic?branch=master
+.. |Codacy Badge| image:: https://api.codacy.com/project/badge/grade/0b6d7874a5e248a2af685761cccc131c
+   :target: https://www.codacy.com/app/lm/pmatic
+.. |Code Health| image:: https://landscape.io/github/LarsMichelsen/pmatic/master/landscape.svg?style=flat
+   :target: https://landscape.io/github/LarsMichelsen/pmatic/master
+
 
 Python API for Homematic. Easy to use.
 
@@ -166,15 +177,3 @@ reserved.
 
 All outcome of the project is licensed under the terms of the GNU GPL
 v2. Take a look at the LICENSE file for details.
-
-.. |PyPI version| image:: https://badge.fury.io/py/pmatic.svg
-   :target: https://badge.fury.io/py/pmatic
-.. |Build Status| image:: https://travis-ci.org/LarsMichelsen/pmatic.svg?branch=master
-   :target: https://travis-ci.org/LarsMichelsen/pmatic
-.. |Coverage Status| image:: https://coveralls.io/repos/github/LarsMichelsen/pmatic/badge.svg?branch=master
-   :target: https://coveralls.io/github/LarsMichelsen/pmatic?branch=master
-.. |Codacy Badge| image:: https://api.codacy.com/project/badge/grade/0b6d7874a5e248a2af685761cccc131c
-   :target: https://www.codacy.com/app/lm/pmatic
-.. |Code Health| image:: https://landscape.io/github/LarsMichelsen/pmatic/master/landscape.svg?style=flat
-   :target: https://landscape.io/github/LarsMichelsen/pmatic/master
-

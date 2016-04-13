@@ -54,10 +54,10 @@ help:
 
 setup:
 	sudo apt-get install debootstrap qemu-user-static rsync dialog python-pytest python-pip \
-			python3-pip python-sphinx snakefood pandoc python-lxml python-requests \
+			python3-pip python-sphinx snakefood python-lxml python-requests \
 			python-six
 	sudo pip install pytest_flakes pytest_runner coverage beautifulsoup4 \
-			sphinxcontrib-images pypandoc twine
+			sphinxcontrib-images twine
 	sudo pip3 install pytest_flakes pytest_runner coverage beautifulsoup4
 	# port install py-coverage py34-coverage \
 	# 	       py-setuptools py34-setuptools \
@@ -71,11 +71,6 @@ release: dist
 dist: dist-os dist-ccu
 
 dist-os:
-	./update-readme.py ; \
-	if git diff --name-only | grep README.rst >/dev/null; then \
-	    git add README.rst ; \
-	    git commit README.rst -nm "Updated README.rst readme from README.md" ; \
-	fi
 	python setup.py sdist
 	@echo "Created dist/pmatic-$(VERSION).tar.gz"
 
@@ -123,8 +118,7 @@ dist-ccu-step2:
 	    pmatic.init
 	tar -rv -f $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar \
 	    LICENSE \
-	    README.md \
-	    README
+	    README.rst
 	tar -rv -C pmatic.egg-info -f $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar \
 	    PKG-INFO
 	gzip -f $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar

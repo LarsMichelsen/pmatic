@@ -42,7 +42,7 @@ def data_files():
             base_dir = '/usr/share/doc/pmatic'
 
         return [
-            (base_dir, ['LICENSE', 'README.md']),
+            (base_dir, ['LICENSE', 'README.rst']),
         ]
     else:
         return []
