@@ -206,6 +206,7 @@ setversion:
 	sed -i "s/^VERSION=.*/VERSION=$(NEW_VERSION)/g" ccu_pkg/pmatic.init
 
 clean: clean-chroot clean-dist clean-test
+	$(MAKE) -C doc clean
 
 clean-test:
 	rm -rf tests/__pycache__ || true
