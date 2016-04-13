@@ -6,7 +6,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/0b6d7874a5e248a2af685761cccc131c)](https://www.codacy.com/app/lm/pmatic)
 [![Code Health](https://landscape.io/github/LarsMichelsen/pmatic/master/landscape.svg?style=flat)](https://landscape.io/github/LarsMichelsen/pmatic/master)
 
-Python API for Homematic. Simple to use.
+Python API for Homematic. Easy to use.
 
 The [pmatic](https://larsmichelsen.github.io/pmatic/) module provides
 access to the Homematic CCU which operates as

@@ -2,7 +2,7 @@ pmatic
 ======
 
 
-Python API for Homematic. Simple to use.
+Python API for Homematic. Easy to use.
 
 The `pmatic <https://larsmichelsen.github.io/pmatic/>`__ module provides
 access to the Homematic CCU which operates as the central unit in
