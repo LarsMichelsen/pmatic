@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 #
-# pmatic - A simple API to to the Homematic CCU2
+# pmatic - Python API for Homematic. Easy to use.
 # Copyright (C) 2016 Lars Michelsen <lm@larsmichelsen.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -31,7 +31,7 @@ import glob
 new_header = '''#!/usr/bin/env python
 # encoding: utf-8
 #
-# pmatic - A simple API to to the Homematic CCU2
+# pmatic - Python API for Homematic. Easy to use.
 # Copyright (C) %s Lars Michelsen <lm@larsmichelsen.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -51,17 +51,24 @@ new_header = '''#!/usr/bin/env python
 
 repo_path = os.path.dirname(os.path.realpath(__file__))
 
-for f in glob.glob('%s/*.py' % repo_path) \
+for f in [ "pmatic-manager" ] \
+       + glob.glob('%s/*.py' % repo_path) \
        + glob.glob('%s/*/*.py' % repo_path) \
+       + glob.glob('%s/*/*/*.py' % repo_path) \
        + glob.glob('%s/pmatic/*/*.py' % repo_path):
+
+    if f.endswith("doc/conf.py"):
+        continue
+
     new = [ new_header ]
 
     first_code_line_found = False
     for l in open(f):
+        l = l.decode("utf-8")
         if not l.startswith('#'):
             first_code_line_found = True
 
         if first_code_line_found:
             new.append(l)
 
-    open(f, 'w').write(''.join(new))
+    open(f, 'w').write((''.join(new)).encode("utf-8"))

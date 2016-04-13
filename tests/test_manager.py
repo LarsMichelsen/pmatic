@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 #
-# pmatic - A simple API to to the Homematic CCU2
+# pmatic - Python API for Homematic. Easy to use.
 # Copyright (C) 2016 Lars Michelsen <lm@larsmichelsen.com>
 #
 # This program is free software; you can redistribute it and/or modify

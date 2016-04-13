@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 #
-# pmatic - A simple API to to the Homematic CCU2
+# pmatic - Python API for Homematic. Easy to use.
 # Copyright (C) 2016 Lars Michelsen <lm@larsmichelsen.com>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -65,7 +65,7 @@ def test_requirements():
 
 setup(name='pmatic',
     version='0.3',
-    description='A simple API to to the Homematic CCU2',
+    description='Python API for Homematic. Easy to use.',
     maintainer='Lars Michelsen',
     maintainer_email='lm@larsmichelsen.com',
     url='https://larsmichelsen.github.io/pmatic/',
