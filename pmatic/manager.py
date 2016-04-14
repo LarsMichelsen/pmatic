@@ -2686,6 +2686,11 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
         for schedule in to_execute:
             self.execute(schedule)
 
+        # Save the state because next execution time has been updated when at least
+        # one timed condition matched.
+        if to_execute:
+            self.save_state()
+
 
     # FIXME: Optimize schedule/condition handling
     def _schedules_with_condition_type(self, cls):
