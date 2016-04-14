@@ -2,6 +2,13 @@ Fixes:
 * Schedules might be executed/rescheduled multiple times while editing
   -> need to track the last execution time somewhere
   * ConditionOnDeviceEvent implement to_state()
+* CCU1:
+  * /usr/local/bin/ not in path
+  * /etc/config/rc.d/pmatic
+    * init-target nicht anlegen
+    * expat nach /lib
+    * /usr/local/bin/python findet python2.7 nicht
+  * Linux homematic 2.6.21.3 #1 Mon Nov 17 09:08:38 CET 2014 armv4tl unknown
 
 Todos:
 * Change names of specific devices to use underscores
