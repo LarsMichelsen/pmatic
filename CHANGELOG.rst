@@ -33,6 +33,8 @@ Manager
 * FIX: Fixed startup error when connection to CCU is not possible
 * FIX: Fixed error during saving of manager config/state files when base directory not
   exists. Trying to create the directory now.
+* FIX: Fixed multiple execution of single schedule when multiple timed conditions match
+  at the same time
 
 Documentation
 `````````````

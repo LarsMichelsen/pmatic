@@ -2669,18 +2669,22 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
         reached. Then, if reached, the schedule is executed and the next occurance is calculated.
         """
         # FIXME: Optimize schedule/condition handling
+        to_execute = set([])
         for schedule in self.enabled_schedules:
             for condition in schedule.conditions:
                 if isinstance(condition, ConditionOnTime):
                     if condition.next_time <= time.time():
                         this_time = condition.next_time
                         condition.calculate_next_time()
+                        to_execute.add(schedule)
                         self.logger.debug("Timed condition matched: %d. Next will be: %d.",
-                                                            this_time, condition.next_time)
-                        self.execute(schedule)
+                                                           this_time, condition.next_time)
                     #else:
                     #    self.logger.debug("Timed condition is not due yet (%d <= %d)",
                     #                                    condition.next_time, time.time())
+
+        for schedule in to_execute:
+            self.execute(schedule)
 
 
     # FIXME: Optimize schedule/condition handling
