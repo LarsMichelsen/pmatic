@@ -1735,7 +1735,7 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
         self.write("<tr><th>Actions</th><th>Name</th><th>On/Off</th><th>Conditions</th>"
                    "<th>Script</th><th>Last triggered</th><th>Currently running</th>")
         self.write("</tr>")
-        for schedule in self._manager.scheduler.schedules:
+        for schedule in sorted(self._manager.scheduler.schedules, key=lambda s: s.name):
             self.write("<tr>")
             self.write("<td>")
             self.icon_button("edit", "/edit_schedule?schedule_id=%d" % schedule.id,
@@ -2613,7 +2613,7 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
         self.daemon = True
 
         self._manager = manager
-        self._schedules = []
+        self._schedules = {}
 
         self._on_startup_executed  = False
         self._on_ccu_init_executed = False
@@ -2772,18 +2772,18 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
     @property
     def enabled_schedules(self):
         """Return all non disabled schedules."""
-        for schedule in self._schedules:
+        for schedule in self._schedules.values():
             if not schedule.disabled:
                 yield schedule
 
 
     @property
     def schedules(self):
-        return self._schedules
+        return self._schedules.values()
 
 
     def exists(self, schedule_id):
-        return schedule_id < len(self._schedules)
+        return schedule_id in self._schedules
 
 
     def get(self, schedule_id):
@@ -2791,16 +2791,17 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
 
 
     def clear(self):
-        self._schedules = []
+        self._schedules.clear()
 
 
     def add(self, schedule):
         if schedule.id is None:
-            num = len(self._schedules)
-            schedule.id = num
-            self._schedules.append(schedule)
-        else:
-            self._schedules[schedule.id] = schedule
+            schedule.id = self._next_id()
+        self._schedules[schedule.id] = schedule
+
+
+    def _next_id(self):
+        return max([-1] + list(self._schedules.keys())) + 1
 
 
     def remove(self, schedule_id):
@@ -2813,7 +2814,7 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
 
             if schedule.is_running:
                 schedule.runner.abort()
-        except IndexError:
+        except KeyError:
             pass
 
 
@@ -2826,7 +2827,7 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
 
     def to_config(self):
         schedule_config = []
-        for schedule in self._schedules:
+        for schedule in self._schedules.values():
             schedule_config.append(schedule.to_config())
         return schedule_config
 
@@ -2835,14 +2836,14 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
         if state is None:
             return # on default, do nothing
         self._next_presence_update = state["next_presence_update"]
-        for schedule, schedule_state in zip(self._schedules, state["schedules"]):
+        for schedule, schedule_state in zip(self._schedules.values(), state["schedules"]):
             schedule.from_state(schedule_state)
 
 
     def to_state(self):
         return {
             "next_presence_update" : self._next_presence_update,
-            "schedules"            : [ s.to_state() for s in self._schedules ],
+            "schedules"            : [ s.to_state() for s in self._schedules.values() ],
         }
 
 
