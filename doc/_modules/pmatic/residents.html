@@ -170,7 +170,7 @@
 <div class="viewcode-block" id="Residents.exists"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Residents.exists">[docs]</a>    <span class="k">def</span> <span class="nf">exists</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resident_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns ``True`` when a resident with the given id exists.</span>
 <span class="sd">        Otherwise ``False`` is returned.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="n">resident_id</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">residents</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">resident_id</span><span class="p">)</span> <span class="o">!=</span> <span class="bp">None</span></div>
 
 
 <div class="viewcode-block" id="Residents.get"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Residents.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resident_id</span><span class="p">):</span>
@@ -193,10 +193,10 @@
 <div class="viewcode-block" id="Residents.remove"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Residents.remove">[docs]</a>    <span class="k">def</span> <span class="nf">remove</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resident_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Removes the resident with the given ``resident_id`` from the Residents. Tolerates non</span>
 <span class="sd">        existing resident ids.&quot;&quot;&quot;</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">residents</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">resident_id</span><span class="p">)</span>
-        <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
-            <span class="k">pass</span></div>
+        <span class="k">for</span> <span class="n">resident</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">residents</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">resident</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">resident_id</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">residents</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">resident</span><span class="p">)</span>
+                <span class="k">return</span></div>
 
 
 <div class="viewcode-block" id="Residents.clear"><a class="viewcode-back" href="../../pmatic_residents.html#pmatic.residents.Residents.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
