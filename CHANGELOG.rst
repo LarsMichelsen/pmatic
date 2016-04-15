@@ -35,7 +35,7 @@ Manager
   exists. Trying to create the directory now.
 * FIX: Fixed multiple execution of single schedule when multiple timed conditions match
   at the same time
-* FIX: Fixed problem in enumeration of schedules after deleting one schedule
+* FIX: Fixed problem in enumeration of schedules/residents after deleting one object
 
 Documentation
 `````````````

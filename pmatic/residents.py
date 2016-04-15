@@ -116,7 +116,7 @@ class Residents(utils.LogMixin):
     def exists(self, resident_id):
         """Returns ``True`` when a resident with the given id exists.
         Otherwise ``False`` is returned."""
-        return resident_id < len(self.residents)
+        return self.get(resident_id) != None
 
 
     def get(self, resident_id):
@@ -139,10 +139,10 @@ class Residents(utils.LogMixin):
     def remove(self, resident_id):
         """Removes the resident with the given ``resident_id`` from the Residents. Tolerates non
         existing resident ids."""
-        try:
-            self.residents.pop(resident_id)
-        except IndexError:
-            pass
+        for resident in self.residents:
+            if resident.id == resident_id:
+                self.residents.remove(resident)
+                return
 
 
     def clear(self):
