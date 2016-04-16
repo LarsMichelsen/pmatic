@@ -78,6 +78,9 @@ class Pushover(utils.LogMixin):
         """
         api_token, user_token = cls._load_tokens(api_token, user_token)
 
+        if not message:
+            raise PMUserError("A message has to be specified.")
+
         if not utils.is_text(message):
             raise PMUserError("The message needs to be a unicode string.")
 

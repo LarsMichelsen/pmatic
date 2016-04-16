@@ -59,6 +59,12 @@ def test_send_no_user_token():
     assert "user_token" in str(e)
 
 
+def test_send_empty_message():
+    with pytest.raises(PMUserError) as e:
+        Pushover.send("", api_token="xxx", user_token="asd")
+    assert "has to be specified" in str(e)
+
+
 def test_send_too_long_message():
     with pytest.raises(PMUserError) as e:
         Pushover.send("x"*1025, api_token="xxx", user_token="asd")
