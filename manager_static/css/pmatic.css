@@ -163,6 +163,10 @@ table tr th.largest {
     width: 100%;
 }
 
+table tr th.short {
+    width: 30px;
+}
+
 table tr:nth-child(2n)  {
     background-color: #f4f4f4;
 }

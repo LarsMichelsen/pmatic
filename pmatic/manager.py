@@ -1697,8 +1697,8 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
         if not self.confirm("Do you really want to delete this schedule?"):
             return False
 
-        self._manager.scheduler.remove(schedule_id)
-        self._manager.scheduler.save()
+        schedule = self._manager.scheduler.get(schedule_id)
+        schedule.remove()
         self.success("The schedule has been deleted.")
 
 
@@ -1763,7 +1763,7 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
             self.write("</td>")
 
             self.write("<td>")
-            for condition in schedule.conditions:
+            for condition in sorted(schedule.conditions.values(), key=lambda c: c.id):
                 self.write(condition.display()+"<br>")
             self.write("</td>")
             self.write("<td>%s</td>" % self.escape(schedule.script))
@@ -1783,6 +1783,11 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
 class PageEditSchedule(PageHandler, Html, utils.LogMixin):
     url = "edit_schedule"
 
+    def __init__(self, *args):
+        self._schedule = None
+        super(PageEditSchedule, self).__init__(*args)
+
+
     def _get_mode(self):
         return "edit"
 
@@ -1797,6 +1802,14 @@ class PageEditSchedule(PageHandler, Html, utils.LogMixin):
             raise PMUserError("The schedule you are trying to edit does not exist.")
 
         return self._manager.scheduler.get(schedule_id)
+
+
+    def _get_schedule_copy(self):
+        orig_schedule = self._get_schedule()
+        schedule = Schedule(self._manager)
+        schedule.from_config(orig_schedule.to_config())
+        schedule.from_state(orig_schedule.to_state())
+        return schedule
 
 
     def _get_condition_types(self):
@@ -1825,35 +1838,60 @@ class PageEditSchedule(PageHandler, Html, utils.LogMixin):
                 raise PMUserError("You have to select a script.")
             schedule.script = script
 
-            num_conditions = int(self._vars.getvalue("num_conditions"))
+            old_conditions = schedule.conditions.copy()
             schedule.clear_conditions()
+            num_conditions = int(self._vars.getvalue("num_conditions"))
             has_error = False
-            for condition_id in range(num_conditions):
-                condition_type = self._vars.getvalue("cond_%d_type" % condition_id)
-                if condition_type:
-                    cls = Condition.get(condition_type)
-                    if not cls:
-                        raise PMUserError("Invalid condition type \"%s\" given." % condition_type)
+            for num in range(num_conditions):
+                condition_id = int(self._vars.getvalue("cond_%d_id" % num))
+                condition_type = self._vars.getvalue("cond_%d_type" % num)
 
-                    condition = cls(self._manager)
-                    try:
-                        condition.set_submitted_vars(self, "cond_%d_" % condition_id)
-                    except PMUserError as e:
-                        if submit:
-                            self.error(e)
-                        has_error = True
+                if not condition_type:
+                    continue
 
-                    schedule.add_condition(condition)
+                condition = self._new_condition(condition_type)
+
+                if condition_id != -1:
+                    condition.id = condition_id
+                    if condition.id in old_conditions:
+                        condition.from_state(old_conditions[condition.id].to_state())
+
+                schedule.add_condition(condition)
+
+                try:
+                    condition.set_submitted_vars(self, "cond_%d_" % num)
+                except PMUserError as e:
+                    if submit:
+                        self.error("Condition #%d: %s" % (num+1, e))
+                    has_error = True
 
             if submit and has_error:
                 raise PMUserError("An error occured, please correct this.")
 
 
+    def _new_condition(self, condition_type):
+        cls = Condition.get(condition_type)
+        if not cls:
+            raise PMUserError("Invalid condition type \"%s\" given." % condition_type)
+        return cls(self._manager)
+
+
     def action(self):
         self.ensure_password_is_set()
-        schedule = self._get_schedule()
-        self._set_submitted_vars(schedule, submit=True)
-        schedule.save()
+
+        # copy the object for editing so that eventual validation issues don't affect
+        # already existing schedules in the meantime. Only copy back when no validation
+        # issues occur.
+        orig_schedule = self._get_schedule()
+        self._schedule = self._get_schedule_copy()
+
+        self._set_submitted_vars(self._schedule, submit=True)
+
+        orig_schedule.from_config(self._schedule.to_config())
+        orig_schedule.from_state(self._schedule.to_state())
+        orig_schedule.save()
+        self._schedule = orig_schedule
+
         self.success("The schedule has been saved. Opening the schedule list now.")
         self.redirect(2, "/schedule")
 
@@ -1867,8 +1905,11 @@ class PageEditSchedule(PageHandler, Html, utils.LogMixin):
         self.h2(self.title())
 
         mode = self._get_mode()
-        schedule = self._get_schedule()
-        self._set_submitted_vars(schedule, submit=False)
+        if not self._schedule:
+            self._schedule = self._get_schedule_copy()
+            # on page update e.g. when select field was changed
+            self._set_submitted_vars(self._schedule, submit=False)
+        schedule = self._schedule
 
         self.begin_form()
         if mode == "edit":
@@ -1917,14 +1958,19 @@ class PageEditSchedule(PageHandler, Html, utils.LogMixin):
                "it's own.")
         self.write("<table>")
         self.write("<tr>")
+        self.write("<th class=\"short\">#</th>")
         self.write("<th>Type</th>")
         self.write("<th>Parameters</th>")
         self.write("</tr>")
 
         self.hidden("num_conditions", str(len(schedule.conditions)+1))
-        for condition_id, condition in enumerate(schedule.conditions + [Condition(self._manager)]):
-            varprefix = "cond_%d_" % condition_id
+        choices = sorted(schedule.conditions.values(), key=lambda c: c.id) \
+                  + [Condition(self._manager)]
+        for num, condition in enumerate(choices):
+            varprefix = "cond_%d_" % num
+            self.hidden(varprefix+"id", "%d" % (condition.id if condition.id != None else -1))
             self.write("<tr>")
+            self.write("<td>#%d</td>" % (num+1))
             self.write("<td>")
             self.write("Execute script ")
             self.select(varprefix+"type", self._get_condition_types(),
@@ -2671,7 +2717,7 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
         # FIXME: Optimize schedule/condition handling
         to_execute = set([])
         for schedule in self.enabled_schedules:
-            for condition in schedule.conditions:
+            for condition in schedule.conditions.values():
                 if isinstance(condition, ConditionOnTime):
                     if condition.next_time <= time.time():
                         this_time = condition.next_time
@@ -2696,7 +2742,7 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
     def _schedules_with_condition_type(self, cls):
         for schedule in self.enabled_schedules:
             matched = False
-            for condition in schedule.conditions:
+            for condition in schedule.conditions.values():
                 if isinstance(condition, cls):
                     matched = True
                     break
@@ -2711,7 +2757,7 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
         this just occured event. If so the schedule is executed.
         """
         for schedule in self.enabled_schedules:
-            for condition in schedule.conditions:
+            for condition in schedule.conditions.values():
                 if isinstance(condition, ConditionOnResidentPresence):
                     if condition.resident == resident:
                         event_type = condition.event_type
@@ -2858,7 +2904,7 @@ class Schedule(object):
         self.keep_running = False
         self.run_inline   = True
         self.script       = ""
-        self.conditions   = []
+        self.conditions   = {}
 
         self.last_triggered = None
         self._runner        = None
@@ -2890,17 +2936,37 @@ class Schedule(object):
         return self._runner
 
 
+    def get_condition(self, condition_id):
+        """Returns the condition with the given id. Raises a ``KeyError`` when
+        the condition not exists."""
+        return self.conditions[condition_id]
+
+
+    def remove_condition(self, condition_id):
+        """Removes the condition with the given id. Tolerates not existing conditions.
+        Always returns ``None``."""
+        try:
+            del self.conditions[condition_id]
+        except KeyError:
+            pass
+
+
     def add_condition(self, condition):
-        num = len(self.conditions)
-        condition.id = num
-        self.conditions.append(condition)
+        if condition.id == None:
+            condition.id = self._next_condition_id()
+        self.conditions[condition.id] = condition
 
 
     def clear_conditions(self):
-        self.conditions = []
+        self.conditions.clear()
+
+
+    def _next_condition_id(self):
+        return max([-1] + list(self.conditions.keys())) + 1
 
 
     def from_config(self, cfg):
+        self.clear_conditions()
         for key, val in cfg.items():
             if key != "conditions":
                 setattr(self, key, val)
@@ -2917,33 +2983,50 @@ class Schedule(object):
 
     def to_config(self):
         return {
+            "id"           : self.id,
             "name"         : self.name,
             "disabled"     : self.disabled,
             "keep_running" : self.keep_running,
             "run_inline"   : self.run_inline,
             "script"       : self.script,
-            "conditions"   : [ c.to_config() for c in self.conditions ],
+            "conditions"   : [ c.to_config() for c in self.conditions.values() ],
         }
 
 
     def from_state(self, state):
         for key, val in state.items():
-            if key != "conditions":
+            if key not in [ "conditions", "id" ]:
                 setattr(self, key, val)
 
-        for condition, condition_state in zip(self.conditions, state["conditions"]):
-            condition.from_state(condition_state)
+        sorted_ids = sorted(self.conditions.keys())
+
+        for num, condition_state in enumerate(state["conditions"]):
+            # 0.3 stored it as a list without ids. Match by order of conditions
+            if "id" not in condition_state:
+                condition_id = sorted_ids[num]
+            else:
+                condition_id = condition_state["id"]
+
+            condition = self.conditions.get(condition_id)
+            if condition:
+                condition.from_state(condition_state)
 
 
     def to_state(self):
         return {
+            "id"             : self.id,
             "last_triggered" : self.last_triggered,
-            "conditions"     : [ c.to_state() for c in self.conditions ],
+            "conditions"     : [ c.to_state() for c in self.conditions.values() ],
         }
 
 
     def save(self):
         self._manager.scheduler.add(self)
+        self._manager.scheduler.save()
+
+
+    def remove(self):
+        self._manager.scheduler.remove(self.id)
         self._manager.scheduler.save()
 
 
@@ -2966,6 +3049,7 @@ class Condition(object):
 
 
     def __init__(self, manager):
+        self.id = None
         self._manager = manager
 
 
@@ -2976,17 +3060,21 @@ class Condition(object):
 
     def to_config(self):
         return {
-            "type_name": self.type_name,
+            "id"        : self.id,
+            "type_name" : self.type_name,
         }
 
 
     def from_state(self, cfg):
         for key, val in cfg.items():
-            setattr(self, key, val)
+            if key != "id":
+                setattr(self, key, val)
 
 
     def to_state(self):
-        return {}
+        return {
+            "id": self.id,
+        }
 
 
     def display(self):
@@ -3193,7 +3281,7 @@ class ConditionOnDeviceEvent(Condition, utils.LogMixin):
             if not self.device:
                 raise PMUserError("Unable to find the given device.")
         else:
-            return
+            raise PMUserError("Please select a device")
 
         if channel_address:
             try:
@@ -3201,14 +3289,14 @@ class ConditionOnDeviceEvent(Condition, utils.LogMixin):
             except KeyError:
                 raise PMUserError("Unable to find the given channel.")
         else:
-            return
+            raise PMUserError("Please select a channel")
 
         if param_id:
             self.param = self.channel.values.get(param_id)
             if not self.param:
-                raise PMUserError("Unable to find the given channel.")
+                raise PMUserError("Unable to find the given parameter.")
         else:
-            return
+            raise PMUserError("Please select a parameter")
 
 
 
@@ -3486,6 +3574,9 @@ class ConditionOnTime(Condition):
                 interval = raw_interval * 60
             else:
                 interval = raw_interval
+
+            if interval < 1:
+                raise PMUserError("The shortest interval is one second.")
 
             self.interval_sec = interval
 

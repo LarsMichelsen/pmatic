@@ -63,7 +63,7 @@ class TestCondition(object):
 
 
     def test_to_config(self, c):
-        assert c.to_config() == {"type_name": ""}
+        assert c.to_config() == {"type_name": "", "id": None}
 
 
     def test_title(self, c):
