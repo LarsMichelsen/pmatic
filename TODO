@@ -1,7 +1,5 @@
 Fixes:
-* Schedules might be executed/rescheduled multiple times while editing
-  -> need to track the last execution time somewhere
-  * ConditionOnDeviceEvent implement to_state()
+* Schedules: ConditionOnDeviceEvent implement to_state()
 * CCU1:
   * /usr/local/bin/ not in path
   * /etc/config/rc.d/pmatic
