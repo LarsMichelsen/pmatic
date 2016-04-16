@@ -19,6 +19,8 @@ Devices
 * Added specific device object for HM-WDS10-TH-O
 * Added specific device object for HM-Sec-SCo
 * HM-TC-IT-WM-W-EU: Added missing specific channel ``ChannelWeatherTransmit``
+* Cleanup: Renamed all specific device classes to use underscores
+  (e.g. HMPBI4FM to HM_PBI_4_FM)
 
 Manager
 ```````

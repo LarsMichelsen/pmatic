@@ -30,7 +30,8 @@ import time
 import pmatic.api
 import pmatic.utils as utils
 import lib
-from pmatic.entities import Entity, Channel, Device, Devices, HMESPMSw1Pl, ChannelClimaRegulator, \
+from pmatic.entities import Entity, Channel, Device, Devices, HM_ES_PMSw1_Pl, \
+                            ChannelClimaRegulator, \
                             ChannelShutterContact, ChannelKey, \
                             device_classes_by_type_name, channel_classes_by_type_name
 from pmatic.params import ParameterBOOL, ParameterFLOAT, ParameterACTION, ParameterINTEGER
@@ -1039,7 +1040,7 @@ class TestDevice(lib.TestCCUClassWide):
 
 
 
-class TestHMCCRTDN(lib.TestCCUClassWide):
+class TestHM_CC_RT_DN(lib.TestCCUClassWide):
     @pytest.fixture(scope="class")
     def d(self, ccu):
         return list(ccu.devices.query(device_name="Wohnzimmer"))[0]
@@ -1168,7 +1169,7 @@ class TestHMCCRTDN(lib.TestCCUClassWide):
 
 
 
-class TestHMPBI4FM(lib.TestCCUClassWide):
+class TestHM_PBI_4_FM(lib.TestCCUClassWide):
     @pytest.fixture(scope="class")
     def d(self, ccu):
         return list(ccu.devices.query(device_name="Büro-Schalter"))[0]
@@ -1186,7 +1187,7 @@ def test_device_class_list():
     assert "Device" not in device_classes_by_type_name
     assert "SpecificDevice" not in device_classes_by_type_name
     assert "HM-ES-PMSw1-Pl" in device_classes_by_type_name
-    assert device_classes_by_type_name["HM-ES-PMSw1-Pl"] == HMESPMSw1Pl
+    assert device_classes_by_type_name["HM-ES-PMSw1-Pl"] == HM_ES_PMSw1_Pl
 
 
 def test_channel_class_list():

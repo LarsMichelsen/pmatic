@@ -1145,7 +1145,7 @@ class Device(Entity):
 #{u'CONTROL': u'HEATING_CONTROL.PARTY_STOP_YEAR', u'OPERATIONS': u'3', u'NAME': u'PARTY_STOP_YEAR',
 # u'MIN': u'0', u'DEFAULT': u'12', u'MAX': u'99', u'TAB_ORDER': u'21', u'FLAGS': u'1',
 # u'TYPE': u'INTEGER', u'ID': u'PARTY_STOP_YEAR', u'UNIT': u'year'}
-class HMCCRTDN(Device):
+class HM_CC_RT_DN(Device):
     type_name = "HM-CC-RT-DN"
 
     @property
@@ -1310,13 +1310,13 @@ class HM_WDS10_TH_O(Device):
 
 
 # Virtuelle Fernbedienung der CCU
-class HMRCV50(Device):
+class HM_RCV_50(Device):
     type_name = "HM-RCV-50"
 
 
 
 # Funk-Tür-/ Fensterkontakt
-class HMSecSC(Device):
+class HM_Sec_SC(Device):
     type_name = "HM-Sec-SC"
 
 
@@ -1327,13 +1327,13 @@ class HMSecSC(Device):
 
 
 # Optischer Funk-Tür-/ Fensterkontakt
-class HM_Sec_SCo(HMSecSC):
+class HM_Sec_SCo(HM_Sec_SC):
     type_name = "HM-Sec-SCo"
 
 
 
 # Funk-Schaltaktor mit Leistungsmessung
-class HMESPMSw1Pl(Device):
+class HM_ES_PMSw1_Pl(Device):
     type_name = "HM-ES-PMSw1-Pl"
 
 
@@ -1344,13 +1344,13 @@ class HMESPMSw1Pl(Device):
 
     @property
     def summary_state(self):
-        return super(HMESPMSw1Pl, self)._get_summary_state(
+        return super(HM_ES_PMSw1_Pl, self)._get_summary_state(
             skip_channel_types=["ChannelConditionPower", "ChannelConditionCurrent",
                                 "ChannelConditionVoltage", "ChannelConditionFrequency"])
 
 
 
-class HMPBI4FM(Device):
+class HM_PBI_4_FM(Device):
     type_name = "HM-PBI-4-FM"
 
     @property
