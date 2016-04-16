@@ -132,6 +132,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">api_token</span><span class="p">,</span> <span class="n">user_token</span> <span class="o">=</span> <span class="n">cls</span><span class="o">.</span><span class="n">_load_tokens</span><span class="p">(</span><span class="n">api_token</span><span class="p">,</span> <span class="n">user_token</span><span class="p">)</span>
 
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">message</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">PMUserError</span><span class="p">(</span><span class="s2">&quot;A message has to be specified.&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_text</span><span class="p">(</span><span class="n">message</span><span class="p">):</span>
             <span class="k">raise</span> <span class="n">PMUserError</span><span class="p">(</span><span class="s2">&quot;The message needs to be a unicode string.&quot;</span><span class="p">)</span>
 
