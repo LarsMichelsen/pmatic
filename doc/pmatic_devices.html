@@ -73,32 +73,32 @@ know several things:</p>
 <p>I think thats problematic. You need to dig into documents and API descriptions of the manufacturers
 which should really not be neccessary.</p>
 <p>So there is the concept of specific device objects in pmatic. To stick with the example above,
-there is the <a class="reference internal" href="#pmatic.entities.HMCCRTDN" title="pmatic.entities.HMCCRTDN"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.HMCCRTDN</span></code></a> which is automatically used for HM-CC-RT-DN devices.
+there is the <a class="reference internal" href="#pmatic.entities.HM_CC_RT_DN" title="pmatic.entities.HM_CC_RT_DN"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.HM_CC_RT_DN</span></code></a> which is automatically used for HM-CC-RT-DN devices.
 When working with such a device, you have access to the property <code class="docutils literal"><span class="pre">device.temperature</span></code> which gives
 you the same value as the code above. Now that should be clear. We need specific devices!</p>
 <div class="section" id="hm-cc-rt-dn-funk-heizkorperthermostat">
 <h2>HM-CC-RT-DN (Funk-Heizkörperthermostat)<a class="headerlink" href="#hm-cc-rt-dn-funk-heizkorperthermostat" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pmatic.entities.HMCCRTDN">
-<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HMCCRTDN</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMCCRTDN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMCCRTDN" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_CC_RT_DN">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HM_CC_RT_DN</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HM_CC_RT_DN"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HM_CC_RT_DN" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Device" title="pmatic.entities.Device"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Device</span></code></a></p>
 <dl class="attribute">
-<dt id="pmatic.entities.HMCCRTDN.temperature">
-<code class="descname">temperature</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.temperature" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_CC_RT_DN.temperature">
+<code class="descname">temperature</code><a class="headerlink" href="#pmatic.entities.HM_CC_RT_DN.temperature" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides the current temperature.</p>
 <p>Returns an instance of <code class="xref py py-class docutils literal"><span class="pre">ParameterFLOAT</span></code>.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pmatic.entities.HMCCRTDN.valve_state">
-<code class="descname">valve_state</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.valve_state" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_CC_RT_DN.valve_state">
+<code class="descname">valve_state</code><a class="headerlink" href="#pmatic.entities.HM_CC_RT_DN.valve_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides the current valve state in percentage.</p>
 <p>Returns an instance of <code class="xref py py-class docutils literal"><span class="pre">ParameterINTEGER</span></code>.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pmatic.entities.HMCCRTDN.set_temperature">
-<code class="descname">set_temperature</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.set_temperature" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_CC_RT_DN.set_temperature">
+<code class="descname">set_temperature</code><a class="headerlink" href="#pmatic.entities.HM_CC_RT_DN.set_temperature" title="Permalink to this definition">¶</a></dt>
 <dd><p>The actual set temperature of the device.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -119,32 +119,32 @@ device.</td>
 </dd></dl>
 
 <dl class="method">
-<dt id="pmatic.entities.HMCCRTDN.set_temperature_comfort">
-<code class="descname">set_temperature_comfort</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMCCRTDN.set_temperature_comfort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMCCRTDN.set_temperature_comfort" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_CC_RT_DN.set_temperature_comfort">
+<code class="descname">set_temperature_comfort</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HM_CC_RT_DN.set_temperature_comfort"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HM_CC_RT_DN.set_temperature_comfort" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the <code class="xref py py-attr docutils literal"><span class="pre">set_temperature</span></code> to the configured comfort temperature</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pmatic.entities.HMCCRTDN.set_temperature_lowering">
-<code class="descname">set_temperature_lowering</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMCCRTDN.set_temperature_lowering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMCCRTDN.set_temperature_lowering" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_CC_RT_DN.set_temperature_lowering">
+<code class="descname">set_temperature_lowering</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HM_CC_RT_DN.set_temperature_lowering"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HM_CC_RT_DN.set_temperature_lowering" title="Permalink to this definition">¶</a></dt>
 <dd><p>Sets the <code class="xref py py-attr docutils literal"><span class="pre">set_temperature</span></code> to the configured lowering temperature</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pmatic.entities.HMCCRTDN.is_off">
-<code class="descname">is_off</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.is_off" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_CC_RT_DN.is_off">
+<code class="descname">is_off</code><a class="headerlink" href="#pmatic.entities.HM_CC_RT_DN.is_off" title="Permalink to this definition">¶</a></dt>
 <dd><p>Is set to <cite>True</cite> when the device is not enabled to heat.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="pmatic.entities.HMCCRTDN.turn_off">
-<code class="descname">turn_off</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMCCRTDN.turn_off"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMCCRTDN.turn_off" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_CC_RT_DN.turn_off">
+<code class="descname">turn_off</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HM_CC_RT_DN.turn_off"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HM_CC_RT_DN.turn_off" title="Permalink to this definition">¶</a></dt>
 <dd><p>Call this method to tell the thermostat that it should not heat.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pmatic.entities.HMCCRTDN.control_mode">
-<code class="descname">control_mode</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.control_mode" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_CC_RT_DN.control_mode">
+<code class="descname">control_mode</code><a class="headerlink" href="#pmatic.entities.HM_CC_RT_DN.control_mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>The actual control mode of the device. This is either <code class="docutils literal"><span class="pre">AUTO</span></code>, <code class="docutils literal"><span class="pre">MANUAL</span></code>,
 <code class="docutils literal"><span class="pre">PARTY</span></code> or <code class="docutils literal"><span class="pre">BOOST</span></code>.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -165,22 +165,22 @@ device is currently turned off.</td>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pmatic.entities.HMCCRTDN.is_battery_low">
-<code class="descname">is_battery_low</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.is_battery_low" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_CC_RT_DN.is_battery_low">
+<code class="descname">is_battery_low</code><a class="headerlink" href="#pmatic.entities.HM_CC_RT_DN.is_battery_low" title="Permalink to this definition">¶</a></dt>
 <dd><p>Is <code class="docutils literal"><span class="pre">True</span></code> when the battery is reported to be low, otherwise <code class="docutils literal"><span class="pre">False</span></code>.
 If you want more details about the current battery, use <code class="xref py py-meth docutils literal"><span class="pre">battery_state()</span></code> to get
 the current reported voltage.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pmatic.entities.HMCCRTDN.battery_state">
-<code class="descname">battery_state</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.battery_state" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_CC_RT_DN.battery_state">
+<code class="descname">battery_state</code><a class="headerlink" href="#pmatic.entities.HM_CC_RT_DN.battery_state" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides the actual battery voltage reported by the device.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pmatic.entities.HMCCRTDN.boost_duration">
-<code class="descname">boost_duration</code><a class="headerlink" href="#pmatic.entities.HMCCRTDN.boost_duration" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_CC_RT_DN.boost_duration">
+<code class="descname">boost_duration</code><a class="headerlink" href="#pmatic.entities.HM_CC_RT_DN.boost_duration" title="Permalink to this definition">¶</a></dt>
 <dd><p>When boost mode is currently active this returns the number of minutes left
 in boost mode. Otherwise it returns <code class="docutils literal"><span class="pre">None</span></code>.</p>
 <p>Provides the configured boost duration as <code class="xref py py-class docutils literal"><span class="pre">ParameterINTEGER</span></code>.</p>
@@ -192,8 +192,8 @@ in boost mode. Otherwise it returns <code class="docutils literal"><span class="
 <div class="section" id="hm-sec-sc-funk-tur-fensterkontakt">
 <h2>HM-Sec-SC (Funk-Tür-/ Fensterkontakt)<a class="headerlink" href="#hm-sec-sc-funk-tur-fensterkontakt" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pmatic.entities.HMSecSC">
-<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HMSecSC</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMSecSC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMSecSC" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_Sec_SC">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HM_Sec_SC</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HM_Sec_SC"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HM_Sec_SC" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Device" title="pmatic.entities.Device"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Device</span></code></a></p>
 </dd></dl>
 
@@ -203,53 +203,53 @@ in boost mode. Otherwise it returns <code class="docutils literal"><span class="
 <dl class="class">
 <dt id="pmatic.entities.HM_Sec_SCo">
 <em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HM_Sec_SCo</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HM_Sec_SCo"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HM_Sec_SCo" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="#pmatic.entities.HMSecSC" title="pmatic.entities.HMSecSC"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.HMSecSC</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="#pmatic.entities.HM_Sec_SC" title="pmatic.entities.HM_Sec_SC"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.HM_Sec_SC</span></code></a></p>
 </dd></dl>
 
 </div>
 <div class="section" id="hm-es-pmsw1-pl-funk-schaltaktor-mit-leistungsmessung">
 <h2>HM-ES-PMSw1-Pl (Funk-Schaltaktor mit Leistungsmessung)<a class="headerlink" href="#hm-es-pmsw1-pl-funk-schaltaktor-mit-leistungsmessung" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pmatic.entities.HMESPMSw1Pl">
-<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HMESPMSw1Pl</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMESPMSw1Pl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMESPMSw1Pl" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_ES_PMSw1_Pl">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HM_ES_PMSw1_Pl</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HM_ES_PMSw1_Pl"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HM_ES_PMSw1_Pl" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Device" title="pmatic.entities.Device"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Device</span></code></a></p>
 <dl class="attribute">
-<dt id="pmatic.entities.HMESPMSw1Pl.summary_state">
-<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.HMESPMSw1Pl.summary_state" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_ES_PMSw1_Pl.summary_state">
+<code class="descname">summary_state</code><a class="headerlink" href="#pmatic.entities.HM_ES_PMSw1_Pl.summary_state" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </div>
-<div class="section" id="hmpbi4fm-hm-pbi-4-fm-funk-tasterschnittstelle-4-fach">
-<h2>HMPBI4FM - HM-PBI-4-FM (Funk-Tasterschnittstelle 4-fach)<a class="headerlink" href="#hmpbi4fm-hm-pbi-4-fm-funk-tasterschnittstelle-4-fach" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="hm-pbi-4-fm-funk-tasterschnittstelle-4-fach">
+<h2>HM-PBI-4-FM (Funk-Tasterschnittstelle 4-fach)<a class="headerlink" href="#hm-pbi-4-fm-funk-tasterschnittstelle-4-fach" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
-<dt id="pmatic.entities.HMPBI4FM">
-<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HMPBI4FM</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HMPBI4FM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HMPBI4FM" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_PBI_4_FM">
+<em class="property">class </em><code class="descclassname">pmatic.entities.</code><code class="descname">HM_PBI_4_FM</code><span class="sig-paren">(</span><em>ccu</em>, <em>spec</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/pmatic/entities.html#HM_PBI_4_FM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pmatic.entities.HM_PBI_4_FM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="pmatic_module.html#pmatic.entities.Device" title="pmatic.entities.Device"><code class="xref py py-class docutils literal"><span class="pre">pmatic.entities.Device</span></code></a></p>
 <dl class="attribute">
-<dt id="pmatic.entities.HMPBI4FM.switch1">
-<code class="descname">switch1</code><a class="headerlink" href="#pmatic.entities.HMPBI4FM.switch1" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_PBI_4_FM.switch1">
+<code class="descname">switch1</code><a class="headerlink" href="#pmatic.entities.HM_PBI_4_FM.switch1" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides to the <a class="reference internal" href="#pmatic.entities.ChannelKey" title="pmatic.entities.ChannelKey"><code class="xref py py-class docutils literal"><span class="pre">ChannelKey</span></code></a> object of the first switch.</p>
 <p>You can do something like <code class="docutils literal"><span class="pre">self.switch1.press_short()</span></code> with this. For details take
 a look at the methods provided by the :class:<code class="docutils literal"><span class="pre">.ChannelKey</span></code> class.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pmatic.entities.HMPBI4FM.switch2">
-<code class="descname">switch2</code><a class="headerlink" href="#pmatic.entities.HMPBI4FM.switch2" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_PBI_4_FM.switch2">
+<code class="descname">switch2</code><a class="headerlink" href="#pmatic.entities.HM_PBI_4_FM.switch2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides to the <a class="reference internal" href="#pmatic.entities.ChannelKey" title="pmatic.entities.ChannelKey"><code class="xref py py-class docutils literal"><span class="pre">ChannelKey</span></code></a> object of the second switch.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pmatic.entities.HMPBI4FM.switch3">
-<code class="descname">switch3</code><a class="headerlink" href="#pmatic.entities.HMPBI4FM.switch3" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_PBI_4_FM.switch3">
+<code class="descname">switch3</code><a class="headerlink" href="#pmatic.entities.HM_PBI_4_FM.switch3" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides to the <a class="reference internal" href="#pmatic.entities.ChannelKey" title="pmatic.entities.ChannelKey"><code class="xref py py-class docutils literal"><span class="pre">ChannelKey</span></code></a> object of the third switch.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="pmatic.entities.HMPBI4FM.switch4">
-<code class="descname">switch4</code><a class="headerlink" href="#pmatic.entities.HMPBI4FM.switch4" title="Permalink to this definition">¶</a></dt>
+<dt id="pmatic.entities.HM_PBI_4_FM.switch4">
+<code class="descname">switch4</code><a class="headerlink" href="#pmatic.entities.HM_PBI_4_FM.switch4" title="Permalink to this definition">¶</a></dt>
 <dd><p>Provides to the <a class="reference internal" href="#pmatic.entities.ChannelKey" title="pmatic.entities.ChannelKey"><code class="xref py py-class docutils literal"><span class="pre">ChannelKey</span></code></a> object of the fourth switch.</p>
 </dd></dl>
 
@@ -635,7 +635,7 @@ some readable format.</p>
 <li><a class="reference internal" href="#hm-sec-sc-funk-tur-fensterkontakt">HM-Sec-SC (Funk-Tür-/ Fensterkontakt)</a></li>
 <li><a class="reference internal" href="#hm-sec-sco-optischer-funk-tur-fensterkontakt">HM-Sec-SCo (Optischer Funk-Tür-/ Fensterkontakt)</a></li>
 <li><a class="reference internal" href="#hm-es-pmsw1-pl-funk-schaltaktor-mit-leistungsmessung">HM-ES-PMSw1-Pl (Funk-Schaltaktor mit Leistungsmessung)</a></li>
-<li><a class="reference internal" href="#hmpbi4fm-hm-pbi-4-fm-funk-tasterschnittstelle-4-fach">HMPBI4FM - HM-PBI-4-FM (Funk-Tasterschnittstelle 4-fach)</a></li>
+<li><a class="reference internal" href="#hm-pbi-4-fm-funk-tasterschnittstelle-4-fach">HM-PBI-4-FM (Funk-Tasterschnittstelle 4-fach)</a></li>
 <li><a class="reference internal" href="#hm-wds10-th-o-funk-temperatur-luftfeuchtesensor-oth">HM-WDS10-TH-O (Funk-Temperatur-/Luftfeuchtesensor OTH)</a></li>
 <li><a class="reference internal" href="#the-channels">The Channels</a><ul>
 <li><a class="reference internal" href="#channelmaintenance">ChannelMaintenance</a></li>

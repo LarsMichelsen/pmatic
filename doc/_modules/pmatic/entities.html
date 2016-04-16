@@ -1199,7 +1199,7 @@
 <span class="c1">#{u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.PARTY_STOP_YEAR&#39;, u&#39;OPERATIONS&#39;: u&#39;3&#39;, u&#39;NAME&#39;: u&#39;PARTY_STOP_YEAR&#39;,</span>
 <span class="c1"># u&#39;MIN&#39;: u&#39;0&#39;, u&#39;DEFAULT&#39;: u&#39;12&#39;, u&#39;MAX&#39;: u&#39;99&#39;, u&#39;TAB_ORDER&#39;: u&#39;21&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;,</span>
 <span class="c1"># u&#39;TYPE&#39;: u&#39;INTEGER&#39;, u&#39;ID&#39;: u&#39;PARTY_STOP_YEAR&#39;, u&#39;UNIT&#39;: u&#39;year&#39;}</span>
-<div class="viewcode-block" id="HMCCRTDN"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMCCRTDN">[docs]</a><span class="k">class</span> <span class="nc">HMCCRTDN</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
+<div class="viewcode-block" id="HM_CC_RT_DN"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_CC_RT_DN">[docs]</a><span class="k">class</span> <span class="nc">HM_CC_RT_DN</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-CC-RT-DN&quot;</span>
 
     <span class="nd">@property</span>
@@ -1246,7 +1246,7 @@
     <span class="c1"># {u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.COMFORT&#39;, u&#39;OPERATIONS&#39;: u&#39;2&#39;, u&#39;NAME&#39;: u&#39;COMFORT_MODE&#39;,</span>
     <span class="c1">#  u&#39;MIN&#39;: u&#39;0&#39;, u&#39;DEFAULT&#39;: u&#39;0&#39;, u&#39;MAX&#39;: u&#39;1&#39;, u&#39;TAB_ORDER&#39;: u&#39;10&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;,</span>
     <span class="c1">#  u&#39;TYPE&#39;: u&#39;ACTION&#39;, u&#39;ID&#39;: u&#39;COMFORT_MODE&#39;, u&#39;UNIT&#39;: u&#39;&#39;}</span>
-<div class="viewcode-block" id="HMCCRTDN.set_temperature_comfort"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMCCRTDN.set_temperature_comfort">[docs]</a>    <span class="k">def</span> <span class="nf">set_temperature_comfort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HM_CC_RT_DN.set_temperature_comfort"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_CC_RT_DN.set_temperature_comfort">[docs]</a>    <span class="k">def</span> <span class="nf">set_temperature_comfort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets the :attr:`set_temperature` to the configured comfort temperature&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;COMFORT_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">True</span></div>
 
@@ -1254,7 +1254,7 @@
     <span class="c1">#{u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.LOWERING&#39;, u&#39;OPERATIONS&#39;: u&#39;2&#39;, u&#39;NAME&#39;: u&#39;LOWERING_MODE&#39;,</span>
     <span class="c1"># u&#39;MIN&#39;: u&#39;0&#39;, u&#39;DEFAULT&#39;: u&#39;0&#39;, u&#39;MAX&#39;: u&#39;1&#39;, u&#39;TAB_ORDER&#39;: u&#39;11&#39;, u&#39;FLAGS&#39;: u&#39;1&#39;,</span>
     <span class="c1"># u&#39;TYPE&#39;: u&#39;ACTION&#39;, u&#39;ID&#39;: u&#39;LOWERING_MODE&#39;, u&#39;UNIT&#39;: u&#39;&#39;}</span>
-<div class="viewcode-block" id="HMCCRTDN.set_temperature_lowering"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMCCRTDN.set_temperature_lowering">[docs]</a>    <span class="k">def</span> <span class="nf">set_temperature_lowering</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HM_CC_RT_DN.set_temperature_lowering"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_CC_RT_DN.set_temperature_lowering">[docs]</a>    <span class="k">def</span> <span class="nf">set_temperature_lowering</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets the :attr:`set_temperature` to the configured lowering temperature&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;LOWERING_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">True</span></div>
 
@@ -1265,7 +1265,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="mf">4.5</span>
 
 
-<div class="viewcode-block" id="HMCCRTDN.turn_off"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMCCRTDN.turn_off">[docs]</a>    <span class="k">def</span> <span class="nf">turn_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="HM_CC_RT_DN.turn_off"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_CC_RT_DN.turn_off">[docs]</a>    <span class="k">def</span> <span class="nf">turn_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Call this method to tell the thermostat that it should not heat.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">set_temperature</span> <span class="o">=</span> <span class="mf">4.5</span></div>
 
@@ -1364,13 +1364,13 @@
 
 
 <span class="c1"># Virtuelle Fernbedienung der CCU</span>
-<span class="k">class</span> <span class="nc">HMRCV50</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
+<span class="k">class</span> <span class="nc">HM_RCV_50</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-RCV-50&quot;</span>
 
 
 
 <span class="c1"># Funk-Tür-/ Fensterkontakt</span>
-<div class="viewcode-block" id="HMSecSC"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMSecSC">[docs]</a><span class="k">class</span> <span class="nc">HMSecSC</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
+<div class="viewcode-block" id="HM_Sec_SC"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_Sec_SC">[docs]</a><span class="k">class</span> <span class="nc">HM_Sec_SC</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-Sec-SC&quot;</span>
 
 
@@ -1381,13 +1381,13 @@
 
 
 <span class="c1"># Optischer Funk-Tür-/ Fensterkontakt</span>
-<div class="viewcode-block" id="HM_Sec_SCo"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_Sec_SCo">[docs]</a><span class="k">class</span> <span class="nc">HM_Sec_SCo</span><span class="p">(</span><span class="n">HMSecSC</span><span class="p">):</span>
+<div class="viewcode-block" id="HM_Sec_SCo"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_Sec_SCo">[docs]</a><span class="k">class</span> <span class="nc">HM_Sec_SCo</span><span class="p">(</span><span class="n">HM_Sec_SC</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-Sec-SCo&quot;</span></div>
 
 
 
 <span class="c1"># Funk-Schaltaktor mit Leistungsmessung</span>
-<div class="viewcode-block" id="HMESPMSw1Pl"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMESPMSw1Pl">[docs]</a><span class="k">class</span> <span class="nc">HMESPMSw1Pl</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
+<div class="viewcode-block" id="HM_ES_PMSw1_Pl"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_ES_PMSw1_Pl">[docs]</a><span class="k">class</span> <span class="nc">HM_ES_PMSw1_Pl</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-ES-PMSw1-Pl&quot;</span>
 
 
@@ -1398,13 +1398,13 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">HMESPMSw1Pl</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_get_summary_state</span><span class="p">(</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">HM_ES_PMSw1_Pl</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_get_summary_state</span><span class="p">(</span>
             <span class="n">skip_channel_types</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ChannelConditionPower&quot;</span><span class="p">,</span> <span class="s2">&quot;ChannelConditionCurrent&quot;</span><span class="p">,</span>
                                 <span class="s2">&quot;ChannelConditionVoltage&quot;</span><span class="p">,</span> <span class="s2">&quot;ChannelConditionFrequency&quot;</span><span class="p">])</span></div>
 
 
 
-<div class="viewcode-block" id="HMPBI4FM"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HMPBI4FM">[docs]</a><span class="k">class</span> <span class="nc">HMPBI4FM</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
+<div class="viewcode-block" id="HM_PBI_4_FM"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_PBI_4_FM">[docs]</a><span class="k">class</span> <span class="nc">HM_PBI_4_FM</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-PBI-4-FM&quot;</span>
 
     <span class="nd">@property</span>

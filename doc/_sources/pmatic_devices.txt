@@ -15,14 +15,14 @@ I think thats problematic. You need to dig into documents and API descriptions o
 which should really not be neccessary.
 
 So there is the concept of specific device objects in pmatic. To stick with the example above,
-there is the :class:`pmatic.entities.HMCCRTDN` which is automatically used for HM-CC-RT-DN devices.
+there is the :class:`pmatic.entities.HM_CC_RT_DN` which is automatically used for HM-CC-RT-DN devices.
 When working with such a device, you have access to the property ``device.temperature`` which gives
 you the same value as the code above. Now that should be clear. We need specific devices!
 
 HM-CC-RT-DN (Funk-Heizkörperthermostat)
 --------------------------------------------------
 
-.. autoclass:: pmatic.entities.HMCCRTDN
+.. autoclass:: pmatic.entities.HM_CC_RT_DN
     :show-inheritance:
     :members:
     :undoc-members:
@@ -31,7 +31,7 @@ HM-CC-RT-DN (Funk-Heizkörperthermostat)
 HM-Sec-SC (Funk-Tür-/ Fensterkontakt)
 -----------------------------------------------
 
-.. autoclass:: pmatic.entities.HMSecSC
+.. autoclass:: pmatic.entities.HM_Sec_SC
     :show-inheritance:
     :members:
     :undoc-members:
@@ -49,16 +49,16 @@ HM-Sec-SCo (Optischer Funk-Tür-/ Fensterkontakt)
 HM-ES-PMSw1-Pl (Funk-Schaltaktor mit Leistungsmessung)
 --------------------------------------------------------------------
 
-.. autoclass:: pmatic.entities.HMESPMSw1Pl
+.. autoclass:: pmatic.entities.HM_ES_PMSw1_Pl
     :show-inheritance:
     :members:
     :undoc-members:
     :exclude-members: type_name
 
-HMPBI4FM - HM-PBI-4-FM (Funk-Tasterschnittstelle 4-fach)
+HM-PBI-4-FM (Funk-Tasterschnittstelle 4-fach)
 --------------------------------------------------------
 
-.. autoclass:: pmatic.entities.HMPBI4FM
+.. autoclass:: pmatic.entities.HM_PBI_4_FM
     :show-inheritance:
     :members:
     :undoc-members:
