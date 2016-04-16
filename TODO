@@ -24,7 +24,6 @@ Todos:
 * Improve error handling of TCL errors like in https://github.com/LarsMichelsen/pmatic/issues/7
 
 Optimizations:
-* Ship precompiled *.pyc files for faster startups even on first load?
 * Events: Only register when there is at least one script asking for events
 
 Ideas:

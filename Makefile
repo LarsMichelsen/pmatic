@@ -112,6 +112,7 @@ dist-ccu-step2:
 	    --exclude=__pycache__ \
 	    pmatic examples pmatic-manager manager_static \
 	    $(CCU_PKG_PATH)
+	cd $(CCU_PKG_PATH) ; python -m compileall .
 	tar -cv -C $(CCU_PKG_PATH) -f $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar .
 	[ -d $(CCU_PKG_PATH) ] && rm -rf $(CCU_PKG_PATH) || true
 	tar -rv -C ccu_pkg -f $(DIST_PATH)/pmatic-$(VERSION)_ccu.tar \

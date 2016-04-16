@@ -12,6 +12,7 @@ General
 * Improved error handling of fetched values with the current CCU firmware (2.17.15)
   This firmware fails with error code 501 instead of 601 in case of values that can not
   be fetched for some reason.
+* CCU Package: Precompiling all Python files to ``*.pyc`` now for faster initial loading
 
 Devices
 ```````
@@ -19,8 +20,6 @@ Devices
 * Added specific device object for HM-WDS10-TH-O
 * Added specific device object for HM-Sec-SCo
 * HM-TC-IT-WM-W-EU: Added missing specific channel ``ChannelWeatherTransmit``
-* Cleanup: Renamed all specific device classes to use underscores
-  (e.g. HMPBI4FM to HM_PBI_4_FM)
 
 Manager
 ```````
@@ -44,6 +43,13 @@ Documentation
 `````````````
 
 * Added missing documentation of Parameter classes
+
+Incompatible (possible manual changes needed)
+`````````````````````````````````````````````
+
+* Cleanup: Renamed all specific device classes to use underscores
+  (e.g. HMPBI4FM to HM_PBI_4_FM)
+
 
 Version 0.2 (2016-04-07)
 ------------------------
