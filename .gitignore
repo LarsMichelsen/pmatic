@@ -12,3 +12,5 @@ htmlcov
 dumps
 manager
 start-manager
+dist/pmatic-*.tar.gz
+dist/ccu

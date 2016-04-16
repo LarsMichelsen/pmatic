@@ -71,6 +71,7 @@ release: dist
 dist: dist-os dist-ccu
 
 dist-os:
+	[ ! -d $(DIST_PATH) ] && mkdir $(DIST_PATH) || true
 	python setup.py sdist
 	@echo "Created dist/pmatic-$(VERSION).tar.gz"
 
@@ -103,6 +104,7 @@ dist-ccu-step1:
 	    $(CCU_PREDIST_PATH)/libs/ ; \
 
 dist-ccu-step2:
+	[ ! -d $(DIST_PATH) ] && mkdir $(DIST_PATH) || true
 	rsync -av $(CCU_PREDIST_PATH)/python $(CCU_PREDIST_PATH)/libs $(CCU_PKG_PATH)/
 	rsync -aRv --no-g \
 	    --exclude=\*.pyc \
@@ -214,7 +216,7 @@ clean-chroot:
 
 clean-dist:
 	rm -rf build 2>/dev/null || true
-	rm -rf dist/* 2>/dev/null || true
+	rm -rf dist 2>/dev/null || true
 
 travis-build:
 	GIT_COMMIT=$(shell git rev-parse --short HEAD) ; \
