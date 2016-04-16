@@ -3408,15 +3408,17 @@ class ConditionOnTime(Condition):
         if self.interval_type == "timed":
             txt += " each %d %s" % (self._formated_interval_sec(),
                                     dict(self._interval_units)[self.interval_unit])
-            return txt
+        else:
+            if self.interval_type == "weekly":
+                txt += " on day %d of week" % self.day_of_week
 
-        elif self.interval_type == "weekly":
-            txt += " on day %d of week" % self.day_of_week
+            elif self.interval_type == "monthly":
+                txt += " on day %d of month" % self.day_of_month
 
-        elif self.interval_type == "monthly":
-            txt += " on day %d of month" % self.day_of_month
+            txt += ", at %02d:%02d o'clock" % self.time_of_day
 
-        txt += ", at %02d:%02d o'clock" % self.time_of_day
+        txt += " (Next: %s)" % time.strftime("%Y-%m-%d %H:%M:%S",
+                                             time.localtime(self.next_time))
 
         return txt
 
@@ -3521,6 +3523,8 @@ class ConditionOnTime(Condition):
             self._set_weekly_vars(page, varprefix)
         elif self.interval_type == "monthly":
             self._set_monthly_vars(page, varprefix)
+
+        self.calculate_next_time()
 
 
     def _set_time_of_day(self, page, varprefix):

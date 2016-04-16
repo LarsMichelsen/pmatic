@@ -28,6 +28,7 @@ Manager
   persistant on the CCU. So the resident and schedule states will be reset on reboot.
 * Schedule/Resident pages can now only be accessed after setting the manager password.
 * Scripts started with "Execute Scripts" can now be run in inline mode
+* Schedules: Showing next execution time for timed schedules
 * FIX: Fixed custom config via command line not setting new defaults for the argument parsing
   (e.g. ccu_enabled could not be changed to ``False`` using a config file provided by (``-o``).
 * FIX: Fixed startup error when connection to CCU is not possible
