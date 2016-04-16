@@ -159,9 +159,9 @@ So please help adding more devices!
 Changes
 -------
 
-Please take a look at the
-```CHANGELOG.rst`` <https://github.com/LarsMichelsen/pmatic/blob/master/CHANGELOG.rst>`__
-file for a detailed list of changes.
+Please take a look at the `changelog
+<https://github.com/LarsMichelsen/pmatic/blob/master/CHANGELOG.rst>`__
+for a detailed list of changes.
 
 Reporting Bugs, Feature Requests
 --------------------------------
