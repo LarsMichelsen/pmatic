@@ -33,3 +33,12 @@ Ideas:
   - Use rfd or whatever low level APIs?
 * Provide standard way to store data on the local system
 * Create Object based access to the system variables of the CCU
+* Timeperiod management
+  * Create custom timeperiods like "sleep time" 22:00 - 07:00
+  * Use them in scripts like this:
+    if pmatic.times.is("sleep time"):
+        # ... do something ...
+
+  * Or event based:
+    pmatic.times.on_start("sleep time", call_custom_function_start)
+    pmatic.times.on_end("sleep time", call_custom_function_end)
