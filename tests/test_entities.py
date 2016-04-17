@@ -472,6 +472,29 @@ class TestChannel(lib.TestCCUClassWide):
 
 
 
+class TestChannelMaintenance(lib.TestCCUClassWide):
+    @pytest.fixture(scope="function")
+    def device(self, ccu):
+        return list(ccu.devices.query(device_name="Büro-Schalter"))[0]
+
+
+    @pytest.fixture(scope="function")
+    def m(self, device):
+        return device.maintenance
+
+
+    def test_summary_state(self, m):
+        assert m.summary_state == None
+
+
+    def test_maintenance_state(self, m):
+        assert m.maintenance_state != ""
+        assert utils.is_text(m.maintenance_state)
+        assert m.maintenance_state.count(",") == 6
+        assert m.maintenance_state.count(":") == 7
+
+
+
 class TestChannelThermalControlTransmit(lib.TestCCUClassWide):
     @pytest.fixture(scope="function")
     def device(self, ccu):

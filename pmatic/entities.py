@@ -463,8 +463,7 @@ class Channel(utils.LogMixin, Entity):
 class ChannelMaintenance(Channel):
     type_name = "MAINTENANCE"
     name = "Maintenance"
-    id = 0 # FIXME: Really no id for maintenance channels?
-
+    id = 0
 
     @property
     def summary_state(self):
