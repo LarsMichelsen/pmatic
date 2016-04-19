@@ -64,7 +64,7 @@ def test_requirements():
 
 
 setup(name='pmatic',
-    version='0.3',
+    version='0.4',
     description='Python API for Homematic. Easy to use.',
     maintainer='Lars Michelsen',
     maintainer_email='lm@larsmichelsen.com',
