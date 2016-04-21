@@ -6,6 +6,7 @@ Fixes:
     * expat nach /lib
     * /usr/local/bin/python findet python2.7 nicht
   * Linux homematic 2.6.21.3 #1 Mon Nov 17 09:08:38 CET 2014 armv4tl unknown
+* tempfile: Care about removing the created dirs/files
 
 Todos:
 * Manager:
