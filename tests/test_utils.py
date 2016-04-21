@@ -42,6 +42,8 @@ except ImportError:
     from io import StringIO
 
 
+from pmatic.exceptions import PMException
+
 def test_is_string():
     assert utils.is_string("x")
     assert utils.is_string(1) == False
@@ -179,6 +181,11 @@ def test_is_ccu(monkeypatch):
 
     monkeypatch.setattr(builtins, "open", ccu_os_release)
     monkeypatch.setattr(platform, "uname", lambda: (
+        'Linux', 'dev', '3.16.0-4-amd64',
+        '#1 SMP Debian 3.16.7-ckt9-3~deb8u1 (2015-04-24)', 'x86_64'))
+    assert utils.is_ccu() == True
+
+    monkeypatch.setattr(platform, "uname", lambda: (
         'Linux', 'ccu', '3.4.11.ccu2',
         '#1 PREEMPT Fri Oct 16 10:43:35 CEST 2015', 'armv5tejl'))
     assert utils.is_ccu() == True
@@ -194,3 +201,38 @@ def test_is_manager_inline():
 
     builtins.manager_ccu = True
     assert utils.is_manager_inline() == True
+
+
+class TestPersistentStore(object):
+    @pytest.fixture(scope="class")
+    def store(self):
+        return utils.PersistentStore()
+
+
+    def test_name(self, store):
+        assert store._name == None
+
+
+    def test_load_not_existant(self, store):
+        assert store._load("/asdas/ads/d") == None
+        assert store._load("/asdas/ads/d", {}) == {}
+
+
+    def test_load_empty_file(self, store, tmpdir):
+        f = tmpdir.join("test_load_empty_file")
+        f.open("w")
+        path = "%s" % f
+        with pytest.raises(PMException) as e:
+            store._load(path)
+        assert "Failed to load None:" in str(e)
+
+
+    def test_load(self, store, tmpdir):
+        f = tmpdir.join("testfile")
+        f.write("{\"123\": \"234\"}")
+
+        path = "%s" % f
+        cfg = store._load(path)
+        assert isinstance(cfg, dict)
+        assert len(cfg) == 1
+        assert cfg["123"] == "234"
