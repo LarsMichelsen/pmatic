@@ -129,9 +129,8 @@ class PersistentStore(object):
                     raise
 
             return data
-        except Exception:
-            self.logger.error("Failed to load %s. Terminating." % self._name, exc_info=True)
-            sys.exit(1)
+        except Exception as e:
+            raise PMException("Failed to load %s: %s" % (self._name, e))
 
 
     def _save(self, path, data):
