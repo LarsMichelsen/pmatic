@@ -4,6 +4,10 @@ The pmatic Changelog
 Unreleased (Use snapshot builds to get these changes)
 -----------------------------------------------------
 
+
+Version 0.3 (2016-04-19)
+------------------------
+
 General
 ```````
 
