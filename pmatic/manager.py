@@ -2525,11 +2525,11 @@ class EventManager(threading.Thread, utils.LogMixin):
         self.daemon           = True
         self._is_initialized  = False
         self._fail_exc        = None
-        self._terminate       = False
+        self._terminate       = threading.Event()
 
 
     def run(self):
-        while not self._terminate:
+        while not self._terminate.is_set():
             if not self.initialized:
                 self._fail_exc = None
                 try:
@@ -2540,8 +2540,7 @@ class EventManager(threading.Thread, utils.LogMixin):
                     self.logger.debug("Exception:", exc_info=True)
                     time.sleep(10)
             else:
-                # FIXME: Replace this polling by some trigger mechanism
-                time.sleep(1)
+                self._terminate.wait()
 
 
     def _do_register_for_ccu_events(self):
@@ -2573,7 +2572,7 @@ class EventManager(threading.Thread, utils.LogMixin):
 
 
     def stop(self):
-        self._terminate = True
+        self._terminate.set()
         self.join()
 
 
