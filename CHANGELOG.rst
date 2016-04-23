@@ -4,6 +4,10 @@ The pmatic Changelog
 Unreleased (Use snapshot builds to get these changes)
 -----------------------------------------------------
 
+Manager
+```````
+
+* Improved performance during processing of web pages
 
 Version 0.3 (2016-04-19)
 ------------------------

@@ -528,7 +528,7 @@ class PageHandler(utils.LogMixin):
         self.write("\n</div>")
         self.page_footer()
 
-        return self._page
+        return [b"".join(self._page)]
 
 
     def ensure_password_is_set(self):
@@ -657,7 +657,7 @@ class StaticFile(PageHandler):
                 "attachment; filename=\"%s\"" % os.path.basename(path_info))
 
         self._start_response(self._http_status(200), self._http_headers)
-        return [ l for l in open(file_path) ]
+        return [ l for l in open(file_path, "r") ]
 
 
 
@@ -957,7 +957,7 @@ class PageAjaxUpdateOutput(PageHandler, Html, utils.LogMixin):
 
         self.write_text("".join(g_runner.output))
 
-        return self._page
+        return [b"".join(self._page)]
 
 
 
