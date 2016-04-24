@@ -2552,6 +2552,16 @@ class EventManager(threading.Thread, utils.LogMixin):
 
 
     def _on_value_updated(self, event_listener, updated_param):
+        # It seem to happen that we receive events for non readable values. e.g.
+        # Exception in XML-RPC call event('pmatic-0', 'LEQ1237196:1', 'INSTALL_TEST', True):
+        # ...
+        # PMException: Exception in callback (value_updated -
+        #  <bound method EventManager._on_value_updated of
+        #   <EventManager(Thread-3, started daemon -1242856336)>>): The value can not be read.
+        # Ignore non readable value updates here
+        if not updated_param.readable:
+            return
+
         self._manager.event_history.add_event({
             "time"           : updated_param.last_updated,
             "time_changed"   : updated_param.last_changed,

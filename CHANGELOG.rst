@@ -8,6 +8,7 @@ Manager
 ```````
 
 * Improved performance during processing of web pages
+* Fixed exception in event processing of non readable values
 
 Version 0.3 (2016-04-19)
 ------------------------
