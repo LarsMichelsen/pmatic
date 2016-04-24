@@ -10,7 +10,6 @@ Fixes:
 
 Todos:
 * Manager:
-  * Transaction-IDs einbauen, so dass man nicht aus Versehen Aktionen doppelt ausführt.
   * Tests for the manager
   * Events: Close on shutdown when registered?
   * Make editing of scheules only possible when not currently running?

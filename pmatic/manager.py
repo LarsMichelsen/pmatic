@@ -44,6 +44,7 @@ import cgi
 import sys
 import time
 import json
+import uuid
 import socket
 import signal
 import inspect
@@ -72,6 +73,11 @@ try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
+
+try:
+    from urlparse import urlparse
+except ImportError:
+    from urllib.parse import urlparse
 
 import pmatic
 import pmatic.utils as utils
@@ -380,10 +386,12 @@ class FieldStorage(cgi.FieldStorage):
 
 
 class PageHandler(utils.LogMixin):
+    _transids = {}
+
     @classmethod
     def pages(cls):
         pages = {}
-        for subclass in cls.__subclasses__():
+        for subclass in cls.__subclasses__() + HtmlPageHandler.__subclasses__():
             if hasattr(subclass, "url"):
                 pages[subclass.url] = subclass
         return pages
@@ -454,8 +462,81 @@ class PageHandler(utils.LogMixin):
         self._set_http_header("Content-type", self._get_content_type())
         self._page = []
         self._vars = cgi.FieldStorage()
-
         self._read_environment()
+
+        self._is_valid_transaction = False
+        self._check_transaction()
+
+
+    def _referer(self):
+        """Returns the value of the HTTP_REFERER HTTP header (if available).
+        Otherwise an empty string is returned."""
+        return self._env.get("HTTP_REFERER", "")
+
+
+    def _request_url(self):
+        """Returns the current URL requested by the client. Maybe not exactly the URL the user
+        requested, but sufficient for us."""
+        url = self._env["PATH_INFO"]
+        if self._env.get("QUERY_STRING"):
+            url += "?" + self._env["QUERY_STRING"]
+        return url
+
+
+    def _origin_url(self):
+        """Returns parts of the referer URL. It is constructed equal to :meth:`_reuqest_url` and
+        used during transaction id validation"""
+        parts = urlparse(self._referer())
+        url = parts.path
+        if parts.query:
+            url += "?" + parts.query
+        return url
+
+
+    def _new_transid(self):
+        """Calculates a new random transaction id, adds it to the transaction id store and
+        returns it to the caller."""
+        transid = uuid.uuid4().get_hex().lower()[:6]
+        self._transids[transid] = (time.time(), self._request_url())
+        return transid
+
+
+    def _cleanup_transids(self):
+        """Removes old, unused transaction ids that are older than 2 hours."""
+        for transid, (issue_time, url) in self._transids.items():
+            if issue_time > 7200:
+                self._invalidate_transid(transid)
+
+
+    def _invalidate_transid(self, transid):
+        del self._transids[transid]
+
+
+    def _check_transaction(self):
+        """Checks whether or not this request is a valid transaction and sets the state
+        in this object for later use."""
+        transid = self._vars.getvalue("_transid")
+        if not transid:
+            return False
+
+        issue_time, url = self._transids.get(transid, (None, None))
+        if issue_time == None and url == None:
+            return False
+
+        self._is_valid_transaction = url == self._origin_url()
+        self._invalidate_transid(transid)
+
+
+    def _transid_valid(self):
+        return self._is_valid_transaction
+
+
+    def action_url(self, url):
+        if "?" in url:
+            url += "&"
+        else:
+            url += "?"
+        return url + "_transid=%s" % self._new_transid()
 
 
     def _get_content_type(self):
@@ -505,7 +586,7 @@ class PageHandler(utils.LogMixin):
         self.write("<div id=\"content\">\n")
 
         action_result = None
-        if self.is_action():
+        if self.is_action() and self._transid_valid():
             try:
                 action_result = self.action()
             except PMUserError as e:
@@ -576,6 +657,18 @@ class PageHandler(utils.LogMixin):
             return txt.encode("utf-8")
         else:
             return txt
+
+
+
+class HtmlPageHandler(PageHandler, Html):
+    def begin_form(self, multipart=None):
+        super(HtmlPageHandler, self).begin_form(multipart)
+        self._add_transid_field()
+
+
+    def _add_transid_field(self):
+        self.hidden("_transid", self._new_transid())
+
 
 
 
@@ -752,7 +845,7 @@ class AbstractScriptProgressPage(Html):
 
 
 
-class PageMain(PageHandler, Html, utils.LogMixin):
+class PageMain(HtmlPageHandler, utils.LogMixin):
     url = ""
 
     def title(self):
@@ -847,9 +940,9 @@ class PageMain(PageHandler, Html, utils.LogMixin):
 
             self.write("<tr>")
             self.write("<td>")
-            self.icon_button("trash", "?action=delete&script=%s" % filename,
+            self.icon_button("trash", self.action_url("?action=delete&script=%s" % filename),
                               "Delete this script")
-            self.icon_button("bolt", "/run?script=%s&action=run" % filename,
+            self.icon_button("bolt", self.action_url("/run?script=%s&action=run" % filename),
                               "Execute this script now")
             self.icon_button("download", "/scripts/%s" % filename,
                               "Download this script")
@@ -871,7 +964,7 @@ class PageRun(PageHandler, AbstractScriptProgressPage, utils.LogMixin):
 
 
     def _abort_url(self):
-        return "/run?action=abort"
+        return self.action_url("/run?action=abort")
 
 
     def action(self):
@@ -936,7 +1029,7 @@ class PageRun(PageHandler, AbstractScriptProgressPage, utils.LogMixin):
 
 
 
-class PageAjaxUpdateOutput(PageHandler, Html, utils.LogMixin):
+class PageAjaxUpdateOutput(HtmlPageHandler, utils.LogMixin):
     url = "ajax_update_output"
 
     def _get_content_type(self):
@@ -961,7 +1054,7 @@ class PageAjaxUpdateOutput(PageHandler, Html, utils.LogMixin):
 
 
 
-class PageLogin(PageHandler, Html, utils.LogMixin):
+class PageLogin(HtmlPageHandler, utils.LogMixin):
     url = "login"
 
     def title(self):
@@ -1005,7 +1098,7 @@ class PageLogin(PageHandler, Html, utils.LogMixin):
 
 
 
-class PageEditResident(PageHandler, Html, utils.LogMixin):
+class PageEditResident(HtmlPageHandler, utils.LogMixin):
     url = "edit_resident"
 
     def _get_mode(self):
@@ -1206,7 +1299,7 @@ class ManagerPersonalDeviceFritzBoxHost(ManagerPersonalDevice):
 
 
 
-class PageResidents(PageHandler, Html, utils.LogMixin):
+class PageResidents(HtmlPageHandler, utils.LogMixin):
     url = "residents"
 
     def title(self):
@@ -1264,7 +1357,7 @@ class PageResidents(PageHandler, Html, utils.LogMixin):
             self.write("<td>")
             self.icon_button("edit", "/edit_resident?resident_id=%d" % resident.id,
                               "Edit this resident")
-            self.icon_button("trash", "?action=delete&resident_id=%d" % resident.id,
+            self.icon_button("trash", self.action_url("?action=delete&resident_id=%d" % resident.id),
                               "Delete this resident")
             self.write("</td>")
             self.write("<td>%s</td>" % self.escape(resident.name))
@@ -1303,7 +1396,7 @@ class PageResidents(PageHandler, Html, utils.LogMixin):
 
 
 
-class PageConfiguration(PageHandler, Html, utils.LogMixin):
+class PageConfiguration(HtmlPageHandler, utils.LogMixin):
     url = "config"
 
     def title(self):
@@ -1609,7 +1702,7 @@ class PageConfiguration(PageHandler, Html, utils.LogMixin):
 
 
 
-class PageEventLog(PageHandler, Html, utils.LogMixin):
+class PageEventLog(HtmlPageHandler, utils.LogMixin):
     url = "event_log"
 
     def title(self):
@@ -1669,7 +1762,7 @@ class PageEventLog(PageHandler, Html, utils.LogMixin):
 
 
 
-class PageSchedule(PageHandler, Html, utils.LogMixin):
+class PageSchedule(HtmlPageHandler, utils.LogMixin):
     url = "schedule"
 
     def title(self):
@@ -1740,7 +1833,7 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
             self.write("<td>")
             self.icon_button("edit", "/edit_schedule?schedule_id=%d" % schedule.id,
                               "Edit this schedule")
-            self.icon_button("trash", "?action=delete&schedule_id=%d" % schedule.id,
+            self.icon_button("trash", self.action_url("?action=delete&schedule_id=%d" % schedule.id),
                               "Delete this schedule")
 
             if schedule.last_triggered:
@@ -1749,7 +1842,7 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
                         "Show the last schedule run result")
 
             if not schedule.is_running:
-                self.icon_button("bolt", "?action=start&schedule_id=%d" % schedule.id,
+                self.icon_button("bolt", self.action_url("?action=start&schedule_id=%d" % schedule.id),
                                  "Manually trigger this schedule now")
 
             self.write("</td>")
@@ -1780,7 +1873,7 @@ class PageSchedule(PageHandler, Html, utils.LogMixin):
 
 
 
-class PageEditSchedule(PageHandler, Html, utils.LogMixin):
+class PageEditSchedule(HtmlPageHandler, utils.LogMixin):
     url = "edit_schedule"
 
     def __init__(self, *args):
@@ -2026,7 +2119,7 @@ class PageScheduleResult(PageHandler, AbstractScriptProgressPage, utils.LogMixin
 
     def _abort_url(self):
         schedule_id = int(self._vars.getvalue("schedule_id"))
-        return "/schedule_result?schedule_id=%d&action=abort" % schedule_id
+        return self.action_url("/schedule_result?schedule_id=%d&action=abort" % schedule_id)
 
 
     def action(self):
@@ -2049,7 +2142,7 @@ class PageScheduleResult(PageHandler, AbstractScriptProgressPage, utils.LogMixin
 
 
 
-class PageState(PageHandler, Html, utils.LogMixin):
+class PageState(HtmlPageHandler, utils.LogMixin):
     url = "state"
 
     def title(self):
@@ -2146,7 +2239,7 @@ class PageState(PageHandler, Html, utils.LogMixin):
 
 
 
-class Page404(PageHandler, Html, utils.LogMixin):
+class Page404(HtmlPageHandler, utils.LogMixin):
     url = "404"
 
 

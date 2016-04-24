@@ -7,8 +7,10 @@ Unreleased (Use snapshot builds to get these changes)
 Manager
 ```````
 
+* Implemented transaction IDs to prevent duplicate execution of actions
+  like form submits, script executions or deletion of things
 * Improved performance during processing of web pages
-* Fixed exception in event processing of non readable values
+* FIX: Fixed exception in event processing of non readable values
 
 Version 0.3 (2016-04-19)
 ------------------------
