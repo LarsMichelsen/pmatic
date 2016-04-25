@@ -52,6 +52,7 @@ class TestCondition(object):
         names = sorted(["ConditionOnStartup",
                         "ConditionOnCCUInitialized",
                         "ConditionOnDeviceEvent",
+                        "ConditionOnDevicesOfTypeEvent",
                         "ConditionOnResidentPresence",
                         "ConditionOnTime"])
         assert types == names

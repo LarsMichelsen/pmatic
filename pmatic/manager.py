@@ -3242,7 +3242,7 @@ class DummyParam(object):
 
 class ConditionOnDeviceEvent(Condition, utils.LogMixin):
     type_name = "on_device_event"
-    type_title = "on device event"
+    type_title = "on single device event"
 
     _event_types = [
         ("updated", "Value updated"),
@@ -3397,6 +3397,187 @@ class ConditionOnDeviceEvent(Condition, utils.LogMixin):
             self.param = self.channel.values.get(param_id)
             if not self.param:
                 raise PMUserError("Unable to find the given parameter.")
+        else:
+            raise PMUserError("Please select a parameter")
+
+
+
+class ConditionOnDevicesOfTypeEvent(Condition, utils.LogMixin):
+    type_name = "on_devices_type_event"
+    type_title = "on devices of type event"
+
+    _event_types = [
+        ("updated", "Value updated"),
+        ("changed", "Value changed"),
+    ]
+
+    def __init__(self, manager):
+        super(ConditionOnDevicesOfTypeEvent, self).__init__(manager)
+        self.device_type = None
+        self.channel_id  = None
+        self.param_id    = None
+        self.event_type  = None
+        self._loaded     = False
+
+
+    def from_config(self, cfg):
+        self.event_type = cfg["event_type"]
+        ccu_initialized = self._manager.ccu_initialized
+
+        if not ccu_initialized or cfg["device_type"] in self._devices_by_type().keys():
+            self.device_type = cfg["device_type"]
+        if self.device_type is None:
+            return
+
+        self.channel_id = cfg["channel_id"]
+        # TODO: validate whether or not channel_nr is available for this type
+        if self.channel_id is None:
+            return
+
+        self.param_id = cfg["param_id"]
+        # TODO: validate whether or not channel_nr is available for this channel
+        if self.param_id is None:
+            return
+
+        self._loaded = True
+
+
+    def _devices_by_type(self):
+        types = {}
+        for device in self._manager.ccu.devices.query():
+            devices_of_type = types.setdefault(device.type, [])
+            devices_of_type.append(device)
+        return types
+
+
+    def to_config(self):
+        cfg = super(ConditionOnDevicesOfTypeEvent, self).to_config()
+        cfg.update({
+            "device_type"     : self.device_type,
+            "channel_id"      : self.channel_id,
+            "param_id"        : self.param_id,
+            "event_type"      : self.event_type,
+        })
+        return cfg
+
+
+    def display(self):
+        txt = super(ConditionOnDevicesOfTypeEvent, self).display()
+        # TODO: Use human friendly representations of self.channel_id, self.param_id
+        txt += ": %s, %s, %s, %s" % (self.device_type, self.channel_id,
+                                     self.param_id, dict(self._event_types)[self.event_type])
+        if not self._loaded:
+            txt += " (Not connected with CCU. Can not execute this at the moment)"
+        return txt
+
+
+    def _device_choices(self):
+        if not self._loaded and self.device_type:
+            yield self.device_type, self.device_type
+            return
+
+        for type_name, devices in sorted(self._devices_by_type().items(), key=lambda x: x[1]):
+            device_names = [ "%s" % d.name for d in devices ]
+            yield type_name, "%s (%s)" % (type_name, ", ".join(device_names))
+
+
+    def _channel_choices(self):
+        if not self._loaded and self.channel_id is not None:
+            yield self.channel_id, self.channel_id
+
+        if not self.device_type:
+            return
+
+        for channel_index, channels in sorted(self._channels_of_type().items(),
+                                              key=lambda x: x[1]):
+            channel_names = [ "%s" % c.name for c in channels ]
+            yield channel_index, "%d (%s)" % (channel_index, ", ".join(channel_names))
+
+
+    def _channels_of_type(self):
+        channels = {}
+        devices_of_type = self._devices_by_type()[self.device_type]
+
+        for device in devices_of_type:
+            for channel in device.channels:
+                channels_by_index = channels.setdefault(channel.index, [])
+                channels_by_index.append(channel)
+
+        return channels
+
+
+    def _param_choices(self):
+        if not self._loaded and self.param_id is not None:
+            return [(self.param_id, self.param_id)]
+
+        if self.channel_id is None:
+            return []
+
+        return sorted(self._params_of_channel(), key=lambda x: x[1])
+
+
+    def _params_of_channel(self):
+        device  = self._devices_by_type()[self.device_type][0]
+        channel = device.channels[self.channel_id]
+        for param_id, param in channel.values.items():
+            yield param_id, param.name
+
+
+    def input_parameters(self, page, varprefix):
+        page.write("Device type: ")
+        page.select(varprefix+"device_type",
+                    sorted(self._device_choices(), key=lambda x: x[1]),
+                    self.device_type, onchange="this.form.submit()")
+        page.write("Channel: ")
+        page.select(varprefix+"channel_id",
+                    sorted(self._channel_choices(), key=lambda x: x[1]),
+                    self.channel_id, onchange="this.form.submit()")
+        page.write("Parameter: ")
+        page.select(varprefix+"param_id",
+                    sorted(self._param_choices(), key=lambda x: x[1]),
+                    self.param_id, onchange="this.form.submit()")
+        page.write("Type: ")
+        page.select(varprefix+"event_type", self._event_types, self.event_type)
+
+
+    def set_submitted_vars(self, page, varprefix):
+        device_type = page.vars.getvalue(varprefix+"device_type")
+        channel_id  = page.vars.getvalue(varprefix+"channel_id")
+        param_id    = page.vars.getvalue(varprefix+"param_id")
+        event_type  = page.vars.getvalue(varprefix+"event_type")
+
+        if event_type:
+            if event_type not in dict(self._event_types):
+                raise PMUserError("Invalid event type given.")
+            self.event_type = event_type
+
+        if not self._manager.ccu_initialized:
+            return
+
+        self._loaded = True
+
+        if device_type:
+            if device_type not in self._devices_by_type():
+                raise PMUserError("Unable to find the given device type.")
+            else:
+                self.device_type = device_type
+        else:
+            raise PMUserError("Please select a device")
+
+        if channel_id:
+            channel_id = int(channel_id)
+            if channel_id not in dict(self._channels_of_type()):
+                raise PMUserError("Unable to find the given channel.")
+            else:
+                self.channel_id = channel_id
+        else:
+            raise PMUserError("Please select a channel")
+
+        if param_id:
+            if param_id not in dict(self._params_of_channel()):
+                raise PMUserError("Unable to find the given parameter.")
+            else:
+                self.param_id = param_id
         else:
             raise PMUserError("Please select a parameter")
 
