@@ -1,12 +1,5 @@
 Fixes:
-* CCU1:
-  * /usr/local/bin/ not in path
-  * /etc/config/rc.d/pmatic
-    * init-target nicht anlegen
-    * expat nach /lib
-    * /usr/local/bin/python findet python2.7 nicht
-  * Linux homematic 2.6.21.3 #1 Mon Nov 17 09:08:38 CET 2014 armv4tl unknown
-* tempfile: Care about removing the created dirs/files
+* Schedules: Are device events state changes/updates working?
 
 Todos:
 * Manager:
