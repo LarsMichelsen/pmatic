@@ -93,6 +93,11 @@ Pmatic is currently not expecting any special Python modules. pmatic is
 supported with Python 2.7, 3.4 and newer. Older versions of Python are
 not supported.
 
+The pmatic package can be installed and used on the Homematic CCU2 device
+without any other requirements. The package ships whole Python installation
+and pmatic with it. Please note that pmatic will not work on the CCU1,
+because the ressources on the CCU1 are too limited.
+
 There are some which are already use pmatic on Windows systems which
 have a Python interpreter installed. But I did not test it and I am
 pretty sure there are some changes needed to make it completely work. At
