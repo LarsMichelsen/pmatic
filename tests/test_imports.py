@@ -29,7 +29,6 @@ import sys
 import glob
 import shutil
 import pytest
-import tempfile
 import subprocess
 
 requires_snakefood = pytest.mark.skipif(
@@ -68,8 +67,8 @@ def populate_tmp_dir(target_path):
     else:
         src_dirs = ["/usr"]
 
-    print("Base source directories: %r" % src_dirs)
-    print("Target path: %s" % target_path)
+    #print("Base source directories: %r" % src_dirs)
+    #print("Target path: %s" % target_path)
 
     for list_file, optional in [ ("python-modules.list",          False),
                                  ("python-modules-travis.list",   True),
@@ -155,8 +154,8 @@ def repo_dir():
                     reason="did not want to port it to windows, "
                           +"testing on linux is enough")
 @requires_snakefood
-def test_ccu_imports():
-    path = tempfile.mkdtemp(prefix="tmp_test_ccu_modules_")
+def test_ccu_imports(tmpdir):
+    path = "%s" % tmpdir
     populate_tmp_dir(path)
 
     imports = find_imports()
