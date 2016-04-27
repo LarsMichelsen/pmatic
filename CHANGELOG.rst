@@ -10,6 +10,8 @@ Manager
 * Implemented transaction IDs to prevent duplicate execution of actions
   like form submits, script executions or deletion of things
 * Improved performance during processing of web pages
+* Added yet unfunctional schedule execution based on device events
+* Added schedule execution based on device events for devices of a specific type
 * FIX: Fixed exception in event processing of non readable values
 
 Version 0.3 (2016-04-19)

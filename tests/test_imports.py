@@ -117,6 +117,7 @@ def find_imports():
             "pmatic",
             ".pmatic",
             # Skip known "python 3 only" imports
+            "queue",
             "io.",
             "http.",
             "urllib.error",

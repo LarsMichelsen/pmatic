@@ -70,6 +70,11 @@ except ImportError:
     from http.cookies import SimpleCookie
 
 try:
+    import Queue as queue
+except ImportError:
+    import queue
+
+try:
     from StringIO import StringIO
 except ImportError:
     from io import StringIO
@@ -2663,6 +2668,9 @@ class EventManager(threading.Thread, utils.LogMixin):
             "formated_value" : "%s" % updated_param,
         })
 
+        self._manager.scheduler.queue_device_event(updated_param, updated_param.last_updated,
+                                                   updated_param.last_changed, updated_param.value)
+
 
     @property
     def initialized(self):
@@ -2763,6 +2771,8 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
         self._manager = manager
         self._schedules = {}
 
+        self._device_event_queue = queue.Queue()
+
         self._on_startup_executed  = False
         self._on_ccu_init_executed = False
 
@@ -2787,7 +2797,11 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
                         self.execute(schedule)
                     self._on_ccu_init_executed = True
 
-                self._execute_timed_schedules()
+                to_execute = set([])
+                to_execute.update(self._check_timed_schedules())
+                to_execute.update(self._check_device_event_schedules())
+                self._execute_matched_schedules(to_execute)
+
                 self._execute_presence_update()
             except Exception:
                 self.logger.error("Exception in Scheduler", exc_info=True)
@@ -2812,12 +2826,14 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
             self.save_state()
 
 
-    def _execute_timed_schedules(self):
+    def _check_timed_schedules(self):
         """Checks all configured timed schedules whether or not the next occurance has been
-        reached. Then, if reached, the schedule is executed and the next occurance is calculated.
+        reached. Then, if reached, the schedule is put to a list and the next occurance is
+        calculated. The list of all schedules is then returned.
         """
-        # FIXME: Optimize schedule/condition handling
         to_execute = set([])
+
+        # FIXME: Optimize schedule/condition handling
         for schedule in self.enabled_schedules:
             for condition in schedule.conditions.values():
                 if isinstance(condition, ConditionOnTime):
@@ -2831,6 +2847,46 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
                     #    self.logger.debug("Timed condition is not due yet (%d <= %d)",
                     #                                    condition.next_time, time.time())
 
+        return to_execute
+
+
+    def _check_device_event_schedules(self):
+        """Processes all received device events from the queue and checks whether or
+        not a schedule has to be executed based on them."""
+        to_execute = set([])
+
+        schedules = self._schedules_with_device_conditions()
+        while True:
+            try:
+                device_event = self._device_event_queue.get_nowait()
+            except queue.Empty:
+                break # finished
+
+            for schedule in schedules:
+                matched = False
+                for condition in schedule.conditions.values():
+                    if condition.matches_device_event(device_event):
+                        #self.logger.info("Device condition matched: %r" % (device_event, ))
+                        matched = True
+                        break
+                    #else:
+                    #    self.logger.debug("Condition not matched: %r" % (device_event, ))
+
+                if matched:
+                    #self.logger.info("added to execute: %r" % schedule)
+                    to_execute.add(schedule)
+
+        return to_execute
+
+
+    def _schedules_with_device_conditions(self):
+        schedules = set([])
+        schedules.update(self._schedules_with_condition_type(ConditionOnDeviceEvent))
+        schedules.update(self._schedules_with_condition_type(ConditionOnDevicesOfTypeEvent))
+        return schedules
+
+
+    def _execute_matched_schedules(self, to_execute):
         for schedule in to_execute:
             self.execute(schedule)
 
@@ -2895,6 +2951,14 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
             return
 
         schedule.execute()
+
+
+    # TODO: This could be optimize easily to filter only for relevant updates.
+    # This means only process events for devices that schedules are using.
+    def queue_device_event(self, updated_param, time, time_last_changed, value):
+        """Is used to hand over device events to the script scheduler which is then
+        processing the events in its own thread."""
+        self._device_event_queue.put_nowait((updated_param, time, time_last_changed, value))
 
 
     def load(self):
@@ -3190,6 +3254,9 @@ class Condition(object):
     def set_submitted_vars(self, page, varprefix):
         pass
 
+    def matches_device_event(self, device_event):
+        raise NotImplementedError()
+
 
 
 class ConditionOnStartup(Condition):
@@ -3401,6 +3468,17 @@ class ConditionOnDeviceEvent(Condition, utils.LogMixin):
             raise PMUserError("Please select a parameter")
 
 
+    def matches_device_event(self, device_event):
+        updated_param, time, time_last_changed, value = device_event
+
+        if self.param == updated_param:
+            if self.event_type == "updated":
+                return True
+            elif self.event_type == "changed" and time == time_last_changed:
+                return True
+        return False
+
+
 
 class ConditionOnDevicesOfTypeEvent(Condition, utils.LogMixin):
     type_name = "on_devices_type_event"
@@ -3580,6 +3658,22 @@ class ConditionOnDevicesOfTypeEvent(Condition, utils.LogMixin):
                 self.param_id = param_id
         else:
             raise PMUserError("Please select a parameter")
+
+
+    def matches_device_event(self, device_event):
+        updated_param, time, time_last_changed, value = device_event
+        channel = updated_param.channel
+        device  = channel.device
+
+        if self.param_id == updated_param.id \
+           and self.channel_id == channel.index \
+           and self.device_type == device.type:
+            if self.event_type == "updated":
+                return True
+            elif self.event_type == "changed" and time == time_last_changed:
+                return True
+
+        return False
 
 
 
