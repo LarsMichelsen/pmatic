@@ -2865,12 +2865,14 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
             for schedule in schedules:
                 matched = False
                 for condition in schedule.conditions.values():
-                    if condition.matches_device_event(device_event):
-                        #self.logger.info("Device condition matched: %r" % (device_event, ))
-                        matched = True
-                        break
-                    #else:
-                    #    self.logger.debug("Condition not matched: %r" % (device_event, ))
+                    if isinstance(condition, ConditionOnDeviceEvent) \
+                       or isinstance(condition, ConditionOnDevicesOfTypeEvent):
+                        if condition.matches_device_event(device_event):
+                            #self.logger.info("Device condition matched: %r" % (device_event, ))
+                            matched = True
+                            break
+                        #else:
+                        #    self.logger.debug("Condition not matched: %r" % (device_event, ))
 
                 if matched:
                     #self.logger.info("added to execute: %r" % schedule)
