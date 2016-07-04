@@ -4,6 +4,11 @@ The pmatic Changelog
 Unreleased (Use snapshot builds to get these changes)
 -----------------------------------------------------
 
+General
+```````
+
+* FIX: Fixed possible endless recursion when listening for device updates
+
 Manager
 ```````
 

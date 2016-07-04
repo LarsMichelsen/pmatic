@@ -74,6 +74,7 @@ class CallbackMixin(object):
 
     def __init__(self):
         self._callbacks = {}
+        self._in_callbacks = []
 
 
     def _init_callbacks(self, cb_names):
@@ -103,12 +104,25 @@ class CallbackMixin(object):
 
 
     def _callback(self, cb_name, *args, **kwargs):
-        """Execute all registered callbacks for this event."""
-        for callback in self._get_callbacks(cb_name):
-            try:
-                callback(self, *args, **kwargs)
-            except Exception as e:
-                raise PMException("Exception in callback (%s - %s): %s" % (cb_name, callback, e))
+        """Execute all registered callbacks for this event.
+
+        While the function is being processed, it reminds that the current callback is being
+        executed. When another part of pmatic is trying to execut the exact same callback
+        another time (may result in endless recursion), the second call is not executing the
+        callbacks again. """
+        if cb_name in self._in_callbacks:
+            return # skip nested execution
+        else:
+            self._in_callbacks.append(cb_name)
+
+        try:
+            for callback in self._get_callbacks(cb_name):
+                try:
+                    callback(self, *args, **kwargs)
+                except Exception as e:
+                    raise PMException("Exception in callback (%s - %s): %s" % (cb_name, callback, e))
+        finally:
+            self._in_callbacks.remove(cb_name)
 
 
 
