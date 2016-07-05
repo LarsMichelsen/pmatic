@@ -42,6 +42,8 @@ import sys
 import json
 import logging
 import platform
+import time
+from math import sin, cos, pi, radians, atan2, asin, tan, log
 
 from pmatic.exceptions import PMException
 
@@ -276,3 +278,80 @@ def is_ccu():
 def is_manager_inline():
     """Returns ``True`` when executed within the manager as inline script."""
     return hasattr(builtins, "manager_ccu")
+
+
+def sun_position(longitude, latitude):
+    """
+    Compute approximate values for azimuth and elevation angles of the sun.
+    The azimuth is counted from North over East, South, and West.
+    The maximum error is in the order of 1/100 degree. The precision is,
+    therefore, more than sufficient for the purpose of home automation. The
+    formula used for the elevation angle does not take atmospheric refraction
+    into account. This leads to larger errors if the sun is close to the
+    horizon, but it avoids a singularity.
+
+    :param longitude: geographic longitude (radians) of the site
+    :param latitude: geographic latitude (radians) of the site
+    :return: (azimuth, elevation), with azimuth and elevation angles in radians
+    """
+
+    # t is the Unix timestamp, counted in seconds since Jan. 1st, 1970.
+    t = time.time()
+
+    # julian denotes the "Julian Date" used in astronomical formulae.
+    julian = unix_timestamp_to_julian(t)
+
+    # d denotes the number of days since epoch 2000.0.
+    d = julian - 2451545.0
+
+    # cap_t is the number of UTC hours since midnight.
+    cap_t = ((julian - 0.5) % 1.) * 24.
+
+    # cap_t0 is the number of centuries passed since epoch 2000.0.
+    cap_t0 = (julian - cap_t / 24. - 2451545.0) / 36525.0
+    l = radians(280.46 + 0.9856474 * d) % (2. * pi)
+    g = radians(357.528 + 0.9856003 * d) % (2. * pi)
+    cap_lambda = (l + radians(1.915 * sin(g) + 0.01997 * sin(2. * g))) % (
+        2. * pi)
+
+    # epsilon is the obliquity of the ecliptic.
+    epsilon = radians(23.439 - 0.0000004 * d)
+
+    # alpha, delta are the right ascension and declination angles of the sun.
+    alpha = atan2(cos(epsilon) * sin(cap_lambda), cos(cap_lambda))
+    delta = asin(sin(epsilon) * sin(cap_lambda))
+    theta_g = radians(
+        (6.697376 + 2400.05134 * cap_t0 + 1.002738 * cap_t) * 15.) % (2. * pi)
+
+    # theta is the sidereal time at the site, tau the hour angle of the sun.
+    theta = theta_g + longitude
+    tau = theta - alpha
+
+    azimuth = (atan2(sin(tau), cos(tau) * sin(latitude) - tan(delta) * cos(
+        latitude)) + pi) % (2. * pi)
+    elevation = asin(
+        cos(delta) * cos(tau) * cos(latitude) + sin(delta) * sin(latitude))
+    return (azimuth, elevation)
+
+
+def unix_timestamp_to_julian(unix_secs):
+    return (unix_secs / 86400.0) + 2440587.5
+
+
+def dew_point(temperature, humidity):
+    """
+    Compute the temperature of the dew point, assuming an atmosphere without
+    ice on the ground.
+
+    :param temperature: ambient temperature in Celsius
+    :param humidity: relative humidity (value between 0. and 1.)
+    :return: temperature of the dew point in Celsius
+    """
+
+    k1 = 6.112
+    k2 = 17.62
+    k3 = 243.12
+
+    dp = k3 * (k2 * temperature / (k3 + temperature) + log(humidity)) / (
+    k2 * k3 / (k3 + temperature) - log(humidity))
+    return (dp)
