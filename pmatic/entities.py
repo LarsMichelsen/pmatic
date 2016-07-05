@@ -499,6 +499,26 @@ class ChannelShutterContact(Channel):
 
 
 
+# FIXME: Handle STOP, INHIBIT, INSTALL_TEST
+class ChannelBlind(Channel):
+    type_name = "BLIND"
+
+    @property
+    def level(self):
+        """Look up the level at which the shutter is set."""
+        return self.values["LEVEL"].value
+
+    def set_level(self, level):
+        """Look up the level at which the shutter is set."""
+        return self.values["LEVEL"].set(level)
+
+    @property
+    def working(self):
+        """Look up the level at which the shutter is set."""
+        return self.values["WORKING"].value
+
+
+
 # FIXME: Handle INHIBIT, WORKING
 class ChannelSwitch(Channel):
     type_name = "SWITCH"
@@ -600,6 +620,13 @@ class ChannelConditionVoltage(Channel):
 class ChannelConditionFrequency(Channel):
     type_name = "CONDITION_FREQUENCY"
 
+
+
+# FIXME: To be implemented.
+# Devices:
+#   HM-Sen-LI-O
+class ChannelLuxmeter(Channel):
+    type_name = "LUXMETER"
 
 
 # FIXME: To be implemented.
@@ -1308,6 +1335,43 @@ class HM_WDS10_TH_O(Device):
 
 
 
+# Funk-Temperatur-/Luftfeuchtesensor ITH
+class HM_WDS40_TH_I_2(Device):
+    type_name = "HM-WDS40-TH-I-2"
+
+    @property
+    def temperature(self):
+        """Provides the current temperature.
+
+        Returns an instance of :class:`ParameterFLOAT`.
+        """
+        return self.channels[1].values["TEMPERATURE"]
+
+
+    @property
+    def humidity(self):
+        """Provides the current humidity.
+
+        Returns an instance of :class:`ParameterFLOAT`.
+        """
+        return self.channels[1].values["HUMIDITY"]
+
+
+
+# Funk-Außen-Helligkeitssensor OLI
+class HM_Sen_LI_O(Device):
+    type_name = "HM-Sen-LI-O"
+
+    @property
+    def brightness(self):
+        """Provides the current brightness.
+
+        Returns an instance of :class:`ParameterFLOAT`.
+        """
+        return self.channels[1].values["LUX"]
+
+
+
 # Virtuelle Fernbedienung der CCU
 class HM_RCV_50(Device):
     type_name = "HM-RCV-50"
@@ -1346,6 +1410,49 @@ class HM_ES_PMSw1_Pl(Device):
         return super(HM_ES_PMSw1_Pl, self)._get_summary_state(
             skip_channel_types=["ChannelConditionPower", "ChannelConditionCurrent",
                                 "ChannelConditionVoltage", "ChannelConditionFrequency"])
+
+
+
+# Funk-Schaltaktor ohne Leistungsmessung
+class HM_LC_Sw1_Pl_DN_R1(Device):
+    type_name = "HM-LC-Sw1-Pl-DN-R1"
+
+
+    # Make methods of ChannelSwitch() available
+    def __getattr__(self, attr):
+        return getattr(self.channels[1], attr)
+
+
+    @property
+    def summary_state(self):
+        return super(HM_LC_Sw1_Pl_DN_R1, self)._get_summary_state()
+
+    @property
+    def switch(self):
+        """Provides to the :class:`.ChannelKey` object of the switch.
+
+        You can do something like ``self.switch.switch_on()`` with this. For details take
+        a look at the methods provided by the :class:``.ChannelKey`` class."""
+        return self.channels[1]
+
+
+
+# Funk-Rolladenaktor
+class HM_LC_Bl1PBU_FM(Device):
+    type_name = "HM-LC-Bl1PBU-FM"
+
+
+    # Make methods of ChannelBlind() available
+    def __getattr__(self, attr):
+        return getattr(self.channels[1], attr)
+
+    @property
+    def blind(self):
+        """Provides to the :class:`.ChannelKey` object of the blind channel.
+
+        You can do something like ``self.blind.set_level(0.6)`` with this. For details take
+        a look at the methods provided by the :class:``.ChannelKey`` class."""
+        return self.channels[1]
 
 
 
