@@ -509,12 +509,12 @@ class ChannelBlind(Channel):
         return self.values["LEVEL"].value
 
     def set_level(self, level):
-        """Look up the level at which the shutter is set."""
+        """Set the level at which the shutter is to be set."""
         return self.values["LEVEL"].set(level)
 
     @property
     def working(self):
-        """Look up the level at which the shutter is set."""
+        """Look up the WORKING value."""
         return self.values["WORKING"].value
 
 

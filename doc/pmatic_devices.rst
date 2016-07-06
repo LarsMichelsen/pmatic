@@ -55,6 +55,24 @@ HM-ES-PMSw1-Pl (Funk-Schaltaktor mit Leistungsmessung)
     :undoc-members:
     :exclude-members: type_name
 
+HM-LC-Sw1-Pl-DN-R1 (Funk-Schaltaktor ohne Leistungsmessung)
+--------------------------------------------------------------------
+
+.. autoclass:: pmatic.entities.HM_LC_Sw1_Pl_DN_R1
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
+HM-LC-Bl1PBU-FM (Funk-Rolladenaktor unterputz)
+--------------------------------------------------------------------
+
+.. autoclass:: pmatic.entities.HM_LC_Bl1PBU_FM
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
 HM-PBI-4-FM (Funk-Tasterschnittstelle 4-fach)
 --------------------------------------------------------
 
@@ -68,6 +86,24 @@ HM-WDS10-TH-O (Funk-Temperatur-/Luftfeuchtesensor OTH)
 --------------------------------------------------------
 
 .. autoclass:: pmatic.entities.HM_WDS10_TH_O
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
+HM-WDS40-TH-I-2 (Funk-Temperatur-/Luftfeuchtesensor ITH)
+--------------------------------------------------------
+
+.. autoclass:: pmatic.entities.HM_WDS40_TH_I_2
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
+HM-Sen-LI-O (Funk-Außen-Helligkeitssensor OLI)
+--------------------------------------------------------
+
+.. autoclass:: pmatic.entities.HM_Sen_LI_O
     :show-inheritance:
     :members:
     :undoc-members:
@@ -93,6 +129,15 @@ ChannelShutterContact
 ^^^^^^^^^^^^^^^^^^^^^
 
 .. autoclass:: pmatic.entities.ChannelShutterContact
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :exclude-members: type_name
+
+ChannelBlind
+^^^^^^^^^^^^
+
+.. autoclass:: pmatic.entities.ChannelBlind
     :show-inheritance:
     :members:
     :undoc-members:
