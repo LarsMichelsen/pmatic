@@ -27,11 +27,16 @@ the function time.time().
 """
 
 from math import radians, degrees
+from time import strftime, localtime
+
 import pmatic.utils as utils
 
-latitude = radians(50.6919)
-longitude = radians(7.3972)
+latitude = 50.5
+longitude = 8.3
 
-azimuth, altitude = utils.sun_position(longitude, latitude)
+print "Computing the current position of the sun for", longitude, "degrees eastern longitude and", latitude, \
+    "degrees northern latitude."
+print strftime("Date and time: %a, %d %b %Y %H:%M:%S", localtime())
+azimuth, altitude = utils.sun_position(radians(longitude), radians(latitude))
 
 print "Azimut: ", degrees(azimuth), ", Altitude: ", degrees(altitude)

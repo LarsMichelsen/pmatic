@@ -219,6 +219,84 @@ Having this piece of information you can now modify your scripts to behave diffe
 depending on which of your residents is at home. Take a look at the
 :ref:`presence_detection` chapter for details.
 
+Utility function for computing the sun's position in the sky
+------------------------------------------------------------
+
+If you want to control the window shutters automatically, knowledge of the sun's position
+in the sky is important. It can be computed with the function ``sun_position`` which is
+included in module ``pmatic/utils.py``. It uses the `algorithm from Wikipedia <https://de.wikipedia.org/wiki/Sonnenstand>`
+and was validated by comparing the results with the high-precision astronomy software ``Guide 9.0``.
+The positional accuracy is generally better than 1/100 degree. Since the function does
+not take atmospheric refraction into account, the error is somewhat largerv ery close
+to the horizon.
+
+The function returns a tuple of two coordinates: the sun's azimuth and its elevation. The
+azimuth is the angle along the horizon between North and the point underneath the sun,
+counted positive to the East. The elevation is the angle between the sun and the horizon.
+
+Example:
+--------
+
+.. code-block:: python
+
+    #!/usr/bin/python
+    from math import radians, degrees
+    from time import strftime, localtime
+
+    import pmatic.utils as utils
+
+    latitude = 50.5
+    longitude = 8.3
+
+    print "Computing the current position of the sun for", longitude, "degrees eastern longitude and", latitude, \
+        "degrees northern latitude."
+    print strftime("Date and time: %a, %d %b %Y %H:%M:%S", localtime())
+    azimuth, altitude = utils.sun_position(radians(longitude), radians(latitude))
+
+    print "Azimut: ", degrees(azimuth), ", Altitude: ", degrees(altitude)
+
+
+This script produces an output like this:
+
+.. code-block:: shell
+
+    Computing the current position of the sun for 8.3 degrees eastern longitude and 50.5 degrees northern latitude.
+    Date and time: Wed, 06 Jul 2016 12:26:54
+    Azimut:  149.656647766 , Altitude:  59.3890451373
+
+	
+Utility function for computing the dew point temperature
+--------------------------------------------------------
+
+For the automation of ventilation systems the dew point temperature of the outside air must be known. It can be
+computed with the function ``dew_point`` which is included in module ``pmatic/utils.py``. It uses the
+`algorithm from Wikipedia <https://de.wikipedia.org/wiki/Taupunkt>`. The algorithm was validated with independent
+data tables published in the internet.
+
+The function takes the air temperature (in degrees Celsius) and humidity (a value between 0. and 1.) as input and
+returns the dew point temperature (in degrees Celsius).
+
+Example:
+--------
+
+.. code-block:: python
+
+    #!/usr/bin/python
+    import pmatic.utils as utils
+
+    temperature = 22.
+    humidity = 0.60
+
+    print "Temperature (C): ", temperature, ", Humidity (%): ",\
+        humidity * 100., ", Dew point (C): ", utils.dew_point(temperature, humidity)
+
+
+This script produces an output like this:
+
+.. code-block:: shell
+
+   Temperature (C):  22.0 , Humidity (%):  60.0 , Dew point (C):  13.8751835583
+	
 Some use cases
 --------------
 
