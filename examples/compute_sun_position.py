@@ -34,9 +34,15 @@ import pmatic.utils as utils
 latitude = 50.5
 longitude = 8.3
 
-print "Computing the current position of the sun for", longitude, "degrees eastern longitude and", latitude, \
-    "degrees northern latitude."
+print "Computing the position of the sun for", longitude, "degrees eastern longitude and", latitude, \
+        "degrees northern latitude. \n"
+
+# Call sun_position with a fixed timestamp (corresponding to 07 Jul 2016 11:09:01 CEDT)
+print "Date and time: Thu, 07 Jul 2016 11:09:01"
+azimuth, altitude = utils.sun_position(radians(longitude), radians(latitude), unix_secs=1467882541.87)
+print "Azimut: ", degrees(azimuth), ", Altitude: ", degrees(altitude), "\n"
+
+# Compute the sun's position for the current time
 print strftime("Date and time: %a, %d %b %Y %H:%M:%S", localtime())
 azimuth, altitude = utils.sun_position(radians(longitude), radians(latitude))
-
-print "Azimut: ", degrees(azimuth), ", Altitude: ", degrees(altitude)
+print "Azimut: ", degrees(azimuth), ", Altitude: ", degrees(altitude), "\n"

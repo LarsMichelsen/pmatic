@@ -280,7 +280,7 @@ def is_manager_inline():
     return hasattr(builtins, "manager_ccu")
 
 
-def sun_position(longitude, latitude):
+def sun_position(longitude, latitude, unix_secs=0.):
     """
     Compute approximate values for azimuth and elevation angles of the sun.
     The azimuth is counted from North over East, South, and West.
@@ -290,13 +290,19 @@ def sun_position(longitude, latitude):
     into account. This leads to larger errors if the sun is close to the
     horizon, but it avoids a singularity.
 
-    :param longitude: geographic longitude (radians) of the site
-    :param latitude: geographic latitude (radians) of the site
-    :return: (azimuth, elevation), with azimuth and elevation angles in radians
+    :param longitude: geographic longitude (radians) of the site.
+    :param latitude: geographic latitude (radians) of the site.
+    :param unix_secs: if not set to a value > 0., the current computer time
+        is used. Otherwise, this value is interpreted as a Unix timestamp
+        (counted in seconds since Jan. 1st, 1970, 0h UTC).
+    :return: (azimuth, elevation), with azimuth and elevation angles in radians.
     """
 
-    # t is the Unix timestamp, counted in seconds since Jan. 1st, 1970.
-    t = time.time()
+    if unix_secs > 0.:
+        t = unix_secs
+    else:
+        # t is the Unix timestamp, counted in seconds since Jan. 1st, 1970.
+        t = time.time()
 
     # julian denotes the "Julian Date" used in astronomical formulae.
     julian = unix_timestamp_to_julian(t)
