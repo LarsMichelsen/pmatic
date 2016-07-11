@@ -219,12 +219,12 @@ Having this piece of information you can now modify your scripts to behave diffe
 depending on which of your residents is at home. Take a look at the
 :ref:`presence_detection` chapter for details.
 
-Utility function for computing the sun's position in the sky
-------------------------------------------------------------
+Computing the sun's position in the sky
+---------------------------------------
 
 If you want to control the window shutters automatically, knowledge of the sun's position
 in the sky is important. It can be computed with the function ``sun_position`` which is
-included in module ``pmatic/utils.py``. It uses the `algorithm from Wikipedia <https://de.wikipedia.org/wiki/Sonnenstand>`
+included in module ``pmatic/utils.py``. It uses the `algorithm from Wikipedia <https://de.wikipedia.org/wiki/Sonnenstand>`_
 and was validated by comparing the results with the high-precision astronomy software ``Guide 9.0``.
 The positional accuracy is generally better than 1/100 degree. Since the function does
 not take atmospheric refraction into account, the error is somewhat largerv ery close
@@ -234,8 +234,8 @@ The function returns a tuple of two coordinates: the sun's azimuth and its eleva
 azimuth is the angle along the horizon between North and the point underneath the sun,
 counted positive to the East. The elevation is the angle between the sun and the horizon.
 
-Example:
---------
+Example
+^^^^^^^^
 
 .. code-block:: python
 
@@ -265,19 +265,19 @@ This script produces an output like this:
     Azimut:  149.656647766 , Altitude:  59.3890451373
 
 	
-Utility function for computing the dew point temperature
---------------------------------------------------------
+Computing the dew point temperature
+-----------------------------------
 
 For the automation of ventilation systems the dew point temperature of the outside air must be known. It can be
 computed with the function ``dew_point`` which is included in module ``pmatic/utils.py``. It uses the
-`algorithm from Wikipedia <https://de.wikipedia.org/wiki/Taupunkt>`. The algorithm was validated with independent
+`algorithm from Wikipedia <https://de.wikipedia.org/wiki/Taupunkt>`_. The algorithm was validated with independent
 data tables published in the internet.
 
 The function takes the air temperature (in degrees Celsius) and humidity (a value between 0. and 1.) as input and
 returns the dew point temperature (in degrees Celsius).
 
-Example:
---------
+Example
+^^^^^^^
 
 .. code-block:: python
 
