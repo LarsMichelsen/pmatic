@@ -246,6 +246,71 @@ fritz!Box to check whether or not the mobile phone of a resident is currently ac
 depending on which of your residents is at home. Take a look at the
 <a class="reference internal" href="pmatic_residents.html#presence-detection"><span class="std std-ref">Presence detection with pmatic</span></a> chapter for details.</p>
 </div>
+<div class="section" id="utility-function-for-computing-the-sun-s-position-in-the-sky">
+<h2>Utility function for computing the sun&#8217;s position in the sky<a class="headerlink" href="#utility-function-for-computing-the-sun-s-position-in-the-sky" title="Permalink to this headline">¶</a></h2>
+<p>If you want to control the window shutters automatically, knowledge of the sun&#8217;s position
+in the sky is important. It can be computed with the function <code class="docutils literal"><span class="pre">sun_position</span></code> which is
+included in module <code class="docutils literal"><span class="pre">pmatic/utils.py</span></code>. It uses the <cite>algorithm from Wikipedia &lt;https://de.wikipedia.org/wiki/Sonnenstand&gt;</cite>
+and was validated by comparing the results with the high-precision astronomy software <code class="docutils literal"><span class="pre">Guide</span> <span class="pre">9.0</span></code>.
+The positional accuracy is generally better than 1/100 degree. Since the function does
+not take atmospheric refraction into account, the error is somewhat largerv ery close
+to the horizon.</p>
+<p>The function returns a tuple of two coordinates: the sun&#8217;s azimuth and its elevation. The
+azimuth is the angle along the horizon between North and the point underneath the sun,
+counted positive to the East. The elevation is the angle between the sun and the horizon.</p>
+</div>
+<div class="section" id="example">
+<h2>Example:<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/python</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">radians</span><span class="p">,</span> <span class="n">degrees</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="kn">import</span> <span class="n">strftime</span><span class="p">,</span> <span class="n">localtime</span>
+
+<span class="kn">import</span> <span class="nn">pmatic.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
+
+<span class="n">latitude</span> <span class="o">=</span> <span class="mf">50.5</span>
+<span class="n">longitude</span> <span class="o">=</span> <span class="mf">8.3</span>
+
+<span class="k">print</span> <span class="s2">&quot;Computing the current position of the sun for&quot;</span><span class="p">,</span> <span class="n">longitude</span><span class="p">,</span> <span class="s2">&quot;degrees eastern longitude and&quot;</span><span class="p">,</span> <span class="n">latitude</span><span class="p">,</span> \
+    <span class="s2">&quot;degrees northern latitude.&quot;</span>
+<span class="k">print</span> <span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;Date and time: %a, </span><span class="si">%d</span><span class="s2"> %b %Y %H:%M:%S&quot;</span><span class="p">,</span> <span class="n">localtime</span><span class="p">())</span>
+<span class="n">azimuth</span><span class="p">,</span> <span class="n">altitude</span> <span class="o">=</span> <span class="n">utils</span><span class="o">.</span><span class="n">sun_position</span><span class="p">(</span><span class="n">radians</span><span class="p">(</span><span class="n">longitude</span><span class="p">),</span> <span class="n">radians</span><span class="p">(</span><span class="n">latitude</span><span class="p">))</span>
+
+<span class="k">print</span> <span class="s2">&quot;Azimut: &quot;</span><span class="p">,</span> <span class="n">degrees</span><span class="p">(</span><span class="n">azimuth</span><span class="p">),</span> <span class="s2">&quot;, Altitude: &quot;</span><span class="p">,</span> <span class="n">degrees</span><span class="p">(</span><span class="n">altitude</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This script produces an output like this:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>Computing the current position of the sun <span class="k">for</span> 8.3 degrees eastern longitude and 50.5 degrees northern latitude.
+Date and time: Wed, <span class="m">06</span> Jul <span class="m">2016</span> 12:26:54
+Azimut:  149.656647766 , Altitude:  59.3890451373
+</pre></div>
+</div>
+</div>
+<div class="section" id="utility-function-for-computing-the-dew-point-temperature">
+<h2>Utility function for computing the dew point temperature<a class="headerlink" href="#utility-function-for-computing-the-dew-point-temperature" title="Permalink to this headline">¶</a></h2>
+<p>For the automation of ventilation systems the dew point temperature of the outside air must be known. It can be
+computed with the function <code class="docutils literal"><span class="pre">dew_point</span></code> which is included in module <code class="docutils literal"><span class="pre">pmatic/utils.py</span></code>. It uses the
+<cite>algorithm from Wikipedia &lt;https://de.wikipedia.org/wiki/Taupunkt&gt;</cite>. The algorithm was validated with independent
+data tables published in the internet.</p>
+<p>The function takes the air temperature (in degrees Celsius) and humidity (a value between 0. and 1.) as input and
+returns the dew point temperature (in degrees Celsius).</p>
+</div>
+<div class="section" id="id1">
+<h2>Example:<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="ch">#!/usr/bin/python</span>
+<span class="kn">import</span> <span class="nn">pmatic.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
+
+<span class="n">temperature</span> <span class="o">=</span> <span class="mf">22.</span>
+<span class="n">humidity</span> <span class="o">=</span> <span class="mf">0.60</span>
+
+<span class="k">print</span> <span class="s2">&quot;Temperature (C): &quot;</span><span class="p">,</span> <span class="n">temperature</span><span class="p">,</span> <span class="s2">&quot;, Humidity (%): &quot;</span><span class="p">,</span>\
+    <span class="n">humidity</span> <span class="o">*</span> <span class="mf">100.</span><span class="p">,</span> <span class="s2">&quot;, Dew point (C): &quot;</span><span class="p">,</span> <span class="n">utils</span><span class="o">.</span><span class="n">dew_point</span><span class="p">(</span><span class="n">temperature</span><span class="p">,</span> <span class="n">humidity</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This script produces an output like this:</p>
+<div class="highlight-shell"><div class="highlight"><pre><span></span>Temperature <span class="o">(</span>C<span class="o">)</span>:  22.0 , Humidity <span class="o">(</span>%<span class="o">)</span>:  60.0 , Dew point <span class="o">(</span>C<span class="o">)</span>:  13.8751835583
+</pre></div>
+</div>
+</div>
 <div class="section" id="some-use-cases">
 <h2>Some use cases<a class="headerlink" href="#some-use-cases" title="Permalink to this headline">¶</a></h2>
 <p>You might use pmatic for different kind of software. Some ideas:</p>
@@ -291,6 +356,10 @@ which are triggered when events for specific devices are received.</p>
 <li><a class="reference internal" href="#print-temperature-updates">Print temperature updates</a></li>
 <li><a class="reference internal" href="#list-rooms-with-their-devices">List Rooms with their devices</a></li>
 <li><a class="reference internal" href="#presence-detection-with-the-fritz-box">Presence detection with the fritz!Box</a></li>
+<li><a class="reference internal" href="#utility-function-for-computing-the-sun-s-position-in-the-sky">Utility function for computing the sun&#8217;s position in the sky</a></li>
+<li><a class="reference internal" href="#example">Example:</a></li>
+<li><a class="reference internal" href="#utility-function-for-computing-the-dew-point-temperature">Utility function for computing the dew point temperature</a></li>
+<li><a class="reference internal" href="#id1">Example:</a></li>
 <li><a class="reference internal" href="#some-use-cases">Some use cases</a></li>
 </ul>
 </li>
