@@ -553,6 +553,26 @@
 
 
 
+<span class="c1"># FIXME: Handle STOP, INHIBIT, INSTALL_TEST</span>
+<div class="viewcode-block" id="ChannelBlind"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelBlind">[docs]</a><span class="k">class</span> <span class="nc">ChannelBlind</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;BLIND&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">level</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Look up the level at which the shutter is set.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;LEVEL&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
+
+<div class="viewcode-block" id="ChannelBlind.set_level"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelBlind.set_level">[docs]</a>    <span class="k">def</span> <span class="nf">set_level</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Set the level at which the shutter is to be set.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;LEVEL&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">level</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">working</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Look up the WORKING value.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;WORKING&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span></div>
+
+
+
 <span class="c1"># FIXME: Handle INHIBIT, WORKING</span>
 <div class="viewcode-block" id="ChannelSwitch"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelSwitch">[docs]</a><span class="k">class</span> <span class="nc">ChannelSwitch</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;SWITCH&quot;</span>
@@ -654,6 +674,13 @@
 <div class="viewcode-block" id="ChannelConditionFrequency"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelConditionFrequency">[docs]</a><span class="k">class</span> <span class="nc">ChannelConditionFrequency</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;CONDITION_FREQUENCY&quot;</span></div>
 
+
+
+<span class="c1"># FIXME: To be implemented.</span>
+<span class="c1"># Devices:</span>
+<span class="c1">#   HM-Sen-LI-O</span>
+<span class="k">class</span> <span class="nc">ChannelLuxmeter</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;LUXMETER&quot;</span>
 
 
 <span class="c1"># FIXME: To be implemented.</span>
@@ -1362,6 +1389,43 @@
 
 
 
+<span class="c1"># Funk-Temperatur-/Luftfeuchtesensor ITH</span>
+<div class="viewcode-block" id="HM_WDS40_TH_I_2"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_WDS40_TH_I_2">[docs]</a><span class="k">class</span> <span class="nc">HM_WDS40_TH_I_2</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-WDS40-TH-I-2&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the current temperature.</span>
+
+<span class="sd">        Returns an instance of :class:`ParameterFLOAT`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;TEMPERATURE&quot;</span><span class="p">]</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">humidity</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the current humidity.</span>
+
+<span class="sd">        Returns an instance of :class:`ParameterFLOAT`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;HUMIDITY&quot;</span><span class="p">]</span></div>
+
+
+
+<span class="c1"># Funk-Außen-Helligkeitssensor OLI</span>
+<div class="viewcode-block" id="HM_Sen_LI_O"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_Sen_LI_O">[docs]</a><span class="k">class</span> <span class="nc">HM_Sen_LI_O</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-Sen-LI-O&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">brightness</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides the current brightness.</span>
+
+<span class="sd">        Returns an instance of :class:`ParameterFLOAT`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;LUX&quot;</span><span class="p">]</span></div>
+
+
+
 <span class="c1"># Virtuelle Fernbedienung der CCU</span>
 <span class="k">class</span> <span class="nc">HM_RCV_50</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
     <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-RCV-50&quot;</span>
@@ -1400,6 +1464,49 @@
         <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">HM_ES_PMSw1_Pl</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_get_summary_state</span><span class="p">(</span>
             <span class="n">skip_channel_types</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ChannelConditionPower&quot;</span><span class="p">,</span> <span class="s2">&quot;ChannelConditionCurrent&quot;</span><span class="p">,</span>
                                 <span class="s2">&quot;ChannelConditionVoltage&quot;</span><span class="p">,</span> <span class="s2">&quot;ChannelConditionFrequency&quot;</span><span class="p">])</span></div>
+
+
+
+<span class="c1"># Funk-Schaltaktor ohne Leistungsmessung</span>
+<div class="viewcode-block" id="HM_LC_Sw1_Pl_DN_R1"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_LC_Sw1_Pl_DN_R1">[docs]</a><span class="k">class</span> <span class="nc">HM_LC_Sw1_Pl_DN_R1</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-LC-Sw1-Pl-DN-R1&quot;</span>
+
+
+    <span class="c1"># Make methods of ChannelSwitch() available</span>
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">attr</span><span class="p">)</span>
+
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">(</span><span class="n">HM_LC_Sw1_Pl_DN_R1</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_get_summary_state</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">switch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides to the :class:`.ChannelKey` object of the switch.</span>
+
+<span class="sd">        You can do something like ``self.switch.switch_on()`` with this. For details take</span>
+<span class="sd">        a look at the methods provided by the :class:``.ChannelKey`` class.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
+
+
+
+<span class="c1"># Funk-Rolladenaktor</span>
+<div class="viewcode-block" id="HM_LC_Bl1PBU_FM"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_LC_Bl1PBU_FM">[docs]</a><span class="k">class</span> <span class="nc">HM_LC_Bl1PBU_FM</span><span class="p">(</span><span class="n">Device</span><span class="p">):</span>
+    <span class="n">type_name</span> <span class="o">=</span> <span class="s2">&quot;HM-LC-Bl1PBU-FM&quot;</span>
+
+
+    <span class="c1"># Make methods of ChannelBlind() available</span>
+    <span class="k">def</span> <span class="nf">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">attr</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">blind</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Provides to the :class:`.ChannelKey` object of the blind channel.</span>
+
+<span class="sd">        You can do something like ``self.blind.set_level(0.6)`` with this. For details take</span>
+<span class="sd">        a look at the methods provided by the :class:``.ChannelKey`` class.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span></div>
 
 
 
