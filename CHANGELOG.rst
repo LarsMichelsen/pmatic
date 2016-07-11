@@ -13,6 +13,16 @@ General
 * New helper function for calculating the dew point (``utils.dew_point()``)
   Thanks to Rolf Hempel for implementation!
 
+Devices
+```````
+
+* Added specific device object HM-WDS40-TH-I-2
+* Added specific device object HM-Sen-LI-O
+* Added specific device object HM-LC-Sw1-Pl-DN-R1
+* Added specific device object HM-LC-Bl1PBU-FM
+
+Thanks to Rolf Hempel for adding all of them!
+
 Manager
 ```````
 
