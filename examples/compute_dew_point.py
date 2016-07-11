@@ -21,6 +21,7 @@
 """
 This script computes the dew point (in degrees Celsius), if the current
 values for temperature and humidity are given.
+
 """
 
 import pmatic.utils as utils
@@ -28,5 +29,8 @@ import pmatic.utils as utils
 temperature = 22.
 humidity = 0.60
 
-print "Temperature (C): ", temperature, ", Humidity (%): ",\
+# The expected output from the following print statement is:
+# Temperature (C):  22.0 , Humidity (%):  60.0 , Dew point (C):  13.8751835583
+
+print "Temperature (C): ", temperature, ", Humidity (%): ", \
     humidity * 100., ", Dew point (C): ", utils.dew_point(temperature, humidity)
