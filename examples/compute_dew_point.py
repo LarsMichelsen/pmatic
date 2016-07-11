@@ -30,7 +30,7 @@ temperature = 22.
 humidity = 0.60
 
 # The expected output from the following print statement is:
-# Temperature (C):  22.0 , Humidity (%):  60.0 , Dew point (C):  13.8751835583
+# Temperature: 22.0 °C, Humidity (%): 60.0, Dew point: 13.9 °C
 
-print "Temperature (C): ", temperature, ", Humidity (%): ", \
-    humidity * 100., ", Dew point (C): ", utils.dew_point(temperature, humidity)
+print("Temperature: %0.1f °C, Humidity: %0.1f %%, Dew point: %0.1f °C" %
+        (temperature, humidity*100., utils.dew_point(temperature, humidity)))

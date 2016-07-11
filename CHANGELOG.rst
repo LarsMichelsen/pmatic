@@ -8,6 +8,10 @@ General
 ```````
 
 * FIX: Fixed possible endless recursion when listening for device updates
+* New helper function for calculating the sun position (``utils.sun_position()``)
+  Thanks to Rolf Hempel for implementation!
+* New helper function for calculating the dew point (``utils.dew_point()``)
+  Thanks to Rolf Hempel for implementation!
 
 Manager
 ```````

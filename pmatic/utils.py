@@ -354,10 +354,9 @@ def dew_point(temperature, humidity):
     :return: temperature of the dew point in Celsius
     """
 
-    k1 = 6.112
-    k2 = 17.62
-    k3 = 243.12
+    k2, k3 = 17.62, 243.12
 
-    dp = k3 * (k2 * temperature / (k3 + temperature) + log(humidity)) / (
-    k2 * k3 / (k3 + temperature) - log(humidity))
-    return (dp)
+    dp = k3 * (k2 * temperature / (k3 + temperature) + log(humidity)) \
+           / (k2 * k3 / (k3 + temperature) - log(humidity))
+
+    return dp
