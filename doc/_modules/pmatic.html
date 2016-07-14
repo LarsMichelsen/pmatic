@@ -83,24 +83,24 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="c1"># Add Python 3.x behaviour to 2.7</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
 
 <span class="n">__title__</span>     <span class="o">=</span> <span class="s1">&#39;pmatic&#39;</span>
-<span class="n">__version__</span>   <span class="o">=</span> <span class="s2">&quot;bb1b180&quot;</span>
+<span class="n">__version__</span>   <span class="o">=</span> <span class="s2">&quot;5acbf70&quot;</span>
 <span class="n">__author__</span>    <span class="o">=</span> <span class="s1">&#39;Lars Michelsen&#39;</span>
 <span class="n">__license__</span>   <span class="o">=</span> <span class="s1">&#39;GPLv2&#39;</span>
 <span class="n">__copyright__</span> <span class="o">=</span> <span class="s1">&#39;Copyright 2016 Lars Michelsen&#39;</span>
 
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">codecs</span>
-<span class="kn">import</span> <span class="nn">logging</span> <span class="kn">as</span> <span class="nn">_logging</span>
+<span class="kn">import</span> <span class="nn">logging</span> <span class="k">as</span> <span class="nn">_logging</span>
 
-<span class="kn">from</span> <span class="nn">pmatic.ccu</span> <span class="kn">import</span> <span class="n">utils</span>
-<span class="kn">from</span> <span class="nn">pmatic.ccu</span> <span class="kn">import</span> <span class="n">CCU</span> <span class="c1"># noqa</span>
-<span class="kn">from</span> <span class="nn">pmatic.exceptions</span> <span class="kn">import</span> <span class="n">PMException</span><span class="p">,</span> <span class="n">PMConnectionError</span><span class="p">,</span> \
+<span class="kn">from</span> <span class="nn">pmatic.ccu</span> <span class="k">import</span> <span class="n">utils</span>
+<span class="kn">from</span> <span class="nn">pmatic.ccu</span> <span class="k">import</span> <span class="n">CCU</span> <span class="c1"># noqa</span>
+<span class="kn">from</span> <span class="nn">pmatic.exceptions</span> <span class="k">import</span> <span class="n">PMException</span><span class="p">,</span> <span class="n">PMConnectionError</span><span class="p">,</span> \
                               <span class="n">PMDeviceOffline</span><span class="p">,</span> <span class="n">PMActionFailed</span><span class="p">,</span> <span class="n">PMUserError</span> <span class="c1"># noqa</span>
 
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span> <span class="s2">&quot;CCU&quot;</span><span class="p">,</span> <span class="s2">&quot;logging&quot;</span><span class="p">,</span>
@@ -115,7 +115,7 @@
 <span class="c1"># Set default logging handler to avoid &quot;No handler found&quot; warnings.</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="c1"># Python 2.7+</span>
-    <span class="kn">from</span> <span class="nn">_logging</span> <span class="kn">import</span> <span class="n">NullHandler</span>
+    <span class="kn">from</span> <span class="nn">_logging</span> <span class="k">import</span> <span class="n">NullHandler</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="k">class</span> <span class="nc">NullHandler</span><span class="p">(</span><span class="n">_logging</span><span class="o">.</span><span class="n">Handler</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">emit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record</span><span class="p">):</span>
@@ -140,9 +140,9 @@
     <span class="s2">&quot;DEBUG&quot;</span>
 <span class="p">]</span>
 
-<span class="n">logger_default_handler</span> <span class="o">=</span> <span class="bp">None</span>
+<span class="n">logger_default_handler</span> <span class="o">=</span> <span class="kc">None</span>
 
-<div class="viewcode-block" id="logging"><a class="viewcode-back" href="../pmatic_module.html#pmatic.logging">[docs]</a><span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="n">log_level</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="logging"><a class="viewcode-back" href="../pmatic_module.html#pmatic.logging">[docs]</a><span class="k">def</span> <span class="nf">logging</span><span class="p">(</span><span class="n">log_level</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Enables logging of pmatic log messages to stderr.</span>
 
 <span class="sd">    When log_level is not set, it will default to WARNING if you did not</span>
@@ -154,7 +154,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">global</span> <span class="n">logger_default_handler</span>
 
-    <span class="k">if</span> <span class="n">log_level</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">log_level</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">log_level</span> <span class="o">=</span> <span class="n">WARNING</span>
 
     <span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_level</span><span class="p">)</span>
@@ -162,7 +162,7 @@
     <span class="c1"># Remove eventual already existing default logger</span>
     <span class="k">if</span> <span class="n">logger_default_handler</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">removeHandler</span><span class="p">(</span><span class="n">logger_default_handler</span><span class="p">)</span>
-        <span class="n">logger_default_handler</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">logger_default_handler</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># create console handler and set level to debug</span>
     <span class="n">ch</span> <span class="o">=</span> <span class="n">_logging</span><span class="o">.</span><span class="n">StreamHandler</span><span class="p">()</span>
@@ -181,9 +181,9 @@
 <span class="sd">    grep the sys.stdout/stderr encoding is not set correctly so printing the</span>
 <span class="sd">    unicode strings will fail. Workaround this.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_py2</span><span class="p">():</span>
-        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">encoding</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">encoding</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">getwriter</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)(</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">encoding</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="o">.</span><span class="n">encoding</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">stderr</span> <span class="o">=</span> <span class="n">codecs</span><span class="o">.</span><span class="n">getwriter</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)(</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
 
 
@@ -227,7 +227,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2016, Lars Michelsen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
     </div>
   </body>
 </html>

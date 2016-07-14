@@ -78,14 +78,14 @@
 <span class="c1"># - http://www.eq-3.de/Downloads/PDFs/Dokumentation_und_Tutorials/HM_XmlRpc_V1_502__2_.pdf</span>
 
 <span class="c1"># Add Python 3.x behaviour to 2.7</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="c1"># Is recommended for Python 3.x but fails on 2.7, but is not mandatory</span>
-    <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">object</span> <span class="c1"># pylint:disable=redefined-builtin</span>
+    <span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="nb">object</span> <span class="c1"># pylint:disable=redefined-builtin</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="k">pass</span>
 
@@ -95,22 +95,22 @@
 
 <span class="k">try</span><span class="p">:</span>
     <span class="c1"># Python 2</span>
-    <span class="kn">from</span> <span class="nn">urlparse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+    <span class="kn">from</span> <span class="nn">urlparse</span> <span class="k">import</span> <span class="n">urlparse</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="c1"># Python 3+</span>
-    <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="kn">import</span> <span class="n">urlparse</span>
+    <span class="kn">from</span> <span class="nn">urllib.parse</span> <span class="k">import</span> <span class="n">urlparse</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="c1"># Python 2</span>
-    <span class="kn">from</span> <span class="nn">SimpleXMLRPCServer</span> <span class="kn">import</span> <span class="n">SimpleXMLRPCServer</span><span class="p">,</span> <span class="n">SimpleXMLRPCRequestHandler</span>
+    <span class="kn">from</span> <span class="nn">SimpleXMLRPCServer</span> <span class="k">import</span> <span class="n">SimpleXMLRPCServer</span><span class="p">,</span> <span class="n">SimpleXMLRPCRequestHandler</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="c1"># Python 3+</span>
-    <span class="kn">from</span> <span class="nn">xmlrpc.server</span> <span class="kn">import</span> <span class="n">SimpleXMLRPCServer</span><span class="p">,</span> <span class="n">SimpleXMLRPCRequestHandler</span>
+    <span class="kn">from</span> <span class="nn">xmlrpc.server</span> <span class="k">import</span> <span class="n">SimpleXMLRPCServer</span><span class="p">,</span> <span class="n">SimpleXMLRPCRequestHandler</span>
 
 
 <span class="kn">import</span> <span class="nn">pmatic.api</span>
-<span class="kn">import</span> <span class="nn">pmatic.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
-<span class="kn">from</span> <span class="nn">pmatic.exceptions</span> <span class="kn">import</span> <span class="n">PMException</span><span class="p">,</span> <span class="n">PMConnectionError</span>
+<span class="kn">import</span> <span class="nn">pmatic.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">pmatic.exceptions</span> <span class="k">import</span> <span class="n">PMException</span><span class="p">,</span> <span class="n">PMConnectionError</span>
 
 
 <span class="k">class</span> <span class="nc">EventXMLRPCServer</span><span class="p">(</span><span class="n">SimpleXMLRPCServer</span><span class="p">,</span> <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="p">):</span>
@@ -118,7 +118,7 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">SimpleXMLRPCServer</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">threading</span><span class="o">.</span><span class="n">Thread</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">daemon</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="c1"># Register system.listMethods, system.methodHelp and system.methodSignature</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">register_introspection_functions</span><span class="p">()</span>
@@ -195,11 +195,11 @@
         <span class="k">return</span> <span class="n">this_id</span>
 
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">,</span> <span class="n">listen_address</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">interface_id</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">,</span> <span class="n">listen_address</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">interface_id</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">EventListener</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span>         <span class="o">=</span> <span class="n">ccu</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_server</span>      <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_server</span>      <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_callbacks</span><span class="p">([</span><span class="s2">&quot;value_updated&quot;</span><span class="p">,</span> <span class="s2">&quot;value_changed&quot;</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_listen_address</span><span class="p">(</span><span class="n">listen_address</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_interface_id</span><span class="p">(</span><span class="n">interface_id</span><span class="p">)</span>
@@ -207,7 +207,7 @@
 
     <span class="k">def</span> <span class="nf">_init_listen_address</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">listen_address</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Parses the listen_address provided by the user.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">listen_address</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">listen_address</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># listen on all interfaces. Use port 9123 by default.</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_listen_address</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="mi">9123</span><span class="p">)</span>
 
@@ -221,7 +221,7 @@
 
     <span class="k">def</span> <span class="nf">_init_interface_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Initializes the interface ID of this object.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">interface_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">interface_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">utils</span><span class="o">.</span><span class="n">is_string</span><span class="p">(</span><span class="n">interface_id</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_interface_id</span> <span class="o">=</span> <span class="n">interface_id</span>
             <span class="k">else</span><span class="p">:</span>
@@ -255,7 +255,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_start_rpc_server</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_register_with_ccu</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">except</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
             <span class="k">raise</span></div>
@@ -287,7 +287,7 @@
             <span class="n">url</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">rpc_server_url</span><span class="p">,</span> <span class="n">interfaceId</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_interface_id</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">PMConnectionError</span><span class="p">(</span><span class="s2">&quot;Failed to register with the XML-RPC API of the CCU.&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">result</span> <span class="o">==</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">result</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Successfully registered event listener with CCU&quot;</span><span class="p">)</span>
 
 
@@ -330,8 +330,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Stop listening for events&quot;</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">join</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_server</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -339,7 +339,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
 
-<div class="viewcode-block" id="EventListener.wait"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.events.EventListener.wait">[docs]</a>    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="EventListener.wait"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.events.EventListener.wait">[docs]</a>    <span class="k">def</span> <span class="nf">wait</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Waits for the event listener to terminate.</span>
 
 <span class="sd">        This is useful to let your code stay idle (for some time) and</span>
@@ -354,7 +354,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_server</span><span class="o">.</span><span class="n">is_alive</span><span class="p">():</span>
                 <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">timeout</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">timeout</span> <span class="o">-=</span> <span class="mf">0.1</span>
                     <span class="k">if</span> <span class="n">timeout</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
                         <span class="k">break</span>
@@ -403,8 +403,8 @@
             <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Exception in XML-RPC call </span><span class="si">%s%r</span><span class="s2">:&quot;</span><span class="p">,</span>
-                                <span class="n">method</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">params</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">False</span>
+                                <span class="n">method</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">params</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
 
     <span class="c1"># Mit dieser Methode teilt der Schnittstellenprozess der Logikschicht mit, dass sich ein</span>
@@ -427,7 +427,7 @@
             <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">get_device_or_channel_by_address</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;[EVENT] </span><span class="si">%s</span><span class="s2"> Ignoring event for unknown device&quot;</span> <span class="o">%</span> <span class="n">address</span><span class="p">)</span>
-            <span class="k">return</span> <span class="bp">True</span>
+            <span class="k">return</span> <span class="kc">True</span>
 
         <span class="n">param</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">value_key</span><span class="p">]</span>
 
@@ -437,7 +437,7 @@
         <span class="k">if</span> <span class="n">value_changed</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">listener</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="s2">&quot;value_changed&quot;</span><span class="p">,</span> <span class="n">param</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
 
     <span class="c1"># Diese  Methode  gibt  alle  der  Logikschicht  bekannten Geräte für den Schnittstellen-Prozess</span>
@@ -532,9 +532,9 @@
         <span class="c1"># As we just received all devices from the CCU mark the devices as initialized</span>
         <span class="c1"># in the CCU object. This saves one Interface.listDevices call when accessing</span>
         <span class="c1"># the &quot;self._ccu.devices.devices&quot; for the first time.</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">initialized</span> <span class="o">=</span> <span class="kc">True</span>
 
-        <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
 
     <span class="c1"># Mit   dieser   Methode   wird   der   Logikschicht   mitgeteilt,   dass   Geräte   im</span>
@@ -548,7 +548,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[DELETE DEVICES] Delete </span><span class="si">%d</span><span class="s2"> devices/channels&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">addresses</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">address</span> <span class="ow">in</span> <span class="n">addresses</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_ccu</span><span class="o">.</span><span class="n">devices</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">address</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="kc">True</span>
 
 
     <span class="c1"># Mit dieser Methode wird der Logikschicht mitgeteilt, dass sich an einem Gerät etwas</span>
@@ -569,7 +569,7 @@
     <span class="k">def</span> <span class="nf">updateDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">interface_id</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">hint</span><span class="p">):</span> <span class="c1"># pylint:disable=unused-argument</span>
         <span class="sd">&quot;&quot;&quot;The CCU wants to update the parameters of a device.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;[UPDATE DEVICES] Update for device </span><span class="si">%s</span><span class="s2"> (</span><span class="si">%d</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">hint</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">True</span>
+        <span class="k">return</span> <span class="kc">True</span>
 </pre></div>
 
           </div>
@@ -607,7 +607,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2016, Lars Michelsen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
     </div>
   </body>
 </html>

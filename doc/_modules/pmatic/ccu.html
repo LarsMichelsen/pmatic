@@ -73,20 +73,20 @@
 <span class="c1"># 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.</span>
 
 <span class="c1"># Add Python 3.x behaviour to 2.7</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="c1"># Is recommended for Python 3.x but fails on 2.7, but is not mandatory</span>
-    <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">object</span>
+    <span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="nb">object</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="k">pass</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="c1"># Python 2.x</span>
-    <span class="kn">import</span> <span class="nn">__builtin__</span> <span class="kn">as</span> <span class="nn">builtins</span>
+    <span class="kn">import</span> <span class="nn">__builtin__</span> <span class="k">as</span> <span class="nn">builtins</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="c1"># Python 3+</span>
     <span class="kn">import</span> <span class="nn">builtins</span>
@@ -96,9 +96,9 @@
 
 <span class="kn">import</span> <span class="nn">pmatic.api</span>
 <span class="kn">import</span> <span class="nn">pmatic.events</span>
-<span class="kn">import</span> <span class="nn">pmatic.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
-<span class="kn">from</span> <span class="nn">pmatic.entities</span> <span class="kn">import</span> <span class="n">Devices</span><span class="p">,</span> <span class="n">Device</span><span class="p">,</span> <span class="n">Rooms</span><span class="p">,</span> <span class="n">Room</span>
-<span class="kn">from</span> <span class="nn">pmatic.residents</span> <span class="kn">import</span> <span class="n">Residents</span>
+<span class="kn">import</span> <span class="nn">pmatic.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">pmatic.entities</span> <span class="k">import</span> <span class="n">Devices</span><span class="p">,</span> <span class="n">Device</span><span class="p">,</span> <span class="n">Rooms</span><span class="p">,</span> <span class="n">Room</span>
+<span class="kn">from</span> <span class="nn">pmatic.residents</span> <span class="k">import</span> <span class="n">Residents</span>
 
 
 <div class="viewcode-block" id="CCU"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCU">[docs]</a><span class="k">class</span> <span class="nc">CCU</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -130,11 +130,11 @@
 
         <span class="nb">super</span><span class="p">(</span><span class="n">CCU</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">api</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">init</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_rssi</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">=</span> <span class="bp">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_residents</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rssi</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_events</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_residents</span> <span class="o">=</span> <span class="kc">None</span>
 
 
     <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -170,7 +170,7 @@
 
 <span class="sd">        This collection is an instance of :class:`pmatic.ccu.CCUDevices`, which is a subclass</span>
 <span class="sd">        of the room collection class :class:`pmatic.entities.Devices`.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="n">CCUDevices</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span>
 
@@ -191,7 +191,7 @@
 
 <span class="sd">        This collection is an instance of :class:`pmatic.ccu.CCURooms`, which is a subclass</span>
 <span class="sd">        of the room collection class :class:`pmatic.entities.Rooms`.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span> <span class="o">=</span> <span class="n">CCURooms</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span>
 
@@ -200,7 +200,7 @@
     <span class="k">def</span> <span class="nf">residents</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Provides access to the resident and presence management functionality of pmatic.</span>
 <span class="sd">        See :class:`pmatic.residents.Residents` for details.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_residents</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_residents</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_residents</span> <span class="o">=</span> <span class="n">Residents</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_residents</span>
 
@@ -243,7 +243,7 @@
     <span class="c1"># FIXME: Consolidate API with self.devices.(...)</span>
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">signal_strengths</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rssi</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rssi</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_rssi</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">SignalStrength</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rssi</span>
 
@@ -270,7 +270,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_device_specs</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">DeviceSpecs</span><span class="p">(</span><span class="n">ccu</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_device_logic</span> <span class="o">=</span> <span class="n">pmatic</span><span class="o">.</span><span class="n">api</span><span class="o">.</span><span class="n">DeviceLogic</span><span class="p">(</span><span class="n">ccu</span><span class="o">.</span><span class="n">api</span><span class="p">)</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_lock</span>   <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
 
 
@@ -280,7 +280,7 @@
         <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_init_lock</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_init_all_devices</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span>
 
 
@@ -295,7 +295,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span>
 
 
-    <span class="nd">@initialized.setter</span>
+    <span class="nd">@initialized</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">initialized</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="n">value</span>
 
@@ -418,7 +418,7 @@
         <span class="sd">&quot;&quot;&quot;Remove all objects from this devices collection.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="kc">False</span></div>
 
 
     <span class="nd">@property</span>
@@ -444,7 +444,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">CCURooms</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ccu</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_init_lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">RLock</span><span class="p">()</span>
 
 
@@ -455,7 +455,7 @@
             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_room_dict</span> <span class="o">=</span> <span class="p">{}</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_init_all_rooms</span><span class="p">()</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">True</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_room_dict</span>
 
 
@@ -540,7 +540,7 @@
 <div class="viewcode-block" id="CCURooms.clear"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.CCURooms.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove all :class:`Room` objects from this collection.&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_rooms</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="bp">False</span></div></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialized</span> <span class="o">=</span> <span class="kc">False</span></div></div>
 </pre></div>
 
           </div>
@@ -578,7 +578,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2016, Lars Michelsen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
     </div>
   </body>
 </html>

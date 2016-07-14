@@ -77,22 +77,22 @@
 <span class="c1"># - http://www.eq-3.de/Downloads/eq3/download%20bereich/hm_web_ui_doku/hm_devices_Endkunden.pdf</span>
 
 <span class="c1"># Add Python 3.x behaviour to 2.7</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">absolute_import</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">division</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
-<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">absolute_import</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">division</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">print_function</span>
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="k">import</span> <span class="n">unicode_literals</span>
 
 <span class="kn">import</span> <span class="nn">time</span>
 <span class="kn">import</span> <span class="nn">threading</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="kn">from</span> <span class="nn">builtins</span> <span class="kn">import</span> <span class="nb">object</span> <span class="c1"># pylint:disable=redefined-builtin</span>
+    <span class="kn">from</span> <span class="nn">builtins</span> <span class="k">import</span> <span class="nb">object</span> <span class="c1"># pylint:disable=redefined-builtin</span>
 <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
     <span class="k">pass</span>
 
 <span class="kn">import</span> <span class="nn">pmatic.params</span>
-<span class="kn">import</span> <span class="nn">pmatic.utils</span> <span class="kn">as</span> <span class="nn">utils</span>
-<span class="kn">from</span> <span class="nn">pmatic.exceptions</span> <span class="kn">import</span> <span class="n">PMException</span><span class="p">,</span> <span class="n">PMDeviceOffline</span>
+<span class="kn">import</span> <span class="nn">pmatic.utils</span> <span class="k">as</span> <span class="nn">utils</span>
+<span class="kn">from</span> <span class="nn">pmatic.exceptions</span> <span class="k">import</span> <span class="n">PMException</span><span class="p">,</span> <span class="n">PMDeviceOffline</span>
 
 <span class="k">class</span> <span class="nc">Entity</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="n">_transform_attributes</span> <span class="o">=</span> <span class="p">{}</span>
@@ -179,7 +179,7 @@
     <span class="n">_transform_attributes</span> <span class="o">=</span> <span class="p">{</span>
         <span class="c1"># ReGa attributes:</span>
         <span class="s2">&quot;id&quot;</span>               <span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="s2">&quot;partner_id&quot;</span>       <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">None</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
+        <span class="s2">&quot;partner_id&quot;</span>       <span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="kc">None</span> <span class="k">if</span> <span class="n">x</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">x</span><span class="p">),</span>
         <span class="c1"># Low level attributes:</span>
         <span class="s2">&quot;aes_active&quot;</span>        <span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
         <span class="s2">&quot;link_source_roles&quot;</span> <span class="p">:</span> <span class="k">lambda</span> <span class="n">v</span><span class="p">:</span> <span class="n">v</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">),</span>
@@ -315,22 +315,22 @@
 
     <span class="k">def</span> <span class="nf">_value_update_needed</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Tells whether or not the set of values should be fetched from the CCU.&quot;&quot;&quot;</span>
-        <span class="n">oldest_value_time</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">oldest_value_time</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">param</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_values</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">last_updated</span> <span class="o">=</span> <span class="n">param</span><span class="o">.</span><span class="n">last_updated</span>
-                <span class="k">if</span> <span class="n">last_updated</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">last_updated</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">last_updated</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># enforce the update</span>
             <span class="k">except</span> <span class="n">PMException</span><span class="p">:</span>
                 <span class="k">continue</span> <span class="c1"># Ignore not readable values</span>
 
-            <span class="k">if</span> <span class="n">oldest_value_time</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">oldest_value_time</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">oldest_value_time</span> <span class="o">=</span> <span class="n">last_updated</span>
             <span class="k">elif</span> <span class="n">last_updated</span> <span class="o">&lt;</span> <span class="n">oldest_value_time</span><span class="p">:</span>
                 <span class="n">oldest_value_time</span> <span class="o">=</span> <span class="n">last_updated</span>
 
-        <span class="k">if</span> <span class="n">oldest_value_time</span> <span class="o">==</span> <span class="bp">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">False</span> <span class="c1"># No readable value at all</span>
+        <span class="k">if</span> <span class="n">oldest_value_time</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span> <span class="c1"># No readable value at all</span>
 
         <span class="c1"># FIXME: Make threshold configurable</span>
         <span class="k">return</span> <span class="n">oldest_value_time</span> <span class="o">&lt;=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="mi">60</span>
@@ -384,7 +384,7 @@
                <span class="ow">and</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ChannelMaintenance</span><span class="p">)</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">is_online</span><span class="p">):</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="s2"> (</span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2">): </span><span class="si">%s</span><span class="s2">. Falling back to single value fetching.&quot;</span><span class="p">,</span>
                                     <span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">device</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_single</span><span class="p">(</span><span class="n">skip_invalid_values</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_values_single</span><span class="p">(</span><span class="n">skip_invalid_values</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span>
 
@@ -396,7 +396,7 @@
                                          <span class="n">address</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">address</span><span class="p">,</span> <span class="n">paramsetKey</span><span class="o">=</span><span class="s2">&quot;VALUES&quot;</span><span class="p">)</span>
 
 
-    <span class="k">def</span> <span class="nf">_get_values_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_invalid_values</span><span class="o">=</span><span class="bp">False</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_values_single</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_invalid_values</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Fetches all values known to be readable one by one. One should always</span>
 <span class="sd">        use :meth:`_get_values_bulked` when possible. This is only used for buggy</span>
 <span class="sd">        devices.</span>
@@ -525,7 +525,7 @@
 
 <span class="sd">        If you want to get a formated maintenance state, you need to use the property</span>
 <span class="sd">        :attr:`maintenance_state`.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">return</span> <span class="kc">None</span>
 
 
     <span class="nd">@property</span>
@@ -599,12 +599,12 @@
 
 <div class="viewcode-block" id="ChannelSwitch.switch_off"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelSwitch.switch_off">[docs]</a>    <span class="k">def</span> <span class="nf">switch_off</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Power off!&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;STATE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">False</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;STATE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ChannelSwitch.switch_on"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelSwitch.switch_on">[docs]</a>    <span class="k">def</span> <span class="nf">switch_on</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Lights on!&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;STATE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;STATE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div></div>
 
 
 
@@ -614,31 +614,31 @@
 
 <div class="viewcode-block" id="ChannelKey.press_short"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelKey.press_short">[docs]</a>    <span class="k">def</span> <span class="nf">press_short</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Call this to trigger a short press.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_SHORT&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_SHORT&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="ChannelKey.press_long"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelKey.press_long">[docs]</a>    <span class="k">def</span> <span class="nf">press_long</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Triggers a long press.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_LONG&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_LONG&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
 
 
     <span class="c1"># Not verified working</span>
 <div class="viewcode-block" id="ChannelKey.press_long_release"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelKey.press_long_release">[docs]</a>    <span class="k">def</span> <span class="nf">press_long_release</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Triggers the release of a long press.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_LONG_RELEASE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_LONG_RELEASE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
 
 
     <span class="c1"># Not verified</span>
 <div class="viewcode-block" id="ChannelKey.press_cont"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelKey.press_cont">[docs]</a>    <span class="k">def</span> <span class="nf">press_cont</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Unknown. Untested. Please let me know what this is.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_CONT&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="bp">True</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;PRESS_CONT&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span></div>
 
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Has no state info as it&#39;s a toggle button. This is only to override the</span>
 <span class="sd">        default summary_state property.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">None</span></div>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
 
 
@@ -749,7 +749,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Provides ``None`` since the channel has not any values&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">None</span></div>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
 
 <div class="viewcode-block" id="ChannelWeatherReceiver"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.ChannelWeatherReceiver">[docs]</a><span class="k">class</span> <span class="nc">ChannelWeatherReceiver</span><span class="p">(</span><span class="n">Channel</span><span class="p">):</span>
@@ -758,7 +758,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Provides ``None`` since the channel has not any values&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">None</span></div>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
 
 <span class="c1"># Devices:</span>
@@ -769,7 +769,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Provides ``None`` since the channel has not any values&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">None</span></div>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
 
 <span class="c1"># Devices:</span>
@@ -780,7 +780,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Provides ``None`` since the channel has not any values&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">None</span></div>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
 
 <span class="c1"># Devices:</span>
@@ -791,7 +791,7 @@
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Provides ``None`` since the channel has not any values&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">None</span></div>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
 
 <span class="c1"># Devices:</span>
@@ -867,7 +867,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_device_dict</span>
 
 
-<div class="viewcode-block" id="Devices.get"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Devices.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">deflt</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Devices.get"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Devices.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">address</span><span class="p">,</span> <span class="n">deflt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the device matching the given device address.</span>
 
 <span class="sd">        If there is none matching the given address either None or the value</span>
@@ -1041,7 +1041,7 @@
     <span class="k">def</span> <span class="nf">is_online</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Is ``True`` when the device is currently reachable. Otherwise it is ``False``.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;HM-RCV-50&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">True</span> <span class="c1"># CCU is always assumed to be online</span>
+            <span class="k">return</span> <span class="kc">True</span> <span class="c1"># CCU is always assumed to be online</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;UNREACH&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 
@@ -1055,7 +1055,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;LOWBAT&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">None</span> <span class="c1"># not battery powered</span>
+            <span class="k">return</span> <span class="kc">None</span> <span class="c1"># not battery powered</span>
 
 
     <span class="nd">@property</span>
@@ -1063,7 +1063,7 @@
         <span class="sd">&quot;&quot;&quot;Is ``True`` when the CCU has pending configuration changes for this device.</span>
 <span class="sd">        Otherwise it is ``False``.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;HM-RCV-50&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;CONFIG_PENDING&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
 
@@ -1075,7 +1075,7 @@
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;UPDATE_PENDING&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">False</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
 
     <span class="nd">@property</span>
@@ -1089,7 +1089,7 @@
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;RSSI_DEVICE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> \
                    <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;RSSI_PEER&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span>
         <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">None</span><span class="p">,</span> <span class="bp">None</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
 
     <span class="c1">#{u&#39;CONTROL&#39;: u&#39;NONE&#39;, u&#39;OPERATIONS&#39;: u&#39;7&#39;, u&#39;NAME&#39;: u&#39;INHIBIT&#39;, u&#39;MIN&#39;: u&#39;0&#39;,</span>
@@ -1107,7 +1107,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;INHIBIT&quot;</span><span class="p">]</span>
 
 
-    <span class="nd">@inhibit.setter</span>
+    <span class="nd">@inhibit</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">inhibit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">maintenance</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;INHIBIT&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">state</span>
 
@@ -1126,7 +1126,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_summary_state</span><span class="p">()</span>
 
 
-    <span class="k">def</span> <span class="nf">_get_summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_channel_types</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">_get_summary_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skip_channel_types</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Internal helper for :prop:`summary_state`.</span>
 
 <span class="sd">        It is possible to exclude the states of specific channels by listing the</span>
@@ -1148,9 +1148,9 @@
         <span class="c1"># FIXME: Add bad rssi?</span>
 
         <span class="k">for</span> <span class="n">channel</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">skip_channel_types</span> <span class="o">==</span> <span class="bp">None</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_channel_types</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">skip_channel_types</span> <span class="o">==</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">type</span><span class="p">(</span><span class="n">channel</span><span class="p">)</span><span class="o">.</span><span class="n">__name__</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skip_channel_types</span><span class="p">:</span>
                 <span class="n">txt</span> <span class="o">=</span> <span class="n">channel</span><span class="o">.</span><span class="n">summary_state</span>
-                <span class="k">if</span> <span class="n">txt</span> <span class="o">!=</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">txt</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
                     <span class="n">formated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">txt</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">formated</span><span class="p">:</span>
@@ -1264,7 +1264,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">]</span>
 
 
-    <span class="nd">@set_temperature.setter</span>
+    <span class="nd">@set_temperature</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">set_temperature</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;SET_TEMPERATURE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">target</span>
 
@@ -1274,7 +1274,7 @@
     <span class="c1">#  u&#39;TYPE&#39;: u&#39;ACTION&#39;, u&#39;ID&#39;: u&#39;COMFORT_MODE&#39;, u&#39;UNIT&#39;: u&#39;&#39;}</span>
 <div class="viewcode-block" id="HM_CC_RT_DN.set_temperature_comfort"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_CC_RT_DN.set_temperature_comfort">[docs]</a>    <span class="k">def</span> <span class="nf">set_temperature_comfort</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets the :attr:`set_temperature` to the configured comfort temperature&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;COMFORT_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">True</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;COMFORT_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
     <span class="c1">#{u&#39;CONTROL&#39;: u&#39;HEATING_CONTROL.LOWERING&#39;, u&#39;OPERATIONS&#39;: u&#39;2&#39;, u&#39;NAME&#39;: u&#39;LOWERING_MODE&#39;,</span>
@@ -1282,7 +1282,7 @@
     <span class="c1"># u&#39;TYPE&#39;: u&#39;ACTION&#39;, u&#39;ID&#39;: u&#39;LOWERING_MODE&#39;, u&#39;UNIT&#39;: u&#39;&#39;}</span>
 <div class="viewcode-block" id="HM_CC_RT_DN.set_temperature_lowering"><a class="viewcode-back" href="../../pmatic_devices.html#pmatic.entities.HM_CC_RT_DN.set_temperature_lowering">[docs]</a>    <span class="k">def</span> <span class="nf">set_temperature_lowering</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets the :attr:`set_temperature` to the configured lowering temperature&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;LOWERING_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="bp">True</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;LOWERING_MODE&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">value</span> <span class="o">=</span> <span class="kc">True</span></div>
 
 
     <span class="nd">@property</span>
@@ -1312,7 +1312,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">channels</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="s2">&quot;CONTROL_MODE&quot;</span><span class="p">]</span>
 
 
-    <span class="nd">@control_mode.setter</span>
+    <span class="nd">@control_mode</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">control_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">):</span>
         <span class="n">modes</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AUTO&quot;</span><span class="p">,</span> <span class="s2">&quot;MANUAL&quot;</span><span class="p">,</span> <span class="s2">&quot;PARTY&quot;</span><span class="p">,</span> <span class="s2">&quot;BOOST&quot;</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">mode</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">modes</span><span class="p">:</span>
@@ -1321,7 +1321,7 @@
         <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;MANUAL&quot;</span><span class="p">:</span>
             <span class="n">mode</span> <span class="o">=</span> <span class="s2">&quot;MANU&quot;</span>
 
-        <span class="n">value</span> <span class="o">=</span> <span class="bp">True</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="c1"># In manual mode the set temperature needs to be provided. Set it to the</span>
         <span class="c1"># current set temperature. When the set temperature is &quot;off&quot;, use the default</span>
@@ -1558,7 +1558,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_room_dict</span>
 
 
-<div class="viewcode-block" id="Rooms.get"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Rooms.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room_id</span><span class="p">,</span> <span class="n">deflt</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+<div class="viewcode-block" id="Rooms.get"><a class="viewcode-back" href="../../pmatic_module.html#pmatic.entities.Rooms.get">[docs]</a>    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">room_id</span><span class="p">,</span> <span class="n">deflt</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the :class:`Room` matching the given room id.</span>
 
 <span class="sd">        If there is none matching the given ID either None or the value</span>
@@ -1620,7 +1620,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_values</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_devices</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">Room</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">ccu</span><span class="p">,</span> <span class="n">spec</span><span class="p">)</span>
 
 
@@ -1726,7 +1726,7 @@
     </div>
     <div class="footer" role="contentinfo">
         &copy; Copyright 2016, Lars Michelsen.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.4.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.5.
     </div>
   </body>
 </html>
