@@ -1,4 +1,4 @@
-VERSION            = 0.4
+VERSION            = 0.5
 REPO_PATH         ?= $(shell pwd)
 CHROOT_PATH       ?= $(shell pwd)/chroot
 CHROOT_DEB_MIRROR ?= http://ftp.de.debian.org/debian
@@ -54,11 +54,12 @@ help:
 
 setup:
 	sudo apt-get install debootstrap qemu-user-static rsync dialog python-pytest python-pip \
-			python3-pip python-sphinx snakefood python-lxml python-requests \
+			python3-pip python-sphinx snakefood python-lxml \
 			python-six
-	sudo pip install pytest_flakes pytest_runner coverage beautifulsoup4 \
-			sphinxcontrib-images twine
-	sudo pip3 install pytest_flakes pytest_runner coverage beautifulsoup4
+	sudo pip install --upgrade pytest_flakes pytest_runner coverage beautifulsoup4 \
+			sphinxcontrib-images twine requests
+	sudo pip3 install --upgrade pytest_flakes pytest_runner coverage beautifulsoup4 \
+			requests
 	# port install py-coverage py34-coverage \
 	# 	       py-setuptools py34-setuptools \
 	# 	       py-pytest py34-pytest
