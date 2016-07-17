@@ -2346,7 +2346,7 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
 
         self._p = subprocess.Popen(["/usr/bin/env", "python", "-u", script_path], shell=False,
                                    cwd="/", env=env, stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT)
+                                   stderr=subprocess.STDOUT, close_fds=True)
 
         while True:
             nextline = self._p.stdout.readline().decode("utf-8")

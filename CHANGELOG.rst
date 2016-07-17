@@ -9,6 +9,8 @@ Manager
 
 * FIX: Schedules executed on startup were not shown as triggered and running in GUI
 * FIX: Fixed visualization of "keep alive" scripts current state when aborted via GUI
+* FIX: Fixed file descriptor inheritance to "external executed" scripts
+  (could block manager port during restar)
 
 Version 0.4 (2016-07-14)
 ------------------------
