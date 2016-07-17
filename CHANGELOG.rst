@@ -4,6 +4,11 @@ The pmatic Changelog
 Unreleased (Use snapshot builds to get these changes)
 -----------------------------------------------------
 
+Manager
+```````
+
+* FIX: Schedules executed on startup were not shown as triggered and running in GUI
+
 Version 0.4 (2016-07-14)
 ------------------------
 

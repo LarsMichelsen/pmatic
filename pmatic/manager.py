@@ -2483,8 +2483,8 @@ class Manager(wsgiref.simple_server.WSGIServer, utils.LogMixin):
         self._patch_manager_residents()
         self._register_for_ccu_events()
 
-        # Reload the schedules to update the CCU dependent conditions
-        self.scheduler.load()
+        # Update the CCU dependent conditions
+        self.scheduler.update_conditions()
 
 
     @property
@@ -2782,7 +2782,7 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
 
 
     def run(self):
-        self.logger.debug("Starting Scheduler")
+        self.logger.info("Starting Scheduler..")
         while True:
             try:
                 if not self._on_startup_executed:
@@ -2809,7 +2809,7 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
             # FIXME: Optimization: Don't wake up every second. Sleep till next scheduled event.
             time.sleep(1)
 
-        self.logger.debug("Stopped Scheduler")
+        self.logger.info("Stopped Scheduler")
 
 
     def _execute_presence_update(self):
@@ -3061,6 +3061,11 @@ class Scheduler(threading.Thread, utils.LogMixin, utils.PersistentConfigMixin,
         }
 
 
+    def update_conditions(self):
+        for schedule in self._schedules.values():
+            schedule.update_conditions()
+
+
 
 class Schedule(object):
     def __init__(self, manager):
@@ -3131,6 +3136,11 @@ class Schedule(object):
 
     def _next_condition_id(self):
         return max([-1] + list(self.conditions.keys())) + 1
+
+
+    def update_conditions(self):
+        for condition in self.conditions.values():
+            condition.from_config(condition.to_config())
 
 
     def from_config(self, cfg):
