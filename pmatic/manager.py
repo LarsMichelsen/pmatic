@@ -2314,7 +2314,6 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
                     exit_code = self._run_external(script_path)
 
                 self.exit_code = exit_code
-                self.finished  = time.time()
 
                 self.logger.info("Finished (Exit-Code: %d).", self.exit_code)
             except Exception:
@@ -2322,6 +2321,7 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
                 self.logger.debug(traceback.format_exc())
             finally:
                 self._is_running = False
+                self.finished    = time.time()
 
             # Either execute the script once or handle the keep_running option.
             # when the script is restarting too fast, delay it for some time.
