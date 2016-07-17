@@ -8,6 +8,7 @@ Manager
 ```````
 
 * FIX: Schedules executed on startup were not shown as triggered and running in GUI
+* FIX: Fixed visualization of "keep alive" scripts current state when aborted via GUI
 
 Version 0.4 (2016-07-14)
 ------------------------

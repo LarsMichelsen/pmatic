@@ -838,7 +838,7 @@ class AbstractScriptProgressPage(Html):
 
 
     def _is_running(self):
-        return self._runner and self._runner.is_alive()
+        return self._runner and self._runner.is_running
 
 
     def _exit_code(self):
@@ -1048,7 +1048,7 @@ class PageAjaxUpdateOutput(HtmlPageHandler, utils.LogMixin):
             return output
 
         # Tell js code to continue reloading or not
-        if not g_runner.is_alive():
+        if not g_runner.is_running:
             self.write_text("0")
         else:
             self.write_text("1")
@@ -2294,6 +2294,7 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
         self.exit_code  = None
         self.started    = time.time()
         self.finished   = None
+        self._is_running = False
 
         self._p = None
 
@@ -2304,6 +2305,8 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
                 self.logger.info("Starting script (%s): %s",
                         "inline" if self.run_inline else "external", self.script)
                 script_path = os.path.join(Config.script_path, self.script)
+
+                self._is_running = True
 
                 if self.run_inline:
                     exit_code = self._run_inline(script_path)
@@ -2317,6 +2320,8 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
             except Exception:
                 self.logger.error("Failed to execute %s", self.script, exc_info=True)
                 self.logger.debug(traceback.format_exc())
+            finally:
+                self._is_running = False
 
             # Either execute the script once or handle the keep_running option.
             # when the script is restarting too fast, delay it for some time.
@@ -2378,6 +2383,11 @@ class ScriptRunner(threading.Thread, utils.LogMixin):
             exit_code = 1
 
         return exit_code
+
+
+    @property
+    def is_running(self):
+        return self.is_alive() and self._is_running
 
 
     @property
@@ -3085,7 +3095,7 @@ class Schedule(object):
 
     @property
     def is_running(self):
-        return self._runner and self._runner.is_alive()
+        return self._runner and self._runner.is_running
 
 
     @property
