@@ -25,7 +25,11 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import pytest
-from _pytest.monkeypatch import monkeypatch
+
+try:
+    from _pytest.monkeypatch import MonkeyPatch as monkeypatch
+except ImportError:
+    from _pytest.monkeypatch import monkeypatch
 
 import re
 import os
@@ -173,13 +177,13 @@ def wrap_urlopen(url, data=None, timeout=None):
 class TestRemoteAPI(object):
     @pytest.fixture(scope="module")
     def API(self, request):
-        self.monkeypatch = monkeypatch()
+        self._monkeypatch = monkeypatch()
         if not is_testing_with_real_ccu():
             # First hook into urlopen to fake the HTTP responses
-            self.monkeypatch.setattr(pmatic.api, 'urlopen', fake_urlopen)
+            self._monkeypatch.setattr(pmatic.api, 'urlopen', fake_urlopen)
         else:
             # When executed with real ccu we wrap urlopen for enabling recording
-            self.monkeypatch.setattr(pmatic.api, 'urlopen', wrap_urlopen)
+            self._monkeypatch.setattr(pmatic.api, 'urlopen', wrap_urlopen)
 
         API = pmatic.api.RemoteAPI(
             address="http://192.168.1.26",
@@ -196,8 +200,8 @@ class TestRemoteAPI(object):
 
 class TestCCU(TestRemoteAPI):
     def _get_test_ccu(self, API):
-        self.monkeypatch = monkeypatch()
-        self.monkeypatch.setattr(pmatic.api, 'init', lambda: None)
+        self._monkeypatch = monkeypatch()
+        self._monkeypatch.setattr(pmatic.api, 'init', lambda: None)
 
         ccu = pmatic.CCU()
         ccu.api = API
