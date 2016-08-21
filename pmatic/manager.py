@@ -961,7 +961,7 @@ class PageMain(HtmlPageHandler, utils.LogMixin):
 
 
 
-class PageRun(PageHandler, AbstractScriptProgressPage, utils.LogMixin):
+class PageRun(HtmlPageHandler, AbstractScriptProgressPage, utils.LogMixin):
     url = "run"
 
     def title(self):
