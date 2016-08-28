@@ -182,7 +182,13 @@ class AbstractAPI(utils.LogMixin):
         with self._api_lock:
             self._initialize()
 
-        return lambda **kwargs: self._call(method_name_int, **kwargs)
+        def lowlevel_call(*args, **kwargs):
+            if args:
+                raise PMException("You need to specify your arguments as named arguments. "
+                                  "For example api.sys_var_get_value_by_name(name=\"...\").")
+            return self._call(method_name_int, **kwargs)
+
+        return lowlevel_call
 
 
     # is called in locked context

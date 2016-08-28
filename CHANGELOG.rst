@@ -4,6 +4,12 @@ The pmatic Changelog
 Unreleased (Use snapshot builds to get these changes)
 -----------------------------------------------------
 
+General
+```````
+
+* Improved low level API error handling when trying to use calls which need arguments
+  but using positional arguments instead of named arguments
+
 Manager
 ```````
 
