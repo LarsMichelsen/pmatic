@@ -639,7 +639,7 @@ class LocalAPI(AbstractAPI):
 
         self.logger.debug("  TCL: %r", tcl)
 
-        self._tclsh.stdin.write(tcl)
+        self._tclsh.stdin.write(tcl.encode("utf-8"))
 
         response_txt = ""
         while True:
@@ -665,17 +665,26 @@ class LocalAPI(AbstractAPI):
 
     # is called in locked context
     def _get_args(self, method, args):
+        def quote_string(s):
+            return "\"%s\"" % s.replace("\"", "\\\"")
+
         args_parsed = "[list "
         for arg_name in method["ARGUMENTS"]:
             try:
                 if arg_name == "_session_id_" and arg_name not in args:
-                    val = "\"\"" # Fake default session id. Not needed for local API
+                    val = quote_string("") # Fake default session id. Not needed for local API
                 else:
                     val = args[arg_name]
                     if val is None:
-                        val = "\"\""
+                        val = quote_string("")
+                    elif type(val) in [ int, float ]:
+                        val = "%s" % val
+                    elif type(val) == bool:
+                        val = 1 if val else 0
+                    else:
+                        val = quote_string("%s" % val)
 
-                args_parsed += arg_name + " " + val + " "
+                args_parsed += "%s %s " % (quote_string(arg_name), val)
             except KeyError:
                 raise PMException("Missing argument \"%s\". Needs: %s" %
                                 (arg_name, ", ".join(method["ARGUMENTS"])))

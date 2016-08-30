@@ -9,6 +9,8 @@ General
 
 * Improved low level API error handling when trying to use calls which need arguments
   but using positional arguments instead of named arguments
+* FIX: Fixed quoting of arguments passed to CCU local low level API
+* FIX: Fixed encoding of arguments passed to CCU local low level API
 
 Manager
 ```````
