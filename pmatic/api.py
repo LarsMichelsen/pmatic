@@ -390,10 +390,10 @@ class RemoteAPI(AbstractAPI):
     def _set_http_auth(self, credentials):
         if credentials is not None:
             if not isinstance(credentials, tuple):
-                raise PMException("Please specify the user credentials to log in to the CCU "
+                raise PMException("Please specify the http auth credentials "
                                   "like this: \"(username, password)\".")
             elif len(credentials) != 2:
-                raise PMException("The credentials must be given as tuple of two elements.")
+                raise PMException("The http auth credentials must be given as tuple of two elements.")
             elif not utils.is_string(credentials[0]):
                 raise PMException("The username is of unhandled type.")
             elif not utils.is_string(credentials[1]):
