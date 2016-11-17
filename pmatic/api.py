@@ -350,7 +350,7 @@ class RemoteAPI(AbstractAPI):
         self._session_id      = None
         self._address         = None
         self._credentials     = None
-        self._http_auth     = None
+        self._http_auth       = None
         self._connect_timeout = None
 
         super(RemoteAPI, self).__init__()
@@ -388,15 +388,16 @@ class RemoteAPI(AbstractAPI):
 
 
     def _set_http_auth(self, credentials):
-        if not isinstance(credentials, tuple):
-            raise PMException("Please specify the user credentials to log in to the CCU "
-                              "like this: \"(username, password)\".")
-        elif len(credentials) != 2:
-            raise PMException("The credentials must be given as tuple of two elements.")
-        elif not utils.is_string(credentials[0]):
-            raise PMException("The username is of unhandled type.")
-        elif not utils.is_string(credentials[1]):
-            raise PMException("The password is of unhandled type.")
+        if credentials is not None:
+            if not isinstance(credentials, tuple):
+                raise PMException("Please specify the user credentials to log in to the CCU "
+                                  "like this: \"(username, password)\".")
+            elif len(credentials) != 2:
+                raise PMException("The credentials must be given as tuple of two elements.")
+            elif not utils.is_string(credentials[0]):
+                raise PMException("The username is of unhandled type.")
+            elif not utils.is_string(credentials[1]):
+                raise PMException("The password is of unhandled type.")
 
         self._http_auth = credentials
 
@@ -487,8 +488,11 @@ class RemoteAPI(AbstractAPI):
         try:
             self.logger.debug("  URL: %s DATA: %s", url, json_data)
             request = Request(url, data=json_data.encode("utf-8"))
-            base64string = base64.encodestring('%s:%s' % self._http_auth).replace('\n', '')
-            request.add_header("Authorization", "Basic %s" % base64string)
+
+            if self._http_auth:
+                base64string = base64.encodestring('%s:%s' % self._http_auth).replace('\n', '')
+                request.add_header("Authorization", "Basic %s" % base64string)
+
             handle = urlopen(request, timeout=self._connect_timeout)
         except Exception as e:
             if isinstance(e, URLError):
