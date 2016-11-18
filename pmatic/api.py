@@ -496,7 +496,7 @@ class RemoteAPI(AbstractAPI):
                 request.add_header("Authorization", "Basic %s" % base64string)
 
             handle = urlopen(request, timeout=self._connect_timeout)
-        except True: #Exception as e:
+        except Exception as e:
             if isinstance(e, URLError):
                 msg = e.reason
             elif isinstance(e, BadStatusLine):
