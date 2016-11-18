@@ -388,16 +388,18 @@ class RemoteAPI(AbstractAPI):
 
 
     def _set_http_auth(self, credentials):
-        if credentials is not None:
-            if not isinstance(credentials, tuple):
-                raise PMException("Please specify the http auth credentials "
-                                  "like this: \"(username, password)\".")
-            elif len(credentials) != 2:
-                raise PMException("The http auth credentials must be given as tuple of two elements.")
-            elif not utils.is_string(credentials[0]):
-                raise PMException("The username is of unhandled type.")
-            elif not utils.is_string(credentials[1]):
-                raise PMException("The password is of unhandled type.")
+        if not credentials:
+            return
+
+        if not isinstance(credentials, tuple):
+            raise PMException("Please specify the http auth credentials "
+                              "like this: \"(username, password)\".")
+        elif len(credentials) != 2:
+            raise PMException("The http auth credentials must be given as tuple of two elements.")
+        elif not utils.is_string(credentials[0]):
+            raise PMException("The username is of unhandled type.")
+        elif not utils.is_string(credentials[1]):
+            raise PMException("The password is of unhandled type.")
 
         self._http_auth = credentials
 
