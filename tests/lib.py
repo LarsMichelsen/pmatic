@@ -43,10 +43,10 @@ except ImportError:
     from io import BytesIO as StringIO
 
 try:
-    from urllib.request import urlopen
+    from urllib.request import urlopen, Request
     from urllib.error import HTTPError
 except ImportError:
-    from urllib2 import urlopen
+    from urllib2 import urlopen, Request
     from urllib2 import HTTPError
 
 
@@ -83,13 +83,16 @@ def data_file_path(request_id):
     return "%s/%s.data" % (resources_path, request_id)
 
 
-def fake_urlopen(url, data=None, timeout=None):
+def fake_urlopen(url_or_request, data=None, timeout=None):
     """A stub urlopen() implementation that loads json responses from the filesystem.
 
     It first strips off the host part of the url and then uses the path info
     together with the post data to find a matching response. If no response has
     been recorded before, it raises an Exception() about the missing file.
     """
+    if isinstance(url_or_request, Request):
+        data = url_or_request.get_data()
+
     fake_data = fake_session_id(data, data)
 
     # Fix the key order to get the correct hash. When json can not be

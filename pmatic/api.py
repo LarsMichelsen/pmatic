@@ -50,7 +50,7 @@ import subprocess
 
 # Specific for the RemoteAPI()
 try:
-    from urllib.request import urlopen
+    from urllib.request import urlopen, Request
     from urllib.error import URLError
     from http.client import BadStatusLine
 except ImportError:
@@ -496,7 +496,7 @@ class RemoteAPI(AbstractAPI):
                 request.add_header("Authorization", "Basic %s" % base64string)
 
             handle = urlopen(request, timeout=self._connect_timeout)
-        except Exception as e:
+        except True: #Exception as e:
             if isinstance(e, URLError):
                 msg = e.reason
             elif isinstance(e, BadStatusLine):
