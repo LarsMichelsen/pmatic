@@ -38,6 +38,7 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import base64
 import sys
 import json
 import time
@@ -53,7 +54,7 @@ try:
     from urllib.error import URLError
     from http.client import BadStatusLine
 except ImportError:
-    from urllib2 import urlopen
+    from urllib2 import urlopen, Request
     from urllib2 import URLError
     from httplib import BadStatusLine
 
@@ -345,16 +346,18 @@ class AbstractAPI(utils.LogMixin):
 
 class RemoteAPI(AbstractAPI):
     """Provides API access via HTTP to the CCU."""
-    def __init__(self, address, credentials, connect_timeout=10):
+    def __init__(self, address, credentials, http_auth=None, connect_timeout=10):
         self._session_id      = None
         self._address         = None
         self._credentials     = None
+        self._http_auth       = None
         self._connect_timeout = None
 
         super(RemoteAPI, self).__init__()
 
         self._set_address(address)
         self._set_credentials(credentials)
+        self._set_http_auth(http_auth)
         self._set_connect_timeout(connect_timeout)
         self._constructed = True
 
@@ -382,6 +385,21 @@ class RemoteAPI(AbstractAPI):
             raise PMException("The password is of unhandled type.")
 
         self._credentials = credentials
+
+
+    def _set_http_auth(self, credentials):
+        if credentials is not None:
+            if not isinstance(credentials, tuple):
+                raise PMException("Please specify the http auth credentials "
+                                  "like this: \"(username, password)\".")
+            elif len(credentials) != 2:
+                raise PMException("The http auth credentials must be given as tuple of two elements.")
+            elif not utils.is_string(credentials[0]):
+                raise PMException("The username is of unhandled type.")
+            elif not utils.is_string(credentials[1]):
+                raise PMException("The password is of unhandled type.")
+
+        self._http_auth = credentials
 
 
     def _set_connect_timeout(self, timeout):
@@ -469,8 +487,13 @@ class RemoteAPI(AbstractAPI):
 
         try:
             self.logger.debug("  URL: %s DATA: %s", url, json_data)
-            handle = urlopen(url, data=json_data.encode("utf-8"),
-                             timeout=self._connect_timeout)
+            request = Request(url, data=json_data.encode("utf-8"))
+
+            if self._http_auth:
+                base64string = base64.encodestring('%s:%s' % self._http_auth).replace('\n', '')
+                request.add_header("Authorization", "Basic %s" % base64string)
+
+            handle = urlopen(request, timeout=self._connect_timeout)
         except Exception as e:
             if isinstance(e, URLError):
                 msg = e.reason
