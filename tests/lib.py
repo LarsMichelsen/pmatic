@@ -91,7 +91,7 @@ def fake_urlopen(url_or_request, data=None, timeout=None):
     been recorded before, it raises an Exception() about the missing file.
     """
     if isinstance(url_or_request, Request):
-        data = url_or_request.get_data()
+        data = url_or_request.data
 
     fake_data = fake_session_id(data, data)
 
