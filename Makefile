@@ -104,7 +104,11 @@ dist-ccu-step1:
 	rsync -aRL --no-g $$(cat $(REPO_PATH)/ccu_pkg/python-modules-optional.list) \
 	    $(CCU_PREDIST_PATH)/python 2>/dev/null || true
 	rsync -av --no-g $(CHROOT_PATH)/lib/arm-linux-gnueabi/libexpat.so.1.* \
-	    $(CCU_PREDIST_PATH)/libs/ ; \
+	    $(CCU_PREDIST_PATH)/libs/
+	# Cleanup site-packages to dist-packages
+	rsync -av $(CCU_PREDIST_PATH)/python/lib/python2.7/site-packages/* \
+	    $(CCU_PREDIST_PATH)/python/lib/python2.7/dist-packages/
+	rm -rf $(CCU_PREDIST_PATH)/python/lib/python2.7/site-packages
 
 dist-ccu-step2:
 	[ ! -d $(DIST_PATH) ] && mkdir $(DIST_PATH) || true
