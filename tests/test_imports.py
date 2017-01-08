@@ -82,8 +82,9 @@ def populate_tmp_dir(target_path):
             matched_files = []
             for src_dir in src_dirs:
                 for matched in glob.glob(os.path.join(src_dir, line)):
-                    rel_path = os.path.dirname(matched[len(src_dir)+1:])
-                    matched_files.append((matched, rel_path))
+                    if os.path.isfile(matched):
+                        rel_path = os.path.dirname(matched[len(src_dir)+1:])
+                        matched_files.append((matched, rel_path))
 
             if not matched_files and not optional:
                 raise Exception("Did not find a file for %s from %s." % (line, list_file))
