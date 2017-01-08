@@ -66,8 +66,16 @@ setup:
 
 release: dist
 	twine register dist/pmatic-$(VERSION).tar.gz
-	twine upload dist/pmatic-$(VERSION)*
+	twine upload dist/pmatic-$(VERSION).tar.gz
+	$(MAKE) upload-ccu-pkg
 	$(MAKE) version
+
+upload-ccu-pkg:
+	git checkout gh-pages
+	cp -f dist/pmatic-$(VERSION)_ccu.tar.gz .
+	git add -f pmatic-$(VERSION)_ccu.tar.gz
+	git commit -m "ccu package $(VERSION) pushed to gh-pages"
+	git push -fq origin gh-pages > /dev/null
 
 dist: dist-os dist-ccu
 
