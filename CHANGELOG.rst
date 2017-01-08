@@ -6,7 +6,7 @@ Unreleased (Use snapshot builds to get these changes)
 
 No unreleased changes yet
 
-Version 0.5 (2017-01-08)
+Version 0.6 (2017-01-08)
 ------------------------
 
 General
