@@ -9,7 +9,7 @@ Installation on the CCU2
 ------------------------
 
 You have two options to download pmatic. To have a stable version, you should
-download a released version from the `PyPI page of pmatic <https://pypi.python.org/pypi/pmatic>`_.
+download a released version from the `GitHub releases page of pmatic <https://github.com/LarsMichelsen/pmatic/releases>`_.
 To get the CCU addon you need to download the file named like ``pmatic-*_ccu.tar.gz``.
 
 If you feel adventurous and like to test the newest changes, you can download a snapshot
@@ -56,8 +56,16 @@ or not.
 Installation on your workstation
 --------------------------------
 
-The installation should be straight forward. First download pmatic by either downloading a
-released version from the `PyPI pmatic page <https://pypi.python.org/pypi/pmatic>`_, the
+The easiest way is to use ``pip`` for installation. Simply execute
+
+.. code-block:: shell
+
+  pip install --upgrade pmatic
+
+If this does not work for you for some reason, you can install pmatic manually. This should
+also be straight forward. First download pmatic by either downloading a released version from
+the `PyPI pmatic page <https://pypi.python.org/pypi/pmatic>`_ or the
+`GitHub releases page of pmatic <https://github.com/LarsMichelsen/pmatic/releases>`_, the
 `current git snapshot <https://larsmichelsen.github.io/pmatic/pmatic-snapshot.tar.gz>`_ or
 by cloning the `Git repository <https://github.com/LarsMichelsen/pmatic>`_.
 Then unpack it and change to the extracted directory ``pmatic-*``. Then execute:
