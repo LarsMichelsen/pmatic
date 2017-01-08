@@ -54,6 +54,7 @@ import contextlib
 import subprocess
 import wsgiref.simple_server
 from hashlib import sha256
+import pytz
 
 try:
     from grp import getgrnam
@@ -105,6 +106,7 @@ class Config(utils.LogMixin):
     log_level = "INFO"
     log_file  = "/var/log/pmatic-manager.log"
 
+    timezone                 = "Europe/Berlin"
     event_history_length     = 1000
     presence_update_interval = 60 # seconds
 
@@ -790,12 +792,12 @@ class AbstractScriptProgressPage(Html):
                    "<td>%s</td></tr>" % self.escape(self._runner.script))
         self.write("<tr><th>Started at</th>"
                    "<td>%s</td></tr>" % time.strftime("%Y-%m-%d %H:%M:%S",
-                                                      time.localtime(runner.started)))
+                                                      utils.localtime(runner.started, Config.timezone)))
 
         self.write("<tr><th>Finished at</th>"
                    "<td>")
         if not self._is_running() and runner.finished is not None:
-            self.write_text(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(runner.finished)))
+            self.write_text(time.strftime("%Y-%m-%d %H:%M:%S", utils.localtime(runner.finished, Config.timezone)))
         else:
             self.write_text("-")
         self.write("</td></tr>")
@@ -954,7 +956,7 @@ class PageMain(HtmlPageHandler, utils.LogMixin):
             self.write("</td>")
             self.write("<td>%s</td>" % self.escape(filename))
             self.write("<td>%s</td>" % time.strftime("%Y-%m-%d %H:%M:%S",
-                                                     time.localtime(last_mod_ts)))
+                                                     utils.localtime(last_mod_ts, Config.timezone)))
             self.write("</tr>")
         self.write("</table>\n")
         self.write("</div>\n")
@@ -1376,7 +1378,7 @@ class PageResidents(HtmlPageHandler, utils.LogMixin):
             last_updated = resident.last_updated
             if last_updated:
                 last_updated = time.strftime("%Y-%m-%d %H:%M:%S",
-                                               time.localtime(last_updated))
+                                               utils.localtime(last_updated, Config.timezone))
             else:
                 last_updated = "<i>Got no information yet.</i>"
             self.write("<td>%s</td>" % last_updated)
@@ -1384,7 +1386,7 @@ class PageResidents(HtmlPageHandler, utils.LogMixin):
             last_changed = resident.last_changed
             if last_changed:
                 last_changed = time.strftime("%Y-%m-%d %H:%M:%S",
-                                               time.localtime(last_changed))
+                                               utils.localtime(last_changed, Config.timezone))
             else:
                 last_changed = "<i>Got no information yet.</i>"
             self.write("<td>%s</td>" % last_changed)
@@ -1453,6 +1455,11 @@ class PageConfiguration(HtmlPageHandler, utils.LogMixin):
         if event_history_length < 1:
             raise PMUserError("The minimum event history length is 1.")
         Config.event_history_length = event_history_length
+
+        timezone = self._vars.getvalue("timezone")
+        if timezone not in self._available_timezones():
+            raise PMUserError("Invalid timezone")
+        Config.timezone = timezone
 
         presence_update_interval = self._vars.getvalue("presence_update_interval")
         try:
@@ -1566,6 +1573,10 @@ class PageConfiguration(HtmlPageHandler, utils.LogMixin):
             Config.pushover_user_token = pushover_user_token
 
 
+    def _available_timezones(self):
+        return pytz.common_timezones
+
+
     def process(self):
         self.password_form()
         self.config_form()
@@ -1601,6 +1612,15 @@ class PageConfiguration(HtmlPageHandler, utils.LogMixin):
                    "</th>" % Config.log_file)
         self.write("<td>")
         self.select("log_level", [ (l, l) for l in pmatic.log_level_names ], Config.log_level)
+        self.write("</td>")
+        self.write("</tr>")
+
+        self.write("<tr><th>Timezone"
+                   "<p>When displaying local times or calculating with local times, use this "
+                   "time zone.</p>"
+                   "</th>")
+        self.write("<td>")
+        self.select("timezone", [ (l, l) for l in self._available_timezones() ], Config.timezone)
         self.write("</td>")
         self.write("</tr>")
 
@@ -1754,7 +1774,7 @@ class PageEventLog(HtmlPageHandler, utils.LogMixin):
 
             self.write("<tr>")
             self.write("<td>%s</td>" % time.strftime("%Y-%m-%d %H:%M:%S",
-                                                     time.localtime(event["time"])))
+                                                     utils.localtime(event["time"], Config.timezone)))
             self.write("<td>%s (%s)</td>" % (self.escape(param.channel.device.name),
                                              self.escape(param.channel.device.address)))
             self.write("<td>%s</td>" % self.escape(param.channel.name))
@@ -1868,7 +1888,7 @@ class PageSchedule(HtmlPageHandler, utils.LogMixin):
             last_triggered = schedule.last_triggered
             if last_triggered:
                 last_triggered = time.strftime("%Y-%m-%d %H:%M:%S",
-                                               time.localtime(last_triggered))
+                                               utils.localtime(last_triggered, Config.timezone))
             else:
                 last_triggered = "<i>Not triggered yet.</i>"
             self.write("<td>%s</td>" % last_triggered)
@@ -2218,7 +2238,7 @@ class PageState(HtmlPageHandler, utils.LogMixin):
 
         self.write("<tr><th>Time of Last Event</th>")
         self.write("<td>%s</td></tr>" % time.strftime("%Y-%m-%d %H:%M:%S",
-                               time.localtime(self._manager.event_history.last_event_time)))
+                               utils.localtime(self._manager.event_history.last_event_time, Config.timezone)))
 
         self.write("</table>")
 
@@ -3754,7 +3774,7 @@ class ConditionOnTime(Condition):
         now = time.time()
 
         # Construct list of time parts for today, using the configured time
-        ref_parts = list(time.localtime(now))
+        ref_parts = list(utils.localtime(now, Config.timezone))
         ref_parts[hour]   = self.time_of_day[0]
         ref_parts[minute] = self.time_of_day[1]
         ref_parts[second] = 0
@@ -3792,7 +3812,7 @@ class ConditionOnTime(Condition):
             raise NotImplementedError()
 
         # Fix eventual timezone changes
-        ref_parts = list(time.localtime(ref_ts))
+        ref_parts = list(utils.localtime(ref_ts, Config.timezone))
         ref_parts[hour]   = self.time_of_day[0]
         ref_parts[minute] = self.time_of_day[1]
         ref_parts[second] = 0
@@ -3817,7 +3837,7 @@ class ConditionOnTime(Condition):
             txt += ", at %02d:%02d o'clock" % self.time_of_day
 
         txt += " (Next: %s)" % time.strftime("%Y-%m-%d %H:%M:%S",
-                                             time.localtime(self.next_time))
+                                             utils.localtime(self.next_time, Config.timezone))
 
         return txt
 

@@ -44,6 +44,8 @@ import logging
 import platform
 import time
 from math import sin, cos, pi, radians, atan2, asin, tan, log
+from datetime import datetime
+import pytz
 
 from pmatic.exceptions import PMException
 
@@ -360,3 +362,7 @@ def dew_point(temperature, humidity):
            / (k2 * k3 / (k3 + temperature) - log(humidity))
 
     return dp
+
+
+def localtime(unix_timestamp, tz="Europe/Berlin"):
+    return datetime.fromtimestamp(unix_timestamp, pytz.timezone(tz)).timetuple()

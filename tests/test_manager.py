@@ -231,6 +231,7 @@ class TestConfig(object):
             "ccu_credentials",
             "log_level",
             "log_file",
+            "timezone",
             "event_history_length",
             "presence_update_interval",
             "pushover_api_token",

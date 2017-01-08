@@ -9,10 +9,22 @@ lib/python2.7/lib-dynload/_io.so
 # travis+chroot path
 lib/python2.7/site-packages/simpletr64/*.py
 lib/python2.7/site-packages/simpletr64/actions/*.py
+lib/python2.7/site-packages/pytz/*.py
+lib/python2.7/site-packages/pytz/zoneinfo/*
+lib/python2.7/site-packages/pytz/zoneinfo/*/*
+lib/python2.7/site-packages/pytz/zoneinfo/*/*/*
 # ubuntu path
 local/lib/python2.7/dist-packages/simpletr64/*.py
 local/lib/python2.7/dist-packages/simpletr64/actions/*.py
+local/lib/python2.7/dist-packages/pytz/*.py
+local/lib/python2.7/dist-packages/pytz/zoneinfo/*
+local/lib/python2.7/dist-packages/pytz/zoneinfo/*/*
+local/lib/python2.7/dist-packages/pytz/zoneinfo/*/*/*
 # Same on debian system
+lib/python2.7/*-packages/pytz/*.py
+lib/python2.7/*-packages/pytz/zoneinfo/*
+lib/python2.7/*-packages/pytz/zoneinfo/*/*
+lib/python2.7/*-packages/pytz/zoneinfo/*/*/*
 lib/python2.7/*-packages/requests/*.py
 lib/python2.7/*-packages/requests/packages/*.py
 lib/python2.7/*-packages/requests/packages/*/*.py

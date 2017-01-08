@@ -85,6 +85,8 @@ chroot:
 	LANG=C sudo chroot $(CHROOT_PATH) /bin/bash -c "/debootstrap/debootstrap --second-stage"
 	LANG=C sudo chroot $(CHROOT_PATH) /bin/bash -c \
 	    "pip install --install-option=\"--prefix=/usr\" simpleTR64"
+	LANG=C sudo chroot $(CHROOT_PATH) /bin/bash -c \
+	    "pip install --install-option=\"--prefix=/usr\" pytz"
 
 dist-ccu:
 	sudo $(MAKE) dist-ccu-step1

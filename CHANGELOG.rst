@@ -9,12 +9,14 @@ General
 
 * Improved low level API error handling when trying to use calls which need arguments
   but using positional arguments instead of named arguments
+* CCU package is shipping with ``pytz`` module now
 * FIX: Fixed quoting of arguments passed to CCU local low level API
 * FIX: Fixed encoding of arguments passed to CCU local low level API
 
 Manager
 ```````
 
+* Timezone is now configurable. Using this timezone for displaying and time calculations
 * FIX: Fixed manual execution of scripts via the "execute scripts" dialog
 * FIX: Schedules executed on startup were not shown as triggered and running in GUI
 * FIX: Fixed visualization of "keep alive" scripts current state when aborted via GUI
