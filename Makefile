@@ -1,4 +1,4 @@
-VERSION            = 0.5
+VERSION            = 0.6
 REPO_PATH         ?= $(shell pwd)
 CHROOT_PATH       ?= $(shell pwd)/chroot
 CHROOT_DEB_MIRROR ?= http://ftp.de.debian.org/debian

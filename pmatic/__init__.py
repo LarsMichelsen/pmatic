@@ -36,7 +36,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 __title__     = 'pmatic'
-__version__   = "0.5"
+__version__   = "0.6"
 __author__    = 'Lars Michelsen'
 __license__   = 'GPLv2'
 __copyright__ = 'Copyright 2016 Lars Michelsen'
