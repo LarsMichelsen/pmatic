@@ -403,7 +403,10 @@ class Channel(utils.LogMixin, Entity):
         #        of u'mode': u'MODE_AES',
         attrs = attrs.copy()
         for a in [ "address", "device_id" ]:
-            del attrs[a]
+              if a in attrs:
+
+                 del attrs[a]
+            
 
         self._set_attributes(attrs)
 
