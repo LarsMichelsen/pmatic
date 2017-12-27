@@ -4,7 +4,10 @@ The pmatic Changelog
 Unreleased (Use snapshot builds to get these changes)
 -----------------------------------------------------
 
-No unreleased changes yet
+General
+```````
+
+* FIX: Fixed possble "KeyError: 'device_id'" exeption in set_logic_attributes()
 
 Version 0.6 (2017-01-08)
 ------------------------
