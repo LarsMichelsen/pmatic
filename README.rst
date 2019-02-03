@@ -12,8 +12,11 @@ pmatic
 .. image:: https://landscape.io/github/LarsMichelsen/pmatic/master/landscape.svg?style=flat
    :target: https://landscape.io/github/LarsMichelsen/pmatic/master
 
-
 Python API for Homematic. Easy to use.
+
+NOTICE: Project is no longer maintained. Please feel free to take over
+anything you like from this project. In case you'd like to continue
+developing pmatic here, please drop me a note.
 
 The `pmatic <https://larsmichelsen.github.io/pmatic/>`__ module provides
 access to the Homematic CCU which operates as the central unit in
