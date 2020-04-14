@@ -790,16 +790,17 @@ class DeviceLogic(CachedAPICall):
         # need ot be equalized and with internal naming specs just like the also different
         # keys from the XML-RPC messages.
         def decamel_dict_keys(d):
-            for k in d:
-                value = d.pop(k)
+            temp = {}
+            for k in d.keys():
+                value = d[k]
 
                 if isinstance(value, list):
-                    for entry in value:
+                    for idx, entry in enumerate(value):
                         if isinstance(entry, dict):
-                            decamel_dict_keys(entry)
+                            value[idx] = decamel_dict_keys(entry)
 
-                d[utils.decamel(k)] = value
-            return d
+                temp[utils.decamel(k)] = value
+            return temp
 
         for spec in self._api.device_list_all_detail():
             dict.__setitem__(self, spec["address"], decamel_dict_keys(spec))
@@ -820,9 +821,10 @@ class DeviceSpecs(CachedAPICall):
         # need ot be equalized and with internal naming specs just like the also different
         # keys from the XML-RPC messages.
         def decamel_dict_keys(d):
-            for k in d:
-                d[utils.decamel(k)] = d.pop(k)
-            return d
+            temp = {}
+            for k in d.keys():
+                temp[utils.decamel(k)] = d[k]
+            return temp
 
         devices = {}
         for spec in self._api.interface_list_devices(interface="BidCos-RF"):
