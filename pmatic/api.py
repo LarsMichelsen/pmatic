@@ -440,7 +440,7 @@ class RemoteAPI(AbstractAPI):
                    "system.Exec(\"cat /www/api/methods.conf\", &stdout, &stderr);\n"
                    "Write(stdout);\n"
         )
-        return response.split("\r\n")
+        return response.split("\n")
 
 
     # is called in locked context
@@ -611,7 +611,7 @@ class LocalAPI(AbstractAPI):
 
     # is called in locked context
     def _get_methods_config(self):
-        return open(self._methods_file).read().decode("latin-1").split("\r\n")
+        return open(self._methods_file).read().decode("latin-1").split("\n")
 
 
     # is called in unlocked context
