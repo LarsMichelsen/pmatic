@@ -8,6 +8,7 @@ General
 ```````
 
 * FIX: Fixed possble "KeyError: 'device_id'" exeption in set_logic_attributes()
+* FIX: Fix incompatibility with current CCU firmware (PMException: Method "room_get_all") #32
 
 Version 0.6 (2017-01-08)
 ------------------------
