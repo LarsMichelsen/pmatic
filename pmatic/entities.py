@@ -232,7 +232,7 @@ class Channel(utils.LogMixin, Entity):
         """
         self._values.clear()
         for value_spec in self._ccu.api.interface_get_paramset_description(interface="BidCos-RF",
-                                                    address=self.address, paramsetType="VALUES"):
+                                                    address=self.address, paramsetKey="VALUES"):
             self._init_value_spec(value_spec)
 
         self._register_saved_callbacks()
@@ -406,7 +406,6 @@ class Channel(utils.LogMixin, Entity):
               if a in attrs:
 
                  del attrs[a]
-            
 
         self._set_attributes(attrs)
 
@@ -1336,6 +1335,17 @@ class HM_WDS10_TH_O(Device):
         """
         return self.channels[1].values["HUMIDITY"]
 
+# Funk-Temperatursensor OT
+class HM_WDS30_T_O(Device):
+    type_name = "HM-WDS30-T-O"
+
+    @property
+    def temperature(self):
+        """Provides the current temperature.
+
+        Returns an instance of :class:`ParameterFLOAT`.
+        """
+        return self.channels[1].values["TEMPERATURE"]
 
 
 # Funk-Temperatur-/Luftfeuchtesensor ITH
