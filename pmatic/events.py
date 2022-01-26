@@ -432,16 +432,16 @@ class EventHandler(utils.LogMixin, object):
         #specs = self._ccu.api.DeviceSpecs(self._ccu.api)
         #file("/tmp/api-devices.txt", "w").write(pprint.pformat(sorted(specs.items())))
         def normalize_spec(d):
-            for key in d.keys():
+            for key in list(d):
                 val = d.pop(key)
                 if isinstance(val, list):
                     for index, item in enumerate(val):
-                        val[index] = item.decode("utf-8")
+                        val[index] = item
 
                 elif utils.is_byte_string(val):
-                    val = val.decode("utf-8")
+                    val = val
 
-                new_key = key.lower().decode("utf-8")
+                new_key = key.lower()
 
                 if new_key in [ "aes_active", "roaming" ]:
                     val = val == 1
