@@ -232,7 +232,7 @@ class Channel(utils.LogMixin, Entity):
         """
         self._values.clear()
         for value_spec in self._ccu.api.interface_get_paramset_description(interface="BidCos-RF",
-                                                    address=self.address, paramsetType="VALUES"):
+                                                    address=self.address, paramsetKey="VALUES"):
             self._init_value_spec(value_spec)
 
         self._register_saved_callbacks()
@@ -406,7 +406,7 @@ class Channel(utils.LogMixin, Entity):
               if a in attrs:
 
                  del attrs[a]
-            
+
 
         self._set_attributes(attrs)
 
